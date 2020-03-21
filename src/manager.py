@@ -16,7 +16,7 @@ class SimulationManager:
     """
 
     # GENERAL SIMULATION CONSTS:
-    SIZE_OF_POPULATION = 100_000
+    SIZE_OF_POPULATION = 10_000
     STEPS_TO_RUN = 150
 
     def __init__(self):
