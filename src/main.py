@@ -4,7 +4,8 @@ from manager import SimulationManager
 
 
 if __name__ == '__main__':
-    yappi.stop()
+    #yappi.stop()
     sm = SimulationManager()
+    exit()
     yappi.start()
     sm.run()

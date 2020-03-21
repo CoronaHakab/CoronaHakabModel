@@ -1,3 +1,7 @@
+from itertools import product
+from math import log
+from random import shuffle
+
 import numpy as np
 from scipy.sparse import lil_matrix
 from agent import Agent, Circle
@@ -48,38 +52,38 @@ class AffinityMAtrix:
         taking measures to separate from each other, then this value p can be replaced by something even larger.
         """
         # as a beggining, i am making all families the same size, later we will change it to be more sophisticated
-        matrix = m_type((self.size, self.size), dtype=np.float16)
+        matrix = m_type((self.size, self.size), dtype=np.float32)
 
         # creating all families, and assigning each agent to a family, and counterwise
-        agents_withouth_home = list(range(self.size))
+        agents_without_home = list(range(self.size))
+        shuffle(agents_without_home)
         families = []
         for _ in range(self.size // social_stats.avarage_family_size):
             new_family = Circle("home")
             for _ in range(social_stats.avarage_family_size):
-                random_int = rnd.randint(0, len(agents_withouth_home) - 1)
-                chosen_agent = self.agents[agents_withouth_home[random_int]]
-                agents_withouth_home.remove(agents_withouth_home[random_int])
+                chosen_agent = self.agents[agents_without_home.pop()]
                 chosen_agent.add_home(new_family)
                 new_family.add_agent(chosen_agent)
             families.append(new_family)
         self.families = families
 
         # adding the remaining people to a family (if size % average_family_size != 0)
-        if len(agents_withouth_home) > 0:
+        if len(agents_without_home) > 0:
             new_family = Circle("home")
-            for agent_index in agents_withouth_home:
+            for agent_index in agents_without_home:
                 chosen_agent = self.agents[agent_index]
                 chosen_agent.add_home(new_family)
                 new_family.add_agent(chosen_agent)
             families.append(new_family)
 
-        # updating the matrix using the families
-        for agent in self.agents:
-            if agent.home is None:
-                continue
-            family_members_ids = agent.home.get_indexes_of_my_circle(agent.ID)  # right now families are circle[0]
-            for id in family_members_ids:
-                matrix[agent.ID, id] = social_stats.family_strength
+        for home in families:
+            ids = np.array([a.ID for a in home.agents])
+            xs, ys = np.meshgrid(ids, ids)
+            xs = xs.reshape(-1)
+            ys = ys.reshape(-1)
+            matrix[xs, ys] = social_stats.family_strength
+        ids = np.arange(self.size)
+        matrix[ids, ids] = 0
 
         return matrix
 
@@ -93,39 +97,42 @@ class AffinityMAtrix:
 
         :return: lil_matrix n*n
         """
-        matrix = m_type((self.size, self.size), dtype=np.float16)
+        # note: a bug in numpy casting will cause a crash on array inset with float16 arrays, we should use float32
+        matrix = m_type((self.size, self.size), dtype=np.float32)
 
         # creating all families, and assigning each agent to a family, and counterwise
-        agents_withouth_work = list(range(self.size))
+        agents_without_work = list(range(self.size))
+        shuffle(agents_without_work)
         works = []
         for _ in range(self.size // social_stats.avarage_work_size):  # todo add last work
             new_work = Circle("work")
             for _ in range(social_stats.avarage_work_size):
-                random_int = rnd.randint(0, len(agents_withouth_work) - 1)
-                chosen_agent = self.agents[agents_withouth_work[random_int]]
-                agents_withouth_work.remove(agents_withouth_work[random_int])
+                chosen_agent_ind = agents_without_work.pop()
+
+                chosen_agent = self.agents[chosen_agent_ind]
                 chosen_agent.add_work(new_work)
                 new_work.add_agent(chosen_agent)
             works.append(new_work)
         self.works = works
 
         # adding the remaining people to a work (if size % average_work_size != 0)
-        if len(agents_withouth_work) > 0:
+        if len(agents_without_work) > 0:
             new_work = Circle("work")
-            for agent_index in agents_withouth_work:
+            for agent_index in agents_without_work:
                 chosen_agent = self.agents[agent_index]
                 chosen_agent.add_work(new_work)
                 new_work.add_agent(chosen_agent)
             works.append(new_work)
 
         # updating the matrix using the works
-        for agent in self.agents:
-            if agent.work is None:
-                continue
-            work_members_ids = agent.work.get_indexes_of_my_circle(agent.ID)  # right now works are circle[1]
-            for id in work_members_ids:
-                matrix[agent.ID, id] = social_stats.work_strength
-
+        for work in works:
+            ids = np.array([a.ID for a in work.agents])
+            xs, ys = np.meshgrid(ids, ids)
+            xs = xs.reshape(-1)
+            ys = ys.reshape(-1)
+            matrix[xs, ys] = social_stats.work_strength
+        ids = np.arange(self.size)
+        matrix[ids, ids] = 0
         return matrix
 
     def _create_random_connectivity(self):
@@ -134,14 +141,12 @@ class AffinityMAtrix:
         b or beta in the literature) by adding this random edges
         :return: lil_matrix n*n
         """
-        matrix = m_type((self.size, self.size), dtype=np.float16)
+        matrix = m_type((self.size, self.size), dtype=np.float32)
         for agent in self.agents:
             amount_of_connections = 10  # right now there will be 10 random connections for each agent
-            strangers_id = set()
-            for _ in range(amount_of_connections):
-                strangers_id.add(rnd.randint(0, self.size - 1))
-            for id in strangers_id:
-                matrix[agent.ID, id] = social_stats.stranger_strength
+            # todo take into account repeat strangers?
+            strangers_ids = np.random.randint(0, self.size-1, amount_of_connections)
+            matrix[agent.ID, strangers_ids] = social_stats.stranger_strength
 
         return matrix
 
@@ -159,10 +164,8 @@ class AffinityMAtrix:
         self.matrix = self.matrix * d / average_edge_weight_in_matrix  # (alpha = d / average_edge_weight_in_matrix) now each entry in W is such that bd=R0
 
         # switching from probability to ln(1-p):
-        for row_index in range(self.size):
-            row = self.matrix.getrow(row_index)
-            for col in row.indices:
-                self.matrix[row_index, col] = np.log(1 - self.matrix[row_index, col])
+        non_zero_keys = self.matrix.nonzero()
+        self.matrix[non_zero_keys] = np.log(1 - self.matrix[non_zero_keys])
 
 
 def dot(self, v):
