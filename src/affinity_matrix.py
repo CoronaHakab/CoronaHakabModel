@@ -142,9 +142,9 @@ class AffinityMAtrix:
         :return: lil_matrix n*n
         """
         matrix = m_type((self.size, self.size), dtype=np.float32)
-        amount_of_connections = 10  # right now there will be 10 random connections for each agent
+        amount_of_connections = social_stats.average_amount_of_strangers
 
-        stranger_ids = np.random.randint(0, self.size-1, self.size * amount_of_connections)
+        stranger_ids = np.random.randint(0, self.size - 1, self.size * amount_of_connections)
         ids = np.arange(self.size).repeat(amount_of_connections)
 
         matrix[ids, stranger_ids] = social_stats.stranger_strength
