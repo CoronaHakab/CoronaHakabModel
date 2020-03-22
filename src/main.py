@@ -1,5 +1,3 @@
-import yappi
-
 from manager import SimulationManager
 
 

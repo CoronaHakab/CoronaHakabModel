@@ -1,0 +1,30 @@
+import subprocess
+from pathlib import Path
+from time import time
+from warnings import warn
+
+import yappi
+
+from manager import SimulationManager
+
+qcachegrind_path = Path(r"C:\Users\avrah\Downloads\qcachegrind074-32bit-x86\qcachegrind074-x86\qcachegrind.exe")
+profile_gen = False
+
+if __name__ == '__main__':
+    if profile_gen:
+        yappi.start()
+    sm = SimulationManager()
+    if not profile_gen:
+        yappi.start()
+    sm.run()
+
+    stats = yappi.get_func_stats()
+    dest_path = '..\profilings\callgrind.out.' + str(int(time()))
+    stats.save(dest_path, 'CALLGRIND')
+
+    if not qcachegrind_path:
+        pass
+    if qcachegrind_path.exists():
+        subprocess.run([str(qcachegrind_path.absolute()), dest_path])
+    else:
+        warn(f"set qqcachegrind_path to a valid path to open results")
