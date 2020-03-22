@@ -7,12 +7,23 @@ class StatisticsPlotter:
     Plots statistics about the simulation.
     """
 
-    def plot_infected_per_generation(self, infected_per_generation_vector):
-        plt.plot(infected_per_generation_vector)
+    def plot_infected_per_generation(self, infected_per_generation_vector, recovered_per_generation,
+                                                           dead_per_generation, sick_per_generation):
+        # plot parameters
+        plt.title('injection to time')
+        plt.xlabel('steps', color='#1C2833')
+        plt.ylabel('people', color='#1C2833')
+
+        # data
+        p1 = plt.plot(infected_per_generation_vector)
+        p2 = plt.plot(recovered_per_generation)
+        p3 = plt.plot(dead_per_generation)
+        p4 = plt.plot(sick_per_generation)
+        plt.legend((p1[0], p2[0], p3[0], p4[0]), ("infected", "recovered", "dead", "sick"))
         plt.show()
 
-    
-    def plot_log_with_linear_regression(self, infected_per_generation_vector):
+    def plot_log_with_linear_regression(self, infected_per_generation_vector, recovered_per_generation,
+                                                           dead_per_generation):
         # fit only to the start of the model.
         # We will always start with exponent, then die down one way or another.
         diff_vector = np.diff(infected_per_generation_vector)
@@ -20,12 +31,14 @@ class StatisticsPlotter:
         x_max = np.argmax(diff_vector[x_start_search:] <= 0) # fit only until curvature starts going down.
         
         # get log vector
-        log_vector = np.log(infected_per_generation_vector)
+        infected_log_vector = np.log(infected_per_generation_vector)
+        recovered_log_vector = np.log(recovered_per_generation)
+        dead_log_vector = np.log(dead_per_generation)
         
         # put into variables for the fitting
-        orig_x = np.array(range(log_vector.size))
+        orig_x = np.array(range(infected_log_vector.size))
         x = orig_x[:x_max].reshape((-1, 1)) # used for the regression
-        y = log_vector[:x_max]
+        y = infected_log_vector[:x_max]
         
         # fit to linear
         model = LinearRegression()
@@ -43,13 +56,17 @@ class StatisticsPlotter:
             label="{:.2f} + {:.2f}*x; R^2 = {:.2f}".format(b_0, b_1, r_sqr))
         
         # plot the data itself
-        plt.plot(orig_x,log_vector)
+        p1 = plt.plot(orig_x, infected_log_vector)
+        p2 = plt.plot(orig_x, recovered_log_vector),
+        p3 = plt.plot(orig_x, dead_log_vector)
+
         
         # plot parameters
         plt.title('Log graph with regression')
-        plt.xlabel('x', color='#1C2833')
-        plt.ylabel('y', color='#1C2833')
+        plt.xlabel('steps', color='#1C2833')
+        plt.ylabel('log(people)', color='#1C2833')
         plt.legend(loc='upper left')
+
         plt.grid()
         
         plt.show()

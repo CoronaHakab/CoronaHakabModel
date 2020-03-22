@@ -162,6 +162,7 @@ class AffinityMAtrix:
         d = r0 / corona_stats.average_infection_length / b  # avarage probability for infection in each meeting as should be
         average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements  # avarage probability for infection in each meeting in current matrix
         self.matrix = self.matrix * d / average_edge_weight_in_matrix  # (alpha = d / average_edge_weight_in_matrix) now each entry in W is such that bd=R0
+        social_stats.family_strength_not_workers = social_stats.family_strength_not_workers * d / average_edge_weight_in_matrix
 
         # switching from probability to ln(1-p):
         non_zero_keys = self.matrix.nonzero()
