@@ -1,8 +1,6 @@
 from itertools import islice
 from time import time
 
-import yappi
-
 from affinity_matrix import AffinityMAtrix
 import logging
 import numpy as np
