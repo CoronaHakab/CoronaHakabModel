@@ -25,6 +25,6 @@ if __name__ == '__main__':
     if not qcachegrind_path:
         pass
     if qcachegrind_path.exists():
-        subprocess.run([str(qcachegrind_path.absolute()), dest_path])
+        subprocess.Popen([str(qcachegrind_path.absolute()), dest_path], close_fds=True)
     else:
         warn(f"set qqcachegrind_path to a valid path to open results")
