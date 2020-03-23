@@ -12,7 +12,8 @@ requirements = [
 ]
 
 extras = {
-    "profiling": ["yappi"]
+    "profiling": ["yappi"],
+    "pretty graphs": ["pyside2"]
 }
 
 if not subprocess.run([sys.executable, "-m", "pip", "install", *requirements]):
@@ -20,4 +21,4 @@ if not subprocess.run([sys.executable, "-m", "pip", "install", *requirements]):
 
 for k, v in extras.items():
     if not subprocess.run([sys.executable, "-m", "pip", "install", *v]):
-        warn(f"installation of {k} extras failed, {k} will not be available")
+        warn(f"installation of '{k}' extras failed, {k} will not be available")

@@ -1,3 +1,11 @@
+try:
+    import PySide2
+except ImportError:
+    pass
+else:
+    import matplotlib
+    matplotlib.use("Qt5Agg")
+
 from matplotlib import pyplot as plt
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -10,7 +18,7 @@ class StatisticsPlotter:
 
     def plot_infected_per_generation(self, infected_per_generation_vector, recovered_per_generation,
                                                            dead_per_generation, sick_per_generation):
-        total_size = Consts.SIZE_OF_POPULATION
+        total_size = Consts.population_size
         # plot parameters
         plt.title(f'Infections vs. Days, size={total_size}')
         plt.xlabel('days', color='#1C2833')
