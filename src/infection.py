@@ -1,5 +1,8 @@
 import numpy as np
+
 from medical_state import MedicalState
+
+import manager
 
 
 class InfectionManager:
@@ -7,10 +10,10 @@ class InfectionManager:
     Manages the infection stage
     """
 
-    def __init__(self, manager):
+    def __init__(self, sim_manager: 'manager.SimulationManager'):
         self.agents_to_home_quarantine = []
         self.agents_to_full_quarantine = []
-        self.manager = manager
+        self.manager = sim_manager
 
     def infection_step(self):
         # perform infection
@@ -44,15 +47,15 @@ class InfectionManager:
 
         u = self.manager.matrix.matrix.dot(v)
         infections = np.random.random(u.shape) < (1 - np.exp(u))
-        for agent, value in zip(self.manager.agents, infections):
+        caught_rolls = np.random.random(u.shape) < self.manager.consts.caught_sicks_ratio
+        for agent, value, caught_roll in zip(self.manager.agents, infections, caught_rolls):
             if value and agent.infect(self.manager.step_counter):
                 self.manager.sick_agents.add(agent)
-                if self.manager.consts.home_quarantine_sicks \
-                        and np.random.random() < self.manager.consts.caught_sicks_ratio:
-                    self.agents_to_home_quarantine.append(agent)
-                if self.manager.consts.full_quarantine_sicks \
-                        and np.random.random() < self.manager.consts.caught_sicks_ratio:
-                    self.agents_to_full_quarantine.append(agent)
+                if caught_roll:
+                    if self.manager.consts.home_quarantine_sicks:
+                        self.agents_to_home_quarantine.append(agent)
+                    elif self.manager.consts.full_quarantine_sicks:
+                        self.agents_to_full_quarantine.append(agent)
 
     def _update_sick_agents(self):
         """

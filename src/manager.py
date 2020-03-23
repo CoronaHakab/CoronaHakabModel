@@ -24,7 +24,7 @@ class SimulationManager:
         logging.basicConfig()
         self.logger.setLevel(logging.INFO)
         self.logger.info("Creating new simulation.")
-        self.matrix = AffinityMatrix(self.consts.SIZE_OF_POPULATION, consts)
+        self.matrix = AffinityMatrix(self.consts.population_size, consts)
         self.agents = self.matrix.agents
 
         self.stats_plotter = plotting.StatisticsPlotter()
@@ -32,10 +32,10 @@ class SimulationManager:
         self.infection_manager = infection.InfectionManager(self)
 
         self.step_counter = 0
-        self.infected_per_generation = [0] * self.consts.STEPS_TO_RUN
-        self.recovered_per_generation = [0] * self.consts.STEPS_TO_RUN
-        self.dead_per_generation = [0] * self.consts.STEPS_TO_RUN
-        self.sick_per_generation = [0] * self.consts.STEPS_TO_RUN
+        self.infected_per_generation = [0] * self.consts.total_steps
+        self.recovered_per_generation = [0] * self.consts.total_steps
+        self.dead_per_generation = [0] * self.consts.total_steps
+        self.sick_per_generation = [0] * self.consts.total_steps
         self.recovered_counter = 0
         self.dead_counter = 0
 
@@ -43,7 +43,7 @@ class SimulationManager:
 
         # todo merge sick_agents and sick_agents_vector to one DS
         self.sick_agents = set()
-        self.sick_agent_vector = np.zeros(self.consts.SIZE_OF_POPULATION, dtype=bool)
+        self.sick_agent_vector = np.zeros(self.consts.population_size, dtype=bool)
 
     def step(self):
         """
@@ -75,7 +75,7 @@ class SimulationManager:
         """"
         setting up the simulation with a given amount of infected people
         """
-        for agent in islice(self.agents, self.consts.INITIAL_INFECTED_COUNT):
+        for agent in islice(self.agents, self.consts.initial_infected_count):
             agent.infect(0)
             self.sick_agents.add(agent)
 
@@ -102,14 +102,14 @@ class SimulationManager:
         """
         start_time = time()
         self.generate_policy(1)
-        for i in range(self.consts.STEPS_TO_RUN):
+        for i in range(self.consts.total_steps):
             if i == self.consts.stop_work_days:
                 self.matrix.change_work_policy(False)
             elif i == self.consts.resume_work_days:
                 self.matrix.change_work_policy(True)
             self.step()
             self.logger.info(
-                f"performing step {i + 1}/{self.consts.STEPS_TO_RUN} : "
+                f"performing step {i + 1}/{self.consts.total_steps} : "
                 f"{self.sick_per_generation[i]} people are sick, "
                 f"{self.recovered_per_generation[i]} people are recovered, "
                 f"{self.dead_per_generation[i]} people are dead, "
@@ -121,5 +121,5 @@ class SimulationManager:
                                                         self.dead_per_generation, self.sick_per_generation)
 
     def __str__(self):
-        return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.consts.SIZE_OF_POPULATION,
-                                                                                    self.consts.STEPS_TO_RUN)
+        return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.consts.population_size,
+                                                                                    self.consts.total_steps)
