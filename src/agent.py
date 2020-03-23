@@ -1,5 +1,5 @@
+from consts import Consts
 from medical_state import MedicalState, INFECTABLE_MEDICAL_STATES, INFECTIONS_MEDICAL_STATES
-import corona_stats
 
 
 class Agent:
@@ -43,11 +43,11 @@ class Agent:
             self.infection_date = date
             return True
 
-    def get_infection_ratio(self):
+    def get_infection_ratio(self, consts: Consts):
         if self.medical_state == MedicalState.Symptomatic:
-            return corona_stats.Symptomatic_infection_ratio
+            return consts.Symptomatic_infection_ratio
         elif self.medical_state == MedicalState.Asymptomatic:
-            return corona_stats.ASymptomatic_infection_ratio
+            return consts.ASymptomatic_infection_ratio
         return 0
 
     def add_home(self, home):

@@ -1,19 +1,16 @@
 import numpy as np
-import plot_stats
-import corona_stats
 from medical_state import MedicalState
-
 
 
 class InfectionManager:
     """
     Manages the infection stage
     """
-    
+
     def __init__(self, manager):
         self.agents_to_home_quarantine = []
         self.agents_to_full_quarantine = []
-        self.manager = manager # more comfetable passing the manager object once. this passes a refrence so it will always be updated
+        self.manager = manager
 
     def infection_step(self):
         # perform infection
@@ -39,10 +36,10 @@ class InfectionManager:
 
         v = np.copy(self.manager.sick_agent_vector)
 
-        #a patch just for the mvp, in order to simulate infection ratio
+        # a patch just for the mvp, in order to simulate infection ratio
         rolls = np.random.random(len(self.manager.sick_agents))
-        for index,agent in enumerate(self.manager.sick_agents):
-            if rolls[index] > agent.get_infection_ratio():
+        for index, agent in enumerate(self.manager.sick_agents):
+            if rolls[index] > agent.get_infection_ratio(self.manager.consts):
                 v[agent.ID] = False
 
         u = self.manager.matrix.matrix.dot(v)
@@ -50,9 +47,11 @@ class InfectionManager:
         for agent, value in zip(self.manager.agents, infections):
             if value and agent.infect(self.manager.step_counter):
                 self.manager.sick_agents.add(agent)
-                if plot_stats.home_quarantine_sicks and np.random.random() < plot_stats.precents_of_caught_sicks:  # todo switch to a specific distribution
+                if self.manager.consts.home_quarantine_sicks \
+                        and np.random.random() < self.manager.consts.caught_sicks_ratio:
                     self.agents_to_home_quarantine.append(agent)
-                if plot_stats.full_quarantine_sicks and np.random.random() < plot_stats.precents_of_caught_sicks:
+                if self.manager.consts.full_quarantine_sicks \
+                        and np.random.random() < self.manager.consts.caught_sicks_ratio:
                     self.agents_to_full_quarantine.append(agent)
 
     def _update_sick_agents(self):
@@ -65,19 +64,23 @@ class InfectionManager:
 
         to_remove = set()
         rolls = np.random.random(len(self.manager.sick_agents))
-        for agent, roll in zip(self.manager.sick_agents, rolls): # moved the code from agent.day_passed here, so that it will be more easily managed
+        # moved the code from agent.day_passed here, so that it will be more easily managed
+        for agent, roll in zip(self.manager.sick_agents, rolls):
             if agent.infection_date is None or agent.infection_date < 0:
                 continue
-            if self.manager.step_counter == agent.infection_date + corona_stats.average_silent_time:  # todo use random with a given deviation
-                if roll < corona_stats.Asymptomatic_ratio:
+            if self.manager.step_counter == agent.infection_date \
+                    + self.manager.consts.average_silent_time_days:
+                if roll < self.manager.consts.Asymptomatic_ratio:
                     agent.change_medical_state(MedicalState.Asymptomatic)
                 else:
                     agent.change_medical_state(MedicalState.Symptomatic)
                 self.manager.sick_agent_vector[agent.ID] = True
-            elif self.manager.step_counter == agent.infection_date + corona_stats.average_silent_time + corona_stats.average_sick_time: # todo use random with a given deviation
+            elif self.manager.step_counter == agent.infection_date \
+                    + self.manager.consts.average_silent_time_days \
+                    + self.manager.consts.average_sick_time_days:
                 to_remove.add(agent)
                 self.manager.sick_agent_vector[agent.ID] = False
-                if roll < corona_stats.death_ratio:
+                if roll < self.manager.consts.death_ratio:
                     agent.change_medical_state(MedicalState.Deceased)
                     new_dead = new_dead + 1
                 else:

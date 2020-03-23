@@ -1,13 +1,11 @@
-from itertools import product
-from math import log
-from random import shuffle
 import logging
+from random import shuffle
+
 import numpy as np
 from scipy.sparse import lil_matrix
-from scipy import sparse
+
 from agent import Agent, Circle
-import random as rnd
-import corona_stats, social_stats
+from consts import Consts
 
 m_type = lil_matrix
 
@@ -22,8 +20,10 @@ class AffinityMatrix:
     Naturally, W is symetric.
     """
 
-    def __init__(self, size):
+    def __init__(self, size, consts: Consts):
+        self.consts = consts
         self.size = size  # population size
+
         self.matrix = m_type((size, size), dtype=np.float32)
         self.logger = logging.getLogger('simulation')
         self.logger.info("Building new AffinityMatrix")
@@ -41,12 +41,12 @@ class AffinityMatrix:
         self.matrix = self.m_families + self.m_work + self.m_random
         # self.matrix = self.m_random.tocsr()
 
-        self.factor = -1
+        self.factor = None
         self.normalize()
 
     def generate_agents(self):
         self.logger.info(f"Generating {self.size} agents")
-        agents = [Agent(id) for id in range(self.size)]
+        agents = [Agent(id_) for id_ in range(self.size)]
         return agents
 
     def _create_intra_family_connections(self):
@@ -71,12 +71,12 @@ class AffinityMatrix:
         agents_without_home = list(range(self.size))
         shuffle(agents_without_home)
         families = []
-        num_of_families = self.size // social_stats.avarage_family_size
+        num_of_families = self.size // self.consts.average_family_size
         for i in range(num_of_families):
-            if i % (num_of_families / 100) == 0:
+            if i % (num_of_families // 100) == 0:
                 self.logger.info(f"Creating family {i}/{num_of_families}")
             new_family = Circle("home")
-            for _ in range(social_stats.avarage_family_size):
+            for _ in range(self.consts.average_family_size):
                 chosen_agent = self.agents[agents_without_home.pop()]
                 chosen_agent.add_home(new_family)
                 new_family.add_agent(chosen_agent)
@@ -97,7 +97,7 @@ class AffinityMatrix:
             xs, ys = np.meshgrid(ids, ids)
             xs = xs.reshape(-1)
             ys = ys.reshape(-1)
-            matrix[xs, ys] = social_stats.family_strength
+            matrix[xs, ys] = self.consts.family_strength
         ids = np.arange(self.size)
         matrix[ids, ids] = 0
 
@@ -121,12 +121,12 @@ class AffinityMatrix:
         agents_without_work = list(range(self.size))
         shuffle(agents_without_work)
         works = []
-        num_of_workplaces = self.size // social_stats.avarage_work_size
+        num_of_workplaces = self.size // self.consts.average_work_size
         for i in range(num_of_workplaces):  # todo add last work
-            if i % (num_of_workplaces / 100) == 0:
+            if i % (num_of_workplaces // 100) == 0:
                 self.logger.info(f"Creating workplace {i}/{num_of_workplaces}")
             new_work = Circle("work")
-            for _ in range(social_stats.avarage_work_size):
+            for _ in range(self.consts.average_work_size):
                 chosen_agent_ind = agents_without_work.pop()
 
                 chosen_agent = self.agents[chosen_agent_ind]
@@ -151,7 +151,7 @@ class AffinityMatrix:
             xs, ys = np.meshgrid(ids, ids)
             xs = xs.reshape(-1)
             ys = ys.reshape(-1)
-            matrix[xs, ys] = social_stats.work_strength
+            matrix[xs, ys] = self.consts.work_strength
         ids = np.arange(self.size)
         matrix[ids, ids] = 0
         return matrix
@@ -165,11 +165,11 @@ class AffinityMatrix:
         self.logger.info(f"Create random connections")
 
         matrix = m_type((self.size, self.size), dtype=np.float32)
-        amount_of_connections = social_stats.average_amount_of_strangers
+        amount_of_connections = self.consts.average_amount_of_strangers
         stranger_ids = np.random.randint(0, self.size - 1, self.size * amount_of_connections)
         ids = np.arange(self.size).repeat(amount_of_connections)
 
-        matrix[ids, stranger_ids] = social_stats.stranger_strength
+        matrix[ids, stranger_ids] = self.consts.stranger_strength
         """
         amount_of_connections = social_stats.average_amount_of_strangers
         dense = amount_of_connections / self.size
@@ -184,21 +184,20 @@ class AffinityMatrix:
         As r0=bd, where b is number of daily infections per person
         """
         self.logger.info(f"normalizing matrix")
-        if self.factor == -1:
-            r0 = corona_stats.r0
+        if self.factor is None:
+            r0 = self.consts.r0
             # changes r0 to fit the infection ratio (he is calculated despite the low infection ratio)
-            r0 = r0 * (1 / (
-                        corona_stats.ASymptomatic_infection_ratio * corona_stats.Asymptomatic_ratio + corona_stats.Symptomatic_infection_ratio * (
-                            1 - corona_stats.Asymptomatic_ratio)))
+            r0 = r0 * (1 / self.consts.expected_infection_ratio())
             non_zero_elements = self.matrix.count_nonzero()
-
-            b = non_zero_elements / self.size  # average number of connections per person per day
-            d = r0 / (
-                    corona_stats.average_sick_time * b)  # avarage probability for infection in each meeting as should be
-            average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements  # avarage probability for infection in each meeting in current matrix
-            self.factor = d / average_edge_weight_in_matrix  # saves this so that connections will be easily re-astablished later on
+            # average number of connections per person per day
+            b = non_zero_elements / self.size
+            # average probability for infection in each meeting as should be
+            d = r0 / (self.consts.average_sick_time_days * b)
+            # avarage probability for infection in each meeting in current matrix
+            average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements
+            # saves this so that connections will be easily re-established later on
+            self.factor = d / average_edge_weight_in_matrix
         self.matrix = self.matrix * self.factor  # now each entry in W is such that bd=R0
-        social_stats.family_strength_not_workers = social_stats.family_strength_not_workers * self.factor
 
         # switching from probability to ln(1-p):
         non_zero_keys = self.matrix.nonzero()
@@ -209,6 +208,7 @@ class AffinityMatrix:
         self.normalize()
 
 
+# todo delete
 def dot(self, v):
     """
     performs dot operation between this matrix and v

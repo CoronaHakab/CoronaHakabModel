@@ -11,7 +11,7 @@ class StatisticsPlotter:
                                                            dead_per_generation, sick_per_generation):
         # plot parameters
         plt.title('injection to time')
-        plt.xlabel('steps', color='#1C2833')
+        plt.xlabel('day', color='#1C2833')
         plt.ylabel('people', color='#1C2833')
 
         # data

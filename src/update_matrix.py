@@ -11,7 +11,7 @@ class UpdateMatrixManager:
     def __init__(self, affinity_matrix_ref):
         self.affinity_matrix = affinity_matrix_ref
 
-    def update_matrix_step(self, agents_to_home_quarantine=[], agents_to_full_quarantine=[]):
+    def update_matrix_step(self, agents_to_home_quarantine=(), agents_to_full_quarantine=()):
         """
         Update the matrix step
         """
