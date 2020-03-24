@@ -15,7 +15,7 @@ setuptools.setup(
     author_email=__author_email__,
     license=__license__,
     url=__url__,
-    description="a simple gdal translate/warp/addo python wrapper for raster batch processing",
+    description="Corona Hakab Model Simulator",
     package_dir={"": "src"},
     packages=["corona_hakab_model", "corona_hakab_model_data"],
     install_requires=["numpy", "scipy", "scikit-learn"],
