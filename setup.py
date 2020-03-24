@@ -24,7 +24,7 @@ setuptools.setup(
         "profiling": ["yappi"],
         "pretty graphs": ["pyside2", "matplotlib"],
     },
-    python_requires=">=3.7.0",
+    python_requires=">=3.8.0",
     include_package_data=True,
     data_files=[("", ["README.md", "LICENSE"])],
 )
