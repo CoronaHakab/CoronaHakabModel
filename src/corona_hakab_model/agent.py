@@ -1,4 +1,3 @@
-import manager
 from consts import Consts
 from medical_state import (
     INFECTABLE_MEDICAL_STATES,

@@ -1,5 +1,4 @@
 import numpy as np
-from affinity_matrix import AffinityMatrix
 from agent import Agent
 
 

@@ -64,12 +64,12 @@ class InfectionManager:
         # return parameters
         new_dead = 0
         new_recovered = 0
-        new_latent = 0
-        new_silent = 0
-        new_symptomatic = 0
-        new_asymptomatic = 0
-        new_hospitalized = 0
-        new_icu = 0
+        # new_latent = 0
+        # new_silent = 0
+        # new_symptomatic = 0
+        # new_asymptomatic = 0
+        # new_hospitalized = 0
+        # new_icu = 0
 
         to_remove = set()
         rolls = np.random.random(len(self.manager.sick_agents))

@@ -131,6 +131,8 @@ class SimulationManager:
                     self.per_generation["total infected"][i],
                 )
             )
+        runtime = time() - start_time
+        print(f"--- {runtime} seconds ---")
 
     def plot(self):
         self.stats_plotter.plot_infected_per_generation(self.per_generation)

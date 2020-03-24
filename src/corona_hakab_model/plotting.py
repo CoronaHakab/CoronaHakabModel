@@ -1,12 +1,4 @@
-try:
-    import PySide2
-except ImportError:
-    pass
-else:
-    import matplotlib
-
-    matplotlib.use("Qt5Agg")
-
+import matplotlib_set_backend  # noqa: F401
 import numpy as np
 from consts import Consts
 from matplotlib import pyplot as plt
@@ -148,8 +140,13 @@ class StatisticsPlotter:
 
         # plot the data itself
         p1 = plt.plot(orig_x, infected_log_vector)
-        p2 = (plt.plot(orig_x, recovered_log_vector),)
+        p2 = plt.plot(orig_x, recovered_log_vector)
         p3 = plt.plot(orig_x, dead_log_vector)
+
+        plt.legend(
+            (p1[0], p2[0], p3[0]),
+            ("infected_log_vector", "recovered_log_vector", "dead_log_vector"),
+        )
 
         # plot parameters
         plt.title("Log graph with regression")
