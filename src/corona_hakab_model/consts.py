@@ -36,7 +36,7 @@ class Consts(NamedTuple):
 
     # corona stats
     # todo replace with distribution
-    # average state mechine transmitions times:
+    # average state machine transition times:
     latent_to_silent_days: rv_discrete = dist(1, 3)
     silent_to_asymptomatic_days: rv_discrete = dist(0, 3, 10)
     silent_to_symptomatic_days: rv_discrete = dist(0, 3, 10)
@@ -56,7 +56,7 @@ class Consts(NamedTuple):
 
     def average_infecting_days(self):
         """
-        returns the expected time of infectivness of an infected people (for normalization)
+        returns the expected time of infectiousness of an infected people (for normalization)
         assuming you are not contagious when in a hospital nor in icu.
         also ignoring moving back from icu to asymptomatic
         """
@@ -84,7 +84,7 @@ class Consts(NamedTuple):
         )
         return silent_time + asymptomatic_time + symptomatic_time + hosplital_time
 
-    # average probability for transmitions:
+    # average probability for transmissions:
     silent_to_asymptomatic_probability = 0.2
 
     @property
@@ -172,7 +172,7 @@ class Consts(NamedTuple):
     # the average amount of stranger contacts per person
     average_amount_of_strangers = 200  # todo replace with distribution
 
-    # relative strangths of each connection (in terms of infection chance)
+    # relative strength of each connection (in terms of infection chance)
     # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
     family_strength_not_workers = 0.75
     family_strength = 0.4
