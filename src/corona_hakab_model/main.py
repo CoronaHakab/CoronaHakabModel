@@ -1,4 +1,5 @@
 from manager import SimulationManager
+from supervisor import Supervisor
 
 if __name__ == "__main__":
     sm = SimulationManager(

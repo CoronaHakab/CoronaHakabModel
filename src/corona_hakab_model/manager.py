@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Tuple
+from typing import Tuple, Any, Iterable
 
 from affinity_matrix import AffinityMatrix
 import logging
@@ -9,7 +9,7 @@ import infection
 from agent import Agent
 from consts import Consts
 from state_machine import PendingTransfers
-from supervisor import Supervisor
+from supervisor import Supervisor, Supervisable
 
 
 class SimulationManager:
@@ -17,7 +17,7 @@ class SimulationManager:
     A simulation manager is the main class, it manages the steps performed with policies
     """
 
-    def __init__(self, states_to_track: Tuple[str, ...], consts=Consts()):
+    def __init__(self, supervisable_makers: Iterable[Any], consts=Consts()):
         self.consts = consts
         self.medical_machine = consts.medical_state_machine()
         initial_state = self.medical_machine.initial
@@ -39,7 +39,7 @@ class SimulationManager:
         self.matrix = AffinityMatrix(self)
 
         self.supervisor = Supervisor(
-            self.medical_machine[states_to_track]
+            [Supervisable.coerce(a)(self) for a in supervisable_makers], self
         )
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self.matrix)
         self.infection_manager = infection.InfectionManager(self)
