@@ -96,7 +96,7 @@ class Consts(NamedTuple):
         )
         return silent_time + asymptomatic_time + symptomatic_time + hospitalization_time
 
-    # average probability for transmitions:
+    # average probability for transmissions:
     silent_to_asymptomatic_probability = 0.2
 
     @property
@@ -128,6 +128,8 @@ class Consts(NamedTuple):
     asymptomatic_infection_ratio: float = 0.25
     # probability of an infected silent agent infecting others
     silent_infection_ratio: float = 0.3  # todo i made this up, need to get the real number
+
+    # R0 stands for the average number of people one patient infects during the whole course of his illness.
     # base r0 of the disease
     r0: float = 2.4
 
@@ -186,7 +188,7 @@ class Consts(NamedTuple):
     average_amount_of_strangers = 200  # todo replace with distribution
 
     # relative strengths of each connection (in terms of infection chance)
-    # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
+    # todo so if all these strength are relative only to each other (and nothing else), why are none of them 1?
     family_strength_not_workers = 0.75
     family_strength = 0.4
     work_strength = 0.04

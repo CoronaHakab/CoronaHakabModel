@@ -27,7 +27,7 @@ class SimulationManager:
         self.logger = logging.getLogger("simulation")
         logging.basicConfig()
         self.logger.setLevel(logging.INFO)
-        self.logger.info("Creating new simulation.")
+        self.logger.info("Creating a new simulation.")
         self.logger.info(f"Generating {self.consts.population_size} agents")
 
         # the manager holds the vector, but the agents update it
