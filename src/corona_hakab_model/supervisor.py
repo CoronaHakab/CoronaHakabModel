@@ -3,17 +3,7 @@ from typing import Iterable, Dict, List
 from consts import Consts
 from medical_state import MedicalState
 
-try:
-    import PySide2
-except ImportError:
-    pass
-else:
-    try:
-        import matplotlib
-    except ImportError:
-        pass
-    else:
-        matplotlib.use("Qt5Agg")
+import matplotlib_set_backend  # noqa: F401
 
 try:
     # plt is optional
