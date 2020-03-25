@@ -1,15 +1,28 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections import namedtuple, defaultdict
-from typing import List, Dict, Set, Optional, Iterable, Collection, Union, Tuple, Sequence, Generic, TypeVar
+from collections import defaultdict, namedtuple
+from typing import (
+    Collection,
+    Dict,
+    Generic,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 import numpy as np
+from agent import Agent, Circle
 from scipy.stats import rv_discrete
 
-from agent import Circle, Agent
-
-PendingTransfer = namedtuple("PendingTransfer", ["agent", "target_state", "origin_state", "original_duration"])
+PendingTransfer = namedtuple(
+    "PendingTransfer", ["agent", "target_state", "origin_state", "original_duration"]
+)
 
 TransferCollection = Dict[int, List[PendingTransfer]]
 
@@ -69,7 +82,12 @@ class StochasticState(State):
         self.destinations: List[State] = []
         self.durations: List[rv_discrete] = []
 
-    def add_transfer(self, destination: State, duration: rv_discrete, probability: Union[float, type(...)]):
+    def add_transfer(
+        self,
+        destination: State,
+        duration: rv_discrete,
+        probability: Union[float, type(...)],
+    ):
         if probability is ...:
             p = 1
         elif self.durations:
@@ -90,10 +108,16 @@ class StochasticState(State):
         transfer_indices = np.searchsorted(self.probs, np.random.random(len(agents)))
         bin_count = np.bincount(transfer_indices)
         durations = [
-            iter(d.rvs(c)) for (c, s, d) in zip(bin_count, self.destinations, self.durations)
+            iter(d.rvs(c))
+            for (c, s, d) in zip(bin_count, self.destinations, self.durations)
         ]
         return [
-            PendingTransfer(agent, self.destinations[transfer_ind], self, durations[transfer_ind].__next__())
+            PendingTransfer(
+                agent,
+                self.destinations[transfer_ind],
+                self,
+                durations[transfer_ind].__next__(),
+            )
             for transfer_ind, agent in zip(transfer_indices, agents)
         ]
 
@@ -103,7 +127,7 @@ class TerminalState(State):
         return ()
 
 
-T = TypeVar('T', bound=State)
+T = TypeVar("T", bound=State)
 
 
 class StateMachine(Generic[T]):

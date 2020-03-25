@@ -1,8 +1,7 @@
 from collections import defaultdict
 
-import numpy as np
-
 import manager
+import numpy as np
 
 
 class InfectionManager:
@@ -10,7 +9,7 @@ class InfectionManager:
     Manages the infection stage
     """
 
-    def __init__(self, sim_manager: 'manager.SimulationManager'):
+    def __init__(self, sim_manager: "manager.SimulationManager"):
         self.agents_to_home_quarantine = []
         self.agents_to_full_quarantine = []
         self.manager = sim_manager
@@ -32,13 +31,21 @@ class InfectionManager:
                 agents[i].infect
         """
 
-        v = np.random.random(len(self.manager.agents)) < self.manager.infectiousness_vector
+        v = (
+            np.random.random(len(self.manager.agents))
+            < self.manager.infectiousness_vector
+        )
 
         u = self.manager.matrix.matrix.dot(v)
-        infections = self.manager.infectable_vector & (np.random.random(u.shape) < (1 - np.exp(u)))
+        infections = self.manager.infectable_vector & (
+            np.random.random(u.shape) < (1 - np.exp(u))
+        )
         infected_indices = np.flatnonzero(infections)
 
-        caught_rolls = (np.random.random(len(infected_indices)) < self.manager.consts.caught_sicks_ratio)
+        caught_rolls = (
+            np.random.random(len(infected_indices))
+            < self.manager.consts.caught_sicks_ratio
+        )
         new_infected = defaultdict(list)
         for index, caught in zip(infected_indices, caught_rolls):
             agent = self.manager.agents[index]
