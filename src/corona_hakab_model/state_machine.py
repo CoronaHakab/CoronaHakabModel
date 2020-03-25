@@ -3,7 +3,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections import defaultdict, namedtuple
 from functools import cached_property
-from math import fsum
 from typing import (
     Collection,
     Dict,
@@ -19,9 +18,10 @@ from typing import (
 )
 
 import numpy as np
-from agent import Agent, Circle
 from scipy.stats import rv_discrete
-from util import lower_bound, upper_bound
+
+from agent import Agent, Circle
+from util import upper_bound
 
 PendingTransfer = namedtuple(
     "PendingTransfer", ["agent", "target_state", "origin_state", "original_duration"]

@@ -1,20 +1,20 @@
 from functools import lru_cache
 from itertools import count
-from math import fsum
-from typing import Dict, NamedTuple, Tuple
+from typing import NamedTuple
 
 import numpy as np
+from scipy.stats import rv_discrete
+
 from medical_state import ImmuneState, InfectableState, InfectiousState
 from medical_state_machine import MedicalStateMachine
-from scipy.stats import rv_discrete
-from state_machine import State, StochasticState, TerminalState
-from util import dist, lower_bound, upper_bound
+from state_machine import StochasticState, TerminalState
+from util import dist
 
 
 class Consts(NamedTuple):
     # simulation parameters
     population_size = 10_000
-    total_steps = 200
+    total_steps = 400
     initial_infected_count = 20
 
     # corona stats
