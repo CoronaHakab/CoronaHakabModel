@@ -80,17 +80,17 @@ class Supervisor:
             )
         if self.manager.consts.home_quarantine_sicks:
             title = (
-                    title
-                    + "\napplying home quarantine for confirmed cases ({} of cases)".format(
-                self.manager.consts.caught_sicks_ratio
-            )
+                title
+                + "\napplying home quarantine for confirmed cases ({} of cases)".format(
+                    self.manager.consts.caught_sicks_ratio
+                )
             )
         if self.manager.consts.full_quarantine_sicks:
             title = (
-                    title
-                    + "\napplying full quarantine for confirmed cases ({} of cases)".format(
-                self.manager.consts.caught_sicks_ratio
-            )
+                title
+                + "\napplying full quarantine for confirmed cases ({} of cases)".format(
+                    self.manager.consts.caught_sicks_ratio
+                )
             )
 
         # plot parameters

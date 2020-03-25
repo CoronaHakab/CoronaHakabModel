@@ -84,7 +84,7 @@ class StochasticState(State):
     def prob_specific(self, ind):
         if ind == 0:
             return self.probs_cumulative[0]
-        return self.probs_cumulative[ind] - self.probs_cumulative[ind-1]
+        return self.probs_cumulative[ind] - self.probs_cumulative[ind - 1]
 
     def add_transfer(
         self,
@@ -213,7 +213,7 @@ class StateMachine(Generic[T]):
                 for i in range(upper_bound(dur) + 1):
                     p_exit_unbiased = dur.pmf(i)
                     p_exit = p_exit_unbiased / p_passed
-                    p_passed *= (1 - p_exit)
+                    p_passed *= 1 - p_exit
                     ret[:, transfer_start + i] = p_exit * entry_columns[dest]
                     ret[transfer_start + i + 1, transfer_start + i] += 1 - p_exit
 
@@ -222,6 +222,5 @@ class StateMachine(Generic[T]):
             assert np.sum(ret[:, col]) == 1
 
         return ret, terminal_states, entry_columns
-
 
     # todo function to draw a pretty graph

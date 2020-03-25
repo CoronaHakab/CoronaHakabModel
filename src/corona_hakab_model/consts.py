@@ -1,13 +1,13 @@
 from functools import lru_cache
 from itertools import count
 from math import fsum
-from typing import NamedTuple, Dict, Tuple
+from typing import Dict, NamedTuple, Tuple
 
 import numpy as np
 from medical_state import ImmuneState, InfectableState, InfectiousState
 from medical_state_machine import MedicalStateMachine
 from scipy.stats import rv_discrete
-from state_machine import StochasticState, TerminalState, State
+from state_machine import State, StochasticState, TerminalState
 from util import dist, lower_bound, upper_bound
 
 
@@ -50,7 +50,7 @@ class Consts(NamedTuple):
         for time in count(1):
             p = M @ p
             v = np.sum(p, where=terminal_mask)
-            d = (v - prev_v)
+            d = v - prev_v
             ret += d * time
             prev_v = v
             # run at least as many times as the node number to ensure we reached all terminal nodes
@@ -97,27 +97,27 @@ class Consts(NamedTuple):
         The expected infection ratio of a random infected agent
         """
         asymptomatic_time = (
-                self.asymptomatic_to_recovered_days.mean()
-                * self.silent_to_asymptomatic_probability
+            self.asymptomatic_to_recovered_days.mean()
+            * self.silent_to_asymptomatic_probability
         )
         symptomatic_time = self.silent_to_symptomatic_probability * (
-                self.symptomatic_to_asymptomatic_days.mean()
-                * self.symptomatic_to_asymptomatic_probability
-                + self.symptomatic_to_hospitalized_days.mean()
-                * self.symptomatic_to_hospitalized_probability
+            self.symptomatic_to_asymptomatic_days.mean()
+            * self.symptomatic_to_asymptomatic_probability
+            + self.symptomatic_to_hospitalized_days.mean()
+            * self.symptomatic_to_hospitalized_probability
         )
         silent_time = (
-                self.silent_to_symptomatic_probability
-                * self.silent_to_symptomatic_days.mean()
-                + self.silent_to_asymptomatic_probability
-                * self.silent_to_asymptomatic_days.mean()
+            self.silent_to_symptomatic_probability
+            * self.silent_to_symptomatic_days.mean()
+            + self.silent_to_asymptomatic_probability
+            * self.silent_to_asymptomatic_days.mean()
         )
         total_time = asymptomatic_time + symptomatic_time + silent_time
         return (
-                       self.asymptomatic_infection_ratio * asymptomatic_time
-                       + self.symptomatic_infection_ratio * symptomatic_time
-                       + self.silent_infection_ratio * silent_time
-               ) / total_time
+            self.asymptomatic_infection_ratio * asymptomatic_time
+            + self.symptomatic_infection_ratio * symptomatic_time
+            + self.silent_infection_ratio * silent_time
+        ) / total_time
 
     # quarantine policy
     # todo why does this exist? doesn't the policy set this? at least make this an enum
