@@ -154,6 +154,9 @@ class SimulationManager:
     def plot(self, **kwargs):
         self.supervisor.plot(**kwargs)
 
+    def stackplot(self, **kwargs):
+        self.supervisor.stack_plot(**kwargs)
+
     def __str__(self):
         return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(
             self.consts.population_size, self.consts.total_steps
