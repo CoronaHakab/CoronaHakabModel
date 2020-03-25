@@ -15,7 +15,16 @@ if __name__ == "__main__":
     if profile_gen:
         yappi.start()
     sm = SimulationManager(
-        ("Recovered", "Deceased", "Symptomatic", "Asymptomatic", "Hospitalized", "ICU", "Latent", "Silent")
+        (
+            "Recovered",
+            "Deceased",
+            "Symptomatic",
+            "Asymptomatic",
+            "Hospitalized",
+            "ICU",
+            "Latent",
+            "Silent",
+        )
     )
     if not profile_gen:
         yappi.start()

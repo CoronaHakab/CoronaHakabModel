@@ -2,7 +2,7 @@ import logging
 from random import shuffle
 
 import numpy as np
-from agent import Circle, TrackingCircle
+from agent import TrackingCircle
 from scipy.sparse import lil_matrix
 
 m_type = lil_matrix

@@ -2,7 +2,16 @@ class Agent:
     """
     This class represents a person in our doomed world.
     """
-    __slots__ = "index", "home", "work", "medical_state", "is_home_quarantined", "is_full_quarantined", "manager"
+
+    __slots__ = (
+        "index",
+        "home",
+        "work",
+        "medical_state",
+        "is_home_quarantined",
+        "is_full_quarantined",
+        "manager",
+    )
 
     def __init__(self, index, manager, initial_state):
         self.index = index
@@ -56,7 +65,7 @@ class Circle:
 
 
 class TrackingCircle(Circle):
-    __slots__ = "agents",
+    __slots__ = ("agents",)
 
     def __init__(self):
         super().__init__()

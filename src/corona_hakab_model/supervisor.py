@@ -38,11 +38,13 @@ class Supervisor:
 
     def __init__(self, supervisables: Sequence[Supervisable], manager):
         self.supervisables = supervisables
-        self.manager= manager
+        self.manager = manager
 
     def snapshot(self, manager):
         for s in self.supervisables:
             s.snapshot(manager)
+
+    # todo stacked_plot
 
     def plot(self, max_scale=True, auto_show=True, save=True):
         output_dir = "../output/"
@@ -107,11 +109,11 @@ class Supervisor:
 
         # showing and saving the graph
         if save:
-            fig.save(
+            fig.savefig(
                 f"{output_dir}{total_size} agents, applying quarantine = {self.manager.consts.active_quarantine}, max scale = {max_scale}"
             )
         if auto_show:
-            fig.show()
+            plt.show()
 
 
 class Supervisable(ABC):
@@ -197,10 +199,10 @@ class _DelayedSupervisable(FloatSupervisable):
 
     def get(self, manager) -> float:
         desired_date = manager.current_date - self.delay
-        desired_index = bisect(desired_date, self.inner.x)
+        desired_index = bisect(self.inner.x, desired_date)
         if desired_index >= len(self.inner.x):
             return np.nan
-        return desired_index[self.inner.x]
+        return self.inner.y[desired_index]
 
     def name(self) -> str:
         return self.inner.name() + f" + {self.delay} days"
