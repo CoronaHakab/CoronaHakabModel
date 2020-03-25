@@ -1,32 +1,15 @@
+from functools import lru_cache
+from itertools import count
+from math import fsum, isclose
 from typing import NamedTuple
 
-from scipy.stats import randint, rv_discrete, binom
+import numpy as np
+from scipy.stats import rv_discrete
 
 from medical_state import InfectableState, InfectiousState, ImmuneState
 from medical_state_machine import MedicalStateMachine
 from state_machine import TerminalState, StochasticState
-
-
-def dist(*args):
-    def const_dist(a):
-        return rv_discrete(name='const', values=([a], [1]))()
-
-    def uniform_dist(a, b):
-        return randint(a, b + 1)
-
-    def trig(a, c, b):
-        # todo I have no idea what this distribution supposedly represents, we're gonna pretend it's
-        #  an offset-binomial and call it a day
-
-        return binom(b - a, (c - a) / (b - a), loc=a)
-
-    if len(args) == 1:
-        return const_dist(*args)
-    if len(args) == 2:
-        return uniform_dist(*args)
-    if len(args) == 3:
-        return trig(*args)
-    raise TypeError
+from util import dist
 
 
 class Consts(NamedTuple):
@@ -51,35 +34,30 @@ class Consts(NamedTuple):
 
     # we'll see how the researchers like that!
 
+    @lru_cache()
     def average_infecting_days(self):
         """
         returns the expected time of infectivness of an infected people (for normalization)
         assuming you are not contagious when in a hospital nor in icu.
         also ignoring moving back from icu to asymptomatic
         """
-        silent_time = (
-                self.silent_to_asymptomatic_probability
-                * self.silent_to_asymptomatic_days.mean()
-                + self.silent_to_symptomatic_probability
-                * self.silent_to_symptomatic_days.mean()
-        )
-        asymptomatic_time = (
-                self.asymptomatic_to_recovered_days.mean()
-                * self.silent_to_asymptomatic_probability
-        )
-        symptomatic_time = self.silent_to_symptomatic_probability * (
-                (self.symptomatic_to_asymptomatic_days.mean() + asymptomatic_time)
-                * self.symptomatic_to_asymptomatic_probability
-                + self.symptomatic_to_hospitalized_days.mean()
-                * self.symptomatic_to_hospitalized_probability
-        )
-        hosplital_time = (
-                self.silent_to_symptomatic_probability
-                * self.symptomatic_to_hospitalized_probability
-                * self.hospitalized_to_asymptomatic_probability
-                * asymptomatic_time
-        )
-        return silent_time + asymptomatic_time + symptomatic_time + hosplital_time
+
+        TOL = 1e-7
+        m = self.medical_state_machine()
+        i_state = m.state_upon_infection
+        infectious_states = [s for s in m.states if s.infectiousness]
+        infectious_arr = []
+        for t in count():
+            infectious_arr.append(
+                v := fsum(
+                    i_state.probability(t, s, TOL) for s in infectious_states
+                )
+            )
+            if v < TOL:
+                break
+
+        infectious_arr = np.array(infectious_arr)
+        return np.sum(np.arange(len(infectious_arr)) * infectious_arr[:-1] * (1-infectious_arr[1:]))
 
     # average probability for transmitions:
     silent_to_asymptomatic_probability = 0.2
@@ -101,9 +79,10 @@ class Consts(NamedTuple):
         return 1 - self.hospitalized_to_asymptomatic_probability
 
     icu_to_hospitalized_probability = 0.65
+
     @property
     def icu_to_dead_probability(self):
-        return 1-self.icu_to_hospitalized_probability
+        return 1 - self.icu_to_hospitalized_probability
 
     # probability of an infected symptomatic agent infecting others
     symptomatic_infection_ratio: float = 0.75
@@ -175,6 +154,7 @@ class Consts(NamedTuple):
     work_strength = 0.04
     stranger_strength = 0.004
 
+    @lru_cache
     def medical_state_machine(self):
         class InfectableTerminalState(InfectableState, TerminalState):
             pass
@@ -194,8 +174,8 @@ class Consts(NamedTuple):
         symptomatic = InfectiousStochasticState("Symptomatic", infectiousness=self.symptomatic_infection_ratio)
         asymptomatic = InfectiousStochasticState("Asymptomatic", infectiousness=self.asymptomatic_infection_ratio)
 
-        hospitalized = InfectiousStochasticState("Hospitalized", infectiousness=self.symptomatic_infection_ratio)
-        icu = InfectiousStochasticState("ICU", infectiousness=self.symptomatic_infection_ratio)
+        hospitalized = ImmuneStochasticState("Hospitalized")
+        icu = ImmuneStochasticState("ICU")
 
         deceased = ImmuneTerminalState("Deceased")
         recovered = ImmuneTerminalState("Recovered")
