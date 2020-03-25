@@ -70,7 +70,7 @@ class Consts(NamedTuple):
 
     def average_infecting_days(self):
         """
-        returns the expected time of infectivness of an infected people (for normalization)
+        returns the expected time of infectiousness of an infected person (for normalization)
         assuming you are not contagious when in a hospital nor in icu.
         also ignoring moving back from icu to asymptomatic
         """
@@ -90,13 +90,13 @@ class Consts(NamedTuple):
             + self.symptomatic_to_hospitalized_days.mean()
             * self.symptomatic_to_hospitalized_probability
         )
-        hosplital_time = (
+        hospitalization_time = (
             self.silent_to_symptomatic_probability
             * self.symptomatic_to_hospitalized_probability
             * self.hospitalized_to_asymptomatic_probability
             * asymptomatic_time
         )
-        return silent_time + asymptomatic_time + symptomatic_time + hosplital_time
+        return silent_time + asymptomatic_time + symptomatic_time + hospitalization_time
 
     # average probability for transmitions:
     silent_to_asymptomatic_probability = 0.2
@@ -105,6 +105,7 @@ class Consts(NamedTuple):
     def silent_to_symptomatic_probability(self):
         return 1 - self.silent_to_asymptomatic_probability
 
+    # from being symptomatic a person can become asymptomatic or get hospitalized
     symptomatic_to_asymptomatic_probability = 0.85
 
     @property
