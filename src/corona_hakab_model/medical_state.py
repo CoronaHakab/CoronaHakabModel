@@ -1,23 +1,29 @@
-from enum import IntEnum
+from abc import ABC
+
+from state_machine import State  # , StochasticState, TerminalState
 
 
-class MedicalState(IntEnum):
-    Immune = -1
-    Healthy = 0
-    Latent = 1
-    Silent = 2
-    Asymptomatic = 3
-    Symptomatic = 4
-    Hospitalized = 5
-    Icu = 6
-    Deceased = 7
+class MedicalState(State, ABC):
+    infectable: bool
+    infectiousness: float
+
+    def val(self):
+        return self.agent_count
 
 
-INFECTABLE_MEDICAL_STATES = {MedicalState.Healthy}
-INFECTIONS_MEDICAL_STATES = {
-    MedicalState.Asymptomatic,
-    MedicalState.Symptomatic,
-    MedicalState.Hospitalized,
-    MedicalState.Icu,
-}
-IMUNE_MEDICAL_STATES = {MedicalState.Immune, MedicalState.Deceased}
+class InfectableState(MedicalState, ABC):
+    infectable = True
+    infectiousness = 0
+
+
+class InfectiousState(MedicalState, ABC):
+    infectable = False
+
+    def __init__(self, *args, infectiousness: float, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.infectiousness = infectiousness
+
+
+class ImmuneState(MedicalState, ABC):
+    infectable = False
+    infectiousness = 0

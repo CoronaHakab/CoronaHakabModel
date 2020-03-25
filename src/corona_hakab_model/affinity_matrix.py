@@ -2,8 +2,7 @@ import logging
 from random import shuffle
 
 import numpy as np
-from agent import Agent, Circle
-from consts import Consts
+from agent import TrackingCircle
 from scipy.sparse import lil_matrix
 
 m_type = lil_matrix
@@ -15,58 +14,54 @@ class AffinityMatrix:
     (the social circles).
     W is NxN, where N is the total population size.
     If W(i,j) is large, this means that node (person) i is socially close to node j.
-    Thus, nodes i and j can easly infect one another.
-    Naturally, W is symetric.
+    Thus, nodes i and j can easily infect one another.
+    Naturally, W is symmetric.
     """
 
-    def __init__(self, size, consts: Consts):
-        self.consts = consts
-        self.size = size  # population size
+    def __init__(self, manager):
+        self.consts = manager.consts
+        self.size = len(manager.agents)  # population size
 
-        self.matrix = m_type((size, size), dtype=np.float32)
+        self.manager = manager
+
+        self.matrix = m_type((self.size, self.size), dtype=np.float32)
         self.logger = logging.getLogger("simulation")
         self.logger.info("Building new AffinityMatrix")
-        self.agents = self.generate_agents()
+        self.agents = self.manager.agents
 
         self.m_families = self._create_intra_family_connections()
         self.m_work = self._create_intra_workplace_connections()
         self.m_random = self._create_random_connectivity()
 
-        # switches all matrixes to csr, for efficency later on (in home quarantine calculations)
+        # switches all matrices to csr, for efficiency later on (in home quarantine calculations)
         self.m_families = self.m_families.tocsr()
         self.m_work = self.m_work.tocsr()
         self.m_random = self.m_random.tocsr()
 
         self.matrix = self.m_families + self.m_work + self.m_random
-        # self.matrix = self.m_random.tocsr()
 
         self.factor = None
         self.normalize()
 
-    def generate_agents(self):
-        self.logger.info(f"Generating {self.size} agents")
-        agents = [Agent(id_) for id_ in range(self.size)]
-        return agents
-
     def _create_intra_family_connections(self):
         """
         here need to build random buckets of size N/self.averageFamilySize
-        and add nodes to a NxN sparce amtrix W_famillies describing the connections within each family.
+        and add nodes to a NxN sparse matrix W_families describing the connections within each family.
         If for example, nodes 1 till 5 are a family, we need to build connections between each and
-        every memeber of this family. The value of each edge should be heigh, representing a
+        every member of this family. The value of each edge should be high, representing a
         high chance of passing the virus, since the family members stay a long time together.
-        In the example of nodes 1 till 5 buing a family, in Matlab this would be: W_families[1:5,1:5]=p
+        In the example of nodes 1 till 5 are a family, in Matlab this would be: W_families[1:5,1:5]=p
         where p is the intra family infection probability.
-        Late on, if, for example, a policy of house containments takes place without the members of the family
+        Late on, if, for example, a policy of house quarantine takes place without the members of the family
         taking measures to separate from each other, then this value p can be replaced by something even larger.
         """
 
-        self.logger.info(f"Create intra familiy connections")
-        # as a beggining, i am making all families the same size, later we will change it to be more sophisticated
+        self.logger.info(f"Create intra family connections")
+        # as a beginning, I am making all families the same size, later we will change it to be more sophisticated
 
         matrix = m_type((self.size, self.size), dtype=np.float32)
 
-        # creating all families, and assigning each agent to a family, and counterwise
+        # creating all families, and assigning each agent to a family, and counter-wise
         agents_without_home = list(range(self.size))
         shuffle(agents_without_home)
         families = []
@@ -74,7 +69,7 @@ class AffinityMatrix:
         for i in range(num_of_families):
             if i % (num_of_families // 100) == 0:
                 self.logger.info(f"Creating family {i}/{num_of_families}")
-            new_family = Circle("home")
+            new_family = TrackingCircle()
             for _ in range(self.consts.average_family_size):
                 chosen_agent = self.agents[agents_without_home.pop()]
                 chosen_agent.add_home(new_family)
@@ -85,23 +80,28 @@ class AffinityMatrix:
         # adding the remaining people to a family (if size % average_family_size != 0)
         if len(agents_without_home) > 0:
             self.logger.info("adding remaining agents to families")
-            new_family = Circle("home")
+            new_family = TrackingCircle()
             for agent_index in agents_without_home:
                 chosen_agent = self.agents[agent_index]
                 chosen_agent.add_home(new_family)
                 new_family.add_agent(chosen_agent)
             families.append(new_family)
-        for home in families:
-            ids = np.array([a.ID for a in home.agents])
+
+        # setting the connection strength between the agents in the matrix
+        for family in families:
+            # extracting indexes of the agents in the family, which will serve as coordinates in the meshg rid
+            ids = np.array([a.index for a in family.agents])
             xs, ys = np.meshgrid(ids, ids)
             xs = xs.reshape(-1)
             ys = ys.reshape(-1)
             matrix[xs, ys] = self.consts.family_strength
+        # setting the connection between a person himself (the matrix diagonal) as 0
         ids = np.arange(self.size)
         matrix[ids, ids] = 0
 
         return matrix
 
+    # todo unify family and workplace creation
     def _create_intra_workplace_connections(self):
         """
         Similar to build the family connections we here build the working place connections
@@ -124,10 +124,9 @@ class AffinityMatrix:
         for i in range(num_of_workplaces):  # todo add last work
             if i % (num_of_workplaces // 100) == 0:
                 self.logger.info(f"Creating workplace {i}/{num_of_workplaces}")
-            new_work = Circle("work")
+            new_work = TrackingCircle()
             for _ in range(self.consts.average_work_size):
                 chosen_agent_ind = agents_without_work.pop()
-
                 chosen_agent = self.agents[chosen_agent_ind]
                 chosen_agent.add_work(new_work)
                 new_work.add_agent(chosen_agent)
@@ -137,7 +136,7 @@ class AffinityMatrix:
         # adding the remaining people to a work (if size % average_work_size != 0)
         if len(agents_without_work) > 0:
             self.logger.info("adding remaining agents to workplaces")
-            new_work = Circle("work")
+            new_work = TrackingCircle()
             for agent_index in agents_without_work:
                 chosen_agent = self.agents[agent_index]
                 chosen_agent.add_work(new_work)
@@ -146,7 +145,7 @@ class AffinityMatrix:
 
         # updating the matrix using the works
         for work in works:
-            ids = np.array([a.ID for a in work.agents])
+            ids = np.array([a.index for a in work.agents])
             xs, ys = np.meshgrid(ids, ids)
             xs = xs.reshape(-1)
             ys = ys.reshape(-1)
@@ -209,29 +208,3 @@ class AffinityMatrix:
     def change_work_policy(self, state):
         self.matrix = self.m_families + state * self.m_work + self.m_random
         self.normalize()
-
-
-# todo delete
-def dot(self, v):
-    """
-    performs dot operation between this matrix and v
-    :param v: with the size of self.size
-
-    :return: matrix*v
-    """
-
-    return self.matrix.dot(v)
-
-
-def zero_column(col_id):
-    """
-    Turn the chosen column to zeroes.
-    """
-    pass
-
-
-def add_to_column(col_id, col):
-    """
-    Add the given column to the chosen column
-    """
-    pass

@@ -13,7 +13,7 @@
 - Especially if not sure, **try to get at least 1 person's review before merging**.
 
 ## New to git/github?
-See the **"How to set up a git environment"** guide in the main folder.
+See the **"How to set up a git environment"** guide in the docs folder.
 
 For Pull-Requests, look at this guide, from step 7 -
 [https://product.hubspot.com/blog/git-and-github-tutorial-for-beginners](https://product.hubspot.com/blog/git-and-github-tutorial-for-beginners).

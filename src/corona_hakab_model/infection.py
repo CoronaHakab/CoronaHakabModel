@@ -1,6 +1,7 @@
+from collections import defaultdict
+
 import manager
 import numpy as np
-from medical_state import MedicalState
 
 
 class InfectionManager:
@@ -17,10 +18,7 @@ class InfectionManager:
         # perform infection
         self.agents_to_home_quarantine.clear()
         self.agents_to_full_quarantine.clear()
-        self._perform_infection()
-
-        # update agents
-        self._update_sick_agents()
+        return self._perform_infection()
 
     def _perform_infection(self):
         """
@@ -33,59 +31,29 @@ class InfectionManager:
                 agents[i].infect
         """
 
-        v = np.copy(self.manager.sick_agent_vector)
-
-        # a patch just for the mvp, in order to simulate infection ratio
-        rolls = np.random.random(len(self.manager.sick_agents))
-        for index, agent in enumerate(self.manager.sick_agents):
-            if rolls[index] > agent.get_infection_ratio(self.manager.consts):
-                v[agent.ID] = False
+        v = (
+            np.random.random(len(self.manager.agents))
+            < self.manager.infectiousness_vector
+        )
 
         u = self.manager.matrix.matrix.dot(v)
-        infections = np.random.random(u.shape) < (1 - np.exp(u))
-        caught_rolls = (
-            np.random.random(u.shape) < self.manager.consts.caught_sicks_ratio
+        infections = self.manager.infectable_vector & (
+            np.random.random(u.shape) < (1 - np.exp(u))
         )
-        for agent, value, caught_roll in zip(
-            self.manager.agents, infections, caught_rolls
-        ):
-            if value and agent.infect(self.manager.step_counter, self.manager):
-                self.manager.sick_agents.add(agent)
-                if caught_roll:
-                    if self.manager.consts.home_quarantine_sicks:
-                        self.agents_to_home_quarantine.append(agent)
-                    elif self.manager.consts.full_quarantine_sicks:
-                        self.agents_to_full_quarantine.append(agent)
+        infected_indices = np.flatnonzero(infections)
 
-    def _update_sick_agents(self):
-        """
-        after each day, go through all sick agents and updates their status (allowing them to recover or die)
-        """
-        # return parameters
-        new_dead = 0
-        new_recovered = 0
-        new_latent = 0
-        new_silent = 0
-        new_symptomatic = 0
-        new_asymptomatic = 0
-        new_hospitalized = 0
-        new_icu = 0
+        caught_rolls = (
+            np.random.random(len(infected_indices))
+            < self.manager.consts.caught_sicks_ratio
+        )
+        new_infected = defaultdict(list)
+        for index, caught in zip(infected_indices, caught_rolls):
+            agent = self.manager.agents[index]
+            new_infected[agent.medical_state].append(agent)
+            if caught:
+                if self.manager.consts.home_quarantine_sicks:
+                    self.agents_to_home_quarantine.append(agent)
+                elif self.manager.consts.full_quarantine_sicks:
+                    self.agents_to_full_quarantine.append(agent)
 
-        to_remove = set()
-        rolls = np.random.random(len(self.manager.sick_agents))
-        # moved the code from agent.day_passed here, so that it will be more easily managed
-        for agent, roll in zip(self.manager.sick_agents, rolls):
-            result = agent.change_medical_state(
-                self.manager.step_counter, roll, self.manager
-            )
-            if result == "new_infecting":
-                self.manager.sick_agents.add(agent)
-                self.manager.sick_agent_vector[agent.ID] = True
-            elif result == "new_not_infecting":
-                to_remove.add(agent)
-                self.manager.sick_agent_vector[agent.ID] = False
-                if agent.medical_state == MedicalState.Deceased:
-                    new_dead = new_dead + 1
-                elif agent.medical_state == MedicalState.Immune:
-                    new_recovered = new_recovered + 1
-        self.manager.sick_agents.difference_update(to_remove)
+        return new_infected
