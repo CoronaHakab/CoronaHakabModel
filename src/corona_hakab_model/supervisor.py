@@ -3,10 +3,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from bisect import bisect
 from functools import lru_cache
-from typing import Callable, Any, Tuple, Optional, NamedTuple, Sequence
+from typing import Any, Callable, NamedTuple, Optional, Sequence, Tuple
 
 import numpy as np
-
 from state_machine import TerminalState
 
 try:
@@ -81,17 +80,17 @@ class Supervisor:
             )
         if self.manager.consts.home_quarantine_sicks:
             title = (
-                    title
-                    + "\napplying home quarantine for confirmed cases ({} of cases)".format(
-                self.manager.consts.caught_sicks_ratio
-            )
+                title
+                + "\napplying home quarantine for confirmed cases ({} of cases)".format(
+                    self.manager.consts.caught_sicks_ratio
+                )
             )
         if self.manager.consts.full_quarantine_sicks:
             title = (
-                    title
-                    + "\napplying full quarantine for confirmed cases ({} of cases)".format(
-                self.manager.consts.caught_sicks_ratio
-            )
+                title
+                + "\napplying full quarantine for confirmed cases ({} of cases)".format(
+                    self.manager.consts.caught_sicks_ratio
+                )
             )
 
         # plot parameters

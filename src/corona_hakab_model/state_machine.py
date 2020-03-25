@@ -1,17 +1,31 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections import namedtuple, defaultdict
+from collections import defaultdict, namedtuple
 from math import fsum
-from typing import List, Dict, Set, Optional, Iterable, Collection, Union, Tuple, Sequence, Generic, TypeVar, Iterator
+from typing import (
+    Collection,
+    Dict,
+    Generic,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 import numpy as np
+from agent import Agent, Circle
 from scipy.stats import rv_discrete
+from util import lower_bound, upper_bound
 
-from agent import Circle, Agent
-from util import upper_bound, lower_bound
-
-PendingTransfer = namedtuple("PendingTransfer", ["agent", "target_state", "origin_state", "original_duration"])
+PendingTransfer = namedtuple(
+    "PendingTransfer", ["agent", "target_state", "origin_state", "original_duration"]
+)
 
 TransferCollection = Dict[int, List[PendingTransfer]]
 
@@ -75,7 +89,12 @@ class StochasticState(State):
         ret[1:] -= ret[:1]
         return ret
 
-    def add_transfer(self, destination: State, duration: rv_discrete, probability: Union[float, type(...)]):
+    def add_transfer(
+        self,
+        destination: State,
+        duration: rv_discrete,
+        probability: Union[float, type(...)],
+    ):
         if probability is ...:
             p = 1
         elif self.durations:
@@ -93,13 +112,21 @@ class StochasticState(State):
         self._add_descendant(destination)
 
     def transfer(self, agents: Set[Agent]) -> Iterable[PendingTransfer]:
-        transfer_indices = np.searchsorted(self.probs_cumulative, np.random.random(len(agents)))
+        transfer_indices = np.searchsorted(
+            self.probs_cumulative, np.random.random(len(agents))
+        )
         bin_count = np.bincount(transfer_indices)
         durations = [
-            iter(d.rvs(c)) for (c, s, d) in zip(bin_count, self.destinations, self.durations)
+            iter(d.rvs(c))
+            for (c, s, d) in zip(bin_count, self.destinations, self.durations)
         ]
         return [
-            PendingTransfer(agent, self.destinations[transfer_ind], self, durations[transfer_ind].__next__())
+            PendingTransfer(
+                agent,
+                self.destinations[transfer_ind],
+                self,
+                durations[transfer_ind].__next__(),
+            )
             for transfer_ind, agent in zip(transfer_indices, agents)
         ]
 
@@ -110,7 +137,9 @@ class StochasticState(State):
                 for probability, duration in zip(self.probs_specific(), self.durations)
             )
         ret = 0
-        for probability, duration, dest in zip(self.probs_specific(), self.durations, self.destinations):
+        for probability, duration, dest in zip(
+            self.probs_specific(), self.durations, self.destinations
+        ):
             if probability <= tol:
                 continue
             for trans_time in range(lower_bound(duration), upper_bound(duration) + 1):
@@ -118,7 +147,7 @@ class StochasticState(State):
                     break
                 stp = probability * duration.pmf(trans_time)
                 if stp > tol:
-                    ret += (stp * dest.probability(time - trans_time, state, tol / stp))
+                    ret += stp * dest.probability(time - trans_time, state, tol / stp)
         return ret
 
 
@@ -130,7 +159,7 @@ class TerminalState(State):
         return state is self
 
 
-T = TypeVar('T', bound=State)
+T = TypeVar("T", bound=State)
 
 
 class StateMachine(Generic[T]):

@@ -4,8 +4,16 @@ from supervisor import Supervisable
 if __name__ == "__main__":
     sm = SimulationManager(
         (
-            "Symptomatic", Supervisable.Delayed("Symptomatic", 3),
-            "Deceased", "Asymptomatic", "Hospitalized", "ICU", "Latent", "Silent", "Susceptible", "Recovered"
+            "Symptomatic",
+            Supervisable.Delayed("Symptomatic", 3),
+            "Deceased",
+            "Asymptomatic",
+            "Hospitalized",
+            "ICU",
+            "Latent",
+            "Silent",
+            "Susceptible",
+            "Recovered",
         )
     )
     sm.run()

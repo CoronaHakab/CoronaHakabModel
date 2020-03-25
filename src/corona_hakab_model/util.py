@@ -1,9 +1,9 @@
-from scipy.stats import randint, rv_discrete, binom
+from scipy.stats import binom, randint, rv_discrete
 
 
 def dist(*args):
     def const_dist(a):
-        return rv_discrete(name='const', values=([a], [1]))()
+        return rv_discrete(name="const", values=([a], [1]))()
 
     def uniform_dist(a, b):
         return randint(a, b + 1)

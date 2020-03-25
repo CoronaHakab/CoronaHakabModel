@@ -1,14 +1,13 @@
 from functools import lru_cache
 from itertools import count
-from math import fsum, isclose
+from math import fsum
 from typing import NamedTuple
 
 import numpy as np
-from scipy.stats import rv_discrete
-
-from medical_state import InfectableState, InfectiousState, ImmuneState
+from medical_state import ImmuneState, InfectableState, InfectiousState
 from medical_state_machine import MedicalStateMachine
-from state_machine import TerminalState, StochasticState
+from scipy.stats import rv_discrete
+from state_machine import StochasticState, TerminalState
 from util import dist
 
 
@@ -26,11 +25,15 @@ class Consts(NamedTuple):
     silent_to_symptomatic_days: rv_discrete = dist(0, 3, 10)
     asymptomatic_to_recovered_days: rv_discrete = dist(3, 5, 7)
     symptomatic_to_asymptomatic_days: rv_discrete = dist(7, 10, 14)
-    symptomatic_to_hospitalized_days: rv_discrete = dist(0, 1.5, 10)  # todo range not specified in sources
+    symptomatic_to_hospitalized_days: rv_discrete = dist(
+        0, 1.5, 10
+    )  # todo range not specified in sources
     hospitalized_to_asymptomatic_days: rv_discrete = dist(18)
     hospitalized_to_icu_days: rv_discrete = dist(5)  # todo probably has a range
     icu_to_deceased_days: rv_discrete = dist(7)  # todo probably has a range
-    icu_to_hospitalized_days: rv_discrete = dist(7)  # todo maybe the program should juts print a question mark,
+    icu_to_hospitalized_days: rv_discrete = dist(
+        7
+    )  # todo maybe the program should juts print a question mark,
 
     # we'll see how the researchers like that!
 
@@ -53,15 +56,17 @@ class Consts(NamedTuple):
         infectious_arr = []
         for t in count():
             infectious_arr.append(
-                v := fsum(
-                    i_state.probability(t, s, per_TOL) for s in infectious_states
-                )
+                v := fsum(i_state.probability(t, s, per_TOL) for s in infectious_states)
             )
             if t > min_t and v < p_TOL:
                 break
 
         infectious_arr = np.array(infectious_arr)
-        return np.sum(np.arange(len(infectious_arr) - 1) * infectious_arr[:-1] * (1 - infectious_arr[1:]))
+        return np.sum(
+            np.arange(len(infectious_arr) - 1)
+            * infectious_arr[:-1]
+            * (1 - infectious_arr[1:])
+        )
 
     def average_infecting_days(self):
         """
@@ -70,26 +75,26 @@ class Consts(NamedTuple):
         also ignoring moving back from icu to asymptomatic
         """
         silent_time = (
-                self.silent_to_asymptomatic_probability
-                * self.silent_to_asymptomatic_days.mean()
-                + self.silent_to_symptomatic_probability
-                * self.silent_to_symptomatic_days.mean()
+            self.silent_to_asymptomatic_probability
+            * self.silent_to_asymptomatic_days.mean()
+            + self.silent_to_symptomatic_probability
+            * self.silent_to_symptomatic_days.mean()
         )
         asymptomatic_time = (
-                self.asymptomatic_to_recovered_days.mean()
-                * self.silent_to_asymptomatic_probability
+            self.asymptomatic_to_recovered_days.mean()
+            * self.silent_to_asymptomatic_probability
         )
         symptomatic_time = self.silent_to_symptomatic_probability * (
-                (self.symptomatic_to_asymptomatic_days.mean() + asymptomatic_time)
-                * self.symptomatic_to_asymptomatic_probability
-                + self.symptomatic_to_hospitalized_days.mean()
-                * self.symptomatic_to_hospitalized_probability
+            (self.symptomatic_to_asymptomatic_days.mean() + asymptomatic_time)
+            * self.symptomatic_to_asymptomatic_probability
+            + self.symptomatic_to_hospitalized_days.mean()
+            * self.symptomatic_to_hospitalized_probability
         )
         hosplital_time = (
-                self.silent_to_symptomatic_probability
-                * self.symptomatic_to_hospitalized_probability
-                * self.hospitalized_to_asymptomatic_probability
-                * asymptomatic_time
+            self.silent_to_symptomatic_probability
+            * self.symptomatic_to_hospitalized_probability
+            * self.hospitalized_to_asymptomatic_probability
+            * asymptomatic_time
         )
         return silent_time + asymptomatic_time + symptomatic_time + hosplital_time
 
@@ -132,27 +137,27 @@ class Consts(NamedTuple):
         The expected infection ratio of a random infected agent
         """
         asymptomatic_time = (
-                self.asymptomatic_to_recovered_days.mean()
-                * self.silent_to_asymptomatic_probability
+            self.asymptomatic_to_recovered_days.mean()
+            * self.silent_to_asymptomatic_probability
         )
         symptomatic_time = self.silent_to_symptomatic_probability * (
-                self.symptomatic_to_asymptomatic_days.mean()
-                * self.symptomatic_to_asymptomatic_probability
-                + self.symptomatic_to_hospitalized_days.mean()
-                * self.symptomatic_to_hospitalized_probability
+            self.symptomatic_to_asymptomatic_days.mean()
+            * self.symptomatic_to_asymptomatic_probability
+            + self.symptomatic_to_hospitalized_days.mean()
+            * self.symptomatic_to_hospitalized_probability
         )
         silent_time = (
-                self.silent_to_symptomatic_probability
-                * self.silent_to_symptomatic_days.mean()
-                + self.silent_to_asymptomatic_probability
-                * self.silent_to_asymptomatic_days.mean()
+            self.silent_to_symptomatic_probability
+            * self.silent_to_symptomatic_days.mean()
+            + self.silent_to_asymptomatic_probability
+            * self.silent_to_asymptomatic_days.mean()
         )
         total_time = asymptomatic_time + symptomatic_time + silent_time
         return (
-                       self.asymptomatic_infection_ratio * asymptomatic_time
-                       + self.symptomatic_infection_ratio * symptomatic_time
-                       + self.silent_infection_ratio * silent_time
-               ) / total_time
+            self.asymptomatic_infection_ratio * asymptomatic_time
+            + self.symptomatic_infection_ratio * symptomatic_time
+            + self.silent_infection_ratio * silent_time
+        ) / total_time
 
     # quarantine policy
     # todo why does this exist? doesn't the policy set this? at least make this an enum
@@ -204,9 +209,15 @@ class Consts(NamedTuple):
 
         susceptible = InfectableTerminalState("Susceptible")
         latent = ImmuneStochasticState("Latent")
-        silent = InfectiousStochasticState("Silent", infectiousness=self.silent_infection_ratio)
-        symptomatic = InfectiousStochasticState("Symptomatic", infectiousness=self.symptomatic_infection_ratio)
-        asymptomatic = InfectiousStochasticState("Asymptomatic", infectiousness=self.asymptomatic_infection_ratio)
+        silent = InfectiousStochasticState(
+            "Silent", infectiousness=self.silent_infection_ratio
+        )
+        symptomatic = InfectiousStochasticState(
+            "Symptomatic", infectiousness=self.symptomatic_infection_ratio
+        )
+        asymptomatic = InfectiousStochasticState(
+            "Asymptomatic", infectiousness=self.asymptomatic_infection_ratio
+        )
 
         hospitalized = ImmuneStochasticState("Hospitalized")
         icu = ImmuneStochasticState("ICU")
@@ -218,17 +229,34 @@ class Consts(NamedTuple):
 
         latent.add_transfer(silent, self.latent_to_silent_days, ...)
 
-        silent.add_transfer(asymptomatic, self.silent_to_asymptomatic_days, self.silent_to_asymptomatic_probability)
+        silent.add_transfer(
+            asymptomatic,
+            self.silent_to_asymptomatic_days,
+            self.silent_to_asymptomatic_probability,
+        )
         silent.add_transfer(symptomatic, self.silent_to_symptomatic_days, ...)
 
-        symptomatic.add_transfer(asymptomatic, self.symptomatic_to_asymptomatic_days,
-                                 self.symptomatic_to_asymptomatic_probability)
-        symptomatic.add_transfer(hospitalized, self.symptomatic_to_hospitalized_days, ...)
+        symptomatic.add_transfer(
+            asymptomatic,
+            self.symptomatic_to_asymptomatic_days,
+            self.symptomatic_to_asymptomatic_probability,
+        )
+        symptomatic.add_transfer(
+            hospitalized, self.symptomatic_to_hospitalized_days, ...
+        )
 
-        hospitalized.add_transfer(icu, self.hospitalized_to_icu_days, self.hospitalized_to_icu_probability)
-        hospitalized.add_transfer(asymptomatic, self.hospitalized_to_asymptomatic_days, ...)
+        hospitalized.add_transfer(
+            icu, self.hospitalized_to_icu_days, self.hospitalized_to_icu_probability
+        )
+        hospitalized.add_transfer(
+            asymptomatic, self.hospitalized_to_asymptomatic_days, ...
+        )
 
-        icu.add_transfer(hospitalized, self.icu_to_hospitalized_days, self.icu_to_hospitalized_probability)
+        icu.add_transfer(
+            hospitalized,
+            self.icu_to_hospitalized_days,
+            self.icu_to_hospitalized_probability,
+        )
         icu.add_transfer(deceased, self.icu_to_deceased_days, ...)
 
         asymptomatic.add_transfer(recovered, self.asymptomatic_to_recovered_days, ...)
@@ -236,7 +264,7 @@ class Consts(NamedTuple):
         return ret
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     c = Consts()
     print(c.average_infecting_days())
     print(c.n_average_infecting_days())

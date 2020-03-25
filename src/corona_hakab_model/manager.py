@@ -1,15 +1,15 @@
-from collections import defaultdict
-from typing import Tuple, Any, Iterable
-
-from affinity_matrix import AffinityMatrix
 import logging
+from collections import defaultdict
+from typing import Any, Iterable, Tuple
+
+import infection
 import numpy as np
 import update_matrix
-import infection
+from affinity_matrix import AffinityMatrix
 from agent import Agent
 from consts import Consts
 from state_machine import PendingTransfers
-from supervisor import Supervisor, Supervisable
+from supervisor import Supervisable, Supervisor
 
 
 class SimulationManager:
@@ -24,7 +24,7 @@ class SimulationManager:
 
         self.pending_transfers = PendingTransfers()
 
-        self.logger = logging.getLogger('simulation')
+        self.logger = logging.getLogger("simulation")
         logging.basicConfig()
         self.logger.setLevel(logging.INFO)
         self.logger.info("Creating new simulation.")
@@ -33,7 +33,9 @@ class SimulationManager:
         # the manager holds the vector, but the agents update it
         self.infectiousness_vector = np.empty(self.consts.population_size, dtype=float)
         self.infectable_vector = np.empty(self.consts.population_size, dtype=bool)
-        self.agents = [Agent(i, self, initial_state) for i in range(self.consts.population_size)]
+        self.agents = [
+            Agent(i, self, initial_state) for i in range(self.consts.population_size)
+        ]
         initial_state.add_many(self.agents)
 
         self.matrix = AffinityMatrix(self)
@@ -53,8 +55,10 @@ class SimulationManager:
         run one step
         """
         # update matrix
-        self.update_matrix_manager.update_matrix_step(self.infection_manager.agents_to_home_quarantine,
-                                                      self.infection_manager.agents_to_full_quarantine)
+        self.update_matrix_manager.update_matrix_step(
+            self.infection_manager.agents_to_home_quarantine,
+            self.infection_manager.agents_to_full_quarantine,
+        )
 
         # run infection
         new_sick = self.infection_manager.infection_step()
@@ -70,9 +74,7 @@ class SimulationManager:
         changed_state_introduced = defaultdict(list)
         changed_state_leaving = new_sick
 
-        all_sick = sum(
-            changed_state_leaving.values(), []
-        )
+        all_sick = sum(changed_state_leaving.values(), [])
 
         changed_state_introduced[self.medical_machine.state_upon_infection] = all_sick
 
@@ -98,7 +100,7 @@ class SimulationManager:
         setting up the simulation with a given amount of infected people
         """
         # todo we only do this once so it's fine but we should really do something better
-        agents_to_infect = self.agents[:self.consts.initial_infected_count]
+        agents_to_infect = self.agents[: self.consts.initial_infected_count]
 
         for agent in agents_to_infect:
             agent.set_medical_state_no_inform(self.medical_machine.state_upon_infection)
@@ -119,14 +121,19 @@ class SimulationManager:
             if agent.work is None:
                 continue
             if roll:
-                work_members_ids = agent.work.get_indexes_of_my_circle(agent.index)  # right now works are circle[1]
+                work_members_ids = agent.work.get_indexes_of_my_circle(
+                    agent.index
+                )  # right now works are circle[1]
                 for id in work_members_ids:
                     self.matrix.matrix[agent.index, id] = np.log(1)
                 family_members_ids = agent.home.get_indexes_of_my_circle(
-                    agent.index)  # right now families are circle[0]
+                    agent.index
+                )  # right now families are circle[0]
                 for id in family_members_ids:
-                    self.matrix.matrix[agent.index, id] = \
-                        np.log(1 - (self.consts.family_strength_not_workers * self.matrix.factor))
+                    self.matrix.matrix[agent.index, id] = np.log(
+                        1
+                        - (self.consts.family_strength_not_workers * self.matrix.factor)
+                    )
         self.setup_sick()
 
     def run(self):
@@ -142,13 +149,12 @@ class SimulationManager:
                 elif i == self.consts.resume_work_days:
                     self.matrix.change_work_policy(True)
             self.step()
-            self.logger.info(
-                f"performing step {i + 1}/{self.consts.total_steps}"
-            )
+            self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
 
     def plot(self, **kwargs):
         self.supervisor.plot(**kwargs)
 
     def __str__(self):
-        return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(self.consts.population_size,
-                                                                                    self.consts.total_steps)
+        return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(
+            self.consts.population_size, self.consts.total_steps
+        )
