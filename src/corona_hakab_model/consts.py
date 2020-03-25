@@ -1,14 +1,14 @@
 from functools import lru_cache
 from itertools import count
 from math import fsum
-from typing import NamedTuple
+from typing import NamedTuple, Dict, Tuple
 
 import numpy as np
 from medical_state import ImmuneState, InfectableState, InfectiousState
 from medical_state_machine import MedicalStateMachine
 from scipy.stats import rv_discrete
-from state_machine import StochasticState, TerminalState
-from util import dist
+from state_machine import StochasticState, TerminalState, State
+from util import dist, lower_bound, upper_bound
 
 
 class Consts(NamedTuple):
@@ -35,66 +35,28 @@ class Consts(NamedTuple):
         7
     )  # todo maybe the program should juts print a question mark,  we'll see how the researchers like that!
 
-    @lru_cache()
-    def n_average_infecting_days(self):
-        # todo fix
-        """
-        returns the expected time of infectivness of an infected people (for normalization)
-        assuming you are not contagious when in a hospital nor in icu.
-        also ignoring moving back from icu to asymptomatic
-        """
-
-        per_TOL = 1e-6
-        p_TOL = 1e-2
-        min_t = 10
-
-        m = self.medical_state_machine()
-        i_state = m.state_upon_infection
-        infectious_states = [s for s in m.states if s.infectiousness]
-        infectious_arr = []
-        for t in count():
-            infectious_arr.append(
-                v := fsum(i_state.probability(t, s, per_TOL) for s in infectious_states)
-            )
-            if t > min_t and v < p_TOL:
-                break
-
-        infectious_arr = np.array(infectious_arr)
-        return np.sum(
-            np.arange(len(infectious_arr) - 1)
-            * infectious_arr[:-1]
-            * (1 - infectious_arr[1:])
-        )
-
     def average_infecting_days(self):
-        """
-        returns the expected time of infectivness of an infected people (for normalization)
-        assuming you are not contagious when in a hospital nor in icu.
-        also ignoring moving back from icu to asymptomatic
-        """
-        silent_time = (
-            self.silent_to_asymptomatic_probability
-            * self.silent_to_asymptomatic_days.mean()
-            + self.silent_to_symptomatic_probability
-            * self.silent_to_symptomatic_days.mean()
-        )
-        asymptomatic_time = (
-            self.asymptomatic_to_recovered_days.mean()
-            * self.silent_to_asymptomatic_probability
-        )
-        symptomatic_time = self.silent_to_symptomatic_probability * (
-            (self.symptomatic_to_asymptomatic_days.mean() + asymptomatic_time)
-            * self.symptomatic_to_asymptomatic_probability
-            + self.symptomatic_to_hospitalized_days.mean()
-            * self.symptomatic_to_hospitalized_probability
-        )
-        hosplital_time = (
-            self.silent_to_symptomatic_probability
-            * self.symptomatic_to_hospitalized_probability
-            * self.hospitalized_to_asymptomatic_probability
-            * asymptomatic_time
-        )
-        return silent_time + asymptomatic_time + symptomatic_time + hosplital_time
+        TOL = 1e-6
+        m = self.medical_state_machine()
+        M, terminal_rows, entry_columns = m.markovian
+        z = len(M)
+
+        p = entry_columns[m.state_upon_infection]
+        terminal_mask = np.zeros(z, bool)
+        terminal_mask[list(terminal_rows.values())] = True
+
+        ret = 0.0
+        prev_v = 0
+        for time in count(1):
+            p = M @ p
+            v = np.sum(p, where=terminal_mask)
+            d = (v - prev_v)
+            ret += d * time
+            prev_v = v
+            # run at least as many times as the node number to ensure we reached all terminal nodes
+            if time > z and d < TOL:
+                break
+        return ret
 
     # average probability for transmitions:
     silent_to_asymptomatic_probability = 0.2
@@ -135,27 +97,27 @@ class Consts(NamedTuple):
         The expected infection ratio of a random infected agent
         """
         asymptomatic_time = (
-            self.asymptomatic_to_recovered_days.mean()
-            * self.silent_to_asymptomatic_probability
+                self.asymptomatic_to_recovered_days.mean()
+                * self.silent_to_asymptomatic_probability
         )
         symptomatic_time = self.silent_to_symptomatic_probability * (
-            self.symptomatic_to_asymptomatic_days.mean()
-            * self.symptomatic_to_asymptomatic_probability
-            + self.symptomatic_to_hospitalized_days.mean()
-            * self.symptomatic_to_hospitalized_probability
+                self.symptomatic_to_asymptomatic_days.mean()
+                * self.symptomatic_to_asymptomatic_probability
+                + self.symptomatic_to_hospitalized_days.mean()
+                * self.symptomatic_to_hospitalized_probability
         )
         silent_time = (
-            self.silent_to_symptomatic_probability
-            * self.silent_to_symptomatic_days.mean()
-            + self.silent_to_asymptomatic_probability
-            * self.silent_to_asymptomatic_days.mean()
+                self.silent_to_symptomatic_probability
+                * self.silent_to_symptomatic_days.mean()
+                + self.silent_to_asymptomatic_probability
+                * self.silent_to_asymptomatic_days.mean()
         )
         total_time = asymptomatic_time + symptomatic_time + silent_time
         return (
-            self.asymptomatic_infection_ratio * asymptomatic_time
-            + self.symptomatic_infection_ratio * symptomatic_time
-            + self.silent_infection_ratio * silent_time
-        ) / total_time
+                       self.asymptomatic_infection_ratio * asymptomatic_time
+                       + self.symptomatic_infection_ratio * symptomatic_time
+                       + self.silent_infection_ratio * silent_time
+               ) / total_time
 
     # quarantine policy
     # todo why does this exist? doesn't the policy set this? at least make this an enum
@@ -265,4 +227,3 @@ class Consts(NamedTuple):
 if __name__ == "__main__":
     c = Consts()
     print(c.average_infecting_days())
-    print(c.n_average_infecting_days())
