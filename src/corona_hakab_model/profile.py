@@ -31,7 +31,7 @@ if __name__ == "__main__":
     sm.run()
 
     stats = yappi.get_func_stats()
-    dest_path = "..\..\profilings\callgrind.out." + str(int(time()))
+    dest_path = r"..\..\profilings\callgrind.out." + str(int(time()))
     stats.save(dest_path, "CALLGRIND")
 
     if not qcachegrind_path:
