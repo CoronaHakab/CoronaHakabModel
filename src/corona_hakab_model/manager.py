@@ -2,6 +2,7 @@ import logging
 import random as rnd
 from itertools import islice
 from time import time
+import ast 
 
 import infection
 import numpy as np
@@ -10,8 +11,6 @@ import update_matrix
 from affinity_matrix import AffinityMatrix
 from consts import Consts
 from medical_state import MedicalState
-import json
-import csv
 
 class SimulationManager:
     """
@@ -141,13 +140,15 @@ class SimulationManager:
             output_dict[attr] = getattr(self.consts,attr)
         for attr in self.per_generation:
             output_dict[str(attr)] = self.per_generation[attr]
-        file = json.dumps(output_dict)
-        f = open("..\output\Export.json","w")
-        f.write(file)
-        f.close()
-        w = csv.writer(open("..\output\Export.csv", "w"))
+        
+        filehandle = open("..\output\Export.json","w")
+        export_string = "{\n"
         for key, val in output_dict.items():
-            w.writerow([key, val])
+            export_string = export_string + '"' + str(key) + '": ' + str(val) + ',\n'
+        export_string = export_string[:-2]
+        export_string = export_string + "\n}"
+        filehandle.write(export_string)
+        filehandle.close()
             
             
     def plot(self):
