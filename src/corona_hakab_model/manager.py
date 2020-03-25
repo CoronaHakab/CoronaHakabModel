@@ -70,19 +70,24 @@ class SimulationManager:
         changed_state_introduced = defaultdict(list)
         changed_state_leaving = new_sick
 
-        changed_state_introduced[self.medical_machine.state_upon_infection] = sum(
+        all_sick = sum(
             changed_state_leaving.values(), []
         )
+
+        changed_state_introduced[self.medical_machine.state_upon_infection] = all_sick
+
+        for s in all_sick:
+            s.set_medical_state_no_inform(self.medical_machine.state_upon_infection)
 
         moved = self.pending_transfers.advance()
         for (agent, destination, origin, _) in moved:
             agent.set_medical_state_no_inform(destination)
+
             changed_state_introduced[destination].append(agent)
             changed_state_leaving[origin].append(agent)
 
         for state, agents in changed_state_introduced.items():
             state.add_many(agents)
-
             self.pending_transfers.extend(state.transfer(agents))
 
         for state, agents in changed_state_leaving.items():
@@ -98,6 +103,9 @@ class SimulationManager:
         for agent in agents_to_infect:
             agent.set_medical_state_no_inform(self.medical_machine.state_upon_infection)
 
+        self.medical_machine.initial.remove_many(agents_to_infect)
+        self.medical_machine.state_upon_infection.add_many(agents_to_infect)
+
         self.pending_transfers.extend(
             self.medical_machine.state_upon_infection.transfer(agents_to_infect)
         )
@@ -106,11 +114,11 @@ class SimulationManager:
         """"
         setting up the simulation with a given amount of infected people
         """
-        rolls = np.random.random(len(self.agents))
+        rolls = np.random.random(len(self.agents)) > workers_percent
         for agent, roll in zip(self.agents, rolls):
             if agent.work is None:
                 continue
-            if roll > workers_percent:
+            if roll:
                 work_members_ids = agent.work.get_indexes_of_my_circle(agent.index)  # right now works are circle[1]
                 for id in work_members_ids:
                     self.matrix.matrix[agent.index, id] = np.log(1)
@@ -126,6 +134,7 @@ class SimulationManager:
         runs full simulation
         """
         self.generate_policy(1)
+
         for i in range(self.consts.total_steps):
             if Consts.active_quarantine:
                 if i == self.consts.stop_work_days:

@@ -14,6 +14,8 @@ else:
         pass
     else:
         matplotlib.use("Qt5Agg")
+        del matplotlib
+    del PySide2
 
 try:
     # plt is optional
@@ -26,23 +28,30 @@ class Supervisor:
     """
     records and plots statistics about the simulation.
     """
+
     # todo I want the supervisor to decide when the simulation ends
     # todo record write/read results as text
 
     def __init__(self, states_to_track: Iterable[MedicalState]):
         self.state_history: Dict[MedicalState, List[int]] = {s: [] for s in states_to_track}
+
         self.xs = []
         self.max_height = -float('inf')
 
     def snapshot(self, manager):
         self.xs.append(manager.current_date)
+        msg = []
         for s, arr in self.state_history.items():
-            arr.append(s.agent_count)
+            v = s.val()
+            msg.append(f'{s.name}: {v}')
+            arr.append(v)
+        print(", ".join(msg))
+
 
     def plot(self, max_scale=True, auto_show=True, save=True):
         output_dir = "../output/"
         total_size = Consts.population_size
-        title = f"Infections vs. Days, size={total_size}"
+        title = f"Infections vs. Days, size={total_size:,}"
         if max_scale:
             height = total_size
         else:

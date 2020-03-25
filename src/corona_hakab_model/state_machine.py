@@ -144,13 +144,14 @@ class StateMachine(Generic[T]):
     def __getitem__(self, item: Union[str, Tuple[str, ...]]):
         if isinstance(item, str):
             return self.states_by_name[item]
-        return (self[i] for i in item)
+        return tuple(self[i] for i in item)
 
     def add_state(self, state: T):
         if self.states_by_name.setdefault(state.name, state) is not state:
             raise Exception(f"duplicate state name {state.name}")
-        self.state_indices[state] = len(self.state_indices)
-        self.states.append(state)
+        if state not in self.state_indices:
+            self.state_indices[state] = len(self.state_indices)
+            self.states.append(state)
 
         state.machine = self
 

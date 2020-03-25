@@ -7,6 +7,9 @@ class MedicalState(State, ABC):
     infectable: bool
     infectiousness: float
 
+    def val(self):
+        return self.agent_count
+
 
 class InfectableState(MedicalState, ABC):
     infectable = True

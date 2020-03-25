@@ -15,7 +15,7 @@ from util import dist
 class Consts(NamedTuple):
     # simulation parameters
     population_size = 10_000
-    total_steps = 400
+    total_steps = 200
     initial_infected_count = 20
 
     # corona stats
@@ -35,14 +35,18 @@ class Consts(NamedTuple):
     # we'll see how the researchers like that!
 
     @lru_cache()
-    def average_infecting_days(self):
+    def n_average_infecting_days(self):
+        # todo fix
         """
         returns the expected time of infectivness of an infected people (for normalization)
         assuming you are not contagious when in a hospital nor in icu.
         also ignoring moving back from icu to asymptomatic
         """
 
-        TOL = 1e-7
+        per_TOL = 1e-6
+        p_TOL = 1e-2
+        min_t = 10
+
         m = self.medical_state_machine()
         i_state = m.state_upon_infection
         infectious_states = [s for s in m.states if s.infectiousness]
@@ -50,14 +54,44 @@ class Consts(NamedTuple):
         for t in count():
             infectious_arr.append(
                 v := fsum(
-                    i_state.probability(t, s, TOL) for s in infectious_states
+                    i_state.probability(t, s, per_TOL) for s in infectious_states
                 )
             )
-            if v < TOL:
+            if t > min_t and v < p_TOL:
                 break
 
         infectious_arr = np.array(infectious_arr)
-        return np.sum(np.arange(len(infectious_arr)) * infectious_arr[:-1] * (1-infectious_arr[1:]))
+        return np.sum(np.arange(len(infectious_arr)-1) * infectious_arr[:-1] * (1-infectious_arr[1:]))
+
+    def average_infecting_days(self):
+        """
+        returns the expected time of infectivness of an infected people (for normalization)
+        assuming you are not contagious when in a hospital nor in icu.
+        also ignoring moving back from icu to asymptomatic
+        """
+        silent_time = (
+                self.silent_to_asymptomatic_probability
+                * self.silent_to_asymptomatic_days.mean()
+                + self.silent_to_symptomatic_probability
+                * self.silent_to_symptomatic_days.mean()
+        )
+        asymptomatic_time = (
+                self.asymptomatic_to_recovered_days.mean()
+                * self.silent_to_asymptomatic_probability
+        )
+        symptomatic_time = self.silent_to_symptomatic_probability * (
+                (self.symptomatic_to_asymptomatic_days.mean() + asymptomatic_time)
+                * self.symptomatic_to_asymptomatic_probability
+                + self.symptomatic_to_hospitalized_days.mean()
+                * self.symptomatic_to_hospitalized_probability
+        )
+        hosplital_time = (
+                self.silent_to_symptomatic_probability
+                * self.symptomatic_to_hospitalized_probability
+                * self.hospitalized_to_asymptomatic_probability
+                * asymptomatic_time
+        )
+        return silent_time + asymptomatic_time + symptomatic_time + hosplital_time
 
     # average probability for transmitions:
     silent_to_asymptomatic_probability = 0.2
@@ -147,7 +181,7 @@ class Consts(NamedTuple):
     # the average amount of stranger contacts per person
     average_amount_of_strangers = 200  # todo replace with distribution
 
-    # relative strangths of each connection (in terms of infection chance)
+    # relative strengths of each connection (in terms of infection chance)
     # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
     family_strength_not_workers = 0.75
     family_strength = 0.4
@@ -200,3 +234,8 @@ class Consts(NamedTuple):
         asymptomatic.add_transfer(recovered, self.asymptomatic_to_recovered_days, ...)
 
         return ret
+
+if __name__ == '__main__':
+    c = Consts()
+    print(c.average_infecting_days())
+    print(c.n_average_infecting_days())

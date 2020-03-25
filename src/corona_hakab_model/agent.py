@@ -11,17 +11,11 @@ class Agent:
 
         self.manager = manager
 
-        self.medical_state = initial_state
+        self.medical_state = None
         self.set_medical_state_no_inform(initial_state)
 
         self.is_home_quarantined = False
         self.is_full_quarantined = False
-
-    def set_medical_state(self, new_state):
-        self.medical_state.remove_agent(self)
-        new_state.add_agent(self)
-
-        self.set_medical_state_no_inform(new_state)
 
     def set_medical_state_no_inform(self, new_state):
         self.medical_state = new_state
@@ -40,9 +34,6 @@ class Agent:
 
     def add_work(self, work):
         self.work = work
-
-    def change_medical_state(self, new_status):
-        self.medical_state = new_status
 
 
 class Circle:
@@ -74,18 +65,22 @@ class TrackingCircle(Circle):
     def add_agent(self, agent):
         super().add_agent(agent)
         self.agents.add(agent)
+        assert self.agent_count == len(self.agents)
 
     def remove_agent(self, agent):
         super().remove_agent(agent)
         self.agents.remove(agent)
+        assert self.agent_count == len(self.agents)
 
     def add_many(self, agents):
         super().add_many(agents)
         self.agents.update(agents)
+        assert self.agent_count == len(self.agents)
 
     def remove_many(self, agents):
         super().remove_many(agents)
         self.agents.difference_update(agents)
+        assert self.agent_count == len(self.agents)
 
     def get_indexes_of_my_circle(self, my_index):
         rest_of_circle = {o.index for o in self.agents}
