@@ -39,7 +39,7 @@ class SimulationManager:
         self.matrix = AffinityMatrix(self)
 
         self.supervisor = Supervisor(
-            [Supervisable.coerce(a)(self) for a in supervisable_makers], self
+            [Supervisable.coerce(a, self) for a in supervisable_makers], self
         )
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self.matrix)
         self.infection_manager = infection.InfectionManager(self)

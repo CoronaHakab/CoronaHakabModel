@@ -61,7 +61,7 @@ class Consts(NamedTuple):
                 break
 
         infectious_arr = np.array(infectious_arr)
-        return np.sum(np.arange(len(infectious_arr)-1) * infectious_arr[:-1] * (1-infectious_arr[1:]))
+        return np.sum(np.arange(len(infectious_arr) - 1) * infectious_arr[:-1] * (1 - infectious_arr[1:]))
 
     def average_infecting_days(self):
         """
@@ -234,6 +234,7 @@ class Consts(NamedTuple):
         asymptomatic.add_transfer(recovered, self.asymptomatic_to_recovered_days, ...)
 
         return ret
+
 
 if __name__ == '__main__':
     c = Consts()

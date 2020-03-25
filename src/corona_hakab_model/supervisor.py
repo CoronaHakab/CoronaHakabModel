@@ -7,6 +7,8 @@ from typing import Callable, Any, Tuple, Optional, NamedTuple, Sequence
 
 import numpy as np
 
+from state_machine import TerminalState
+
 try:
     import PySide2
 except ImportError:
@@ -129,24 +131,23 @@ class Supervisable(ABC):
     def plot(self, ax):
         pass
 
+    @abstractmethod
+    def is_finished(self) -> bool:
+        pass
+
     @classmethod
     @lru_cache
-    def coerce(cls, arg) -> SupervisableMaker:
+    def coerce(cls, arg, manager) -> Supervisable:
         if isinstance(arg, str):
-            @lru_cache
-            def ret(manager):
-                return _StateSupervisable(manager.medical_machine[arg])
-
-            return ret
-        if isinstance(arg, Delayed):
-            inner_maker = cls.coerce(arg.arg)
-
-            @lru_cache
-            def ret(manager):
-                return _DelayedSupervisable(inner_maker(manager), arg.delay)
-
-            return ret
+            return _StateSupervisable(manager.medical_machine[arg])
+        if isinstance(arg, cls.Delayed):
+            inner: FloatSupervisable = cls.coerce(arg.arg, manager)
+            return _DelayedSupervisable(inner, arg.delay)
         raise TypeError
+
+    class Delayed(NamedTuple):
+        arg: Any
+        delay: int
 
 
 SupervisableMaker = Callable[[Any], Supervisable]
@@ -184,6 +185,9 @@ class _StateSupervisable(FloatSupervisable):
         super().__init__()
         self.state = state
 
+    def is_finished(self) -> bool:
+        return isinstance(self.state, TerminalState) or (self.y and self.y[-1] == 0)
+
     def get(self, manager) -> float:
         return self.state.agent_count
 
@@ -207,7 +211,5 @@ class _DelayedSupervisable(FloatSupervisable):
     def name(self) -> str:
         return self.inner.name() + f" + {self.delay} days"
 
-
-class Delayed(NamedTuple):
-    arg: Any
-    delay: int
+    def is_finished(self) -> bool:
+        return True

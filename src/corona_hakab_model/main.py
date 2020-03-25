@@ -1,10 +1,12 @@
 from manager import SimulationManager
-from supervisor import Supervisor, Delayed
+from supervisor import Supervisable
 
 if __name__ == "__main__":
     sm = SimulationManager(
-        # ("Recovered", "Deceased", "Symptomatic", "Asymptomatic", "Hospitalized", "ICU", "Latent", "Silent")
-        ("Symptomatic", Delayed("Symptomatic", 3), "Deceased", "Asymptomatic", "Hospitalized", "ICU", "Latent", "Silent")
+        (
+            "Symptomatic", Supervisable.Delayed("Symptomatic", 3),
+            "Deceased", "Asymptomatic", "Hospitalized", "ICU", "Latent", "Silent", "Susceptible", "Recovered"
+        )
     )
     sm.run()
     sm.plot(save=True, max_scale=False)
