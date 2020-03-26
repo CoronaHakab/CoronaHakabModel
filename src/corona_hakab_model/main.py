@@ -14,6 +14,7 @@ if __name__ == "__main__":
             "Silent",
             "Susceptible",
             "Recovered",
+            Supervisable.SumStates(("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized")),
         )
     )
     sm.run()
