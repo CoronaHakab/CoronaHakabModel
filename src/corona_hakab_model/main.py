@@ -4,8 +4,8 @@ from supervisor import Supervisable
 if __name__ == "__main__":
     sm = SimulationManager(
         (
+            Supervisable.Stack(
             "Symptomatic",
-            Supervisable.Delayed("Symptomatic", 3),
             "Deceased",
             "Asymptomatic",
             "Hospitalized",
@@ -13,11 +13,8 @@ if __name__ == "__main__":
             "Latent",
             "Silent",
             "Susceptible",
-            "Recovered",
-            Supervisable.Sum(
-                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"
-            ),
+            "Recovered"),
         )
     )
     sm.run()
-    sm.plot(save=True, max_scale=False)
+    sm.stackplot()

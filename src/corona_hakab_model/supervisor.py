@@ -145,6 +145,7 @@ class Supervisable(ABC):
     @abstractmethod
     def stacked_plot(self, ax):
         pass
+    # todo is_finished
 
     # todo supervisables should be able to keep the manager running if they want
 

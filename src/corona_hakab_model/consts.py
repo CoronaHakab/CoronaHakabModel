@@ -1,12 +1,12 @@
 from functools import lru_cache
 from itertools import count
-from math import fsum
 from typing import NamedTuple
 
 import numpy as np
+from scipy.stats import rv_discrete
+
 from medical_state import ImmuneState, InfectableState, InfectiousState
 from medical_state_machine import MedicalStateMachine
-from scipy.stats import rv_discrete
 from state_machine import StochasticState, TerminalState
 from util import dist
 
@@ -14,7 +14,7 @@ from util import dist
 class Consts(NamedTuple):
     # simulation parameters
     population_size = 10_000
-    total_steps = 200
+    total_steps = 400
     initial_infected_count = 20
 
     # corona stats
@@ -35,75 +35,36 @@ class Consts(NamedTuple):
         7
     )  # todo maybe the program should juts print a question mark,  we'll see how the researchers like that!
 
-    @lru_cache()
-    def n_average_infecting_days(self):
-        # todo fix
-        """
-        returns the expected time of infectivness of an infected people (for normalization)
-        assuming you are not contagious when in a hospital nor in icu.
-        also ignoring moving back from icu to asymptomatic
-        """
-
-        per_TOL = 1e-6
-        p_TOL = 1e-2
-        min_t = 10
-
-        m = self.medical_state_machine()
-        i_state = m.state_upon_infection
-        infectious_states = [s for s in m.states if s.infectiousness]
-        infectious_arr = []
-        for t in count():
-            infectious_arr.append(
-                v := fsum(i_state.probability(t, s, per_TOL) for s in infectious_states)
-            )
-            if t > min_t and v < p_TOL:
-                break
-
-        infectious_arr = np.array(infectious_arr)
-        return np.sum(
-            np.arange(len(infectious_arr) - 1)
-            * infectious_arr[:-1]
-            * (1 - infectious_arr[1:])
-        )
-
     def average_infecting_days(self):
-        """
-        returns the expected time of infectiousness of an infected person (for normalization)
-        assuming you are not contagious when in a hospital nor in icu.
-        also ignoring moving back from icu to asymptomatic
-        """
-        silent_time = (
-            self.silent_to_asymptomatic_probability
-            * self.silent_to_asymptomatic_days.mean()
-            + self.silent_to_symptomatic_probability
-            * self.silent_to_symptomatic_days.mean()
-        )
-        asymptomatic_time = (
-            self.asymptomatic_to_recovered_days.mean()
-            * self.silent_to_asymptomatic_probability
-        )
-        symptomatic_time = self.silent_to_symptomatic_probability * (
-            (self.symptomatic_to_asymptomatic_days.mean() + asymptomatic_time)
-            * self.symptomatic_to_asymptomatic_probability
-            + self.symptomatic_to_hospitalized_days.mean()
-            * self.symptomatic_to_hospitalized_probability
-        )
-        hospitalization_time = (
-            self.silent_to_symptomatic_probability
-            * self.symptomatic_to_hospitalized_probability
-            * self.hospitalized_to_asymptomatic_probability
-            * asymptomatic_time
-        )
-        return silent_time + asymptomatic_time + symptomatic_time + hospitalization_time
+        TOL = 1e-6
+        m = self.medical_state_machine()
+        M, terminal_rows, entry_columns = m.markovian
+        z = len(M)
 
-    # average probability for transmissions:
+        p = entry_columns[m.state_upon_infection]
+        terminal_mask = np.zeros(z, bool)
+        terminal_mask[list(terminal_rows.values())] = True
+
+        ret = 0.0
+        prev_v = 0
+        for time in count(1):
+            p = M @ p
+            v = np.sum(p, where=terminal_mask)
+            d = v - prev_v
+            ret += d * time
+            prev_v = v
+            # run at least as many times as the node number to ensure we reached all terminal nodes
+            if time > z and d < TOL:
+                break
+        return ret
+
+    # average probability for transmitions:
     silent_to_asymptomatic_probability = 0.2
 
     @property
     def silent_to_symptomatic_probability(self):
         return 1 - self.silent_to_asymptomatic_probability
 
-    # from being symptomatic a person can become asymptomatic or get hospitalized
     symptomatic_to_asymptomatic_probability = 0.85
 
     @property
@@ -128,8 +89,6 @@ class Consts(NamedTuple):
     asymptomatic_infection_ratio: float = 0.25
     # probability of an infected silent agent infecting others
     silent_infection_ratio: float = 0.3  # todo i made this up, need to get the real number
-
-    # R0 stands for the average number of people one patient infects during the whole course of his illness.
     # base r0 of the disease
     r0: float = 2.4
 
@@ -188,7 +147,7 @@ class Consts(NamedTuple):
     average_amount_of_strangers = 200  # todo replace with distribution
 
     # relative strengths of each connection (in terms of infection chance)
-    # todo so if all these strength are relative only to each other (and nothing else), why are none of them 1?
+    # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
     family_strength_not_workers = 0.75
     family_strength = 0.4
     work_strength = 0.04
@@ -268,4 +227,3 @@ class Consts(NamedTuple):
 if __name__ == "__main__":
     c = Consts()
     print(c.average_infecting_days())
-    print(c.n_average_infecting_days())
