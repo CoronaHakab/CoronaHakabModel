@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from bisect import bisect
 from functools import lru_cache
+from math import fsum
 from typing import Any, Callable, NamedTuple, Optional, Sequence, Tuple, List
 
 import numpy as np
@@ -142,10 +143,8 @@ class Supervisable(ABC):
         if isinstance(arg, cls.Delayed):
             inner: FloatSupervisable = cls.coerce(arg.arg, manager)
             return _DelayedSupervisable(inner, arg.delay)
-        if isinstance(arg, cls.SumStates):
-            supervisables: List[Supervisable] = []
-            for state in arg.states:
-                supervisables.append(cls.coerce(state, manager))
+        if isinstance(arg, cls.Sum):
+            supervisables: List[Supervisable] = [cls.coerce(a, manager) for a in arg.args]
             return _SumStatesSupervisable(supervisables)
         raise TypeError
 
@@ -153,8 +152,9 @@ class Supervisable(ABC):
         arg: Any
         delay: int
 
-    class SumStates(NamedTuple):
-        states: Sequence[str]
+    class Sum:
+        def __init__(self, *args):
+            self.args = args
 
 
 SupervisableMaker = Callable[[Any], Supervisable]
@@ -223,19 +223,15 @@ class _DelayedSupervisable(FloatSupervisable):
 
 
 class _SumStatesSupervisable(FloatSupervisable):
-    def __init__(self, states_supervisables):
+    def __init__(self, inners):
         super().__init__()
-        self.states_supervisables = states_supervisables
+        self.inners = inners
 
     def is_finished(self) -> bool:
         return True
 
     def get(self, manager) -> float:
-        return sum(s.get(manager) for s in self.states_supervisables)
+        return fsum(s.get(manager) for s in self.inners)
 
     def name(self) -> str:
-        ret_str = "sum of: "
-        for s in self.states_supervisables:
-            ret_str = ret_str + s.name() + ", "
-        ret_str = ret_str[0:-2]
-        return ret_str
+        return "Total(" + ", ".join(n.name() for n in self.inners)
