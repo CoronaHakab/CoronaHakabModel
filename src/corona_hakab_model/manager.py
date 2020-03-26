@@ -31,8 +31,8 @@ class SimulationManager:
         self.logger.info(f"Generating {self.consts.population_size} agents")
 
         # the manager holds the vector, but the agents update it
-        self.infectiousness_vector = np.empty(self.consts.population_size, dtype=float)
-        self.infectable_vector = np.empty(self.consts.population_size, dtype=bool)
+        self.contagiousness_vector = np.empty(self.consts.population_size, dtype=float)
+        self.susceptible_vector = np.empty(self.consts.population_size, dtype=bool)
         self.agents = [
             Agent(i, self, initial_state) for i in range(self.consts.population_size)
         ]
@@ -56,8 +56,8 @@ class SimulationManager:
         """
         # update matrix
         self.update_matrix_manager.update_matrix_step(
-            self.infection_manager.agents_to_home_quarantine,
-            self.infection_manager.agents_to_full_quarantine,
+            self.infection_manager.agents_to_home_isolation,
+            self.infection_manager.agents_to_full_isolation,
         )
 
         # run infection
@@ -143,7 +143,7 @@ class SimulationManager:
         self.generate_policy(1)
 
         for i in range(self.consts.total_steps):
-            if Consts.active_quarantine:
+            if Consts.active_isolation:
                 if i == self.consts.stop_work_days:
                     self.matrix.change_work_policy(False)
                 elif i == self.consts.resume_work_days:
