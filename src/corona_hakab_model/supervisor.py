@@ -3,7 +3,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from bisect import bisect
 from functools import lru_cache
-from typing import Any, Callable, NamedTuple, Optional, Sequence, Tuple
+from math import fsum
+from typing import Any, Callable, NamedTuple, Optional, Sequence, Tuple, List
 
 import numpy as np
 from state_machine import TerminalState
@@ -140,11 +141,18 @@ class Supervisable(ABC):
         if isinstance(arg, cls.Delayed):
             inner: FloatSupervisable = cls.coerce(arg.arg, manager)
             return _DelayedSupervisable(inner, arg.delay)
+        if isinstance(arg, cls.Sum):
+            supervisables: List[Supervisable] = [cls.coerce(a, manager) for a in arg.args]
+            return _SumStatesSupervisable(supervisables)
         raise TypeError
 
     class Delayed(NamedTuple):
         arg: Any
         delay: int
+
+    class Sum:
+        def __init__(self, *args):
+            self.args = args
 
 
 SupervisableMaker = Callable[[Any], Supervisable]
@@ -204,3 +212,18 @@ class _DelayedSupervisable(FloatSupervisable):
 
     def name(self) -> str:
         return self.inner.name() + f" + {self.delay} days"
+
+
+class _SumStatesSupervisable(FloatSupervisable):
+    def __init__(self, inners):
+        super().__init__()
+        self.inners = inners
+
+    def is_finished(self) -> bool:
+        return True
+
+    def get(self, manager) -> float:
+        return fsum(s.get(manager) for s in self.inners)
+
+    def name(self) -> str:
+        return "Total(" + ", ".join(n.name() for n in self.inners)
