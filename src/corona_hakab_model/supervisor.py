@@ -131,9 +131,7 @@ class Supervisable(ABC):
     def plot(self, ax):
         pass
 
-    @abstractmethod
-    def is_finished(self) -> bool:
-        pass
+    # todo is_finished
 
     @classmethod
     @lru_cache
@@ -192,9 +190,6 @@ class _StateSupervisable(FloatSupervisable):
         super().__init__()
         self.state = state
 
-    def is_finished(self) -> bool:
-        return isinstance(self.state, TerminalState) or (self.y and self.y[-1] == 0)
-
     def get(self, manager) -> float:
         return self.state.agent_count
 
@@ -217,9 +212,6 @@ class _DelayedSupervisable(FloatSupervisable):
 
     def name(self) -> str:
         return self.inner.name() + f" + {self.delay} days"
-
-    def is_finished(self) -> bool:
-        return True
 
 
 class _SumStatesSupervisable(FloatSupervisable):
