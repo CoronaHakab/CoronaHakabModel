@@ -13,7 +13,7 @@ from util import dist, upper_bound
 
 class Consts(NamedTuple):
     # simulation parameters
-    population_size = 10_000
+    population_size = 100_000
     total_steps = 400
     initial_infected_count = 20
 
@@ -51,7 +51,7 @@ class Consts(NamedTuple):
         terminal_mask = np.zeros(z, bool)
         terminal_mask[list(terminal_states.values())] = True
 
-        states_duration = {state: 0 for state in m.states}
+        states_duration: Dict[MedicalState: int] = Dict.fromkeys(m.states, 0)
         states_duration[m.state_upon_infection] = 1
 
         index_to_state: Dict[int: MedicalState] = {}
