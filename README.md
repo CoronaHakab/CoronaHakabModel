@@ -7,7 +7,9 @@
 
 ## Workflow -
 - When working, **work on a new git branch**.
-- run quality test: **tox -e quality**, if it fails you might need to reformat: **tox -e reformat**
+- run quality test: **tox -e quality**, if it fails you might need to reformat: **tox -e reformat**.
+- if you use named expressions := then for now you have to add the comment # flake8: noqa which will exclude the file from flake8 checks because it doens't support namded expressions currently.
+- if ** tox -e reformat** fails then we have to check it out...
 - When done, **push changes to your branch, and create a pull request**.
 - **Always run the simulator after making changes and before merging**, to make sure you didn't break anything.
 - Especially if not sure, **try to get at least 1 person's review before merging**.

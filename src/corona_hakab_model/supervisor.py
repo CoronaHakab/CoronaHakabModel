@@ -1,10 +1,12 @@
+# flake8: noqa
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from bisect import bisect
 from functools import lru_cache
 from math import fsum
-from typing import Any, Callable, NamedTuple, Optional, Sequence, Tuple, List
+from typing import Any, Callable, List, NamedTuple, Optional, Sequence, Tuple
 
 import numpy as np
 from state_machine import TerminalState
@@ -142,7 +144,9 @@ class Supervisable(ABC):
             inner: FloatSupervisable = cls.coerce(arg.arg, manager)
             return _DelayedSupervisable(inner, arg.delay)
         if isinstance(arg, cls.Sum):
-            supervisables: List[Supervisable] = [cls.coerce(a, manager) for a in arg.args]
+            supervisables: List[Supervisable] = [
+                cls.coerce(a, manager) for a in arg.args
+            ]
             return _SumStatesSupervisable(supervisables)
         raise TypeError
 
