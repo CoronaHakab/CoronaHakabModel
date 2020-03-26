@@ -61,7 +61,7 @@ class Supervisor:
         fig, ax = plt.subplots()
 
         # policies
-        if self.manager.consts.active_quarantine:
+        if self.manager.consts.active_isolation:
             title = title + "\napplying lockdown from day {} to day {}".format(
                 self.manager.consts.stop_work_days, self.manager.consts.resume_work_days
             )
@@ -79,17 +79,17 @@ class Supervisor:
                 f"day {self.manager.consts.resume_work_days} - resume all work",
                 rotation=90,
             )
-        if self.manager.consts.home_quarantine_sicks:
+        if self.manager.consts.home_isolation_sicks:
             title = (
                 title
-                + "\napplying home quarantine for confirmed cases ({} of cases)".format(
+                + "\napplying home isolation for confirmed cases ({} of cases)".format(
                     self.manager.consts.caught_sicks_ratio
                 )
             )
-        if self.manager.consts.full_quarantine_sicks:
+        if self.manager.consts.full_isolation_sicks:
             title = (
                 title
-                + "\napplying full quarantine for confirmed cases ({} of cases)".format(
+                + "\napplying full isolation for confirmed cases ({} of cases)".format(
                     self.manager.consts.caught_sicks_ratio
                 )
             )
@@ -112,7 +112,7 @@ class Supervisor:
         # showing and saving the graph
         if save:
             fig.savefig(
-                f"{output_dir}{total_size} agents, applying quarantine = {self.manager.consts.active_quarantine}, max scale = {max_scale}"
+                f"{output_dir}{total_size} agents, applying isolation = {self.manager.consts.active_isolation}, max scale = {max_scale}"
             )
         if auto_show:
             plt.show()

@@ -5,7 +5,7 @@ from typing import NamedTuple
 import numpy as np
 from scipy.stats import rv_discrete
 
-from medical_state import ImmuneState, InfectableState, InfectiousState
+from medical_state import ImmuneState, SusceptibleState, ContagiousState
 from medical_state_machine import MedicalStateMachine
 from state_machine import StochasticState, TerminalState
 from util import dist
@@ -119,20 +119,20 @@ class Consts(NamedTuple):
             + self.silent_infection_ratio * silent_time
         ) / total_time
 
-    # quarantine policy
+    # isolation policy
     # todo why does this exist? doesn't the policy set this? at least make this an enum
-    # note not to set both home quarantine and full quarantine true
-    # whether to quarantine detected agents to their homes (allow familial contact)
-    home_quarantine_sicks = False
-    # whether to quarantine detected agents fully (no contact)
-    full_quarantine_sicks = False
-    # how many of the infected agents are actually caught and quarantined
+    # note not to set both home isolation and full isolation true
+    # whether to isolation detected agents to their homes (allow familial contact)
+    home_isolation_sicks = False
+    # whether to isolation detected agents fully (no contact)
+    full_isolation_sicks = False
+    # how many of the infected agents are actually caught and isolated
     caught_sicks_ratio = 0.3
 
     # policy stats
     # todo this reeeeally shouldn't be hard-coded
-    # defines whether or not to apply a quarantine (work shut-down)
-    active_quarantine = False
+    # defines whether or not to apply a isolation (work shut-down)
+    active_isolation = False
     # the date to stop work at
     stop_work_days = 30
     # the date to resume work at
@@ -155,28 +155,28 @@ class Consts(NamedTuple):
 
     @lru_cache
     def medical_state_machine(self):
-        class InfectableTerminalState(InfectableState, TerminalState):
+        class SusceptibleTerminalState(SusceptibleState, TerminalState):
             pass
 
         class ImmuneStochasticState(ImmuneState, StochasticState):
             pass
 
-        class InfectiousStochasticState(InfectiousState, StochasticState):
+        class ContagiousStochasticState(ContagiousState, StochasticState):
             pass
 
         class ImmuneTerminalState(ImmuneState, TerminalState):
             pass
 
-        susceptible = InfectableTerminalState("Susceptible")
+        susceptible = SusceptibleTerminalState("Susceptible")
         latent = ImmuneStochasticState("Latent")
-        silent = InfectiousStochasticState(
-            "Silent", infectiousness=self.silent_infection_ratio
+        silent = ContagiousStochasticState(
+            "Silent", contagiousness=self.silent_infection_ratio
         )
-        symptomatic = InfectiousStochasticState(
-            "Symptomatic", infectiousness=self.symptomatic_infection_ratio
+        symptomatic = ContagiousStochasticState(
+            "Symptomatic", contagiousness=self.symptomatic_infection_ratio
         )
-        asymptomatic = InfectiousStochasticState(
-            "Asymptomatic", infectiousness=self.asymptomatic_infection_ratio
+        asymptomatic = ContagiousStochasticState(
+            "Asymptomatic", contagiousness=self.asymptomatic_infection_ratio
         )
 
         hospitalized = ImmuneStochasticState("Hospitalized")
