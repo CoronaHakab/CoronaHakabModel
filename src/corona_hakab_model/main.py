@@ -18,6 +18,10 @@ def main():
     Input path of a pre-generated matrix
         OR
     Output path for the matrix generated now
+    
+    CRITICAL - 
+    The size of the matrix is not checked when loading an existing file!
+    If the size of the population changed - make sure the matrix is appropriate.
     """)
     parser.add_argument("-i", "--input-matrix", dest='input_matrix_path', help="npz file path of a pre-generated matrix")
     parser.add_argument("-o", "--output-matrix", dest='output_matrix_path', help="npz file path for the newly-generated matrix")

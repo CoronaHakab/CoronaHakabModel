@@ -24,7 +24,7 @@ class AffinityMatrix:
         self.logger = logging.getLogger("simulation")
 
         self.manager = manager
-        if input_matrix_path:
+        if input_matrix_path and m_type == lil_matrix:
             self.logger.info(f"Loading matrix from file: {input_matrix_path}")
             try:
                 with open(input_matrix_path, 'rb') as f_matrix:
@@ -54,7 +54,7 @@ class AffinityMatrix:
         self.factor = None
         self.normalize()
 
-        if output_matrix_path:
+        if output_matrix_path and m_type == lil_matrix:
             self.logger.info(f"Saving AffinityMatrix internal matrix to {output_matrix_path}")
             try:
                 with open(output_matrix_path, 'wb') as f_matrix:
