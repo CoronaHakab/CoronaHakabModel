@@ -3,7 +3,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from bisect import bisect
 from functools import lru_cache
-from typing import Any, Callable, NamedTuple, Sequence, List, Iterable
+from math import fsum
+from typing import Any, Callable, NamedTuple, Optional, Sequence, Tuple, List
 
 import numpy as np
 
@@ -157,6 +158,9 @@ class Supervisable(ABC):
         if isinstance(arg, cls.Stack):
             inners = [cls.coerce(a, manager) for a in arg.args]
             return _MultiFloatSupervisable(inners)
+        if isinstance(arg, cls.Sum):
+            supervisables: List[Supervisable] = [cls.coerce(a, manager) for a in arg.args]
+            return _SumStatesSupervisable(supervisables)
         raise TypeError
 
     class Delayed(NamedTuple):
@@ -164,6 +168,9 @@ class Supervisable(ABC):
         delay: int
 
     class Stack:
+        def __init__(self, *args):
+            self.args = args
+    class Sum:
         def __init__(self, *args):
             self.args = args
 
@@ -285,3 +292,18 @@ class _MultiFloatSupervisable(VectorSupervisable):
         return [
             i.name() for i in self.inners
         ]
+
+
+class _SumStatesSupervisable(FloatSupervisable):
+    def __init__(self, inners):
+        super().__init__()
+        self.inners = inners
+
+    def is_finished(self) -> bool:
+        return True
+
+    def get(self, manager) -> float:
+        return fsum(s.get(manager) for s in self.inners)
+
+    def name(self) -> str:
+        return "Total(" + ", ".join(n.name() for n in self.inners)
