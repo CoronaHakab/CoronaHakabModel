@@ -18,9 +18,8 @@ from typing import (
 )
 
 import numpy as np
-from scipy.stats import rv_discrete
-
 from agent import Agent, Circle
+from scipy.stats import rv_discrete
 from util import upper_bound
 
 PendingTransfer = namedtuple(

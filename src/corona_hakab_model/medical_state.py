@@ -4,26 +4,26 @@ from state_machine import State  # , StochasticState, TerminalState
 
 
 class MedicalState(State, ABC):
-    infectable: bool
-    infectiousness: float
+    susceptible: bool
+    contagiousness: float
 
     def val(self):
         return self.agent_count
 
 
-class InfectableState(MedicalState, ABC):
-    infectable = True
-    infectiousness = 0
+class SusceptibleState(MedicalState, ABC):
+    susceptible = True
+    contagiousness = 0
 
 
-class InfectiousState(MedicalState, ABC):
-    infectable = False
+class ContagiousState(MedicalState, ABC):
+    susceptible = False
 
-    def __init__(self, *args, infectiousness: float, **kwargs):
+    def __init__(self, *args, contagiousness: float, **kwargs):
         super().__init__(*args, **kwargs)
-        self.infectiousness = infectiousness
+        self.contagiousness = contagiousness
 
 
 class ImmuneState(MedicalState, ABC):
-    infectable = False
-    infectiousness = 0
+    susceptible = False
+    contagiousness = 0

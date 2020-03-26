@@ -33,7 +33,7 @@ class AffinityMatrix:
         self.m_work = self._create_intra_workplace_connections()
         self.m_random = self._create_random_connectivity()
 
-        # switches all matrices to csr, for efficiency later on (in home quarantine calculations)
+        # switches all matrices to csr, for efficiency later on (in home isolation calculations)
         self.m_families = self.m_families.tocsr()
         self.m_work = self.m_work.tocsr()
         self.m_random = self.m_random.tocsr()
@@ -52,7 +52,7 @@ class AffinityMatrix:
         high chance of passing the virus, since the family members stay a long time together.
         In the example of nodes 1 till 5 are a family, in Matlab this would be: W_families[1:5,1:5]=p
         where p is the intra family infection probability.
-        Late on, if, for example, a policy of house quarantine takes place without the members of the family
+        Late on, if, for example, a policy of house isolation takes place without the members of the family
         taking measures to separate from each other, then this value p can be replaced by something even larger.
         """
 
