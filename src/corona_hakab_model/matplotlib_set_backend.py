@@ -1,9 +1,14 @@
 # setting backend for matplotlib
 try:
-    import PySide2  # noqa: F401
+    import PySide2
 except ImportError:
     pass
 else:
-    import matplotlib
-
-    matplotlib.use("Qt5Agg")
+    try:
+        import matplotlib
+    except ImportError:
+        pass
+    else:
+        matplotlib.use("Qt5Agg")
+        del matplotlib
+    del PySide2

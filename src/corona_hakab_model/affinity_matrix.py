@@ -46,7 +46,7 @@ class AffinityMatrix:
         self.agents = self.manager.agents
 
         self.logger.info("Building circular connections matrices")
-        # all circular matrixes. keeping as a tuple of matrix and type (i.e, home, work, school and so)
+        # all circular matrices. keeping as a tuple of matrix and type (i.e, home, work, school and so)
         self.circular_matrices = [
             (
                 self.circular_matrix_generation(
@@ -58,7 +58,7 @@ class AffinityMatrix:
         ]
 
         self.logger.info("Building non circular connections matrices")
-        # all non-circular matrixes. keeping as a tuple of matrix and type (i.e, home, work, school and so)
+        # all non-circular matrices. keeping as a tuple of matrix and type (i.e, home, work, school and so)
         self.non_circular_matrices = [
             (
                 self.non_circular_matrix_generation(
@@ -82,13 +82,13 @@ class AffinityMatrix:
             try:
                 with open(output_matrix_path, "wb") as f_matrix:
                     save_npz(f_matrix, self.matrix)
-            except FileNotFoundError as e:
+            except FileNotFoundError:
                 self.logger.error(f"Path {output_matrix_path} is invalid!")
             self.logger.info("Matrix saved successfully!")
 
     def normalize(self):
         """
-        this funciton should normalize the weights within W to represent the infection rate.
+        this function should normalize the weights within W to represent the infection rate.
         As r0=bd, where b is number of daily infections per person
         """
         self.logger.info(f"normalizing matrix")
@@ -113,7 +113,7 @@ class AffinityMatrix:
         self.matrix[non_zero_keys] = np.log(1 - self.matrix[non_zero_keys])
 
     def change_connections_policy(self, types_of_connections_to_use: Sequence[str]):
-        self.logger.info(f"changing policy. keeping all matrixes of types: {types_of_connections_to_use}")
+        self.logger.info(f"changing policy. keeping all matrices of types: {types_of_connections_to_use}")
         self.matrix = sum(
             matrix[0] for matrix in self.circular_matrices if matrix[1] in types_of_connections_to_use
         ) + sum(matrix[0] for matrix in self.non_circular_matrices if matrix[1] in types_of_connections_to_use)

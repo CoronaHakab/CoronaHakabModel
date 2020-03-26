@@ -1,6 +1,6 @@
 from functools import lru_cache
 from itertools import count
-from typing import Dict, List, NamedTuple
+from typing import Dict, NamedTuple
 
 import numpy as np
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
