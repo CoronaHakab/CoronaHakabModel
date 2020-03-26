@@ -11,25 +11,25 @@ class UpdateMatrixManager:
         self.affinity_matrix = affinity_matrix_ref
 
     def update_matrix_step(
-        self, agents_to_home_quarantine=(), agents_to_full_quarantine=()
+        self, agents_to_home_isolation=(), agents_to_full_isolation=()
     ):
         """
         Update the matrix step
         """
         # for now, we will not update the matrix at all
-        # self.apply_self_quarantine(matrix, family_matrix, sick_agents_vector, agents_list)
-        for agent in agents_to_home_quarantine:
-            self.home_quarantine_agent(agent)
-        for agent in agents_to_full_quarantine:
-            self.full_quarantine_agent(agent)
+        # self.apply_self_isolation(matrix, family_matrix, sick_agents_vector, agents_list)
+        for agent in agents_to_home_isolation:
+            self.home_isolation_agent(agent)
+        for agent in agents_to_full_isolation:
+            self.full_isolation_agent(agent)
         return
 
-    def home_quarantine_agent(self, agent: Agent):
+    def home_isolation_agent(self, agent: Agent):
         """
-        gets and agent and puts him in home quarenite.
+        gets and agent and puts him in home isolation.
         updates the matrix accordingly
         """
-        if agent.is_home_quarantined:
+        if agent.is_home_isolated:
             return
         families = self.affinity_matrix.m_families
         # changing your col (now you won't infect any one outside of your home)
@@ -45,14 +45,14 @@ class UpdateMatrixManager:
         temp = 1 - (families[indices] * self.affinity_matrix.factor)
         self.affinity_matrix.matrix[indices] = np.log(temp)
 
-        agent.is_home_quarantined = True
+        agent.is_home_isolated = True
 
-    def full_quarantine_agent(self, agent: Agent):
+    def full_isolation_agent(self, agent: Agent):
         """
-        gets and agent and puts him in home quarenite.
+        gets and agent and puts him in home isolation.
         updates the matrix accordingly
         """
-        if agent.is_full_quarantined:
+        if agent.is_full_isolated:
             return
         # changing your col (now you won't infect any one)
         indices = (
@@ -65,14 +65,14 @@ class UpdateMatrixManager:
         indices = (indices[1], indices[0])
         self.affinity_matrix.matrix[indices] = 0
 
-        agent.is_full_quarantined = True
+        agent.is_full_isolated = True
 
-    def remove_agent_from_quarantine(self, agent: Agent):
+    def remove_agent_from_isolation(self, agent: Agent):
         """
-        removes an agent from home quarantine
+        removes an agent from home isolation
         updates the matrix accordingly
         """
-        if not agent.is_home_quarantined:
+        if not agent.is_home_isolated:
             return
         # changing your col (now you will infect people outside of your home)
         families = self.affinity_matrix.m_families
@@ -96,20 +96,20 @@ class UpdateMatrixManager:
         )
         self.affinity_matrix.matrix[indices] = np.log(temp)
 
-        agent.is_home_quarantined = False
-        agent.is_full_quarantined = False
+        agent.is_home_isolated = False
+        agent.is_full_isolated = False
 
-    def apply_self_quarantine(
+    def apply_self_isolation(
         self, matrix, family_matrix, sick_agents_vector, agents_list
     ):  # not in use
         """
-        Modifies the matrix so self quarantines are in place
+        Modifies the matrix so self isolations are in place
         """
         sick_agents_ids = sick_agents_vector.get_sick_ids()
 
-        # run on all self quarantined agents
+        # run on all self isolated agents
         for agent_id in sick_agents_ids:
-            if agents_list[agent_id].is_self_quarantined():
+            if agents_list[agent_id].is_self_isolated():
                 # remove all existing relations
                 matrix.zero_column(agent_id)
                 # insert only family relations (as he is at home)
