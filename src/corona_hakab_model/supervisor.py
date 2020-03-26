@@ -147,32 +147,39 @@ class Supervisable(ABC):
     def stacked_plot(self, ax):
         pass
 
+    # todo supervisables should be able to keep the manager running if they want
+
     @classmethod
     @lru_cache
     def coerce(cls, arg, manager) -> Supervisable:
         if isinstance(arg, str):
             return _StateSupervisable(manager.medical_machine[arg])
-        if isinstance(arg, cls.Delayed):
-            inner: ValueSupervisable = cls.coerce(arg.arg, manager)
-            return _DelayedSupervisable(inner, arg.delay)
-        if isinstance(arg, cls.Stack):
-            inners = [cls.coerce(a, manager) for a in arg.args]
-            return _MultiFloatSupervisable(inners)
-        if isinstance(arg, cls.Sum):
-            supervisables: List[Supervisable] = [cls.coerce(a, manager) for a in arg.args]
-            return _SumStatesSupervisable(supervisables)
+        if isinstance(arg, cls):
+            return arg
+        if isinstance(arg, Callable):
+            return arg(manager)
         raise TypeError
 
     class Delayed(NamedTuple):
         arg: Any
         delay: int
 
+        def __call__(self, m):
+            return _DelayedSupervisable(Supervisable.coerce(self.arg, m), self.delay)
+
     class Stack:
         def __init__(self, *args):
             self.args = args
+
+        def __call__(self, m):
+            return _StackedFloatSupervisable([Supervisable.coerce(a, m) for a in self.args])
+
     class Sum:
         def __init__(self, *args):
             self.args = args
+
+        def __call__(self, m):
+            return _SumSupervisable([Supervisable.coerce(a, m) for a in self.args])
 
 
 SupervisableMaker = Callable[[Any], Supervisable]
@@ -182,6 +189,10 @@ class ValueSupervisable(Supervisable):
     def __init__(self):
         self.x = []
         self.y = []
+
+    @abstractmethod
+    def name(self) -> str:
+        pass
 
     @abstractmethod
     def get(self, manager):
@@ -201,10 +212,6 @@ class ValueSupervisable(Supervisable):
 
 
 class FloatSupervisable(ValueSupervisable, ABC):
-    @abstractmethod
-    def name(self) -> str:
-        pass
-
     def plot(self, ax):
         # todo preferred color/style?
         return ax.plot(self.x, self.y, label=self.name())
@@ -217,9 +224,6 @@ class _StateSupervisable(FloatSupervisable):
     def __init__(self, state):
         super().__init__()
         self.state = state
-
-    def is_finished(self) -> bool:
-        return isinstance(self.state, TerminalState) or (self.y and self.y[-1] == 0)
 
     def get(self, manager) -> float:
         return self.state.agent_count
@@ -249,9 +253,6 @@ class _DelayedSupervisable(ValueSupervisable):
             n + f" + {self.delay} days" for n in self.inner.names()
         ]
 
-    def is_finished(self) -> bool:
-        return True
-
     def plot(self, ax):
         return type(self.inner).plot(self, ax)
 
@@ -278,7 +279,7 @@ class VectorSupervisable(ValueSupervisable, ABC):
         ax.stackplot(self.x, *self._to_ys(), labels=list(self.names()))
 
 
-class _MultiFloatSupervisable(VectorSupervisable):
+class _StackedFloatSupervisable(VectorSupervisable):
     def __init__(self, inners: List[FloatSupervisable]):
         super().__init__()
         self.inners = inners
@@ -288,22 +289,34 @@ class _MultiFloatSupervisable(VectorSupervisable):
             i.get(manager) for i in self.inners
         ]
 
+    def name(self) -> str:
+        return "Stacked (" + ", ".join(n.name() for n in self.inners) + ")"
+
     def names(self):
         return [
             i.name() for i in self.inners
         ]
 
 
-class _SumStatesSupervisable(FloatSupervisable):
-    def __init__(self, inners):
+class _SumSupervisable(ValueSupervisable):
+    def __init__(self, inners: List[ValueSupervisable]):
         super().__init__()
         self.inners = inners
 
-    def is_finished(self) -> bool:
-        return True
-
     def get(self, manager) -> float:
-        return fsum(s.get(manager) for s in self.inners)
+        return sum(s.get(manager) for s in self.inners)
+
+    def names(self):
+        return [
+            "Total(" + ", ".join(names) + ")"
+            for names in zip(*(i.names() for i in self.inners))
+        ]
+
+    def plot(self, ax):
+        return type(self.inners[0]).plot(self, ax)
+
+    def stacked_plot(self, ax):
+        return type(self.inners[0]).stacked_plot(self, ax)
 
     def name(self) -> str:
-        return "Total(" + ", ".join(n.name() for n in self.inners)
+        return "Total(" + ", ".join(n.name() for n in self.inners) + ")"
