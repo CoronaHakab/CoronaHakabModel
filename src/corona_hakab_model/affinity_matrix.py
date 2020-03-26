@@ -189,7 +189,7 @@ class AffinityMatrix:
             states_time = self.consts.average_time_in_each_state()
             total_contagious_probability = 0
             for state, time_in_state in states_time.items():
-                total_contagious_probability += time_in_state * state.infectiousness
+                total_contagious_probability += time_in_state * state.contagiousness
             beta = self.consts.r0 / total_contagious_probability
 
             #this factor should be calculated once when the matrix is full, and be left un-changed for the rest of the run.

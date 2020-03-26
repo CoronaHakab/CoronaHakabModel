@@ -3,7 +3,7 @@ from itertools import count
 from typing import NamedTuple, Dict, List
 
 import numpy as np
-from medical_state import ImmuneState, SusceptibleState, ContagiousState
+from medical_state import ImmuneState, SusceptibleState, ContagiousState, MedicalState
 from medical_state_machine import MedicalStateMachine
 from scipy.stats import rv_discrete
 from state_machine import StochasticState, TerminalState
