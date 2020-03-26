@@ -4,10 +4,9 @@ from abc import ABC, abstractmethod
 from bisect import bisect
 from functools import lru_cache
 from math import fsum
-from typing import Any, Callable, NamedTuple, Optional, Sequence, Tuple, List
+from typing import Any, Callable, List, NamedTuple, Optional, Sequence, Tuple
 
 import numpy as np
-
 from state_machine import TerminalState
 
 try:
@@ -83,17 +82,17 @@ class Supervisor:
             )
         if self.manager.consts.home_quarantine_sicks:
             title = (
-                    title
-                    + "\napplying home quarantine for confirmed cases ({} of cases)".format(
-                self.manager.consts.caught_sicks_ratio
-            )
+                title
+                + "\napplying home quarantine for confirmed cases ({} of cases)".format(
+                    self.manager.consts.caught_sicks_ratio
+                )
             )
         if self.manager.consts.full_quarantine_sicks:
             title = (
-                    title
-                    + "\napplying full quarantine for confirmed cases ({} of cases)".format(
-                self.manager.consts.caught_sicks_ratio
-            )
+                title
+                + "\napplying full quarantine for confirmed cases ({} of cases)".format(
+                    self.manager.consts.caught_sicks_ratio
+                )
             )
 
         # plot parameters
@@ -172,7 +171,9 @@ class Supervisable(ABC):
             self.args = args
 
         def __call__(self, m):
-            return _StackedFloatSupervisable([Supervisable.coerce(a, m) for a in self.args])
+            return _StackedFloatSupervisable(
+                [Supervisable.coerce(a, m) for a in self.args]
+            )
 
     class Sum:
         def __init__(self, *args):
@@ -249,9 +250,7 @@ class _DelayedSupervisable(ValueSupervisable):
         return self.inner.name() + f" + {self.delay} days"
 
     def names(self):
-        return [
-            n + f" + {self.delay} days" for n in self.inner.names()
-        ]
+        return [n + f" + {self.delay} days" for n in self.inner.names()]
 
     def plot(self, ax):
         return type(self.inner).plot(self, ax)
@@ -267,9 +266,7 @@ class VectorSupervisable(ValueSupervisable, ABC):
 
     def _to_ys(self):
         n = len(self.y[0])
-        return [
-            [v[i] for v in self.y] for i in range(n)
-        ]
+        return [[v[i] for v in self.y] for i in range(n)]
 
     def plot(self, ax):
         for n, y in zip(self.names(), self._to_ys()):
@@ -285,17 +282,13 @@ class _StackedFloatSupervisable(VectorSupervisable):
         self.inners = inners
 
     def get(self, manager):
-        return [
-            i.get(manager) for i in self.inners
-        ]
+        return [i.get(manager) for i in self.inners]
 
     def name(self) -> str:
         return "Stacked (" + ", ".join(n.name() for n in self.inners) + ")"
 
     def names(self):
-        return [
-            i.name() for i in self.inners
-        ]
+        return [i.name() for i in self.inners]
 
 
 class _SumSupervisable(ValueSupervisable):
