@@ -168,7 +168,7 @@ class StateMachine(Generic[T]):
         """
 
         # each initial transfer state gets its own index
-        transfer_starts: Dict[StochasticState, Dict[int, int]] = {}
+        transfer_states: Dict[StochasticState, Dict[int, int]] = {}
 
         # terminal_states each get their own index
         terminal_states: Dict[TerminalState, int] = {}
@@ -183,7 +183,7 @@ class StateMachine(Generic[T]):
                 for i, dur in enumerate(s.durations):
                     state_dict[i] = next_index
                     next_index += upper_bound(dur)
-                transfer_starts[s] = state_dict
+                transfer_states[s] = state_dict
             else:
                 raise TypeError
 
@@ -194,7 +194,7 @@ class StateMachine(Generic[T]):
             ec[i] = 1
             entry_columns[t_state] = ec
 
-        for s_state, s_dict in transfer_starts.items():
+        for s_state, s_dict in transfer_states.items():
             ec = np.zeros(next_index, float)
             for transfer_index, node_index in s_dict.items():
                 p_of_transfer = s_state.prob_specific(transfer_index)
@@ -205,13 +205,13 @@ class StateMachine(Generic[T]):
             # todo if this is slow we can do it faster
             ret[:, terminal_index] = entry_columns[t_state]
 
-        for s_state, sub_dict in transfer_starts.items():
+        for s_state, sub_dict in transfer_states.items():
             for transfer_index, transfer_start in sub_dict.items():
                 dur = s_state.durations[transfer_index]
                 dest = s_state.destinations[transfer_index]
                 p_passed = 1
-                for i in range(upper_bound(dur) + 1):
-                    p_exit_unbiased = dur.pmf(i)
+                for i in range(upper_bound(dur)):
+                    p_exit_unbiased = dur.pmf(i + 1)
                     p_exit = p_exit_unbiased / p_passed
                     p_passed *= 1 - p_exit
                     ret[:, transfer_start + i] = p_exit * entry_columns[dest]
@@ -221,6 +221,6 @@ class StateMachine(Generic[T]):
         for col in range(next_index):
             assert np.sum(ret[:, col]) == 1
 
-        return ret, terminal_states, entry_columns
+        return ret, terminal_states, transfer_states, entry_columns
 
     # todo function to draw a pretty graph

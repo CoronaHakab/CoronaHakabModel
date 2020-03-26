@@ -185,12 +185,15 @@ class AffinityMatrix:
         """
         self.logger.info(f"normalizing matrix")
         if self.factor is None:
-            r0 = self.consts.r0
             # updates r0 to fit the contagious length and ratio.
-            r0 = r0 / (self.consts.expected_infection_ratio() * self.consts.average_infecting_days())
+            states_time = self.consts.average_time_in_each_state()
+            total_contagious_probability = 0
+            for state, time_in_state in states_time.items():
+                total_contagious_probability += time_in_state * state.infectiousness
+            beta = self.consts.r0 / total_contagious_probability
 
             #this factor should be calculated once when the matrix is full, and be left un-changed for the rest of the run.
-            self.factor = (r0 * self.size) / (self.matrix.sum())
+            self.factor = (beta * self.size) / (self.matrix.sum())
 
         self.matrix = (
             self.matrix * self.factor
