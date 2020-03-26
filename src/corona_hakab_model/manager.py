@@ -2,9 +2,8 @@ import logging
 from collections import defaultdict
 from typing import Any, Iterable
 
-import numpy as np
-
 import infection
+import numpy as np
 import update_matrix
 from affinity_matrix import AffinityMatrix
 from agent import Agent
