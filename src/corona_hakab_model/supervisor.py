@@ -83,17 +83,17 @@ class Supervisor:
             )
         if self.manager.consts.home_isolation_sicks:
             title = (
-                title
-                + "\napplying home isolation for confirmed cases ({} of cases)".format(
-                    self.manager.consts.caught_sicks_ratio
-                )
+                    title
+                    + "\napplying home isolation for confirmed cases ({} of cases)".format(
+                self.manager.consts.caught_sicks_ratio
+            )
             )
         if self.manager.consts.full_isolation_sicks:
             title = (
-                title
-                + "\napplying full isolation for confirmed cases ({} of cases)".format(
-                    self.manager.consts.caught_sicks_ratio
-                )
+                    title
+                    + "\napplying full isolation for confirmed cases ({} of cases)".format(
+                self.manager.consts.caught_sicks_ratio
+            )
             )
 
         # plot parameters
@@ -119,6 +119,44 @@ class Supervisor:
         if auto_show:
             plt.show()
 
+    @staticmethod
+    def static_plot(simulations_info: Sequence[("SimulationManager", str, Sequence[str])], title="comparing",
+                    save_name=None,
+                    max_height=- 1, auto_show=True, save=True):
+        """
+        a static plot method, allowing comparison between multiple simulation runs
+        :param simulations_info: a sequence of tuples, each representing a simulation. each simulation contains the manager, a pre-fix string and a sequence of syling strings. \
+         note that the len of styling strings tuple must be the same as len of the simulation manager supervisables
+        :param title: the title of the output graph
+        :param save_name: how the simulation will be saved. if not entered, will be same as the title
+        :param max_height: max hight to allow a ylim
+        :param auto_show:
+        :param save:
+        :return:
+        """
+
+        output_dir = "../output/"
+        if save_name is None:
+            save_name = title
+        fig, ax = plt.subplots()
+
+        ax.set_title(title)
+        ax.set_xlabel("days", color="#1C2833")
+        ax.set_ylabel("people", color="#1C2833")
+
+        for manager, prefix, styling in simulations_info:
+            for supervisable, style in zip(manager.supervisor.supervisables, styling):
+                supervisable.plot(ax, prefix, style)
+        ax.legend()
+
+        if max_height != -1:
+            ax.set_ylim((0, max_height))
+
+        if save:
+            fig.savefig(output_dir + save_name + ".png")
+        if auto_show:
+            plt.show()
+
 
 class Supervisable(ABC):
     @abstractmethod
@@ -130,7 +168,7 @@ class Supervisable(ABC):
         pass
 
     @abstractmethod
-    def plot(self, ax):
+    def plot(self, ax, prefix="", style=""):
         pass
 
     # todo is_finished
@@ -184,9 +222,9 @@ class FloatSupervisable(Supervisable):
             return None
         return min(self.y), max(self.y)
 
-    def plot(self, ax):
+    def plot(self, ax, prefix="", style=""):
         # todo preferred color/style?
-        ax.plot(self.x, self.y, label=self.name())
+        ax.plot(self.x, self.y, style, label=prefix + self.name())
 
 
 class _StateSupervisable(FloatSupervisable):
