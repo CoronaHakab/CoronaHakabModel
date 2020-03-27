@@ -12,7 +12,7 @@ from util import dist, upper_bound
 
 class Consts(NamedTuple):
     # simulation parameters
-    population_size = 100_000
+    population_size = 10_000
     total_steps = 400
     initial_infected_count = 20
 
