@@ -1,13 +1,13 @@
 from functools import lru_cache
 from itertools import count
-from typing import NamedTuple
+from typing import NamedTuple, Dict, List
 
 import numpy as np
-from medical_state import ImmuneState, SusceptibleState, ContagiousState
+from medical_state import ImmuneState, SusceptibleState, ContagiousState, MedicalState
 from medical_state_machine import MedicalStateMachine
 from scipy.stats import rv_discrete
 from state_machine import StochasticState, TerminalState
-from util import dist
+from util import dist, upper_bound
 
 
 class Consts(NamedTuple):
@@ -34,28 +34,48 @@ class Consts(NamedTuple):
         7
     )  # todo maybe the program should juts print a question mark,  we'll see how the researchers like that!
 
-    def average_infecting_days(self):
+    def average_time_in_each_state(self):
+        """
+        calculate the average time an infected agent spends in any of the states.
+        uses markov chain to do the calculations
+        note that it doesnt work well for terminal states
+        :return: dict of states: int, representing the average time an agent would be in a given state
+        """
         TOL = 1e-6
         m = self.medical_state_machine()
-        M, terminal_rows, entry_columns = m.markovian
+        M, terminal_states, transfer_states, entry_columns = m.markovian
         z = len(M)
 
         p = entry_columns[m.state_upon_infection]
         terminal_mask = np.zeros(z, bool)
-        terminal_mask[list(terminal_rows.values())] = True
+        terminal_mask[list(terminal_states.values())] = True
 
-        ret = 0.0
-        prev_v = 0
+        states_duration: Dict[MedicalState: int] = Dict.fromkeys(m.states, 0)
+        states_duration[m.state_upon_infection] = 1
+
+        index_to_state: Dict[int: MedicalState] = {}
+        for state, index in terminal_states.items():
+            index_to_state[index] = state
+        for state, dict in transfer_states.items():
+            first_index = dict[0]
+            last_index = dict[max(dict.keys())] + upper_bound(state.durations[-1])
+            for index in range(first_index, last_index):
+                index_to_state[index] = state
+
+        prev_v = 0.0
         for time in count(1):
             p = M @ p
             v = np.sum(p, where=terminal_mask)
             d = v - prev_v
-            ret += d * time
             prev_v = v
+
+            for i, prob in enumerate(p):
+                states_duration[index_to_state[i]] += prob
+
             # run at least as many times as the node number to ensure we reached all terminal nodes
             if time > z and d < TOL:
                 break
-        return ret
+        return states_duration
 
     # average probability for transmitions:
     silent_to_asymptomatic_probability = 0.2
@@ -225,4 +245,4 @@ class Consts(NamedTuple):
 
 if __name__ == "__main__":
     c = Consts()
-    print(c.average_infecting_days())
+    print(c.average_time_in_each_state())

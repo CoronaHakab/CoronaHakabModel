@@ -185,18 +185,16 @@ class AffinityMatrix:
         """
         self.logger.info(f"normalizing matrix")
         if self.factor is None:
-            r0 = self.consts.r0
-            # changes r0 to fit the infection ratio (he is calculated despite the low infection ratio)
-            r0 = r0 * (1 / self.consts.expected_infection_ratio())
-            non_zero_elements = self.matrix.count_nonzero()
-            # average number of connections per person per day
-            b = non_zero_elements / self.size
-            # average probability for infection in each meeting as should be
-            d = r0 / (self.consts.average_infecting_days() * b)
-            # avarage probability for infection in each meeting in current matrix
-            average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements
-            # saves this so that connections will be easily re-established later on
-            self.factor = d / average_edge_weight_in_matrix
+            # updates r0 to fit the contagious length and ratio.
+            states_time = self.consts.average_time_in_each_state()
+            total_contagious_probability = 0
+            for state, time_in_state in states_time.items():
+                total_contagious_probability += time_in_state * state.contagiousness
+            beta = self.consts.r0 / total_contagious_probability
+
+            #this factor should be calculated once when the matrix is full, and be left un-changed for the rest of the run.
+            self.factor = (beta * self.size) / (self.matrix.sum())
+
         self.matrix = (
             self.matrix * self.factor
         )  # now each entry in W is such that bd=R0
