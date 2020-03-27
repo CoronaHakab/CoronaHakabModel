@@ -13,7 +13,7 @@ from util import dist, upper_bound
 class Consts(NamedTuple):
     # simulation parameters
     population_size = 10_000
-    total_steps = 400
+    total_steps = 350
     initial_infected_count = 20
 
     # corona stats
@@ -110,33 +110,6 @@ class Consts(NamedTuple):
     silent_infection_ratio: float = 0.3  # todo i made this up, need to get the real number
     # base r0 of the disease
     r0: float = 2.4
-
-    def expected_infection_ratio(self):
-        """
-        The expected infection ratio of a random infected agent
-        """
-        asymptomatic_time = (
-            self.asymptomatic_to_recovered_days.mean()
-            * self.silent_to_asymptomatic_probability
-        )
-        symptomatic_time = self.silent_to_symptomatic_probability * (
-            self.symptomatic_to_asymptomatic_days.mean()
-            * self.symptomatic_to_asymptomatic_probability
-            + self.symptomatic_to_hospitalized_days.mean()
-            * self.symptomatic_to_hospitalized_probability
-        )
-        silent_time = (
-            self.silent_to_symptomatic_probability
-            * self.silent_to_symptomatic_days.mean()
-            + self.silent_to_asymptomatic_probability
-            * self.silent_to_asymptomatic_days.mean()
-        )
-        total_time = asymptomatic_time + symptomatic_time + silent_time
-        return (
-            self.asymptomatic_infection_ratio * asymptomatic_time
-            + self.symptomatic_infection_ratio * symptomatic_time
-            + self.silent_infection_ratio * silent_time
-        ) / total_time
 
     # isolation policy
     # todo why does this exist? doesn't the policy set this? at least make this an enum
