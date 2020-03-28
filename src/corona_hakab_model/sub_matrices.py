@@ -7,6 +7,7 @@ class CircularConnectionsMatrix:
 
     __slots__ = "type", "agents", "circle_size_probability", "connection_strength"
 
+    # todo switch type to a named-tuple
     def __init__(self, type: str, agents: List[Agent], circle_size_probability: rv_discrete, connection_strength: float):
         self.type = type
         self.agents = agents

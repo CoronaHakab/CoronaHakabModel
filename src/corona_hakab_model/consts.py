@@ -125,7 +125,7 @@ class Consts(NamedTuple):
     # policy stats
     # todo this reeeeally shouldn't be hard-coded
     # defines whether or not to apply a isolation (work shut-down)
-    active_isolation = False
+    active_isolation = True
     # the date to stop work at
     stop_work_days = 30
     # the date to resume work at
@@ -139,7 +139,7 @@ class Consts(NamedTuple):
     # work scale factor (1/alpha)
     work_scale_factor = 40
     # strangers scale factor (1/alpha)
-    strangers_scale_factor = 200
+    strangers_scale_factor = 150
     school_scale_factor = 100
 
     # relative strengths of each connection (in terms of infection chance)
@@ -150,7 +150,7 @@ class Consts(NamedTuple):
     school_strength = 0.1
 
     circular_matrices = [
-        CircularConnectionsMatrix("family", None, family_size_distribution, family_strength),
+        CircularConnectionsMatrix("home", None, family_size_distribution, family_strength),
         CircularConnectionsMatrix("work", None, work_size_distribution, work_strength),
     ]
 

@@ -46,19 +46,21 @@ class AffinityMatrix:
         self.agents = self.manager.agents
 
         self.logger.info("Building circular connections matrices")
-        self.circular_matrices = [
+        # all circular matrixes. keeping as a tuple of matrix and type (i.e, home, work, school and so)
+        self.circular_matrices = [(
             self.circular_matrix_generation(self.agents, matrix.circle_size_probability,
-                                            matrix.connection_strength).tocsr() for
+                                            matrix.connection_strength).tocsr(), matrix.type)for
             matrix in self.consts.circular_matrices]
 
         self.logger.info("Building non circular connections matrices")
-        self.non_circular_matrices = [
-            self.non_circular_matrix_generation(self.agents, matrix.scale_factor, matrix.connection_strength).tocsr()
+        # all non-circular matrixes. keeping as a tuple of matrix and type (i.e, home, work, school and so)
+        self.non_circular_matrices = [(
+            self.non_circular_matrix_generation(self.agents, matrix.scale_factor, matrix.connection_strength).tocsr(), matrix.type)
             for matrix
             in self.consts.non_circular_matrices]
 
         self.logger.info("summing all matrices")
-        self.matrix = sum(self.circular_matrices) + sum(self.non_circular_matrices)
+        self.matrix = sum(matrix[0] for matrix in self.circular_matrices) + sum(matrix[0] for matrix in self.non_circular_matrices)
 
         self.factor = None
         self.normalize()
@@ -96,6 +98,14 @@ class AffinityMatrix:
         # switching from probability to ln(1-p):
         non_zero_keys = self.matrix.nonzero()
         self.matrix[non_zero_keys] = np.log(1 - self.matrix[non_zero_keys])
+
+    def change_connections_policy(self, types_of_connections_to_use: List[str]):
+        self.logger.info(f"changing policy. keeping all matrixes of types: {types_of_connections_to_use}")
+        self.matrix = sum(matrix[0] for matrix in self.circular_matrices if matrix[1] in types_of_connections_to_use)\
+                      + sum(matrix[0] for matrix in self.non_circular_matrices if matrix[1] in types_of_connections_to_use)
+        self.normalize()
+
+
 
     def non_circular_matrix_generation(self, agents_to_use, scale_factor: float, connection_strength):
         """

@@ -122,9 +122,9 @@ class SimulationManager:
         for i in range(self.consts.total_steps):
             if Consts.active_isolation:
                 if i == self.consts.stop_work_days:
-                    self.matrix.change_work_policy(False)
+                    self.matrix.change_connections_policy(["home", "strangers"])
                 elif i == self.consts.resume_work_days:
-                    self.matrix.change_work_policy(True)
+                    self.matrix.change_connections_policy(["home", "strangers", "school", "work"])
             self.step()
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
 
