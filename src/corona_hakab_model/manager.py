@@ -39,7 +39,7 @@ class SimulationManager:
         ]
         initial_state.add_many(self.agents)
 
-        self.matrix = AffinityMatrix(self)
+        self.matrix = AffinityMatrix(self, input_matrix_path, output_matrix_path)
 
         self.supervisor = Supervisor(
             [Supervisable.coerce(a, self) for a in supervisable_makers], self
