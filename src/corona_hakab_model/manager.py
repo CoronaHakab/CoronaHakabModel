@@ -17,7 +17,8 @@ class SimulationManager:
     A simulation manager is the main class, it manages the steps performed with policies
     """
 
-    def __init__(self, supervisable_makers: Iterable[Any], consts=Consts()):
+    def __init__(self, supervisable_makers: Iterable[Any], consts=Consts(),
+                 input_matrix_path: str = None, output_matrix_path: str = None):
         self.consts = consts
         self.medical_machine = consts.medical_state_machine()
         initial_state = self.medical_machine.initial
@@ -38,7 +39,7 @@ class SimulationManager:
         ]
         initial_state.add_many(self.agents)
 
-        self.matrix = AffinityMatrix(self)
+        self.matrix = AffinityMatrix(self, input_matrix_path, output_matrix_path)
 
         self.supervisor = Supervisor(
             [Supervisable.coerce(a, self) for a in supervisable_makers], self

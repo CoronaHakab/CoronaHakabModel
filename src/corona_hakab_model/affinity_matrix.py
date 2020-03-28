@@ -2,12 +2,13 @@ import logging
 from random import shuffle
 import numpy as np
 from agent import TrackingCircle, Agent
-from scipy.sparse import lil_matrix
+from scipy.sparse import lil_matrix, load_npz, save_npz
 from util import dist
 from typing import List, Dict
 from scipy.stats import rv_discrete
 import math
 from sub_matrices import CircularConnectionsMatrix, NonCircularConnectionMatrix
+
 
 m_type = lil_matrix
 
@@ -22,15 +23,26 @@ class AffinityMatrix:
     Naturally, W is symmetric.
     """
 
-    def __init__(self, manager):
+    def __init__(self, manager, input_matrix_path: str = None, output_matrix_path: str = None):
         self.consts = manager.consts
         self.size = len(manager.agents)  # population size
+        self.logger = logging.getLogger("simulation")
 
         self.manager = manager
+        if input_matrix_path and m_type == lil_matrix:
+            self.logger.info(f"Loading matrix from file: {input_matrix_path}")
+            try:
+                with open(input_matrix_path, 'rb') as f_matrix:
+                    self.matrix = load_npz(f_matrix)
+            except FileNotFoundError as e:
+                self.logger.error(f"File {input_matrix_path} not found!")
+                raise e
+            self.logger.info("Matrix loaded succesfully")
+            return
 
-        self.matrix = m_type((self.size, self.size), dtype=np.float32)
-        self.logger = logging.getLogger("simulation")
         self.logger.info("Building new AffinityMatrix")
+        self.matrix = m_type((self.size, self.size), dtype=np.float32)
+
         self.agents = self.manager.agents
 
         self.logger.info("Building circular connections matrices")
@@ -50,6 +62,15 @@ class AffinityMatrix:
 
         self.factor = None
         self.normalize()
+
+        if output_matrix_path and m_type == lil_matrix:
+            self.logger.info(f"Saving AffinityMatrix internal matrix to {output_matrix_path}")
+            try:
+                with open(output_matrix_path, 'wb') as f_matrix:
+                    save_npz(f_matrix, self.matrix)
+            except FileNotFoundError as e:
+                self.logger.error(f"Path {output_matrix_path} is invalid!")
+            self.logger.info("Matrix saved successfully!")
 
     def normalize(self):
         """
@@ -75,10 +96,6 @@ class AffinityMatrix:
         # switching from probability to ln(1-p):
         non_zero_keys = self.matrix.nonzero()
         self.matrix[non_zero_keys] = np.log(1 - self.matrix[non_zero_keys])
-
-    def change_work_policy(self, state):
-        self.matrix = self.m_families + state * self.m_work + self.m_random
-        self.normalize()
 
     def non_circular_matrix_generation(self, agents_to_use, scale_factor: float, connection_strength):
         """

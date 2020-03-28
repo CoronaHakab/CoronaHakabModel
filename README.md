@@ -4,6 +4,9 @@
 - setup: **python setup.py install**
 - go to src/corona_hakab_model folder
 - run: **python main.py**
+- Optional - Export/Import matrices!
+- Export: **python main.py -o <PATH>**
+- Import: **python main.py -i <PATH>**
 
 ## Workflow -
 - When working, **work on a new git branch**.

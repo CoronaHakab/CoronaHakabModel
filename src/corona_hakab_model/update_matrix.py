@@ -98,19 +98,3 @@ class UpdateMatrixManager:
 
         agent.is_home_isolated = False
         agent.is_full_isolated = False
-
-    def apply_self_isolation(
-        self, matrix, family_matrix, sick_agents_vector, agents_list
-    ):  # not in use
-        """
-        Modifies the matrix so self isolations are in place
-        """
-        sick_agents_ids = sick_agents_vector.get_sick_ids()
-
-        # run on all self isolated agents
-        for agent_id in sick_agents_ids:
-            if agents_list[agent_id].is_self_isolated():
-                # remove all existing relations
-                matrix.zero_column(agent_id)
-                # insert only family relations (as he is at home)
-                matrix.add_to_column(agent_id, family_matrix.get_column(agent_id))
