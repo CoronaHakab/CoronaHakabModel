@@ -8,31 +8,111 @@ from medical_state_machine import MedicalStateMachine
 from scipy.stats import rv_discrete
 from state_machine import StochasticState, TerminalState
 from util import dist, upper_bound
+import json
+import sys
 
+#class Consts(NamedTuple):
+class Consts():
+    
+    def __init__(self,json_fname=None):
+        
+        # default simulation parameters. Now all stored here
+        self.simulation_parameters = {
+            "population_size" : 10_000,
+            "total_steps" : 350,
+            "initial_infected_count" : 20,
+            
+            #Tsvika: Currently the distribution is selected based on the number of input parameters. 
+            #Think we should do something more readble later on. 
+            # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
+            "distributions" : {
+                "latent_to_silent_days": '(1, 3)',
+                "silent_to_asymptomatic_days": '(0, 3, 10)',
+                "silent_to_symptomatic_days": '(0, 3, 10)',
+                "asymptomatic_to_recovered_days": '(3, 5, 7)',
+                "symptomatic_to_asymptomatic_days": '(7, 10, 14)',
+                "symptomatic_to_hospitalized_days": '(0, 1.5, 10)',  # todo range not specified in sources
+                "hospitalized_to_asymptomatic_days": '(18)',
+                "hospitalized_to_icu_days" : '(5)',  # todo probably has a range
+                "icu_to_deceased_days" : '(7)',  # todo probably has a range
+                "icu_to_hospitalized_days": '(7)'  # todo maybe the program should juts print a question mark,  we'll see how the researchers like that!
+            },
+            # average probability for transmitions:
+            "silent_to_asymptomatic_probability" : 0.2,
+            "symptomatic_to_asymptomatic_probability" : 0.85,
+            "hospitalized_to_asymptomatic_probability" : 0.8,
+            "icu_to_hospitalized_probability" : 0.65,
 
-class Consts(NamedTuple):
-    # simulation parameters
-    population_size = 10_000
-    total_steps = 350
-    initial_infected_count = 20
+            # probability of an infected symptomatic agent infecting others
+            "symptomatic_infection_ratio" : 0.75,
+            # probability of an infected asymptomatic agent infecting others
+            "asymptomatic_infection_ratio" : 0.25,
+            # probability of an infected silent agent infecting others
+            "silent_infection_ratio": 0.3,  # todo i made this up, need to get the real number
+            # base r0 of the disease
+            "r0": 2.4,
 
-    # corona stats
-    # todo replace with distribution
-    # average state mechine transmitions times:
-    latent_to_silent_days: rv_discrete = dist(1, 3)
-    silent_to_asymptomatic_days: rv_discrete = dist(0, 3, 10)
-    silent_to_symptomatic_days: rv_discrete = dist(0, 3, 10)
-    asymptomatic_to_recovered_days: rv_discrete = dist(3, 5, 7)
-    symptomatic_to_asymptomatic_days: rv_discrete = dist(7, 10, 14)
-    symptomatic_to_hospitalized_days: rv_discrete = dist(
-        0, 1.5, 10
-    )  # todo range not specified in sources
-    hospitalized_to_asymptomatic_days: rv_discrete = dist(18)
-    hospitalized_to_icu_days: rv_discrete = dist(5)  # todo probably has a range
-    icu_to_deceased_days: rv_discrete = dist(7)  # todo probably has a range
-    icu_to_hospitalized_days: rv_discrete = dist(
-        7
-    )  # todo maybe the program should juts print a question mark,  we'll see how the researchers like that!
+            # isolation policy
+            # todo why does this exist? doesn't the policy set this? at least make this an enum
+            # note not to set both home isolation and full isolation true
+            # whether to isolation detected agents to their homes (allow familial contact)
+            "home_isolation_sicks" : False,
+            # whether to isolation detected agents fully (no contact)
+            "full_isolation_sicks" : False,
+            # how many of the infected agents are actually caught and isolated
+            "caught_sicks_ratio" : 0.3,
+
+            # policy stats
+            # todo this reeeeally shouldn't be hard-coded
+            # defines whether or not to apply a isolation (work shut-down)
+            "active_isolation" : False,
+            # the date to stop work at
+            "stop_work_days" : 30,
+            # the date to resume work at
+            "resume_work_days" : 60,
+
+            # social stats
+            # the average family size
+            "average_family_size" : 5,  # todo replace with distribution
+            # the average workplace size
+            "average_work_size" : 50,  # todo replace with distribution
+            # the average amount of stranger contacts per person
+            "average_amount_of_strangers" : 200,  # todo replace with distribution
+
+            # relative strengths of each connection (in terms of infection chance)
+            # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
+            "family_strength_not_workers" : 0.75,
+            "family_strength" : 0.4,
+            "work_strength" : 0.04,
+            "stranger_strength" : 0.004
+        }
+        #place params as data memebers since this is how they are currently accessed outside the class.
+        #As running this from the init, it will create the members for the first time.
+        if json_fname == None:
+            self.SetDataMembers(self.simulation_parameters)
+        else:
+            self.LoadFromJSON(json_fname)
+
+    def SetDataMembers(self, dct):     
+        """
+        Copying the dictionary into the object data members
+        """
+
+        legal_keys=self.simulation_parameters.keys()
+        legal_distribution_params = self.simulation_parameters["distributions"].keys()
+        
+        for key in dct.keys():
+            if key in legal_keys:
+                if key=='distributions': #Special care here
+                    for distribution_param in dct[key].keys():
+                        if distribution_param in legal_distribution_params:                            
+                            exec("self.{0} = dist{1}".format(distribution_param, dct[key][distribution_param]))                                
+                        else:
+                            sys.exit("unknown distribution parameter %s" % distribution_param)
+                else:    
+                    exec("self.{0} = {1}".format(key, dct[key]))                    
+            else:
+                sys.exit("unknown key %s" % key)
 
     def average_time_in_each_state(self):
         """
@@ -77,74 +157,23 @@ class Consts(NamedTuple):
                 break
         return states_duration
 
-    # average probability for transmitions:
-    silent_to_asymptomatic_probability = 0.2
-
     @property
     def silent_to_symptomatic_probability(self):
         return 1 - self.silent_to_asymptomatic_probability
-
-    symptomatic_to_asymptomatic_probability = 0.85
 
     @property
     def symptomatic_to_hospitalized_probability(self):
         return 1 - self.symptomatic_to_asymptomatic_probability
 
-    hospitalized_to_asymptomatic_probability = 0.8
-
     @property
     def hospitalized_to_icu_probability(self):
         return 1 - self.hospitalized_to_asymptomatic_probability
-
-    icu_to_hospitalized_probability = 0.65
 
     @property
     def icu_to_dead_probability(self):
         return 1 - self.icu_to_hospitalized_probability
 
-    # probability of an infected symptomatic agent infecting others
-    symptomatic_infection_ratio: float = 0.75
-    # probability of an infected asymptomatic agent infecting others
-    asymptomatic_infection_ratio: float = 0.25
-    # probability of an infected silent agent infecting others
-    silent_infection_ratio: float = 0.3  # todo i made this up, need to get the real number
-    # base r0 of the disease
-    r0: float = 2.4
-
-    # isolation policy
-    # todo why does this exist? doesn't the policy set this? at least make this an enum
-    # note not to set both home isolation and full isolation true
-    # whether to isolation detected agents to their homes (allow familial contact)
-    home_isolation_sicks = False
-    # whether to isolation detected agents fully (no contact)
-    full_isolation_sicks = False
-    # how many of the infected agents are actually caught and isolated
-    caught_sicks_ratio = 0.3
-
-    # policy stats
-    # todo this reeeeally shouldn't be hard-coded
-    # defines whether or not to apply a isolation (work shut-down)
-    active_isolation = False
-    # the date to stop work at
-    stop_work_days = 30
-    # the date to resume work at
-    resume_work_days = 60
-
-    # social stats
-    # the average family size
-    average_family_size = 5  # todo replace with distribution
-    # the average workplace size
-    average_work_size = 50  # todo replace with distribution
-    # the average amount of stranger contacts per person
-    average_amount_of_strangers = 200  # todo replace with distribution
-
-    # relative strengths of each connection (in terms of infection chance)
-    # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
-    family_strength_not_workers = 0.75
-    family_strength = 0.4
-    work_strength = 0.04
-    stranger_strength = 0.004
-
+    
     @lru_cache
     def medical_state_machine(self):
         class SusceptibleTerminalState(SusceptibleState, TerminalState):
@@ -214,8 +243,19 @@ class Consts(NamedTuple):
         asymptomatic.add_transfer(recovered, self.asymptomatic_to_recovered_days, ...)
 
         return ret
+    
+    def LoadFromJSON(self, json_fname):
+        with open(json_fname, "r") as read_file:
+            dct = json.load(read_file)
+        self.SetDataMembers(dct)
 
-
+    
 if __name__ == "__main__":
     c = Consts()
-    print(c.average_time_in_each_state())
+    
+    with open("..\corona_hakab_model_data\default_params.json", "w") as write_file:
+        json.dump(c.simulation_parameters, write_file, indent=4)
+    
+    c.LoadFromJSON("..\corona_hakab_model_data\default_params.json")
+    
+ 

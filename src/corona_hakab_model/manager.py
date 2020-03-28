@@ -17,9 +17,10 @@ class SimulationManager:
     A simulation manager is the main class, it manages the steps performed with policies
     """
 
-    def __init__(self, supervisable_makers: Iterable[Any], consts=Consts()):
-        self.consts = consts
-        self.medical_machine = consts.medical_state_machine()
+    def __init__(self, supervisable_makers: Iterable[Any]):
+        consts_json_fname="..\corona_hakab_model_data\default_params.json"
+        self.consts = Consts(consts_json_fname)
+        self.medical_machine = self.consts.medical_state_machine()
         initial_state = self.medical_machine.initial
 
         self.pending_transfers = PendingTransfers()
@@ -143,7 +144,7 @@ class SimulationManager:
         self.generate_policy(1)
 
         for i in range(self.consts.total_steps):
-            if Consts.active_isolation:
+            if self.consts.active_isolation:
                 if i == self.consts.stop_work_days:
                     self.matrix.change_work_policy(False)
                 elif i == self.consts.resume_work_days:
