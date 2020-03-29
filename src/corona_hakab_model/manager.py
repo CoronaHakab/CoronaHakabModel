@@ -22,9 +22,12 @@ class SimulationManager:
         supervisable_makers: Iterable[Any],
         input_matrix_path=None,
         output_matrix_path=None,
-        consts_json_fname=None,
+        parameters_file=None
     ):
-        self.consts = Consts(consts_json_fname)
+        if parameters_file:
+            self.consts = Consts.from_file(r'Parameters\parameters_example.py')
+        else:
+            self.consts = Consts.default()
         self.medical_machine = self.consts.medical_state_machine()
         initial_state = self.medical_machine.initial
 
