@@ -204,11 +204,12 @@ class Supervisable(ABC):
             return _StackedFloatSupervisable([Supervisable.coerce(a, m) for a in self.args])
 
     class Sum:
-        def __init__(self, *args):
+        def __init__(self, *args, **kwargs):
             self.args = args
+            self.kwargs = kwargs
 
         def __call__(self, m):
-            return _SumSupervisable([Supervisable.coerce(a, m) for a in self.args])
+            return _SumSupervisable([Supervisable.coerce(a, m) for a in self.args], **self.kwargs)
 
     class R0:
         def __init__(self):
@@ -216,6 +217,23 @@ class Supervisable(ABC):
 
         def __call__(self, m):
             return _EffectiveR0Supervisable()
+
+    class NewCasesCounter:
+        def __init__(self):
+            pass
+
+        def __call__(self, manager):
+            return _NewInfectedCount()
+
+    class GrowthFactor:
+        def __init__(self, sum_supervisor: "Sum", new_infected_supervisor: "NewCasesCounter"):
+            self.new_infected_supervisor = new_infected_supervisor
+            self.sum_supervisor = sum_supervisor
+
+        def __call__(self, m):
+            return _GrowthFactor(
+                Supervisable.coerce(self.new_infected_supervisor, m), Supervisable.coerce(self.sum_supervisor, m)
+            )
 
 
 SupervisableMaker = Callable[[Any], Supervisable]
@@ -340,9 +358,10 @@ class _StackedFloatSupervisable(VectorSupervisable):
 
 
 class _SumSupervisable(ValueSupervisable):
-    def __init__(self, inners: List[ValueSupervisable]):
+    def __init__(self, inners: List[ValueSupervisable], **kwargs):
         super().__init__()
         self.inners = inners
+        self.kwargs = kwargs
 
     def get(self, manager) -> float:
         return sum(s.get(manager) for s in self.inners)
@@ -357,6 +376,8 @@ class _SumSupervisable(ValueSupervisable):
         return type(self.inners[0]).stacked_plot(self, ax)
 
     def name(self) -> str:
+        if "name" in self.kwargs:
+            return self.kwargs["name"]
         return "Total(" + ", ".join(n.name() for n in self.inners)
 
 
@@ -375,3 +396,31 @@ class _EffectiveR0Supervisable(FloatSupervisable):
 
     def name(self) -> str:
         return "effective R"
+
+
+class _NewInfectedCount(FloatSupervisable):
+    def __init__(self):
+        super().__init__()
+
+    def get(self, manager) -> float:
+        return manager.new_sick_counter
+
+    def name(self) -> str:
+        return "new infected"
+
+
+class _GrowthFactor(FloatSupervisable):
+    def __init__(self, new_infected_supervisor, sum_supervisor):
+        super().__init__()
+        self.new_infected_supervisor = new_infected_supervisor
+        self.sum_supervisor = sum_supervisor
+
+    def get(self, manager) -> float:
+        new_infected = self.new_infected_supervisor.get(manager)
+        sum = self.sum_supervisor.get(manager)
+        if sum == 0:
+            return np.nan
+        return new_infected / sum
+
+    def name(self) -> str:
+        return "growth factor"
