@@ -61,5 +61,7 @@ class ParasymbolicMatrix{
         ParasymbolicMatrix& operator*=(dtype rhs);
         void mul_sub_row(size_t component, size_t row, dtype factor);
         void mul_sub_col(size_t component, size_t col, dtype factor);
+        void reset_mul_row(size_t component, size_t row);
+        void reset_mul_col(size_t component, size_t col);
         virtual ~ParasymbolicMatrix();
 }

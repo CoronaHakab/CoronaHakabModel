@@ -128,11 +128,14 @@ ParasymbolicMatrix::ParasymbolicMatrix(dtype const* factors, CoffedSparseMatrix 
 }
 void ParasymbolicMatrix::rebuild_all(){
     inner.total = NAN;
+    // todo parallelize
     for(auto row_num = 0; row_num < inner.size; row_num++){
+    }
         rebuild_row(row_num);
     }
 }
 void ParasymbolicMatrix::rebuild_row(size_t row_num){
+    // todo most of the time, we'll only need to reset some cells in each row (only non-zero in the changed cells)
     row_type& row = inner.rows[row_num];
     decltype(row.begin())* comp_iters = new decltype(row.begin())[component_count];
     decltype(row.end())* comp_ends = new decltype(row.end())[component_count];
@@ -225,6 +228,7 @@ void ParasymbolicMatrix::prob_any(dtype const* A_v, size_t v_len, size_t const *
                         dtype** AF_out, size_t* o_size){
     *o_size = inner.size;
     *AF_out = new dtype[inner.size];
+    // todo parallelize
     for (auto row_num = 0; row_num < inner.size; row_num++){
         dtype inv_ret = 1;
         size_t nz_index = 0;
@@ -266,6 +270,18 @@ void ParasymbolicMatrix::mul_sub_row(size_t component, size_t row, dtype factor)
 void ParasymbolicMatrix::mul_sub_col(size_t component, size_t col, dtype factor){
     auto comp = components[component];
     comp.mul_col(col, factor);
+    rebuild_column(col);
+}
+
+void ParasymbolicMatrix::reset_mul_row(size_t component, size_t row){
+    auto comp = components[component];
+    comp.reset_mul_row(row);
+    rebuild_column(row);
+}
+
+void ParasymbolicMatrix::reset_mul_col(size_t component, size_t col){
+    auto comp = components[component];
+    comp.reset_mul_col(col);
     rebuild_column(col);
 }
 
