@@ -52,6 +52,8 @@ class SimulationManager:
 
         self.current_date = 0
 
+        self.new_sick_counter = 0
+
         self.logger.info("Created new simulation.")
 
     def step(self):
@@ -76,11 +78,13 @@ class SimulationManager:
     def progress_transfers(self, new_sick: Dict[MedicalState, List]):
         # all the new sick agents are leaving their previous step
         changed_state_leaving = new_sick
-
         # agents which are going to enter the new state
         changed_state_introduced = defaultdict(list)
         # list of all the new sick agents
         new_sick_list = sum(changed_state_leaving.values(), [])
+
+        # saves this number for supervising
+        self.new_sick_counter = len(new_sick_list)
         # all the new sick are going to get to the next state
         changed_state_introduced[self.medical_machine.state_upon_infection] = new_sick_list
 
