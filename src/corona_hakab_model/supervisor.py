@@ -5,11 +5,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from bisect import bisect
 from functools import lru_cache
-from math import fsum
-from typing import Any, Callable, List, NamedTuple, Optional, Sequence, Tuple
+from typing import Any, Callable, List, NamedTuple, Sequence
 
 import numpy as np
-from state_machine import TerminalState
 
 try:
     import PySide2
@@ -227,10 +225,11 @@ class Supervisable(ABC):
 
         def __call__(self, m):
             return _SumSupervisable([Supervisable.coerce(a, m) for a in self.args])
-          
+
     class R0:
         def __init__(self):
             pass
+
         def __call__(self, m):
             return _EffectiveR0Supervisable()
 
@@ -274,7 +273,7 @@ class FloatSupervisable(ValueSupervisable):
 
 
 class LambdaValueSupervisable(FloatSupervisable):
-    def __init__(self, name, lam):
+    def __init__(self, name: str, lam: Callable):
         super().__init__()
         self._name = name
         self.lam = lam
@@ -282,7 +281,7 @@ class LambdaValueSupervisable(FloatSupervisable):
     def name(self) -> str:
         return self._name
 
-    def get(self, manager):
+    def get(self, manager) -> float:
         return self.lam(manager)
 
 
@@ -379,15 +378,16 @@ class _SumSupervisable(ValueSupervisable):
     def name(self) -> str:
         return "Total(" + ", ".join(n.name() for n in self.inners)
 
-class _EffectiveR0Supervisable (FloatSupervisable):
+
+class _EffectiveR0Supervisable(FloatSupervisable):
     def __init__(self):
         super().__init__()
 
     def get(self, manager) -> float:
         # note that this calculation is VARY heavy
         suseptable_indexes = np.flatnonzero(manager.susceptible_vector)
-        return np.sum(1 - np.exp(manager.matrix.matrix[suseptable_indexes].data)) * manager.matrix.total_contagious_probability / manager.matrix.size
+        return np.sum(1 - np.exp(manager.matrix.matrix[
+                                     suseptable_indexes].data)) * manager.matrix.total_contagious_probability / manager.matrix.size
 
     def name(self) -> str:
         return "effective R"
-
