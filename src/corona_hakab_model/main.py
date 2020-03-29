@@ -3,6 +3,7 @@ from supervisor import Supervisable, Supervisor
 from consts import Consts
 from argparse import ArgumentParser
 
+import time
 
 def check_args(args):
     if args.input_matrix_path and args.output_matrix_path:
@@ -11,6 +12,10 @@ def check_args(args):
 
 
 def main():
+    
+    start_time = time.time()
+    print("Start time: {}".format(start_time))
+    
     parser = ArgumentParser(
         """
     COVID-19 Simulation
@@ -49,6 +54,10 @@ def main():
     )
 
     sm.run()
+
+    end_time = time.time()
+    print("End time: {}".format(end_time))
+    print("Time elapsed: {} seconds".format(end_time - start_time))
     sm.plot(save=True, max_scale=False)
 
 
