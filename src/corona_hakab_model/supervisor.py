@@ -267,6 +267,19 @@ class FloatSupervisable(ValueSupervisable):
         return ax.stackplot(self.x, self.y, label=self.name())
 
 
+class LambdaValueSupervisable(FloatSupervisable):
+    def __init__(self, name, lam):
+        super().__init__()
+        self._name = name
+        self.lam = lam
+
+    def name(self) -> str:
+        return self._name
+
+    def get(self, manager):
+        return self.lam(manager)
+
+
 class _StateSupervisable(FloatSupervisable):
     def __init__(self, state):
         super().__init__()

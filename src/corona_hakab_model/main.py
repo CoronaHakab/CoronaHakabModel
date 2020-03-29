@@ -1,5 +1,5 @@
 from manager import SimulationManager
-from supervisor import Supervisable, Supervisor
+from supervisor import Supervisable, Supervisor, LambdaValueSupervisable
 from consts import Consts
 from argparse import ArgumentParser
 
@@ -42,6 +42,7 @@ def main():
             Supervisable.Sum(
                 "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"
             ),
+            LambdaValueSupervisable("Detected", lambda manager: manager.detected)
         ),
         input_matrix_path=args.input_matrix_path,
         output_matrix_path=args.output_matrix_path
