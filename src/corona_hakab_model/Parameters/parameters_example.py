@@ -4,7 +4,7 @@
 
 
 {
-    "population_size": 100_000,
+    "population_size": 10_000,
     "total_steps": 350,
     "initial_infected_count": 20,
     # Tsvika: Currently the distribution is selected based on the number of input parameters.
