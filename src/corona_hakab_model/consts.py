@@ -1,6 +1,6 @@
 from functools import lru_cache
 from itertools import count
-from typing import NamedTuple, Dict, List
+from typing import NamedTuple, Dict
 
 import numpy as np
 from medical_state import ImmuneState, SusceptibleState, ContagiousState, MedicalState
@@ -51,10 +51,10 @@ class Consts(NamedTuple):
         terminal_mask = np.zeros(z, bool)
         terminal_mask[list(terminal_states.values())] = True
 
-        states_duration: Dict[MedicalState: int] = Dict.fromkeys(m.states, 0)
+        states_duration: Dict[MedicalState, int] = Dict.fromkeys(m.states, 0)
         states_duration[m.state_upon_infection] = 1
 
-        index_to_state: Dict[int: MedicalState] = {}
+        index_to_state: Dict[int, MedicalState] = {}
         for state, index in terminal_states.items():
             index_to_state[index] = state
         for state, dict in transfer_states.items():
