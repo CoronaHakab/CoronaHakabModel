@@ -7,7 +7,8 @@ import numpy as np
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
 from state_machine import StochasticState, TerminalState
-from util import dist, upper_bound
+from util import dist, upper_bound, rv_discrete
+from sub_matrices import CircularConnectionsMatrix, NonCircularConnectionMatrix
 
 """
 Overview:
@@ -20,8 +21,6 @@ Usage:
 1. Create a default consts object - consts = Consts()
 2. Load a parameters file - consts = Consts.from_file(path)
 """
-
-# These parameters serve as both the default values as well as the template!
 default_parameters = {
     "population_size": 10_000,
     "total_steps": 350,
@@ -68,24 +67,35 @@ default_parameters = {
     # policy stats
     # todo this reeeeally shouldn't be hard-coded
     # defines whether or not to apply a isolation (work shut-down)
-    "active_isolation": False,
+    "active_isolation": True,
     # the date to stop work at
-    "stop_work_days": 30,
+    "stop_work_days": 40,
     # the date to resume work at
-    "resume_work_days": 60,
+    "resume_work_days": 80,
     # social stats
     # the average family size
-    "average_family_size": 5,  # todo replace with distribution
-    # the average workplace size
-    "average_work_size": 50,  # todo replace with distribution
+    "family_size_distribution": rv_discrete(1, 7, name="family", values=(
+        [1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081])),    # the average workplace size
+    # work circles size distribution
+    "work_size_distribution": dist(30, 80),  # todo replace with distribution
+    # work scale factor (1/alpha)
+    "work_scale_factor": 40,
     # the average amount of stranger contacts per person
     "average_amount_of_strangers": 200,  # todo replace with distribution
+    # strangers scale factor (1/alpha)
+    "strangers_scale_factor": 150,
+    "school_scale_factor": 100,
+
     # relative strengths of each connection (in terms of infection chance)
     # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
+
     "family_strength_not_workers": 0.75,
-    "family_strength": 0.4,
-    "work_strength": 0.04,
-    "stranger_strength": 0.004,
+    "family_strength": 1,
+    "work_strength": 0.1,
+    "stranger_strength": 0.01,
+    "school_strength": 0.1,
+
+
 }
 
 ConstParameters = namedtuple("ConstParameters", sorted(default_parameters))
@@ -251,6 +261,22 @@ class Consts(ConstParameters):
         asymptomatic.add_transfer(recovered, self.asymptomatic_to_recovered_days, ...)
 
         return ret
+
+    @property
+    def circular_matrices(self):
+
+        return [
+            CircularConnectionsMatrix("home", None, self.family_size_distribution, self.family_strength),
+            CircularConnectionsMatrix("work", None, self.work_size_distribution, self.work_strength),
+            ]
+
+    @property
+    def non_circular_matrices(self):
+        return [
+            NonCircularConnectionMatrix("work", None, self.work_scale_factor, self.work_strength),
+            NonCircularConnectionMatrix("school", None, self.school_scale_factor, self.school_strength),
+            NonCircularConnectionMatrix("strangers", None, self.strangers_scale_factor, self.stranger_strength),
+        ]
 
 
 class UnknownParameterException(Exception):

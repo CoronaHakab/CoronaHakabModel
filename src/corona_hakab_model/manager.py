@@ -121,42 +121,18 @@ class SimulationManager:
             self.medical_machine.state_upon_infection.transfer(agents_to_infect)
         )
 
-    def generate_policy(self, workers_percent):
-        """"
-        setting up the simulation with a given amount of infected people
-        """
-        rolls = np.random.random(len(self.agents)) > workers_percent
-        for agent, roll in zip(self.agents, rolls):
-            if agent.work is None:
-                continue
-            if roll:
-                work_members_ids = agent.work.get_indexes_of_my_circle(
-                    agent.index
-                )  # right now works are circle[1]
-                for id in work_members_ids:
-                    self.matrix.matrix[agent.index, id] = np.log(1)
-                family_members_ids = agent.home.get_indexes_of_my_circle(
-                    agent.index
-                )  # right now families are circle[0]
-                for id in family_members_ids:
-                    self.matrix.matrix[agent.index, id] = np.log(
-                        1
-                        - (self.consts.family_strength_not_workers * self.matrix.factor)
-                    )
-        self.setup_sick()
-
     def run(self):
         """
         runs full simulation
         """
-        self.generate_policy(1)
+        self.setup_sick()
 
         for i in range(self.consts.total_steps):
             if self.consts.active_isolation:
                 if i == self.consts.stop_work_days:
-                    self.matrix.change_work_policy(False)
+                    self.matrix.change_connections_policy({"home", "strangers"})
                 elif i == self.consts.resume_work_days:
-                    self.matrix.change_work_policy(True)
+                    self.matrix.change_connections_policy({"home", "strangers", "school", "work"})
             self.step()
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
 
