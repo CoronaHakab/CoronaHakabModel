@@ -1,9 +1,14 @@
 import logging
 from random import shuffle
-
 import numpy as np
-from agent import TrackingCircle
+from agent import TrackingCircle, Agent
 from scipy.sparse import lil_matrix, load_npz, save_npz
+from util import dist
+from typing import List, Dict, Sequence
+from scipy.stats import rv_discrete
+import math
+from sub_matrices import CircularConnectionsMatrix, NonCircularConnectionMatrix
+
 
 m_type = lil_matrix
 
@@ -40,16 +45,22 @@ class AffinityMatrix:
 
         self.agents = self.manager.agents
 
-        self.m_families = self._create_intra_family_connections()
-        self.m_work = self._create_intra_workplace_connections()
-        self.m_random = self._create_random_connectivity()
+        self.logger.info("Building circular connections matrices")
+        # all circular matrixes. keeping as a tuple of matrix and type (i.e, home, work, school and so)
+        self.circular_matrices = [(
+            self.circular_matrix_generation(self.agents, matrix.circle_size_probability,
+                                            matrix.connection_strength).tocsr(), matrix.type)for
+            matrix in self.consts.circular_matrices]
 
-        # switches all matrices to csr, for efficiency later on (in home isolation calculations)
-        self.m_families = self.m_families.tocsr()
-        self.m_work = self.m_work.tocsr()
-        self.m_random = self.m_random.tocsr()
+        self.logger.info("Building non circular connections matrices")
+        # all non-circular matrixes. keeping as a tuple of matrix and type (i.e, home, work, school and so)
+        self.non_circular_matrices = [(
+            self.non_circular_matrix_generation(self.agents, matrix.scale_factor, matrix.connection_strength).tocsr(), matrix.type)
+            for matrix
+            in self.consts.non_circular_matrices]
 
-        self.matrix = self.m_families + self.m_work + self.m_random
+        self.logger.info("summing all matrices")
+        self.matrix = sum(matrix[0] for matrix in self.circular_matrices) + sum(matrix[0] for matrix in self.non_circular_matrices)
 
         self.factor = None
         self.normalize()
@@ -62,141 +73,6 @@ class AffinityMatrix:
             except FileNotFoundError as e:
                 self.logger.error(f"Path {output_matrix_path} is invalid!")
             self.logger.info("Matrix saved successfully!")
-
-    def _create_intra_family_connections(self):
-        """
-        here need to build random buckets of size N/self.averageFamilySize
-        and add nodes to a NxN sparse matrix W_families describing the connections within each family.
-        If for example, nodes 1 till 5 are a family, we need to build connections between each and
-        every member of this family. The value of each edge should be high, representing a
-        high chance of passing the virus, since the family members stay a long time together.
-        In the example of nodes 1 till 5 are a family, in Matlab this would be: W_families[1:5,1:5]=p
-        where p is the intra family infection probability.
-        Late on, if, for example, a policy of house isolation takes place without the members of the family
-        taking measures to separate from each other, then this value p can be replaced by something even larger.
-        """
-
-        self.logger.info(f"Create intra family connections")
-        # as a beginning, I am making all families the same size, later we will change it to be more sophisticated
-
-        matrix = m_type((self.size, self.size), dtype=np.float32)
-
-        # creating all families, and assigning each agent to a family, and counter-wise
-        agents_without_home = list(range(self.size))
-        shuffle(agents_without_home)
-        families = []
-        num_of_families = self.size // self.consts.average_family_size
-        for i in range(num_of_families):
-            if i % (num_of_families // 100) == 0:
-                self.logger.info(f"Creating family {i}/{num_of_families}")
-            new_family = TrackingCircle()
-            for _ in range(self.consts.average_family_size):
-                chosen_agent = self.agents[agents_without_home.pop()]
-                chosen_agent.add_home(new_family)
-                new_family.add_agent(chosen_agent)
-            families.append(new_family)
-        self.families = families
-
-        # adding the remaining people to a family (if size % average_family_size != 0)
-        if len(agents_without_home) > 0:
-            self.logger.info("adding remaining agents to families")
-            new_family = TrackingCircle()
-            for agent_index in agents_without_home:
-                chosen_agent = self.agents[agent_index]
-                chosen_agent.add_home(new_family)
-                new_family.add_agent(chosen_agent)
-            families.append(new_family)
-
-        # setting the connection strength between the agents in the matrix
-        for family in families:
-            # extracting indexes of the agents in the family, which will serve as coordinates in the meshg rid
-            ids = np.array([a.index for a in family.agents])
-            xs, ys = np.meshgrid(ids, ids)
-            xs = xs.reshape(-1)
-            ys = ys.reshape(-1)
-            matrix[xs, ys] = self.consts.family_strength
-        # setting the connection between a person himself (the matrix diagonal) as 0
-        ids = np.arange(self.size)
-        matrix[ids, ids] = 0
-
-        return matrix
-
-    # todo unify family and workplace creation
-    def _create_intra_workplace_connections(self):
-        """
-        Similar to build the family connections we here build the working place connections
-        divide the population which goes to work (say 0.4N) into buckets of size that correspond
-        to work place size.
-        Within the nodes of each bucket (i.e. each work place), make some random connections according
-        to the number of close colleagues each person might have.
-
-        :return: lil_matrix n*n
-        """
-        # note: a bug in numpy casting will cause a crash on array inset with float16 arrays, we should use float32
-        self.logger.info(f"Create intra workplace connections")
-        matrix = m_type((self.size, self.size), dtype=np.float32)
-
-        # creating all families, and assigning each agent to a family, and counterwise
-        agents_without_work = list(range(self.size))
-        shuffle(agents_without_work)
-        works = []
-        num_of_workplaces = self.size // self.consts.average_work_size
-        for i in range(num_of_workplaces):  # todo add last work
-            if i % (num_of_workplaces // 100) == 0:
-                self.logger.info(f"Creating workplace {i}/{num_of_workplaces}")
-            new_work = TrackingCircle()
-            for _ in range(self.consts.average_work_size):
-                chosen_agent_ind = agents_without_work.pop()
-                chosen_agent = self.agents[chosen_agent_ind]
-                chosen_agent.add_work(new_work)
-                new_work.add_agent(chosen_agent)
-            works.append(new_work)
-        self.works = works
-
-        # adding the remaining people to a work (if size % average_work_size != 0)
-        if len(agents_without_work) > 0:
-            self.logger.info("adding remaining agents to workplaces")
-            new_work = TrackingCircle()
-            for agent_index in agents_without_work:
-                chosen_agent = self.agents[agent_index]
-                chosen_agent.add_work(new_work)
-                new_work.add_agent(chosen_agent)
-            works.append(new_work)
-
-        # updating the matrix using the works
-        for work in works:
-            ids = np.array([a.index for a in work.agents])
-            xs, ys = np.meshgrid(ids, ids)
-            xs = xs.reshape(-1)
-            ys = ys.reshape(-1)
-            matrix[xs, ys] = self.consts.work_strength
-        ids = np.arange(self.size)
-        matrix[ids, ids] = 0
-        return matrix
-
-    def _create_random_connectivity(self):
-        """
-        plug here random connection, super spreaders, whatever. We can also adjust the number of daily connections
-        b or beta in the literature) by adding this random edges
-        :return: lil_matrix n*n
-        """
-        self.logger.info(f"Create random connections")
-
-        matrix = m_type((self.size, self.size), dtype=np.float32)
-        amount_of_connections = self.consts.average_amount_of_strangers
-        stranger_ids = np.random.randint(
-            0, self.size - 1, self.size * amount_of_connections
-        )
-        ids = np.arange(self.size).repeat(amount_of_connections)
-
-        matrix[ids, stranger_ids] = self.consts.stranger_strength
-        """
-        amount_of_connections = social_stats.average_amount_of_strangers
-        dense = amount_of_connections / self.size
-        matrix = sparse.rand(self.size, self.size, dense)
-        matrix.data[:] = social_stats.stranger_strength
-        """
-        return matrix
 
     def normalize(self):
         """
@@ -212,17 +88,157 @@ class AffinityMatrix:
                 total_contagious_probability += time_in_state * state.contagiousness
             beta = self.consts.r0 / total_contagious_probability
 
-            #this factor should be calculated once when the matrix is full, and be left un-changed for the rest of the run.
+            # saves this for the effective r0 graph
+            self.total_contagious_probability = total_contagious_probability
+
+            # this factor should be calculated once when the matrix is full, and be left un-changed for the rest of the run.
             self.factor = (beta * self.size) / (self.matrix.sum())
 
         self.matrix = (
-            self.matrix * self.factor
+                self.matrix * self.factor
         )  # now each entry in W is such that bd=R0
 
         # switching from probability to ln(1-p):
         non_zero_keys = self.matrix.nonzero()
         self.matrix[non_zero_keys] = np.log(1 - self.matrix[non_zero_keys])
 
-    def change_work_policy(self, state):
-        self.matrix = self.m_families + state * self.m_work + self.m_random
+    def change_connections_policy(self, types_of_connections_to_use: Sequence[str]):
+        self.logger.info(f"changing policy. keeping all matrixes of types: {types_of_connections_to_use}")
+        self.matrix = sum(matrix[0] for matrix in self.circular_matrices if matrix[1] in types_of_connections_to_use)\
+                      + sum(matrix[0] for matrix in self.non_circular_matrices if matrix[1] in types_of_connections_to_use)
         self.normalize()
+
+
+
+    def non_circular_matrix_generation(self, agents_to_use, scale_factor: float, connection_strength):
+        """
+        creates a matrix of non-circular connections. the amount of connections per agent goes by exponential distribution. each connection will be with the given connection strength
+        :param agents_to_use: a list of agents to add to this matrix. doesnt have to be all agents
+        :param scale_factor: the scale factor of the exponential distribution (1/alpha)
+        :param connection_strength: the connection strength that will be used to describe those connections
+        :return: a lil matrix representing the connections
+        """
+        # the lil_matrix to be returned
+        matrix = m_type((self.size, self.size), dtype=np.float32)
+
+        # calculates it only once for effifiency
+        amount_of_agents = len(agents_to_use)
+
+        # an iterator representing the rolled amount of connections per agent
+        # todo note that alpha is beeing reduced by 0.5, because later on it is getting math.ceil. it will not change the mean but will change the distribution
+        amount_of_connections = np.ceil(np.random.exponential(scale_factor - 0.5, amount_of_agents)).astype(int)
+
+        # dict of agents to amount of remaining connections to make for this agent
+        remaining_contacts: Dict[Agent, int] = {agent: amount for (agent, amount) in
+                                                zip(agents_to_use, amount_of_connections)}
+
+        # will be used as a stopping sign. math.ceil because np ceil is returning floats, and summing a lot of floats has a cumulative error
+        connections_sum = sum(remaining_contacts.values())
+
+        # a list of indexes of agents which still lack connections. used for efficiency
+        available_agents = list(agents_to_use)
+
+        # pre-rolling all rolls for efficiency. for each connection, the 2nd agent will be rolled using this
+        # todo make sure the later-used % operator doesn't harm the randomness
+        rolls = iter(np.random.randint(0, amount_of_agents, connections_sum // 2 + 1))
+
+        # this structure will be used to save all connections, and later on insert them all at once. used for efficiency
+        connections_tuples = np.zeros((2, connections_sum), dtype=np.int)
+        connections_cnt = 0
+
+        # while there are still connections left to make
+        while len(available_agents) >= 2 and connections_sum >= 2:
+
+            current_agent = available_agents.pop()
+
+            # temp holder for used agents, so that the same connection wont be made twice
+            temp_agents_holder = []
+
+            # creating all of first's connections
+            for _ in range(remaining_contacts[current_agent]):
+                if connections_sum <= 1 or len(available_agents) <= 1:
+                    break
+
+                # choosing 2nd agent for the connection
+                # todo make sure the % operator doesn't harm the randomness too much
+                next_roll = rolls.__next__() % len(available_agents)
+                second_agent = available_agents[next_roll]
+
+                # adding the newly made connection to the to-be-added connections structure
+                connections_tuples[0, connections_cnt] = current_agent.index
+                connections_tuples[1, connections_cnt] = second_agent.index
+                connections_cnt += 1
+                connections_tuples[0, connections_cnt] = second_agent.index
+                connections_tuples[1, connections_cnt] = current_agent.index
+                connections_cnt += 1
+
+                # note that there is no reason to update firs's remaining connections for efficiency
+                remaining_contacts[second_agent] -= 1
+                connections_sum -= 2
+
+                if remaining_contacts[second_agent] <= 0:
+                    del (available_agents[next_roll])
+                else:
+                    temp_agents_holder.append(available_agents.pop(next_roll))
+            # returning all the agents back from the temp place holder
+            available_agents.extend(temp_agents_holder)
+
+        # filling the matrix. sometimes there still remains 1 un-filled connection, and it is left as 0,0 connection, so reset 0,0
+        matrix[connections_tuples[0], connections_tuples[1]] = connection_strength
+        matrix[0, 0] = 0
+
+        return matrix
+
+    def circular_matrix_generation(self, agents: List[Agent], circle_size_probability: rv_discrete, connection_strength):
+        """
+        this method will create a matrix of circular connections given a list of agents, an rv_discrete representing the size of the circle probabilty, and the connection strength
+        :param agents: list of all agents
+        :param circle_size_probability: representing the size probability
+        :param connection_strength: the wanted connection strength
+        :return: lil_matrix with the wanted connections
+        """
+        matrix = m_type((self.size, self.size), dtype=np.float32)
+
+        # pre-rolling all the sized of the circles for efficiency causes.
+        circles_size_rolls = iter(circle_size_probability.rvs(
+            size=math.ceil(len(agents) / circle_size_probability.mean() + 10)))
+
+        # here all the circles will be saved
+        circles: List[TrackingCircle] = []
+
+        # using a copy to not change the main agents list
+        agents_copy = list(agents)
+        np.random.shuffle(agents_copy)
+
+        # loop creating all circles. each run creates one circle.
+        while len(agents_copy) > 0:
+
+            current_circle = TrackingCircle()
+
+            # choosing current circle size
+            current_circle_size = 0
+            try:
+                current_circle_size = circles_size_rolls.__next__()
+            except StopIteration:
+                current_circle_size = circle_size_probability.rvs()
+
+            # adding agents to the current circle
+            for _ in range(current_circle_size):
+                if len(agents_copy) <= 0:
+                    break
+                choosen_agent = agents_copy.pop()
+                current_circle.add_agent(choosen_agent)
+                # todo possibly add this circle to the agent circles list
+            circles.append(current_circle)
+
+        for circle in circles:
+            ids = np.array([a.index for a in circle.agents])
+            xs, ys = np.meshgrid(ids, ids)
+            xs = xs.reshape(-1)
+            ys = ys.reshape(-1)
+            matrix[xs, ys] = connection_strength
+
+        # note that the previous loop also creates a connection between each agent and himself. this part removes it
+        ids = [agent.index for agent in agents]
+        matrix[ids, ids] = 0
+        return matrix

@@ -227,6 +227,12 @@ class Supervisable(ABC):
 
         def __call__(self, m):
             return _SumSupervisable([Supervisable.coerce(a, m) for a in self.args])
+          
+    class R0:
+        def __init__(self):
+            pass
+        def __call__(self, m):
+            return _EffectiveR0Supervisable()
 
 
 SupervisableMaker = Callable[[Any], Supervisable]
@@ -371,4 +377,17 @@ class _SumSupervisable(ValueSupervisable):
         return type(self.inners[0]).stacked_plot(self, ax)
 
     def name(self) -> str:
-        return "Total(" + ", ".join(n.name() for n in self.inners) + ")"
+        return "Total(" + ", ".join(n.name() for n in self.inners)
+
+class _EffectiveR0Supervisable (FloatSupervisable):
+    def __init__(self):
+        super().__init__()
+
+    def get(self, manager) -> float:
+        # note that this calculation is VARY heavy
+        suseptable_indexes = np.flatnonzero(manager.susceptible_vector)
+        return np.sum(1 - np.exp(manager.matrix.matrix[suseptable_indexes].data)) * manager.matrix.total_contagious_probability / manager.matrix.size
+
+    def name(self) -> str:
+        return "effective R"
+

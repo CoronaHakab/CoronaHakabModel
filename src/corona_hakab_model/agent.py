@@ -5,8 +5,6 @@ class Agent:
 
     __slots__ = (
         "index",
-        "home",
-        "work",
         "medical_state",
         "is_home_isolated",
         "is_full_isolated",
@@ -15,8 +13,6 @@ class Agent:
 
     def __init__(self, index, manager, initial_state):
         self.index = index
-        self.home = None
-        self.work = None
 
         self.manager = manager
 
@@ -39,12 +35,6 @@ class Agent:
 
     def get_infection_ratio(self):
         return self.medical_state.infectousness
-
-    def add_home(self, home):
-        self.home = home
-
-    def add_work(self, work):
-        self.work = work
 
 
 class Circle:
