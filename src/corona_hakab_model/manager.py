@@ -1,13 +1,15 @@
 import logging
 from collections import defaultdict
-from typing import Any, Iterable
+from typing import Iterable, Union, Callable, Dict, List
+
+import numpy as np
 
 import infection
-import numpy as np
 import update_matrix
 from affinity_matrix import AffinityMatrix
 from agent import Agent
 from consts import Consts
+from medical_state import MedicalState
 from state_machine import PendingTransfers
 from supervisor import Supervisable, Supervisor
 
@@ -17,7 +19,7 @@ class SimulationManager:
     A simulation manager is the main class, it manages the steps performed with policies
     """
 
-    def __init__(self, supervisable_makers: Iterable[Any], consts=Consts(),
+    def __init__(self, supervisable_makers: Iterable[Union[str, Supervisable, Callable]], consts: Consts = Consts(),
                  input_matrix_path: str = None, output_matrix_path: str = None):
         self.consts = consts
         self.medical_machine = consts.medical_state_machine()
@@ -71,7 +73,7 @@ class SimulationManager:
 
         self.supervisor.snapshot(self)
 
-    def progress_transfers(self, new_sick):
+    def progress_transfers(self, new_sick: Dict[MedicalState, List]):
         changed_state_introduced = defaultdict(list)
         changed_state_leaving = new_sick
 
@@ -113,7 +115,7 @@ class SimulationManager:
             self.medical_machine.state_upon_infection.transfer(agents_to_infect)
         )
 
-    def generate_policy(self, workers_percent):
+    def generate_policy(self, workers_percent: float):
         """"
         setting up the simulation with a given amount of infected people
         """
@@ -159,6 +161,5 @@ class SimulationManager:
         self.supervisor.stack_plot(**kwargs)
 
     def __str__(self):
-        return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(
-            self.consts.population_size, self.consts.total_steps
-        )
+        return f"<SimulationManager: SIZE_OF_POPULATION={self.consts.population_size}, " \
+               f"STEPS_TO_RUN={self.consts.total_steps}>"

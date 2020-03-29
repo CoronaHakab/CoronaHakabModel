@@ -76,20 +76,20 @@ class StochasticState(State):
     # todo enforce probabilities sum to 1?
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.probs_cumulative = np.array([], dtype=float)
+        self.probs_cumulative: np.ndarray = np.array([], dtype=float)
         self.destinations: List[State] = []
         self.durations: List[rv_discrete] = []
 
-    def prob_specific(self, ind):
+    def prob_specific(self, ind: int) -> float:
         if ind == 0:
             return self.probs_cumulative[0]
         return self.probs_cumulative[ind] - self.probs_cumulative[ind - 1]
 
     def add_transfer(
-        self,
-        destination: State,
-        duration: rv_discrete,
-        probability: Union[float, type(...)],
+            self,
+            destination: State,
+            duration: rv_discrete,
+            probability: Union[float, type(...)],
     ):
         if probability is ...:
             p = 1

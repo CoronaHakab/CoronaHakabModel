@@ -1,3 +1,7 @@
+import manager
+import medical_state
+
+
 class Agent:
     """
     This class represents a person in our doomed world.
@@ -13,30 +17,30 @@ class Agent:
         "manager",
     )
 
-    def __init__(self, index, manager, initial_state):
+    def __init__(self, index, manager: "manager.SimulationManager", initial_state: "medical_state.MedicalState"):
         self.index = index
         self.home = None
         self.work = None
 
         self.manager = manager
 
-        self.medical_state = None
+        self.medical_state: "medical_state.MedicalState" = None
         self.set_medical_state_no_inform(initial_state)
 
         self.is_home_isolated = False
         self.is_full_isolated = False
 
-    def set_medical_state_no_inform(self, new_state):
+    def set_medical_state_no_inform(self, new_state: "medical_state.MedicalState"):
         self.medical_state = new_state
 
         self.manager.contagiousness_vector[self.index] = new_state.contagiousness
         self.manager.susceptible_vector[self.index] = new_state.susceptible
 
     def __str__(self):
-        return "<Person,  index={}, medical={}>".format(self.index, self.medical_state)
+        return f"<Person,  index={self.index}, medical={self.medical_state}>"
 
     def get_infection_ratio(self):
-        return self.medical_state.infectousness
+        return self.medical_state.contagiousness
 
     def add_home(self, home):
         self.home = home
