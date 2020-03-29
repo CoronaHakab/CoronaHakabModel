@@ -32,20 +32,18 @@ default_parameters = {
     # Tsvika: Currently the distribution is selected based on the number of input parameters.
     # Think we should do something more readable later on.
     # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
-    "distributions": {
-        "latent_to_silent_days": dist(1, 3),
-        "silent_to_asymptomatic_days": dist(0, 3, 10),
-        "silent_to_symptomatic_days": dist(0, 3, 10),
-        "asymptomatic_to_recovered_days": dist(3, 5, 7),
-        "symptomatic_to_asymptomatic_days": dist(7, 10, 14),
-        "symptomatic_to_hospitalized_days": dist(0, 1.5, 10),  # todo range not specified in sources
-        "hospitalized_to_asymptomatic_days": dist(18),
-        "hospitalized_to_icu_days": dist(5),  # todo probably has a range
-        "icu_to_deceased_days": dist(7),  # todo probably has a range
-        "icu_to_hospitalized_days": dist(
-            7
-        ),  # todo maybe the program should juts print a question mark,  we'll see how the researchers like that!
-    },
+    "latent_to_silent_days": dist(1, 3),
+    "silent_to_asymptomatic_days": dist(0, 3, 10),
+    "silent_to_symptomatic_days": dist(0, 3, 10),
+    "asymptomatic_to_recovered_days": dist(3, 5, 7),
+    "symptomatic_to_asymptomatic_days": dist(7, 10, 14),
+    "symptomatic_to_hospitalized_days": dist(0, 1.5, 10),  # todo range not specified in sources
+    "hospitalized_to_asymptomatic_days": dist(18),
+    "hospitalized_to_icu_days": dist(5),  # todo probably has a range
+    "icu_to_deceased_days": dist(7),  # todo probably has a range
+    "icu_to_hospitalized_days": dist(
+        7
+    ),  # todo maybe the program should juts print a question mark,  we'll see how the researchers like that!
     # average probability for transmitions:
     "silent_to_asymptomatic_probability": 0.2,
     "symptomatic_to_asymptomatic_probability": 0.85,
