@@ -49,6 +49,8 @@ class SimulationManager:
 
         self.current_date = 0
 
+        self.new_sick_counter = 0
+
         self.logger.info("Created new simulation.")
 
     def step(self):
@@ -76,6 +78,9 @@ class SimulationManager:
         changed_state_leaving = new_sick
 
         all_sick = sum(changed_state_leaving.values(), [])
+
+        # saves this number for supervising
+        self.new_sick_counter = len(all_sick)
 
         changed_state_introduced[self.medical_machine.state_upon_infection] = all_sick
 

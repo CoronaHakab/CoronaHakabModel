@@ -23,25 +23,31 @@ def main():
     The size of the matrix is not checked when loading an existing file!
     If the size of the population changed - make sure the matrix is appropriate.
     """)
-    parser.add_argument("-i", "--input-matrix", dest='input_matrix_path', help="npz file path of a pre-generated matrix")
-    parser.add_argument("-o", "--output-matrix", dest='output_matrix_path', help="npz file path for the newly-generated matrix")
+    parser.add_argument("-i", "--input-matrix", dest='input_matrix_path',
+                        help="npz file path of a pre-generated matrix")
+    parser.add_argument("-o", "--output-matrix", dest='output_matrix_path',
+                        help="npz file path for the newly-generated matrix")
     args = parser.parse_args()
 
     sm = SimulationManager(
         (
             "Symptomatic",
-            Supervisable.Delayed("Symptomatic", 3),
+            # Supervisable.Delayed("Symptomatic", 3),
             "Deceased",
             "Asymptomatic",
             "Hospitalized",
             "ICU",
             "Latent",
             "Silent",
-            "Susceptible",
+            #"Susceptible",
             "Recovered",
             Supervisable.Sum(
-                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"
+                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", name="currently sick"
             ),
+            Supervisable.NewCasesCounter(),
+            #Supervisable.GrowthFactor(
+            #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
+            #    Supervisable.NewCasesCounter()),
             #Supervisable.R0(),
         ),
         input_matrix_path=args.input_matrix_path,
@@ -76,6 +82,7 @@ def compare_simulations_example():
     Supervisor.static_plot(((sm1, f"ro = {sm1.consts.r0}:", ("y-", "y--", "y:")),
                             (sm2, f"ro = {sm2.consts.r0}:", ("c-", "c--", "c:"))),
                            f"comparing r0 = {sm1.consts.r0} to r0={sm2.consts.r0}")
+
 
 if __name__ == "__main__":
     main()
