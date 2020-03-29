@@ -126,7 +126,7 @@ class AffinityMatrix:
 
         # an iterator representing the rolled amount of connections per agent
         # todo note that alpha is beeing reduced by 0.5, because later on it is getting math.ceil. it will not change the mean but will change the distribution
-        amount_of_connections = map(math.ceil, np.random.exponential(scale_factor - 0.5, amount_of_agents))
+        amount_of_connections = np.ceil(np.random.exponential(scale_factor - 0.5, amount_of_agents)).astype(int)
 
         # dict of agents to amount of remaining connections to make for this agent
         remaining_contacts: Dict[Agent, int] = {agent: amount for (agent, amount) in
