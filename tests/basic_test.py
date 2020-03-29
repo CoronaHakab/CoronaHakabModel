@@ -6,18 +6,8 @@ def basic_test():
 
 
 def ubound_test():
-    assert (
-        upper_bound(dist(10))
-        == upper_bound(dist(5, 10))
-        == upper_bound(dist(2, 3, 10))
-        == 10
-    )
+    assert upper_bound(dist(10)) == upper_bound(dist(5, 10)) == upper_bound(dist(2, 3, 10)) == 10
 
 
 def lbound_test():
-    assert (
-        lower_bound(dist(-10))
-        == lower_bound(dist(-10, 5))
-        == lower_bound(dist(-10, 3, 6))
-        == -10
-    )
+    assert lower_bound(dist(-10)) == lower_bound(dist(-10, 5)) == lower_bound(dist(-10, 3, 6)) == -10
