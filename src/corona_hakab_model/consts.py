@@ -1,19 +1,20 @@
 from functools import lru_cache
 from itertools import count
-from typing import NamedTuple, Dict, List
+from typing import Dict, NamedTuple
 
 import numpy as np
-from medical_state import ImmuneState, SusceptibleState, ContagiousState, MedicalState
+from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
 from scipy.stats import rv_discrete
 from state_machine import StochasticState, TerminalState
+from sub_matrices import CircularConnectionsMatrix, NonCircularConnectionMatrix
 from util import dist, upper_bound
 
 
 class Consts(NamedTuple):
     # simulation parameters
     population_size: int = 10_000
-    total_steps: int = 350
+    total_steps: int = 300
     initial_infected_count: int = 20
 
     # corona stats
@@ -24,15 +25,14 @@ class Consts(NamedTuple):
     silent_to_symptomatic_days: rv_discrete = dist(0, 3, 10)
     asymptomatic_to_recovered_days: rv_discrete = dist(3, 5, 7)
     symptomatic_to_asymptomatic_days: rv_discrete = dist(7, 10, 14)
-    symptomatic_to_hospitalized_days: rv_discrete = dist(
-        0, 1.5, 10
-    )  # todo range not specified in sources
+    symptomatic_to_hospitalized_days: rv_discrete = dist(0, 1.5, 10)  # todo range not specified in sources
     hospitalized_to_asymptomatic_days: rv_discrete = dist(18)
     hospitalized_to_icu_days: rv_discrete = dist(5)  # todo probably has a range
     icu_to_deceased_days: rv_discrete = dist(7)  # todo probably has a range
     icu_to_hospitalized_days: rv_discrete = dist(
         7
     )  # todo maybe the program should juts print a question mark,  we'll see how the researchers like that!
+    detection_rate: float = 0.7
 
     def average_time_in_each_state(self) -> Dict[MedicalState, int]:
         """
@@ -50,10 +50,10 @@ class Consts(NamedTuple):
         terminal_mask = np.zeros(z, bool)
         terminal_mask[list(terminal_states.values())] = True
 
-        states_duration: Dict[MedicalState: int] = Dict.fromkeys(m.states, 0)
+        states_duration: Dict[MedicalState:int] = Dict.fromkeys(m.states, 0)
         states_duration[m.state_upon_infection] = 1
 
-        index_to_state: Dict[int: MedicalState] = {}
+        index_to_state: Dict[int:MedicalState] = {}
         for state, index in terminal_states.items():
             index_to_state[index] = state
         for state, dict in transfer_states.items():
@@ -78,25 +78,25 @@ class Consts(NamedTuple):
         return states_duration
 
     # average probability for transmitions:
-    silent_to_asymptomatic_probability = 0.2
+    silent_to_asymptomatic_probability: float = 0.2
 
     @property
     def silent_to_symptomatic_probability(self) -> float:
         return 1 - self.silent_to_asymptomatic_probability
 
-    symptomatic_to_asymptomatic_probability = 0.85
+    symptomatic_to_asymptomatic_probability: float = 0.85
 
     @property
     def symptomatic_to_hospitalized_probability(self) -> float:
         return 1 - self.symptomatic_to_asymptomatic_probability
 
-    hospitalized_to_asymptomatic_probability = 0.8
+    hospitalized_to_asymptomatic_probability: float = 0.8
 
     @property
     def hospitalized_to_icu_probability(self) -> float:
         return 1 - self.hospitalized_to_asymptomatic_probability
 
-    icu_to_hospitalized_probability = 0.65
+    icu_to_hospitalized_probability: float = 0.65
 
     @property
     def icu_to_dead_probability(self) -> float:
@@ -124,26 +124,42 @@ class Consts(NamedTuple):
     # policy stats
     # todo this reeeeally shouldn't be hard-coded
     # defines whether or not to apply a isolation (work shut-down)
-    active_isolation: bool = False
+    active_isolation: bool = True
     # the date to stop work at
-    stop_work_days: int = 30
+    stop_work_days: int = 40
     # the date to resume work at
-    resume_work_days: int = 60
+    resume_work_days: int = 80
 
     # social stats
-    # the average family size
-    average_family_size: int = 5  # todo replace with distribution
-    # the average workplace size
-    average_work_size: int = 50  # todo replace with distribution
-    # the average amount of stranger contacts per person
-    average_amount_of_strangers: int = 200  # todo replace with distribution
+    # family circles size distribution
+    family_size_distribution = rv_discrete(
+        1, 7, name="family", values=([1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081])
+    )
+    # work circles size distribution
+    work_size_distribution: rv_discrete = dist(30, 80)
+    # work scale factor (1/alpha)
+    work_scale_factor: float = 40
+    # strangers scale factor (1/alpha)
+    strangers_scale_factor: float = 150
+    school_scale_factor: float = 100
 
     # relative strengths of each connection (in terms of infection chance)
     # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
-    family_strength_not_workers: float = 0.75
-    family_strength: float = 0.4
-    work_strength: float = 0.04
-    stranger_strength: float = 0.004
+    family_strength: float = 1
+    work_strength: float = 0.1
+    stranger_strength: float = 0.01
+    school_strength: float = 0.1
+
+    circular_matrices = [
+        CircularConnectionsMatrix("home", None, family_size_distribution, family_strength),
+        CircularConnectionsMatrix("work", None, work_size_distribution, work_strength),
+    ]
+
+    non_circular_matrices = [
+        NonCircularConnectionMatrix("work", None, work_scale_factor, work_strength),
+        NonCircularConnectionMatrix("school", None, school_scale_factor, school_strength),
+        NonCircularConnectionMatrix("strangers", None, strangers_scale_factor, stranger_strength),
+    ]
 
     @lru_cache
     def medical_state_machine(self) -> MedicalStateMachine:
@@ -161,15 +177,9 @@ class Consts(NamedTuple):
 
         susceptible = SusceptibleTerminalState("Susceptible")
         latent = ImmuneStochasticState("Latent")
-        silent = ContagiousStochasticState(
-            "Silent", contagiousness=self.silent_infection_ratio
-        )
-        symptomatic = ContagiousStochasticState(
-            "Symptomatic", contagiousness=self.symptomatic_infection_ratio
-        )
-        asymptomatic = ContagiousStochasticState(
-            "Asymptomatic", contagiousness=self.asymptomatic_infection_ratio
-        )
+        silent = ContagiousStochasticState("Silent", contagiousness=self.silent_infection_ratio)
+        symptomatic = ContagiousStochasticState("Symptomatic", contagiousness=self.symptomatic_infection_ratio)
+        asymptomatic = ContagiousStochasticState("Asymptomatic", contagiousness=self.asymptomatic_infection_ratio)
 
         hospitalized = ImmuneStochasticState("Hospitalized")
         icu = ImmuneStochasticState("ICU")
@@ -182,32 +192,20 @@ class Consts(NamedTuple):
         latent.add_transfer(silent, self.latent_to_silent_days, ...)
 
         silent.add_transfer(
-            asymptomatic,
-            self.silent_to_asymptomatic_days,
-            self.silent_to_asymptomatic_probability,
+            asymptomatic, self.silent_to_asymptomatic_days, self.silent_to_asymptomatic_probability,
         )
         silent.add_transfer(symptomatic, self.silent_to_symptomatic_days, ...)
 
         symptomatic.add_transfer(
-            asymptomatic,
-            self.symptomatic_to_asymptomatic_days,
-            self.symptomatic_to_asymptomatic_probability,
+            asymptomatic, self.symptomatic_to_asymptomatic_days, self.symptomatic_to_asymptomatic_probability,
         )
-        symptomatic.add_transfer(
-            hospitalized, self.symptomatic_to_hospitalized_days, ...
-        )
+        symptomatic.add_transfer(hospitalized, self.symptomatic_to_hospitalized_days, ...)
 
-        hospitalized.add_transfer(
-            icu, self.hospitalized_to_icu_days, self.hospitalized_to_icu_probability
-        )
-        hospitalized.add_transfer(
-            asymptomatic, self.hospitalized_to_asymptomatic_days, ...
-        )
+        hospitalized.add_transfer(icu, self.hospitalized_to_icu_days, self.hospitalized_to_icu_probability)
+        hospitalized.add_transfer(asymptomatic, self.hospitalized_to_asymptomatic_days, ...)
 
         icu.add_transfer(
-            hospitalized,
-            self.icu_to_hospitalized_days,
-            self.icu_to_hospitalized_probability,
+            hospitalized, self.icu_to_hospitalized_days, self.icu_to_hospitalized_probability,
         )
         icu.add_transfer(deceased, self.icu_to_deceased_days, ...)
 

@@ -1,4 +1,3 @@
-import manager
 import medical_state
 
 
@@ -9,18 +8,14 @@ class Agent:
 
     __slots__ = (
         "index",
-        "home",
-        "work",
         "medical_state",
         "is_home_isolated",
         "is_full_isolated",
         "manager",
     )
 
-    def __init__(self, index, manager: "manager.SimulationManager", initial_state: "medical_state.MedicalState"):
+    def __init__(self, index, manager, initial_state: "medical_state.MedicalState"):
         self.index = index
-        self.home = None
-        self.work = None
 
         self.manager = manager
 
@@ -32,7 +27,9 @@ class Agent:
 
     def set_medical_state_no_inform(self, new_state: "medical_state.MedicalState"):
         self.medical_state = new_state
-
+        # count how many entered silent state
+        if new_state == self.manager.medical_machine.states_by_name["Silent"]:
+            self.manager.in_silent_state += 1
         self.manager.contagiousness_vector[self.index] = new_state.contagiousness
         self.manager.susceptible_vector[self.index] = new_state.susceptible
 
@@ -41,12 +38,6 @@ class Agent:
 
     def get_infection_ratio(self):
         return self.medical_state.contagiousness
-
-    def add_home(self, home):
-        self.home = home
-
-    def add_work(self, work):
-        self.work = work
 
 
 class Circle:

@@ -1,4 +1,4 @@
-# flake8: noqa
+# flake8: noqa flake8 doesn't support named expressions := so for now we have to exclude this file for now:(
 
 from __future__ import annotations
 
@@ -108,10 +108,12 @@ class Supervisor:
             plt.show()
 
     @staticmethod
-    def static_plot(simulations_info: Sequence[Tuple["manager.SimulationManager", str, Sequence[str]]],
-                    title="comparing",
-                    save_name=None,
-                    max_height=- 1, auto_show=True, save=True):
+    def static_plot(
+        simulations_info: Sequence[Tuple["manager.SimulationManager", str, Sequence[str]]],
+        title="comparing",
+        save_name=None,
+        max_height=- 1, auto_show=True, save=True,
+    ):
         """
         a static plot method, allowing comparison between multiple simulation runs
         :param simulations_info: a sequence of tuples, each representing a simulation. each simulation contains the manager, a pre-fix string and a sequence of syling strings. \
@@ -209,9 +211,7 @@ class Supervisable(ABC):
             self.args = args
 
         def __call__(self, m):
-            return _StackedFloatSupervisable(
-                [Supervisable.coerce(a, m) for a in self.args]
-            )
+            return _StackedFloatSupervisable([Supervisable.coerce(a, m) for a in self.args])
 
     class Sum:
         def __init__(self, *args):
@@ -219,6 +219,13 @@ class Supervisable(ABC):
 
         def __call__(self, m):
             return _SumSupervisable([Supervisable.coerce(a, m) for a in self.args])
+
+    class R0:
+        def __init__(self):
+            pass
+
+        def __call__(self, m):
+            return _EffectiveR0Supervisable()
 
 
 SupervisableMaker = Callable[[Any], Supervisable]
@@ -257,6 +264,19 @@ class FloatSupervisable(ValueSupervisable):
 
     def stacked_plot(self, ax):
         return ax.stackplot(self.x, self.y, label=self.name())
+
+
+class LambdaValueSupervisable(FloatSupervisable):
+    def __init__(self, name: str, lam: Callable):
+        super().__init__()
+        self._name = name
+        self.lam = lam
+
+    def name(self) -> str:
+        return self._name
+
+    def get(self, manager) -> float:
+        return self.lam(manager)
 
 
 class _StateSupervisable(FloatSupervisable):
@@ -338,10 +358,7 @@ class _SumSupervisable(ValueSupervisable):
         return sum(s.get(manager) for s in self.inners)
 
     def names(self):
-        return [
-            "Total(" + ", ".join(names) + ")"
-            for names in zip(*(i.names() for i in self.inners))
-        ]
+        return ["Total(" + ", ".join(names) + ")" for names in zip(*(i.names() for i in self.inners))]
 
     def plot(self, ax):
         return type(self.inners[0]).plot(self, ax)
@@ -350,4 +367,21 @@ class _SumSupervisable(ValueSupervisable):
         return type(self.inners[0]).stacked_plot(self, ax)
 
     def name(self) -> str:
-        return "Total(" + ", ".join(n.name() for n in self.inners) + ")"
+        return "Total(" + ", ".join(n.name() for n in self.inners)
+
+
+class _EffectiveR0Supervisable(FloatSupervisable):
+    def __init__(self):
+        super().__init__()
+
+    def get(self, manager) -> float:
+        # note that this calculation is VARY heavy
+        suseptable_indexes = np.flatnonzero(manager.susceptible_vector)
+        return (
+            np.sum(1 - np.exp(manager.matrix.matrix[suseptable_indexes].data))
+            * manager.matrix.total_contagious_probability
+            / manager.matrix.size
+        )
+
+    def name(self) -> str:
+        return "effective R"

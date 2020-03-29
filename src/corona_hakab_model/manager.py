@@ -19,14 +19,20 @@ class SimulationManager:
     A simulation manager is the main class, it manages the steps performed with policies
     """
 
-    def __init__(self, supervisable_makers: Iterable[Union[str, Supervisable, Callable]], consts: Consts = Consts(),
-                 input_matrix_path: str = None, output_matrix_path: str = None):
+    def __init__(
+        self,
+        supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
+        consts: Consts = Consts(),
+        input_matrix_path: str = None,
+        output_matrix_path: str = None,
+    ):
         self.consts = consts
         self.medical_machine = consts.medical_state_machine()
         initial_state = self.medical_machine.initial
 
         self.pending_transfers = PendingTransfers()
-
+        self.in_silent_state = 0
+        self.detected_daily = 0
         self.logger = logging.getLogger("simulation")
         logging.basicConfig()
         self.logger.setLevel(logging.INFO)
@@ -34,18 +40,14 @@ class SimulationManager:
         self.logger.info(f"Generating {self.consts.population_size} agents")
 
         # the manager holds the vector, but the agents update it
-        self.contagiousness_vector = np.empty(self.consts.population_size, dtype=float)
-        self.susceptible_vector = np.empty(self.consts.population_size, dtype=bool)
-        self.agents = [
-            Agent(i, self, initial_state) for i in range(self.consts.population_size)
-        ]
+        self.contagiousness_vector = np.empty(self.consts.population_size, dtype=float)  # how likely to infect others
+        self.susceptible_vector = np.empty(self.consts.population_size, dtype=bool)  # can get infected
+        self.agents = [Agent(i, self, initial_state) for i in range(self.consts.population_size)]
         initial_state.add_many(self.agents)
 
         self.matrix = AffinityMatrix(self, input_matrix_path, output_matrix_path)
 
-        self.supervisor = Supervisor(
-            [Supervisable.coerce(a, self) for a in supervisable_makers], self
-        )
+        self.supervisor = Supervisor([Supervisable.coerce(a, self) for a in supervisable_makers], self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self.matrix)
         self.infection_manager = infection.InfectionManager(self)
 
@@ -59,8 +61,7 @@ class SimulationManager:
         """
         # update matrix
         self.update_matrix_manager.update_matrix_step(
-            self.infection_manager.agents_to_home_isolation,
-            self.infection_manager.agents_to_full_isolation,
+            self.infection_manager.agents_to_home_isolation, self.infection_manager.agents_to_full_isolation,
         )
 
         # run infection
@@ -74,14 +75,17 @@ class SimulationManager:
         self.supervisor.snapshot(self)
 
     def progress_transfers(self, new_sick: Dict[MedicalState, List]):
-        changed_state_introduced = defaultdict(list)
+        # all the new sick agents are leaving their previous step
         changed_state_leaving = new_sick
 
-        all_sick = sum(changed_state_leaving.values(), [])
+        # agents which are going to enter the new state
+        changed_state_introduced = defaultdict(list)
+        # list of all the new sick agents
+        new_sick_list = sum(changed_state_leaving.values(), [])
+        # all the new sick are going to get to the next state
+        changed_state_introduced[self.medical_machine.state_upon_infection] = new_sick_list
 
-        changed_state_introduced[self.medical_machine.state_upon_infection] = all_sick
-
-        for s in all_sick:
+        for s in new_sick_list:
             s.set_medical_state_no_inform(self.medical_machine.state_upon_infection)
 
         moved = self.pending_transfers.advance()
@@ -111,46 +115,21 @@ class SimulationManager:
         self.medical_machine.initial.remove_many(agents_to_infect)
         self.medical_machine.state_upon_infection.add_many(agents_to_infect)
 
-        self.pending_transfers.extend(
-            self.medical_machine.state_upon_infection.transfer(agents_to_infect)
-        )
-
-    def generate_policy(self, workers_percent: float):
-        """"
-        setting up the simulation with a given amount of infected people
-        """
-        rolls = np.random.random(len(self.agents)) > workers_percent
-        for agent, roll in zip(self.agents, rolls):
-            if agent.work is None:
-                continue
-            if roll:
-                work_members_ids = agent.work.get_indexes_of_my_circle(
-                    agent.index
-                )  # right now works are circle[1]
-                for id in work_members_ids:
-                    self.matrix.matrix[agent.index, id] = np.log(1)
-                family_members_ids = agent.home.get_indexes_of_my_circle(
-                    agent.index
-                )  # right now families are circle[0]
-                for id in family_members_ids:
-                    self.matrix.matrix[agent.index, id] = np.log(
-                        1
-                        - (self.consts.family_strength_not_workers * self.matrix.factor)
-                    )
-        self.setup_sick()
+        # take list of agents and create a pending transfer from their initial state to the next state
+        self.pending_transfers.extend(self.medical_machine.state_upon_infection.transfer(agents_to_infect))
 
     def run(self):
         """
         runs full simulation
         """
-        self.generate_policy(1)
+        self.setup_sick()
 
         for i in range(self.consts.total_steps):
             if Consts.active_isolation:
                 if i == self.consts.stop_work_days:
-                    self.matrix.change_work_policy(False)
+                    self.matrix.change_connections_policy({"home", "strangers"})
                 elif i == self.consts.resume_work_days:
-                    self.matrix.change_work_policy(True)
+                    self.matrix.change_connections_policy({"home", "strangers", "school", "work"})
             self.step()
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
 
