@@ -17,8 +17,13 @@ class SimulationManager:
     A simulation manager is the main class, it manages the steps performed with policies
     """
 
-    def __init__(self, supervisable_makers: Iterable[Any]):
-        consts_json_fname="..\corona_hakab_model_data\default_params.json"
+    def __init__(
+        self,
+        supervisable_makers: Iterable[Any],
+        input_matrix_path=None,
+        output_matrix_path=None,
+        consts_json_fname=None,
+    ):
         self.consts = Consts(consts_json_fname)
         self.medical_machine = self.consts.medical_state_machine()
         initial_state = self.medical_machine.initial

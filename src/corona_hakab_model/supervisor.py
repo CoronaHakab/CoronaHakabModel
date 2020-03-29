@@ -84,17 +84,17 @@ class Supervisor:
             )
         if self.manager.consts.home_isolation_sicks:
             title = (
-                    title
-                    + "\napplying home isolation for confirmed cases ({} of cases)".format(
-                self.manager.consts.caught_sicks_ratio
-            )
+                title
+                + "\napplying home isolation for confirmed cases ({} of cases)".format(
+                    self.manager.consts.caught_sicks_ratio
+                )
             )
         if self.manager.consts.full_isolation_sicks:
             title = (
-                    title
-                    + "\napplying full isolation for confirmed cases ({} of cases)".format(
-                self.manager.consts.caught_sicks_ratio
-            )
+                title
+                + "\napplying full isolation for confirmed cases ({} of cases)".format(
+                    self.manager.consts.caught_sicks_ratio
+                )
             )
 
         # plot parameters
@@ -117,9 +117,14 @@ class Supervisor:
             plt.show()
 
     @staticmethod
-    def static_plot(simulations_info: Sequence[("SimulationManager", str, Sequence[str])], title="comparing",
-                    save_name=None,
-                    max_height=- 1, auto_show=True, save=True):
+    def static_plot(
+        simulations_info: Sequence[("SimulationManager", str, Sequence[str])],
+        title="comparing",
+        save_name=None,
+        max_height=-1,
+        auto_show=True,
+        save=True,
+    ):
         """
         a static plot method, allowing comparison between multiple simulation runs
         :param simulations_info: a sequence of tuples, each representing a simulation. each simulation contains the manager, a pre-fix string and a sequence of syling strings. \

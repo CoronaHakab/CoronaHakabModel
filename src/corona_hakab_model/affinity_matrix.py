@@ -18,7 +18,9 @@ class AffinityMatrix:
     Naturally, W is symmetric.
     """
 
-    def __init__(self, manager, input_matrix_path: str = None, output_matrix_path: str = None):
+    def __init__(
+        self, manager, input_matrix_path: str = None, output_matrix_path: str = None
+    ):
         self.consts = manager.consts
         self.size = len(manager.agents)  # population size
         self.logger = logging.getLogger("simulation")
@@ -27,7 +29,7 @@ class AffinityMatrix:
         if input_matrix_path and m_type == lil_matrix:
             self.logger.info(f"Loading matrix from file: {input_matrix_path}")
             try:
-                with open(input_matrix_path, 'rb') as f_matrix:
+                with open(input_matrix_path, "rb") as f_matrix:
                     self.matrix = load_npz(f_matrix)
             except FileNotFoundError as e:
                 self.logger.error(f"File {input_matrix_path} not found!")
@@ -55,11 +57,13 @@ class AffinityMatrix:
         self.normalize()
 
         if output_matrix_path and m_type == lil_matrix:
-            self.logger.info(f"Saving AffinityMatrix internal matrix to {output_matrix_path}")
+            self.logger.info(
+                f"Saving AffinityMatrix internal matrix to {output_matrix_path}"
+            )
             try:
-                with open(output_matrix_path, 'wb') as f_matrix:
+                with open(output_matrix_path, "wb") as f_matrix:
                     save_npz(f_matrix, self.matrix)
-            except FileNotFoundError as e:
+            except FileNotFoundError:
                 self.logger.error(f"Path {output_matrix_path} is invalid!")
             self.logger.info("Matrix saved successfully!")
 
@@ -212,7 +216,7 @@ class AffinityMatrix:
                 total_contagious_probability += time_in_state * state.contagiousness
             beta = self.consts.r0 / total_contagious_probability
 
-            #this factor should be calculated once when the matrix is full, and be left un-changed for the rest of the run.
+            # this factor should be calculated once when the matrix is full, and be left un-changed for the rest of the run.
             self.factor = (beta * self.size) / (self.matrix.sum())
 
         self.matrix = (
