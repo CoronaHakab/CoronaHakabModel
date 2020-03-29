@@ -8,8 +8,8 @@ class Agent:
         "home",
         "work",
         "medical_state",
-        "is_home_quarantined",
-        "is_full_quarantined",
+        "is_home_isolated",
+        "is_full_isolated",
         "manager",
     )
 
@@ -23,14 +23,14 @@ class Agent:
         self.medical_state = None
         self.set_medical_state_no_inform(initial_state)
 
-        self.is_home_quarantined = False
-        self.is_full_quarantined = False
+        self.is_home_isolated = False
+        self.is_full_isolated = False
 
     def set_medical_state_no_inform(self, new_state):
         self.medical_state = new_state
 
-        self.manager.infectiousness_vector[self.index] = new_state.infectiousness
-        self.manager.infectable_vector[self.index] = new_state.infectable
+        self.manager.contagiousness_vector[self.index] = new_state.contagiousness
+        self.manager.susceptible_vector[self.index] = new_state.susceptible
 
     def __str__(self):
         return "<Person,  index={}, medical={}>".format(self.index, self.medical_state)
