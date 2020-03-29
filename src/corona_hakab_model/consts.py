@@ -3,6 +3,7 @@ import logging
 from functools import lru_cache
 from itertools import count
 from typing import Dict
+from collections import namedtuple
 
 import numpy as np
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
@@ -10,114 +11,111 @@ from medical_state_machine import MedicalStateMachine
 from state_machine import StochasticState, TerminalState
 from util import dist, upper_bound
 
+"""
+Overview:
 
-class Consts:
-    def __init__(self, json_fname=None):
+We have default_parameters - it is our template ans as the name suggests, holds the default values
+Using that template, we create ConstsParams, a named tuple.
+the Consts class inherits from ConstsParams the fields, and adds the methods.
+This is how we preserve the efficiency on a NamedTuple but also get dynamic values 
 
-        self.logger = logging.getLogger("simulation")
+Usage:
+1. Create a default consts object - consts = Consts()
+2. Load a parameters file - consts = Consts.from_file(path)
+"""
 
-        # default simulation parameters. Now all stored here
-        self.simulation_parameters = {
-            "population_size": 10_000,
-            "total_steps": 350,
-            "initial_infected_count": 20,
-            # Tsvika: Currently the distribution is selected based on the number of input parameters.
-            # Think we should do something more readble later on.
-            # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
-            "distributions": {
-                "latent_to_silent_days": [1, 3],
-                "silent_to_asymptomatic_days": [0, 3, 10],
-                "silent_to_symptomatic_days": [0, 3, 10],
-                "asymptomatic_to_recovered_days": [3, 5, 7],
-                "symptomatic_to_asymptomatic_days": [7, 10, 14],
-                "symptomatic_to_hospitalized_days": [
-                    0,
-                    1.5,
-                    10,
-                ],  # todo range not specified in sources
-                "hospitalized_to_asymptomatic_days": [18],
-                "hospitalized_to_icu_days": [5],  # todo probably has a range
-                "icu_to_deceased_days": [7],  # todo probably has a range
-                "icu_to_hospitalized_days": [
-                    7
-                ],  # todo maybe the program should juts print a question mark,  we'll see how the researchers like that!
-            },
-            # average probability for transmitions:
-            "silent_to_asymptomatic_probability": 0.2,
-            "symptomatic_to_asymptomatic_probability": 0.85,
-            "hospitalized_to_asymptomatic_probability": 0.8,
-            "icu_to_hospitalized_probability": 0.65,
-            # probability of an infected symptomatic agent infecting others
-            "symptomatic_infection_ratio": 0.75,
-            # probability of an infected asymptomatic agent infecting others
-            "asymptomatic_infection_ratio": 0.25,
-            # probability of an infected silent agent infecting others
-            "silent_infection_ratio": 0.3,  # todo i made this up, need to get the real number
-            # base r0 of the disease
-            "r0": 2.4,
-            # isolation policy
-            # todo why does this exist? doesn't the policy set this? at least make this an enum
-            # note not to set both home isolation and full isolation true
-            # whether to isolation detected agents to their homes (allow familial contact)
-            "home_isolation_sicks": False,
-            # whether to isolation detected agents fully (no contact)
-            "full_isolation_sicks": False,
-            # how many of the infected agents are actually caught and isolated
-            "caught_sicks_ratio": 0.3,
-            # policy stats
-            # todo this reeeeally shouldn't be hard-coded
-            # defines whether or not to apply a isolation (work shut-down)
-            "active_isolation": False,
-            # the date to stop work at
-            "stop_work_days": 30,
-            # the date to resume work at
-            "resume_work_days": 60,
-            # social stats
-            # the average family size
-            "average_family_size": 5,  # todo replace with distribution
-            # the average workplace size
-            "average_work_size": 50,  # todo replace with distribution
-            # the average amount of stranger contacts per person
-            "average_amount_of_strangers": 200,  # todo replace with distribution
-            # relative strengths of each connection (in terms of infection chance)
-            # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
-            "family_strength_not_workers": 0.75,
-            "family_strength": 0.4,
-            "work_strength": 0.04,
-            "stranger_strength": 0.004,
-        }
+# These parameters serve as both the default values as well as the template!
+default_parameters = {
+    "population_size": 10_000,
+    "total_steps": 350,
+    "initial_infected_count": 20,
+    # Tsvika: Currently the distribution is selected based on the number of input parameters.
+    # Think we should do something more readable later on.
+    # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
+    "distributions": {
+        "latent_to_silent_days": dist(1, 3),
+        "silent_to_asymptomatic_days": dist(0, 3, 10),
+        "silent_to_symptomatic_days": dist(0, 3, 10),
+        "asymptomatic_to_recovered_days": dist(3, 5, 7),
+        "symptomatic_to_asymptomatic_days": dist(7, 10, 14),
+        "symptomatic_to_hospitalized_days": dist(0, 1.5, 10),  # todo range not specified in sources
+        "hospitalized_to_asymptomatic_days": dist(18),
+        "hospitalized_to_icu_days": dist(5),  # todo probably has a range
+        "icu_to_deceased_days": dist(7),  # todo probably has a range
+        "icu_to_hospitalized_days": dist(
+            7
+        ),  # todo maybe the program should juts print a question mark,  we'll see how the researchers like that!
+    },
+    # average probability for transmitions:
+    "silent_to_asymptomatic_probability": 0.2,
+    "symptomatic_to_asymptomatic_probability": 0.85,
+    "hospitalized_to_asymptomatic_probability": 0.8,
+    "icu_to_hospitalized_probability": 0.65,
+    # probability of an infected symptomatic agent infecting others
+    "symptomatic_infection_ratio": 0.75,
+    # probability of an infected asymptomatic agent infecting others
+    "asymptomatic_infection_ratio": 0.25,
+    # probability of an infected silent agent infecting others
+    "silent_infection_ratio": 0.3,  # todo i made this up, need to get the real number
+    # base r0 of the disease
+    "r0": 2.4,
+    # isolation policy
+    # todo why does this exist? doesn't the policy set this? at least make this an enum
+    # note not to set both home isolation and full isolation true
+    # whether to isolation detected agents to their homes (allow familial contact)
+    "home_isolation_sicks": False,
+    # whether to isolation detected agents fully (no contact)
+    "full_isolation_sicks": False,
+    # how many of the infected agents are actually caught and isolated
+    "caught_sicks_ratio": 0.3,
+    # policy stats
+    # todo this reeeeally shouldn't be hard-coded
+    # defines whether or not to apply a isolation (work shut-down)
+    "active_isolation": False,
+    # the date to stop work at
+    "stop_work_days": 30,
+    # the date to resume work at
+    "resume_work_days": 60,
+    # social stats
+    # the average family size
+    "average_family_size": 5,  # todo replace with distribution
+    # the average workplace size
+    "average_work_size": 50,  # todo replace with distribution
+    # the average amount of stranger contacts per person
+    "average_amount_of_strangers": 200,  # todo replace with distribution
+    # relative strengths of each connection (in terms of infection chance)
+    # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
+    "family_strength_not_workers": 0.75,
+    "family_strength": 0.4,
+    "work_strength": 0.04,
+    "stranger_strength": 0.004,
+}
 
-        if json_fname:
-            self.load_params_from_json(json_fname)
-        else:  # If no json is given. use default params
-            self.set_const_params(self.simulation_parameters)
+ConstParameters = namedtuple('ConstParameters', sorted(default_parameters))
 
-    def set_const_params(self, dct):
+
+class Consts(ConstParameters):
+
+    @staticmethod
+    def default():
+        return Consts(**default_parameters)
+
+    @staticmethod
+    def from_file(param_path):
         """
-        Copying the dictionary into the object data members
+        Load parameters from file and return Consts object with those values.
+
+        We sanitize the loaded data, for obvious reasons.
+        Documentation about what is allowed and not allowed can be found at the top of this page.
         """
+        with open(param_path, "r") as read_file:
+            data = read_file.read()
 
-        valid_keys = self.simulation_parameters.keys()
+        Consts.sanitize_data(data)
+        parameters = eval(data)
 
-        for key in dct.keys():
-            if key in valid_keys:
-                if key == "distributions":  # Special care here
-                    self.set_distribution_params(dct["distributions"])
-                else:
-                    setattr(self, key, dct[key])
-            else:
-                self.logger.critical(f"Unknown parameter name: {key}")
-                raise UnknownParameterException(key)
+        return Consts(**parameters)
 
-    def set_distribution_params(self, distributions_dict):
-        valid_distribution_keys = self.simulation_parameters["distributions"].keys()
-
-        for key in distributions_dict.keys():
-            if key not in valid_distribution_keys:
-                self.logger.critical(f"Unknown distribution name: {key}")
-                raise UnknownParameterException(key)
-
-            setattr(self, key, dist(*distributions_dict[key]))
 
     def average_time_in_each_state(self):
         """
@@ -248,11 +246,6 @@ class Consts:
 
         return ret
 
-    def load_params_from_json(self, json_fname):
-        with open(json_fname, "r") as read_file:
-            dct = json.load(read_file)
-        self.set_const_params(dct)
-
 
 class UnknownParameterException(Exception):
     def __init__(self, parameter_name):
@@ -262,8 +255,4 @@ class UnknownParameterException(Exception):
 
 if __name__ == "__main__":
     c = Consts()
-
-    with open(r"..\corona_hakab_model_data\default_params.json", "w") as write_file:
-        json.dump(c.simulation_parameters, write_file, indent=4)
-
-    c.load_params_from_json(r"..\corona_hakab_model_data\default_params.json")
+    print(c.average_time_in_each_state())
