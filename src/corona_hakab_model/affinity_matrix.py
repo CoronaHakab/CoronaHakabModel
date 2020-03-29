@@ -1,14 +1,11 @@
 import logging
 import math
-from random import shuffle
 from typing import Dict, List, Sequence
 
 import numpy as np
 from agent import Agent, TrackingCircle
 from scipy.sparse import lil_matrix, load_npz, save_npz
 from scipy.stats import rv_discrete
-from sub_matrices import CircularConnectionsMatrix, NonCircularConnectionMatrix
-from util import dist
 
 m_type = lil_matrix
 
