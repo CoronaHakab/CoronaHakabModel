@@ -53,7 +53,7 @@ def main():
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
             #    Supervisable.NewCasesCounter()),
 
-            LambdaValueSupervisable("Detected Daily", lambda manager: manager.detected_on_current_step)
+            LambdaValueSupervisable("Detected Daily", lambda manager: manager.detected_daily)
             # Supervisable.R0(),
         ),
         input_matrix_path=args.input_matrix_path,
