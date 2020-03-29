@@ -197,15 +197,11 @@ class AffinityMatrix:
         :param connection_strength: the wanted connection strength
         :return: lil_matrix with the wanted connections
         """
-        amount_of_agents_to_add = len(agents)
         matrix = m_type((self.size, self.size), dtype=np.float32)
 
         # pre-rolling all the sized of the circles for efficiency causes.
         circles_size_rolls = iter(circle_size_probability.rvs(
-            size=math.ceil(amount_of_agents_to_add / circle_size_probability.mean())))
-
-        # count the total amount of agents placed inside a circle so far
-        used_agents_counter = 0
+            size=math.ceil(len(agents) / circle_size_probability.mean() + 10)))
 
         # here all the circles will be saved
         circles: List[TrackingCircle] = []
@@ -215,7 +211,7 @@ class AffinityMatrix:
         np.random.shuffle(agents_copy)
 
         # loop creating all circles. each run creates one circle.
-        while used_agents_counter < amount_of_agents_to_add:
+        while len(agents_copy) > 0:
 
             current_circle = TrackingCircle()
 
@@ -228,12 +224,11 @@ class AffinityMatrix:
 
             # adding agents to the current circle
             for _ in range(current_circle_size):
-                if used_agents_counter >= amount_of_agents_to_add:
+                if len(agents_copy) <= 0:
                     break
                 choosen_agent = agents_copy.pop()
                 current_circle.add_agent(choosen_agent)
                 # todo possibly add this circle to the agent circles list
-                used_agents_counter += 1
             circles.append(current_circle)
 
         for circle in circles:
@@ -244,6 +239,6 @@ class AffinityMatrix:
             matrix[xs, ys] = connection_strength
 
         # note that the previous loop also creates a connection between each agent and himself. this part removes it
-        ids = np.arange(amount_of_agents_to_add)
+        ids = [agent.index for agent in agents]
         matrix[ids, ids] = 0
         return matrix
