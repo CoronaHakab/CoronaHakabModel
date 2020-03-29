@@ -30,7 +30,7 @@ class SimulationManager:
 
         self.pending_transfers = PendingTransfers()
         self.in_silent_state = 0
-        self.detected = 0
+        self.detected_daily = 0
         self.logger = logging.getLogger("simulation")
         logging.basicConfig()
         self.logger.setLevel(logging.INFO)
