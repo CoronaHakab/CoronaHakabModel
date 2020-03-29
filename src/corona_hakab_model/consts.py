@@ -94,8 +94,6 @@ default_parameters = {
     "work_strength": 0.1,
     "stranger_strength": 0.01,
     "school_strength": 0.1,
-
-
 }
 
 ConstParameters = namedtuple("ConstParameters", sorted(default_parameters))

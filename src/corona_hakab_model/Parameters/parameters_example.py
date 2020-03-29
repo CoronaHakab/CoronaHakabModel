@@ -49,22 +49,32 @@
     # policy stats
     # todo this reeeeally shouldn't be hard-coded
     # defines whether or not to apply a isolation (work shut-down)
-    "active_isolation": False,
+    "active_isolation": True,
     # the date to stop work at
-    "stop_work_days": 30,
+    "stop_work_days": 40,
     # the date to resume work at
-    "resume_work_days": 60,
+    "resume_work_days": 80,
     # social stats
     # the average family size
-    "average_family_size": 5,  # todo replace with distribution
-    # the average workplace size
-    "average_work_size": 50,  # todo replace with distribution
+    "family_size_distribution": rv_discrete(1, 7, name="family", values=(
+        [1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081])),    # the average workplace size
+    # work circles size distribution
+    "work_size_distribution": dist(30, 80),  # todo replace with distribution
+    # work scale factor (1/alpha)
+    "work_scale_factor": 40,
     # the average amount of stranger contacts per person
     "average_amount_of_strangers": 200,  # todo replace with distribution
+    # strangers scale factor (1/alpha)
+    "strangers_scale_factor": 150,
+    "school_scale_factor": 100,
+
     # relative strengths of each connection (in terms of infection chance)
     # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
+
     "family_strength_not_workers": 0.75,
-    "family_strength": 0.4,
-    "work_strength": 0.04,
-    "stranger_strength": 0.004,
+    "family_strength": 1,
+    "work_strength": 0.1,
+    "stranger_strength": 0.01,
+    "school_strength": 0.1,
 }
+
