@@ -5,8 +5,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from bisect import bisect
 from functools import lru_cache
-from math import fsum
-from typing import Any, Callable, List, NamedTuple, Optional, Sequence, Tuple
+from typing import Any, Callable, List, NamedTuple, Sequence
 
 import matplotlib_set_backend  # noqa: F401
 import numpy as np
@@ -258,7 +257,7 @@ class FloatSupervisable(ValueSupervisable):
 
 
 class LambdaValueSupervisable(FloatSupervisable):
-    def __init__(self, name, lam):
+    def __init__(self, name: str, lam: Callable):
         super().__init__()
         self._name = name
         self.lam = lam
@@ -266,7 +265,7 @@ class LambdaValueSupervisable(FloatSupervisable):
     def name(self) -> str:
         return self._name
 
-    def get(self, manager):
+    def get(self, manager) -> float:
         return self.lam(manager)
 
 

@@ -29,7 +29,7 @@ class SimulationManager:
         initial_state = self.medical_machine.initial
 
         self.pending_transfers = PendingTransfers()
-        self.in_silent_mode = 0
+        self.in_silent_state = 0
         self.detected = 0
         self.logger = logging.getLogger("simulation")
         logging.basicConfig()

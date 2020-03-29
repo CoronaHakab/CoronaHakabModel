@@ -37,7 +37,8 @@ class InfectionManager:
         # u = mat dot_product v (log of the probability that an agent will get infected)
         u = self.manager.matrix.matrix.dot(v)
         # calculate the infections boolean vector
-        infections = self.manager.susceptible_vector & np.random.random(u.shape) < (1 - np.exp(u))
+
+        infections = self.manager.susceptible_vector & (np.random.random(u.shape) < (1 - np.exp(u)))
         infected_indices = np.flatnonzero(infections)
 
         # caught_rolls: boolean vector, True if an agent is known to be infected
@@ -58,7 +59,7 @@ class InfectionManager:
                 elif self.manager.consts.full_isolation_sicks:
                     self.agents_to_full_isolation.append(agent)
 
-        self.manager.detected = self.manager.consts.detection_rate * self.manager.in_silent_mode
-        self.manager.in_silent_mode -= self.manager.detected
+        self.manager.detected = self.manager.consts.detection_rate * self.manager.in_silent_state
+        self.manager.in_silent_state -= self.manager.detected
 
         return new_infected

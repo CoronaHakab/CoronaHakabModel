@@ -1,6 +1,5 @@
 import logging
 import math
-from random import shuffle
 from typing import Dict, List, Sequence
 
 import numpy as np
