@@ -19,8 +19,8 @@ def main():
     Input path of a pre-generated matrix
         OR
     Output path for the matrix generated now
-    
-    CRITICAL - 
+
+    CRITICAL -
     The size of the matrix is not checked when loading an existing file!
     If the size of the population changed - make sure the matrix is appropriate.
     """

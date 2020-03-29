@@ -38,8 +38,8 @@ class SimulationManager:
         self.logger.info(f"Generating {self.consts.population_size} agents")
 
         # the manager holds the vector, but the agents update it
-        self.contagiousness_vector = np.empty(self.consts.population_size, dtype=float)
-        self.susceptible_vector = np.empty(self.consts.population_size, dtype=bool)
+        self.contagiousness_vector = np.empty(self.consts.population_size, dtype=float)  # how likely to infect others
+        self.susceptible_vector = np.empty(self.consts.population_size, dtype=bool)  # can get infected
         self.agents = [Agent(i, self, initial_state) for i in range(self.consts.population_size)]
         initial_state.add_many(self.agents)
 
@@ -73,14 +73,17 @@ class SimulationManager:
         self.supervisor.snapshot(self)
 
     def progress_transfers(self, new_sick):
-        changed_state_introduced = defaultdict(list)
+        # all the new sick agents are leaving their previous step
         changed_state_leaving = new_sick
 
-        all_sick = sum(changed_state_leaving.values(), [])
+        # agents which are going to enter the new state
+        changed_state_introduced = defaultdict(list)
+        # list of all the new sick agents
+        new_sick_list = sum(changed_state_leaving.values(), [])
+        # all the new sick are going to get to the next state
+        changed_state_introduced[self.medical_machine.state_upon_infection] = new_sick_list
 
-        changed_state_introduced[self.medical_machine.state_upon_infection] = all_sick
-
-        for s in all_sick:
+        for s in new_sick_list:
             s.set_medical_state_no_inform(self.medical_machine.state_upon_infection)
 
         moved = self.pending_transfers.advance()
@@ -110,6 +113,7 @@ class SimulationManager:
         self.medical_machine.initial.remove_many(agents_to_infect)
         self.medical_machine.state_upon_infection.add_many(agents_to_infect)
 
+        # take list of agents and create a pending transfer from their initial state to the next state
         self.pending_transfers.extend(self.medical_machine.state_upon_infection.transfer(agents_to_infect))
 
     def run(self):

@@ -17,6 +17,7 @@ TransferCollection = Dict[int, List[PendingTransfer]]
 
 class PendingTransfers:
     def __init__(self):
+        # in x time steps execute the list of pending transfers (change between states)
         self.inner: Dict[int, List[PendingTransfer]] = defaultdict(list)
 
     def append(self, transfer: PendingTransfer):
@@ -30,12 +31,12 @@ class PendingTransfers:
     def advance(self) -> Sequence[PendingTransfer]:
         # todo improve? (rotating array?)
         new_inner = defaultdict(list)
-        ret = ()
+        ret = ()  # no transfers to do in the current step
         for k, v in self.inner.items():
             if k:
                 new_inner[k - 1] = v
             else:
-                ret = v
+                ret = v  # the list of transfers to do now (key=0)
         self.inner = new_inner
         return ret
 

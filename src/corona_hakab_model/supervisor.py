@@ -1,4 +1,4 @@
-# flake8: noqa
+# flake8: noqa flake8 doesn't support named expressions := so for now we have to exclude this file for now:(
 
 from __future__ import annotations
 
@@ -8,22 +8,8 @@ from functools import lru_cache
 from math import fsum
 from typing import Any, Callable, List, NamedTuple, Optional, Sequence, Tuple
 
+import matplotlib_set_backend  # noqa: F401
 import numpy as np
-from state_machine import TerminalState
-
-try:
-    import PySide2
-except ImportError:
-    pass
-else:
-    try:
-        import matplotlib
-    except ImportError:
-        pass
-    else:
-        matplotlib.use("Qt5Agg")
-        del matplotlib
-    del PySide2
 
 try:
     # plt is optional
