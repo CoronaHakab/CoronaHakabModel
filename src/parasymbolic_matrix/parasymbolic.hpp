@@ -3,7 +3,8 @@
 #include <tuple>
 #include <unordered_set>
 
-using dtype = float;
+typedef float dtype;
+
 using row_type = std::map<size_t, dtype>;
 using col_type = std::unordered_set<size_t>;
 
@@ -19,42 +20,42 @@ class BareSparseMatrix{
     public:
         const size_t size;
         BareSparseMatrix(size_t size);
-        dtype operator[](size_t row,size_t column);
-        void batch_set(size_t row, size_t const* columns, size_t c_len, dtype const* values, size_t v_len);
+        dtype get(size_t row,size_t column);
+        void batch_set(size_t row, size_t const* A_columns, size_t c_len, dtype const* A_values, size_t v_len);
         dtype get_total();
         virtual ~BareSparseMatrix();
-}
+};
 
 class CoffedSparseMatrix: public BareSparseMatrix{
     private:
-        dtype* col_coefficients*;
-        dtype* row_coefficients*;
+        dtype* col_coefficients;
+        dtype* row_coefficients;
         friend class ParasymbolicMatrix;
     public:
-        CoffedSparseMatrix(int size);
-        dtype operator[](size_t row, size_t column);
+        CoffedSparseMatrix(size_t size);
+        dtype get(size_t row, size_t column);
         void mul_row(size_t row, dtype factor);
         void mul_col(size_t col, dtype factor);
         void reset_mul_row(size_t row);
         void reset_mul_col(size_t col);
         virtual ~CoffedSparseMatrix();
-}
+};
 
 class ParasymbolicMatrix{
     private:
         size_t component_count;
         dtype* factors;
-        CoffedSparseMatrix* components;
+        CoffedSparseMatrix** components;
         BareSparseMatrix inner;
-        ParasymbolicMatrix(dtype const* factors, CoffedSparseMatrix const* comps, size_t len);
+        ParasymbolicMatrix(dtype* factors, CoffedSparseMatrix * const* comps, size_t len);
 
         void rebuild_all();
         void rebuild_row(size_t);
         void rebuild_column(size_t);
         void rebuild_factor(dtype);
     public:
-        static ParasymbolicMatrix from_tuples(std::vector<std::tuple<CoffedSparseMatrix, dtype>>);
-        dtype operator[](size_t row, size_t column);
+        static ParasymbolicMatrix* from_tuples(std::vector<std::tuple<CoffedSparseMatrix*, dtype>>);
+        dtype get(size_t row, size_t column);
         dtype total();
         void prob_any(dtype const* A_v, size_t v_len, size_t const * A_non_zero_indices, size_t nzi_len,
                         dtype** AF_out, size_t* o_size);
@@ -64,4 +65,4 @@ class ParasymbolicMatrix{
         void reset_mul_row(size_t component, size_t row);
         void reset_mul_col(size_t component, size_t col);
         virtual ~ParasymbolicMatrix();
-}
+};

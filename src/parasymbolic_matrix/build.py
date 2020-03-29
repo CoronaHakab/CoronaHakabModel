@@ -1,14 +1,16 @@
 import subprocess
+from pathlib import Path
+import itertools as it
 
-from swimport import FileSource, Swim, pools, ContainerSwim, Function
+from swimport import FileSource, Swim, pools, ContainerSwim, Function, TypedefBehaviour
 
-PY_ROOT = r"C:\python_envs\x64\3.8"
+PY_ROOT = r"T:\py_envs\3.8"
 SWIG_PATH = r"T:\programs\swigwin-4.0.1\swig.exe"
 PY_INCLUDE_PATH = PY_ROOT + r'\include'
 PY_LIB_PATH = PY_ROOT + r'\libs\python37.lib'
 
 windows_kit_template = r'C:\Program Files (x86)\Windows Kits\10\{}\10.0.17763.0' + "\\"
-MSVC_dir = r'C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023' + "\\"
+MSVC_dir = r'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.24.28314' + "\\"
 np_include_path = PY_ROOT + r"\Lib\site-packages\numpy\core\include\\"
 windows_kit_include = windows_kit_template.format('include')
 windows_kit_lib = windows_kit_template.format('lib')
@@ -42,6 +44,18 @@ def write_swim():
         pools.include(src)
     )
 
+    swim(
+        pools.primitive()
+    )
+
+    swim(
+        pools.numpy_arrays()
+    )
+
+    swim(
+        "dtype" >> TypedefBehaviour()
+    )
+
     bswim = ContainerSwim("BareSparseMatrix", src)
     cswim = ContainerSwim("CoffedSparseMatrix", src)
     pswim = ContainerSwim("ParasymbolicMatrix", src)
@@ -63,9 +77,32 @@ def run_swim():
                    stdout=None, check=True)
 
 
-def compile(): pass
+def compile():
+    tmpdir = Path('temp')
+    src_path = Path('parasymbolic.cpp')
+    cxx_path = 'parasymbolic_wrap.cxx'
+
+    tmpdir.mkdir(exist_ok=True, parents=True)
+    # todo compile with warnings?
+    proc = subprocess.run([
+        CL_PATH, '/nologo', '/LD', '/EHsc', '/utf-8', optimization,
+        '/Tp', str(cxx_path),
+        *(('/Tp', str(src_path)) if src_path.exists() else ()),
+        '/Fo:' + str(tmpdir) + '\\',
+        '/I', PY_INCLUDE_PATH,
+        *it.chain.from_iterable(('/I', i) for i in COMPILE_ADDITIONAL_INCLUDE_DIRS),
+        '/link',
+        '/LIBPATH', PY_LIB_PATH,
+        *it.chain.from_iterable(('/LIBPATH', l) for l in COMPILE_ADDITIONAL_LIBS),
+        '/IMPLIB:' + str(tmpdir / 'example.lib'),
+        '/OUT:' + '_example.pyd'
+    ], stdout=subprocess.PIPE, text=True)
+    if proc.returncode != 0:
+        print(proc.stdout)
+        raise Exception(f'cl returned {proc.returncode}')
 
 
 if __name__ == '__main__':
     write_swim()
     run_swim()
+    compile()
