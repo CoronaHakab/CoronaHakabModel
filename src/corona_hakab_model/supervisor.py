@@ -83,18 +83,12 @@ class Supervisor:
                 rotation=90,
             )
         if self.manager.consts.home_isolation_sicks:
-            title = (
-                    title
-                    + "\napplying home isolation for confirmed cases ({} of cases)".format(
+            title = title + "\napplying home isolation for confirmed cases ({} of cases)".format(
                 self.manager.consts.caught_sicks_ratio
-            )
             )
         if self.manager.consts.full_isolation_sicks:
-            title = (
-                    title
-                    + "\napplying full isolation for confirmed cases ({} of cases)".format(
+            title = title + "\napplying full isolation for confirmed cases ({} of cases)".format(
                 self.manager.consts.caught_sicks_ratio
-            )
             )
 
         # plot parameters
@@ -117,9 +111,14 @@ class Supervisor:
             plt.show()
 
     @staticmethod
-    def static_plot(simulations_info: Sequence[("SimulationManager", str, Sequence[str])], title="comparing",
-                    save_name=None,
-                    max_height=- 1, auto_show=True, save=True):
+    def static_plot(
+        simulations_info: Sequence[("SimulationManager", str, Sequence[str])],
+        title="comparing",
+        save_name=None,
+        max_height=-1,
+        auto_show=True,
+        save=True,
+    ):
         """
         a static plot method, allowing comparison between multiple simulation runs
         :param simulations_info: a sequence of tuples, each representing a simulation. each simulation contains the manager, a pre-fix string and a sequence of syling strings. \
@@ -217,9 +216,7 @@ class Supervisable(ABC):
             self.args = args
 
         def __call__(self, m):
-            return _StackedFloatSupervisable(
-                [Supervisable.coerce(a, m) for a in self.args]
-            )
+            return _StackedFloatSupervisable([Supervisable.coerce(a, m) for a in self.args])
 
     class Sum:
         def __init__(self, *args):
@@ -227,10 +224,11 @@ class Supervisable(ABC):
 
         def __call__(self, m):
             return _SumSupervisable([Supervisable.coerce(a, m) for a in self.args])
-          
+
     class R0:
         def __init__(self):
             pass
+
         def __call__(self, m):
             return _EffectiveR0Supervisable()
 
@@ -352,10 +350,7 @@ class _SumSupervisable(ValueSupervisable):
         return sum(s.get(manager) for s in self.inners)
 
     def names(self):
-        return [
-            "Total(" + ", ".join(names) + ")"
-            for names in zip(*(i.names() for i in self.inners))
-        ]
+        return ["Total(" + ", ".join(names) + ")" for names in zip(*(i.names() for i in self.inners))]
 
     def plot(self, ax):
         return type(self.inners[0]).plot(self, ax)
@@ -366,15 +361,19 @@ class _SumSupervisable(ValueSupervisable):
     def name(self) -> str:
         return "Total(" + ", ".join(n.name() for n in self.inners)
 
-class _EffectiveR0Supervisable (FloatSupervisable):
+
+class _EffectiveR0Supervisable(FloatSupervisable):
     def __init__(self):
         super().__init__()
 
     def get(self, manager) -> float:
         # note that this calculation is VARY heavy
         suseptable_indexes = np.flatnonzero(manager.susceptible_vector)
-        return np.sum(1 - np.exp(manager.matrix.matrix[suseptable_indexes].data)) * manager.matrix.total_contagious_probability / manager.matrix.size
+        return (
+            np.sum(1 - np.exp(manager.matrix.matrix[suseptable_indexes].data))
+            * manager.matrix.total_contagious_probability
+            / manager.matrix.size
+        )
 
     def name(self) -> str:
         return "effective R"
-

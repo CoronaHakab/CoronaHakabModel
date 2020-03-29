@@ -3,28 +3,14 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections import defaultdict, namedtuple
 from functools import cached_property
-from typing import (
-    Collection,
-    Dict,
-    Generic,
-    Iterable,
-    List,
-    Optional,
-    Sequence,
-    Set,
-    Tuple,
-    TypeVar,
-    Union,
-)
+from typing import Collection, Dict, Generic, Iterable, List, Optional, Sequence, Set, Tuple, TypeVar, Union
 
 import numpy as np
 from agent import Agent, Circle
 from scipy.stats import rv_discrete
 from util import upper_bound
 
-PendingTransfer = namedtuple(
-    "PendingTransfer", ["agent", "target_state", "origin_state", "original_duration"]
-)
+PendingTransfer = namedtuple("PendingTransfer", ["agent", "target_state", "origin_state", "original_duration"])
 
 TransferCollection = Dict[int, List[PendingTransfer]]
 
@@ -86,10 +72,7 @@ class StochasticState(State):
         return self.probs_cumulative[ind] - self.probs_cumulative[ind - 1]
 
     def add_transfer(
-        self,
-        destination: State,
-        duration: rv_discrete,
-        probability: Union[float, type(...)],
+        self, destination: State, duration: rv_discrete, probability: Union[float, type(...)],
     ):
         if probability is ...:
             p = 1
@@ -108,23 +91,13 @@ class StochasticState(State):
         self._add_descendant(destination)
 
     def transfer(self, agents: Set[Agent]) -> Iterable[PendingTransfer]:
-        transfer_indices = np.searchsorted(
-            self.probs_cumulative, np.random.random(len(agents))
-        )
+        transfer_indices = np.searchsorted(self.probs_cumulative, np.random.random(len(agents)))
         bin_count = np.bincount(transfer_indices)
         if len(bin_count) > len(self.probs_cumulative):
             raise Exception("probs must sum to 1")
-        durations = [
-            iter(d.rvs(c))
-            for (c, s, d) in zip(bin_count, self.destinations, self.durations)
-        ]
+        durations = [iter(d.rvs(c)) for (c, s, d) in zip(bin_count, self.destinations, self.durations)]
         return [
-            PendingTransfer(
-                agent,
-                self.destinations[transfer_ind],
-                self,
-                durations[transfer_ind].__next__(),
-            )
+            PendingTransfer(agent, self.destinations[transfer_ind], self, durations[transfer_ind].__next__(),)
             for transfer_ind, agent in zip(transfer_indices, agents)
         ]
 

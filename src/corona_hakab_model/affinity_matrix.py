@@ -1,14 +1,14 @@
 import logging
-from random import shuffle
-import numpy as np
-from agent import TrackingCircle, Agent
-from scipy.sparse import lil_matrix, load_npz, save_npz
-from util import dist
-from typing import List, Dict, Sequence
-from scipy.stats import rv_discrete
 import math
-from sub_matrices import CircularConnectionsMatrix, NonCircularConnectionMatrix
+from random import shuffle
+from typing import Dict, List, Sequence
 
+import numpy as np
+from agent import Agent, TrackingCircle
+from scipy.sparse import lil_matrix, load_npz, save_npz
+from scipy.stats import rv_discrete
+from sub_matrices import CircularConnectionsMatrix, NonCircularConnectionMatrix
+from util import dist
 
 m_type = lil_matrix
 
@@ -32,7 +32,7 @@ class AffinityMatrix:
         if input_matrix_path and m_type == lil_matrix:
             self.logger.info(f"Loading matrix from file: {input_matrix_path}")
             try:
-                with open(input_matrix_path, 'rb') as f_matrix:
+                with open(input_matrix_path, "rb") as f_matrix:
                     self.matrix = load_npz(f_matrix)
             except FileNotFoundError as e:
                 self.logger.error(f"File {input_matrix_path} not found!")
@@ -47,20 +47,32 @@ class AffinityMatrix:
 
         self.logger.info("Building circular connections matrices")
         # all circular matrixes. keeping as a tuple of matrix and type (i.e, home, work, school and so)
-        self.circular_matrices = [(
-            self.circular_matrix_generation(self.agents, matrix.circle_size_probability,
-                                            matrix.connection_strength).tocsr(), matrix.type)for
-            matrix in self.consts.circular_matrices]
+        self.circular_matrices = [
+            (
+                self.circular_matrix_generation(
+                    self.agents, matrix.circle_size_probability, matrix.connection_strength
+                ).tocsr(),
+                matrix.type,
+            )
+            for matrix in self.consts.circular_matrices
+        ]
 
         self.logger.info("Building non circular connections matrices")
         # all non-circular matrixes. keeping as a tuple of matrix and type (i.e, home, work, school and so)
-        self.non_circular_matrices = [(
-            self.non_circular_matrix_generation(self.agents, matrix.scale_factor, matrix.connection_strength).tocsr(), matrix.type)
-            for matrix
-            in self.consts.non_circular_matrices]
+        self.non_circular_matrices = [
+            (
+                self.non_circular_matrix_generation(
+                    self.agents, matrix.scale_factor, matrix.connection_strength
+                ).tocsr(),
+                matrix.type,
+            )
+            for matrix in self.consts.non_circular_matrices
+        ]
 
         self.logger.info("summing all matrices")
-        self.matrix = sum(matrix[0] for matrix in self.circular_matrices) + sum(matrix[0] for matrix in self.non_circular_matrices)
+        self.matrix = sum(matrix[0] for matrix in self.circular_matrices) + sum(
+            matrix[0] for matrix in self.non_circular_matrices
+        )
 
         self.factor = None
         self.normalize()
@@ -68,7 +80,7 @@ class AffinityMatrix:
         if output_matrix_path and m_type == lil_matrix:
             self.logger.info(f"Saving AffinityMatrix internal matrix to {output_matrix_path}")
             try:
-                with open(output_matrix_path, 'wb') as f_matrix:
+                with open(output_matrix_path, "wb") as f_matrix:
                     save_npz(f_matrix, self.matrix)
             except FileNotFoundError as e:
                 self.logger.error(f"Path {output_matrix_path} is invalid!")
@@ -94,9 +106,7 @@ class AffinityMatrix:
             # this factor should be calculated once when the matrix is full, and be left un-changed for the rest of the run.
             self.factor = (beta * self.size) / (self.matrix.sum())
 
-        self.matrix = (
-                self.matrix * self.factor
-        )  # now each entry in W is such that bd=R0
+        self.matrix = self.matrix * self.factor  # now each entry in W is such that bd=R0
 
         # switching from probability to ln(1-p):
         non_zero_keys = self.matrix.nonzero()
@@ -104,11 +114,10 @@ class AffinityMatrix:
 
     def change_connections_policy(self, types_of_connections_to_use: Sequence[str]):
         self.logger.info(f"changing policy. keeping all matrixes of types: {types_of_connections_to_use}")
-        self.matrix = sum(matrix[0] for matrix in self.circular_matrices if matrix[1] in types_of_connections_to_use)\
-                      + sum(matrix[0] for matrix in self.non_circular_matrices if matrix[1] in types_of_connections_to_use)
+        self.matrix = sum(
+            matrix[0] for matrix in self.circular_matrices if matrix[1] in types_of_connections_to_use
+        ) + sum(matrix[0] for matrix in self.non_circular_matrices if matrix[1] in types_of_connections_to_use)
         self.normalize()
-
-
 
     def non_circular_matrix_generation(self, agents_to_use, scale_factor: float, connection_strength):
         """
@@ -129,8 +138,9 @@ class AffinityMatrix:
         amount_of_connections = np.ceil(np.random.exponential(scale_factor - 0.5, amount_of_agents)).astype(int)
 
         # dict of agents to amount of remaining connections to make for this agent
-        remaining_contacts: Dict[Agent, int] = {agent: amount for (agent, amount) in
-                                                zip(agents_to_use, amount_of_connections)}
+        remaining_contacts: Dict[Agent, int] = {
+            agent: amount for (agent, amount) in zip(agents_to_use, amount_of_connections)
+        }
 
         # will be used as a stopping sign. math.ceil because np ceil is returning floats, and summing a lot of floats has a cumulative error
         connections_sum = sum(remaining_contacts.values())
@@ -177,7 +187,7 @@ class AffinityMatrix:
                 connections_sum -= 2
 
                 if remaining_contacts[second_agent] <= 0:
-                    del (available_agents[next_roll])
+                    del available_agents[next_roll]
                 else:
                     temp_agents_holder.append(available_agents.pop(next_roll))
             # returning all the agents back from the temp place holder
@@ -189,7 +199,9 @@ class AffinityMatrix:
 
         return matrix
 
-    def circular_matrix_generation(self, agents: List[Agent], circle_size_probability: rv_discrete, connection_strength):
+    def circular_matrix_generation(
+        self, agents: List[Agent], circle_size_probability: rv_discrete, connection_strength
+    ):
         """
         this method will create a matrix of circular connections given a list of agents, an rv_discrete representing the size of the circle probabilty, and the connection strength
         :param agents: list of all agents
@@ -200,8 +212,9 @@ class AffinityMatrix:
         matrix = m_type((self.size, self.size), dtype=np.float32)
 
         # pre-rolling all the sized of the circles for efficiency causes.
-        circles_size_rolls = iter(circle_size_probability.rvs(
-            size=math.ceil(len(agents) / circle_size_probability.mean() + 10)))
+        circles_size_rolls = iter(
+            circle_size_probability.rvs(size=math.ceil(len(agents) / circle_size_probability.mean() + 10))
+        )
 
         # here all the circles will be saved
         circles: List[TrackingCircle] = []
