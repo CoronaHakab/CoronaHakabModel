@@ -3,7 +3,7 @@ from random import shuffle
 
 import numpy as np
 from agent import TrackingCircle
-from scipy.sparse import lil_matrix
+from scipy.sparse import lil_matrix, load_npz, save_npz
 
 m_type = lil_matrix
 
@@ -18,22 +18,33 @@ class AffinityMatrix:
     Naturally, W is symmetric.
     """
 
-    def __init__(self, manager):
+    def __init__(self, manager, input_matrix_path: str = None, output_matrix_path: str = None):
         self.consts = manager.consts
         self.size = len(manager.agents)  # population size
+        self.logger = logging.getLogger("simulation")
 
         self.manager = manager
+        if input_matrix_path and m_type == lil_matrix:
+            self.logger.info(f"Loading matrix from file: {input_matrix_path}")
+            try:
+                with open(input_matrix_path, 'rb') as f_matrix:
+                    self.matrix = load_npz(f_matrix)
+            except FileNotFoundError as e:
+                self.logger.error(f"File {input_matrix_path} not found!")
+                raise e
+            self.logger.info("Matrix loaded succesfully")
+            return
 
-        self.matrix = m_type((self.size, self.size), dtype=np.float32)
-        self.logger = logging.getLogger("simulation")
         self.logger.info("Building new AffinityMatrix")
+        self.matrix = m_type((self.size, self.size), dtype=np.float32)
+
         self.agents = self.manager.agents
 
         self.m_families = self._create_intra_family_connections()
         self.m_work = self._create_intra_workplace_connections()
         self.m_random = self._create_random_connectivity()
 
-        # switches all matrices to csr, for efficiency later on (in home quarantine calculations)
+        # switches all matrices to csr, for efficiency later on (in home isolation calculations)
         self.m_families = self.m_families.tocsr()
         self.m_work = self.m_work.tocsr()
         self.m_random = self.m_random.tocsr()
@@ -42,6 +53,15 @@ class AffinityMatrix:
 
         self.factor = None
         self.normalize()
+
+        if output_matrix_path and m_type == lil_matrix:
+            self.logger.info(f"Saving AffinityMatrix internal matrix to {output_matrix_path}")
+            try:
+                with open(output_matrix_path, 'wb') as f_matrix:
+                    save_npz(f_matrix, self.matrix)
+            except FileNotFoundError as e:
+                self.logger.error(f"Path {output_matrix_path} is invalid!")
+            self.logger.info("Matrix saved successfully!")
 
     def _create_intra_family_connections(self):
         """
@@ -52,7 +72,7 @@ class AffinityMatrix:
         high chance of passing the virus, since the family members stay a long time together.
         In the example of nodes 1 till 5 are a family, in Matlab this would be: W_families[1:5,1:5]=p
         where p is the intra family infection probability.
-        Late on, if, for example, a policy of house quarantine takes place without the members of the family
+        Late on, if, for example, a policy of house isolation takes place without the members of the family
         taking measures to separate from each other, then this value p can be replaced by something even larger.
         """
 
@@ -185,18 +205,16 @@ class AffinityMatrix:
         """
         self.logger.info(f"normalizing matrix")
         if self.factor is None:
-            r0 = self.consts.r0
-            # changes r0 to fit the infection ratio (he is calculated despite the low infection ratio)
-            r0 = r0 * (1 / self.consts.expected_infection_ratio())
-            non_zero_elements = self.matrix.count_nonzero()
-            # average number of connections per person per day
-            b = non_zero_elements / self.size
-            # average probability for infection in each meeting as should be
-            d = r0 / (self.consts.average_infecting_days() * b)
-            # avarage probability for infection in each meeting in current matrix
-            average_edge_weight_in_matrix = self.matrix.sum() / non_zero_elements
-            # saves this so that connections will be easily re-established later on
-            self.factor = d / average_edge_weight_in_matrix
+            # updates r0 to fit the contagious length and ratio.
+            states_time = self.consts.average_time_in_each_state()
+            total_contagious_probability = 0
+            for state, time_in_state in states_time.items():
+                total_contagious_probability += time_in_state * state.contagiousness
+            beta = self.consts.r0 / total_contagious_probability
+
+            #this factor should be calculated once when the matrix is full, and be left un-changed for the rest of the run.
+            self.factor = (beta * self.size) / (self.matrix.sum())
+
         self.matrix = (
             self.matrix * self.factor
         )  # now each entry in W is such that bd=R0
