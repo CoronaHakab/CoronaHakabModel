@@ -81,7 +81,7 @@ class SimulationManager:
         changed_state_introduced = defaultdict(list)
         # list of all the new sick agents
         new_sick_list = sum(changed_state_leaving.values(), [])
-        
+
         # saves this number for supervising
         self.new_sick_counter = len(new_sick_list)
         # all the new sick are going to get to the next state

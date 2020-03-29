@@ -43,16 +43,15 @@ def main():
             "ICU",
             "Latent",
             "Silent",
-            #"Susceptible",
+            # "Susceptible",
             "Recovered",
             Supervisable.Sum(
                 "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", name="currently sick"
             ),
-            #Supervisable.NewCasesCounter(),
-            #Supervisable.GrowthFactor(
+            # Supervisable.NewCasesCounter(),
+            # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
             #    Supervisable.NewCasesCounter()),
-
             LambdaValueSupervisable("Detected Daily", lambda manager: manager.detected_daily)
             # Supervisable.R0(),
         ),
@@ -93,7 +92,6 @@ def compare_simulations_example():
         ((sm1, f"ro = {sm1.consts.r0}:", ("y-", "y--", "y:")), (sm2, f"ro = {sm2.consts.r0}:", ("c-", "c--", "c:"))),
         f"comparing r0 = {sm1.consts.r0} to r0={sm2.consts.r0}",
     )
-
 
 
 if __name__ == "__main__":

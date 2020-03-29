@@ -210,7 +210,7 @@ class Supervisable(ABC):
 
         def __call__(self, m):
             return _SumSupervisable([Supervisable.coerce(a, m) for a in self.args], **self.kwargs)
-          
+
     class R0:
         def __init__(self):
             pass
@@ -231,7 +231,9 @@ class Supervisable(ABC):
             self.sum_supervisor = sum_supervisor
 
         def __call__(self, m):
-            return _GrowthFactor(Supervisable.coerce(self.new_infected_supervisor, m), Supervisable.coerce(self.sum_supervisor, m))
+            return _GrowthFactor(
+                Supervisable.coerce(self.new_infected_supervisor, m), Supervisable.coerce(self.sum_supervisor, m)
+            )
 
 
 SupervisableMaker = Callable[[Any], Supervisable]
@@ -395,8 +397,8 @@ class _EffectiveR0Supervisable(FloatSupervisable):
     def name(self) -> str:
         return "effective R"
 
-      
-class _NewInfectedCount (FloatSupervisable):
+
+class _NewInfectedCount(FloatSupervisable):
     def __init__(self):
         super().__init__()
 
@@ -406,7 +408,7 @@ class _NewInfectedCount (FloatSupervisable):
     def name(self) -> str:
         return "new infected"
 
-      
+
 class _GrowthFactor(FloatSupervisable):
     def __init__(self, new_infected_supervisor, sum_supervisor):
         super().__init__()
@@ -422,4 +424,3 @@ class _GrowthFactor(FloatSupervisable):
 
     def name(self) -> str:
         return "growth factor"
-
