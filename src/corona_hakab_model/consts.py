@@ -127,9 +127,9 @@ class Consts(NamedTuple):
     # defines whether or not to apply a isolation (work shut-down)
     active_isolation = True
     # the date to stop work at
-    stop_work_days = 30
+    stop_work_days = 40
     # the date to resume work at
-    resume_work_days = 60
+    resume_work_days = 80
 
     # social stats
     # family circles size distribution

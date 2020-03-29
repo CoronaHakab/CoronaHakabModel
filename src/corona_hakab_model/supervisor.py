@@ -281,15 +281,9 @@ class _EffectiveR0Supervisable (FloatSupervisable):
         super().__init__()
 
     def get(self, manager) -> float:
-        # note that this calculation is VARY heavy (that's why it is only calculating once every 5 days)
-        suseptable_indexes = [index for index, val in enumerate(manager.susceptible_vector) if val]
-        return np.sum(1 - np.exp(item) for item in manager.matrix.matrix[suseptable_indexes, :].data) * manager.matrix.total_contagious_probability / manager.matrix.size
-
-    def snapshot(self, manager):
-        if manager.current_date % 5 != 0 and not manager.current_date <= 1:
-            return
-        self.x.append(manager.current_date)
-        self.y.append(self.get(manager))
+        # note that this calculation is VARY heavy
+        suseptable_indexes = np.flatnonzero(manager.susceptible_vector)
+        return np.sum(1 - np.exp(manager.matrix.matrix[suseptable_indexes].data)) * manager.matrix.total_contagious_probability / manager.matrix.size
 
     def name(self) -> str:
         return "effective R"

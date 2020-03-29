@@ -4,7 +4,7 @@ import numpy as np
 from agent import TrackingCircle, Agent
 from scipy.sparse import lil_matrix, load_npz, save_npz
 from util import dist
-from typing import List, Dict
+from typing import List, Dict, Sequence
 from scipy.stats import rv_discrete
 import math
 from sub_matrices import CircularConnectionsMatrix, NonCircularConnectionMatrix
@@ -102,7 +102,7 @@ class AffinityMatrix:
         non_zero_keys = self.matrix.nonzero()
         self.matrix[non_zero_keys] = np.log(1 - self.matrix[non_zero_keys])
 
-    def change_connections_policy(self, types_of_connections_to_use: List[str]):
+    def change_connections_policy(self, types_of_connections_to_use: Sequence[str]):
         self.logger.info(f"changing policy. keeping all matrixes of types: {types_of_connections_to_use}")
         self.matrix = sum(matrix[0] for matrix in self.circular_matrices if matrix[1] in types_of_connections_to_use)\
                       + sum(matrix[0] for matrix in self.non_circular_matrices if matrix[1] in types_of_connections_to_use)
@@ -132,17 +132,16 @@ class AffinityMatrix:
         remaining_contacts: Dict[Agent, int] = {agent: amount for (agent, amount) in
                                                 zip(agents_to_use, amount_of_connections)}
 
-        # will be used as a stopping sign
+        # will be used as a stopping sign. math.ceil because np ceil is returning floats, and summing a lot of floats has a cumulative error
         connections_sum = sum(remaining_contacts.values())
 
         # a list of indexes of agents which still lack connections. used for efficiency
-        available_agents = [agent for agent in agents_to_use]
+        available_agents = list(agents_to_use)
         available_agents_len = len(available_agents)
 
         # pre-rolling all rolls for efficiency. for each connection, the 2nd agent will be rolled using this
         # todo make sure the later-used % operator doesn't harm the randomness
-        rolls = np.random.randint(0, amount_of_agents, connections_sum // 2 + 1)
-        roll_cnt = 0
+        rolls = iter(np.random.randint(0, amount_of_agents, connections_sum // 2 + 1))
 
         # this structure will be used to save all connections, and later on insert them all at once. used for efficiency
         connections_tuples = np.zeros((2, connections_sum), dtype=np.int)
@@ -151,7 +150,7 @@ class AffinityMatrix:
         # while there are still connections left to make
         while available_agents_len >= 2 and connections_sum >= 2:
 
-            current_agent = available_agents.pop(0)
+            current_agent = available_agents.pop()
             available_agents_len -= 1
 
             # temp holder for used agents, so that the same connection wont be made twice
@@ -164,9 +163,8 @@ class AffinityMatrix:
 
                 # choosing 2nd agent for the connection
                 # todo make sure the % operator doesn't harm the randomness too much
-                roll_index = rolls[roll_cnt] % available_agents_len
-                roll_cnt += 1
-                second_agent = available_agents[roll_index]
+                next_roll = rolls.__next__() % available_agents_len
+                second_agent = available_agents[next_roll]
 
                 # adding the newly made connection to the to-be-added connections structure
                 connections_tuples[0, connections_cnt] = current_agent.index
@@ -181,10 +179,10 @@ class AffinityMatrix:
                 connections_sum -= 2
 
                 if remaining_contacts[second_agent] <= 0:
-                    del (available_agents[roll_index])
+                    del (available_agents[next_roll])
                     available_agents_len -= 1
                 else:
-                    temp_agents_holder.append(available_agents.pop(roll_index))
+                    temp_agents_holder.append(available_agents.pop(next_roll))
                     available_agents_len -= 1
             # returning all the agents back from the temp place holder
             available_agents_len += len(temp_agents_holder)
@@ -196,7 +194,7 @@ class AffinityMatrix:
 
         return matrix
 
-    def circular_matrix_generation(self, agents, circle_size_probability: rv_discrete, connection_strength):
+    def circular_matrix_generation(self, agents: List[Agent], circle_size_probability: rv_discrete, connection_strength):
         """
         this method will create a matrix of circular connections given a list of agents, an rv_discrete representing the size of the circle probabilty, and the connection strength
         :param agents: list of all agents
@@ -204,44 +202,43 @@ class AffinityMatrix:
         :param connection_strength: the wanted connection strength
         :return: lil_matrix with the wanted connections
         """
-        my_agents_length = len(agents)
+        amount_of_agents_to_add = len(agents)
         matrix = m_type((self.size, self.size), dtype=np.float32)
 
         # pre-rolling all the sized of the circles for efficiency causes.
-        circles_size_rolls = circle_size_probability.rvs(
-            size=math.ceil(my_agents_length / circle_size_probability.mean()))
-        pre_rolled_circles_len = len(circles_size_rolls)
+        circles_size_rolls = iter(circle_size_probability.rvs(
+            size=math.ceil(amount_of_agents_to_add / circle_size_probability.mean())))
 
-        circles_counter = 0
-        agents_counter = 0
+        # count the total amount of agents placed inside a circle so far
+        used_agents_counter = 0
 
         # here all the circles will be saved
         circles: List[TrackingCircle] = []
 
-        agents_ids = np.array([a.index for a in agents])
-        np.random.shuffle(agents_ids)
+        # using a copy to not change the main agents list
+        agents_copy = list(agents)
+        np.random.shuffle(agents_copy)
 
         # loop creating all circles. each run creates one circle.
-        while agents_counter < my_agents_length:
+        while used_agents_counter < amount_of_agents_to_add:
 
             current_circle = TrackingCircle()
 
             # choosing current circle size
             current_circle_size = 0
-            if circles_counter < pre_rolled_circles_len:
-                current_circle_size = circles_size_rolls[circles_counter]
-                circles_counter += 1
-            else:
+            try:
+                current_circle_size = circles_size_rolls.__next__()
+            except StopIteration:
                 current_circle_size = circle_size_probability.rvs()
 
             # adding agents to the current circle
             for _ in range(current_circle_size):
-                if agents_counter >= my_agents_length:
+                if used_agents_counter >= amount_of_agents_to_add:
                     break
-                choosen_agent = agents[agents_ids[agents_counter]]
+                choosen_agent = agents_copy.pop()
                 current_circle.add_agent(choosen_agent)
                 # todo possibly add this circle to the agent circles list
-                agents_counter += 1
+                used_agents_counter += 1
             circles.append(current_circle)
 
         for circle in circles:
@@ -251,6 +248,7 @@ class AffinityMatrix:
             ys = ys.reshape(-1)
             matrix[xs, ys] = connection_strength
 
-        ids = np.arange(my_agents_length)
+        # note that the previous loop also creates a connection between each agent and himself. this part removes it
+        ids = np.arange(amount_of_agents_to_add)
         matrix[ids, ids] = 0
         return matrix
