@@ -1,10 +1,9 @@
 import logging
 from collections import defaultdict
-from typing import Iterable, Union, Callable, Dict, List
-
-import numpy as np
+from typing import Callable, Dict, Iterable, List, Union
 
 import infection
+import numpy as np
 import update_matrix
 from affinity_matrix import AffinityMatrix
 from agent import Agent
@@ -140,5 +139,7 @@ class SimulationManager:
         self.supervisor.stack_plot(**kwargs)
 
     def __str__(self):
-        return f"<SimulationManager: SIZE_OF_POPULATION={self.consts.population_size}, " \
-               f"STEPS_TO_RUN={self.consts.total_steps}>"
+        return (
+            f"<SimulationManager: SIZE_OF_POPULATION={self.consts.population_size}, "
+            f"STEPS_TO_RUN={self.consts.total_steps}>"
+        )

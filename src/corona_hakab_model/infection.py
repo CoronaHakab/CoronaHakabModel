@@ -1,9 +1,8 @@
 from collections import defaultdict
-from typing import List, Dict
+from typing import Dict, List
 
 import manager
 import numpy as np
-
 from medical_state import MedicalState
 
 

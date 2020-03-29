@@ -7,9 +7,8 @@ from bisect import bisect
 from functools import lru_cache
 from typing import Any, Callable, List, NamedTuple, Sequence, Tuple
 
-import numpy as np
-
 import manager
+import numpy as np
 
 try:
     import PySide2
@@ -65,8 +64,10 @@ class Supervisor:
         text_height = ax.get_ylim()[-1] / 2
         # policies
         if self.manager.consts.active_isolation:
-            title += f"\napplying lockdown from day {self.manager.consts.stop_work_days} " \
-                     f"to day {self.manager.consts.resume_work_days}"
+            title += (
+                f"\napplying lockdown from day {self.manager.consts.stop_work_days} "
+                f"to day {self.manager.consts.resume_work_days}"
+            )
             ax.axvline(x=self.manager.consts.stop_work_days, color="#0000ff")
             ax.text(
                 self.manager.consts.stop_work_days + 2,
@@ -82,11 +83,13 @@ class Supervisor:
                 rotation=90,
             )
         if self.manager.consts.home_isolation_sicks:
-            title += f"\napplying home isolation for confirmed cases " \
-                     f"({self.manager.consts.caught_sicks_ratio} of cases)"
+            title += (
+                f"\napplying home isolation for confirmed cases " f"({self.manager.consts.caught_sicks_ratio} of cases)"
+            )
         if self.manager.consts.full_isolation_sicks:
-            title += f"\napplying full isolation for confirmed cases " \
-                     f"({self.manager.consts.caught_sicks_ratio} of cases)"
+            title += (
+                f"\napplying full isolation for confirmed cases " f"({self.manager.consts.caught_sicks_ratio} of cases)"
+            )
 
         # plot parameters
         ax.set_title(title)
@@ -103,7 +106,8 @@ class Supervisor:
         if save:
             fig.savefig(
                 f"{output_dir}{total_size} agents, applying isolation = {self.manager.consts.active_isolation}, "
-                f"max scale = {max_scale}")
+                f"max scale = {max_scale}"
+            )
         if auto_show:
             plt.show()
 
@@ -112,7 +116,9 @@ class Supervisor:
         simulations_info: Sequence[Tuple["manager.SimulationManager", str, Sequence[str]]],
         title="comparing",
         save_name=None,
-        max_height=- 1, auto_show=True, save=True,
+        max_height=-1,
+        auto_show=True,
+        save=True,
     ):
         """
         a static plot method, allowing comparison between multiple simulation runs
