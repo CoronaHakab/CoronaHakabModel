@@ -1,8 +1,7 @@
 from collections import defaultdict
 
-import numpy as np
-
 import manager
+import numpy as np
 
 
 class InfectionManager:
@@ -32,21 +31,13 @@ class InfectionManager:
                 agents[i].infect
         """
 
-        v = (
-                np.random.random(len(self.manager.agents))
-                < self.manager.contagiousness_vector
-        )
+        v = np.random.random(len(self.manager.agents)) < self.manager.contagiousness_vector
 
         u = self.manager.matrix.matrix.dot(v)
-        infections = self.manager.susceptible_vector & (
-                np.random.random(u.shape) < (1 - np.exp(u))
-        )
+        infections = self.manager.susceptible_vector & (np.random.random(u.shape) < (1 - np.exp(u)))
         infected_indices = np.flatnonzero(infections)
 
-        caught_rolls = (
-                np.random.random(len(infected_indices))
-                < self.manager.consts.caught_sicks_ratio
-        )
+        caught_rolls = np.random.random(len(infected_indices)) < self.manager.consts.caught_sicks_ratio
         new_infected = defaultdict(list)
         for index, caught in zip(infected_indices, caught_rolls):
             agent = self.manager.agents[index]

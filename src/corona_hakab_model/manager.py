@@ -17,8 +17,13 @@ class SimulationManager:
     A simulation manager is the main class, it manages the steps performed with policies
     """
 
-    def __init__(self, supervisable_makers: Iterable[Any], consts=Consts(),
-                 input_matrix_path: str = None, output_matrix_path: str = None):
+    def __init__(
+        self,
+        supervisable_makers: Iterable[Any],
+        consts=Consts(),
+        input_matrix_path: str = None,
+        output_matrix_path: str = None,
+    ):
         self.consts = consts
         self.medical_machine = consts.medical_state_machine()
         initial_state = self.medical_machine.initial
@@ -35,16 +40,12 @@ class SimulationManager:
         # the manager holds the vector, but the agents update it
         self.contagiousness_vector = np.empty(self.consts.population_size, dtype=float)
         self.susceptible_vector = np.empty(self.consts.population_size, dtype=bool)
-        self.agents = [
-            Agent(i, self, initial_state) for i in range(self.consts.population_size)
-        ]
+        self.agents = [Agent(i, self, initial_state) for i in range(self.consts.population_size)]
         initial_state.add_many(self.agents)
 
         self.matrix = AffinityMatrix(self, input_matrix_path, output_matrix_path)
 
-        self.supervisor = Supervisor(
-            [Supervisable.coerce(a, self) for a in supervisable_makers], self
-        )
+        self.supervisor = Supervisor([Supervisable.coerce(a, self) for a in supervisable_makers], self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self.matrix)
         self.infection_manager = infection.InfectionManager(self)
 
@@ -58,8 +59,7 @@ class SimulationManager:
         """
         # update matrix
         self.update_matrix_manager.update_matrix_step(
-            self.infection_manager.agents_to_home_isolation,
-            self.infection_manager.agents_to_full_isolation,
+            self.infection_manager.agents_to_home_isolation, self.infection_manager.agents_to_full_isolation,
         )
 
         # run infection
@@ -110,9 +110,7 @@ class SimulationManager:
         self.medical_machine.initial.remove_many(agents_to_infect)
         self.medical_machine.state_upon_infection.add_many(agents_to_infect)
 
-        self.pending_transfers.extend(
-            self.medical_machine.state_upon_infection.transfer(agents_to_infect)
-        )
+        self.pending_transfers.extend(self.medical_machine.state_upon_infection.transfer(agents_to_infect))
 
     def run(self):
         """

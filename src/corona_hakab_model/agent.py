@@ -25,7 +25,7 @@ class Agent:
     def set_medical_state_no_inform(self, new_state):
         self.medical_state = new_state
         # count how many entered silent state
-        if new_state == self.manager.medical_machine.states_by_name['Silent']:
+        if new_state == self.manager.medical_machine.states_by_name["Silent"]:
             self.manager.in_silent_mode += 1
         self.manager.contagiousness_vector[self.index] = new_state.contagiousness
         self.manager.susceptible_vector[self.index] = new_state.susceptible
