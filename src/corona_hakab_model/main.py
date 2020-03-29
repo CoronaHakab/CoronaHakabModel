@@ -35,13 +35,14 @@ def main():
             "Asymptomatic",
             "Hospitalized",
             "ICU",
-           "Latent",
-           "Silent",
-           "Susceptible",
+            "Latent",
+            "Silent",
+            "Susceptible",
             "Recovered",
             Supervisable.Sum(
                 "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"
             ),
+            #Supervisable.R0(),
         ),
         input_matrix_path=args.input_matrix_path,
         output_matrix_path=args.output_matrix_path

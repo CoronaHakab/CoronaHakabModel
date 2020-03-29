@@ -88,6 +88,9 @@ class AffinityMatrix:
                 total_contagious_probability += time_in_state * state.contagiousness
             beta = self.consts.r0 / total_contagious_probability
 
+            # saves this for the effective r0 graph
+            self.total_contagious_probability = total_contagious_probability
+
             # this factor should be calculated once when the matrix is full, and be left un-changed for the rest of the run.
             self.factor = (beta * self.size) / (self.matrix.sum())
 
