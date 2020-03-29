@@ -54,14 +54,15 @@ class Supervisor:
         output_dir = "../output/"
         total_size = self.manager.consts.population_size
         title = f"Infections vs. Days, size={total_size:,}"
-        if max_scale:
-            height = total_size
-        else:
-            height = max(s[1] for a in self.supervisables if (s := a.scale()))
-        text_height = height / 2
 
         fig, ax = plt.subplots()
 
+        # visualization
+        # TODO: should be better
+        if max_scale:
+            ax.set_ylim((0, total_size))
+
+        text_height = ax.get_ylim()[-1] / 2
         # policies
         if self.manager.consts.active_isolation:
             title = title + "\napplying lockdown from day {} to day {}".format(
@@ -101,10 +102,6 @@ class Supervisor:
         ax.set_xlabel("days", color="#1C2833")
         ax.set_ylabel("people", color="#1C2833")
 
-        # visualization
-        # TODO: should be better
-        if max_scale:
-            ax.set_ylim((0, total_size))
         ax.grid()
 
         for s in self.supervisables:
@@ -157,6 +154,24 @@ class Supervisor:
         if auto_show:
             plt.show()
 
+    def stack_plot(self, auto_show=True):
+        # todo plot and stack_plot share a lot of of components, they need to be unified
+        fig, ax = plt.subplots()
+
+        # plot parameters
+        ax.set_xlabel("days", color="#1C2833")
+        ax.set_ylabel("people", color="#1C2833")
+
+        ax.grid()
+
+        for s in self.supervisables:
+            s.stacked_plot(ax)
+        ax.legend()
+
+        # showing and saving the graph
+        if auto_show:
+            plt.show()
+
 
 class Supervisable(ABC):
     @abstractmethod
@@ -164,73 +179,98 @@ class Supervisable(ABC):
         pass
 
     @abstractmethod
-    def scale(self) -> Optional[Tuple[float, float]]:
+    def plot(self, ax):
         pass
 
     @abstractmethod
     def plot(self, ax, prefix="", style=""):
         pass
 
+    @abstractmethod
+    def stacked_plot(self, ax):
+        pass
+
     # todo is_finished
+
+    # todo supervisables should be able to keep the manager running if they want
 
     @classmethod
     @lru_cache
     def coerce(cls, arg, manager) -> Supervisable:
         if isinstance(arg, str):
             return _StateSupervisable(manager.medical_machine[arg])
-        if isinstance(arg, cls.Delayed):
-            inner: FloatSupervisable = cls.coerce(arg.arg, manager)
-            return _DelayedSupervisable(inner, arg.delay)
-        if isinstance(arg, cls.Sum):
-            supervisables: List[Supervisable] = [
-                cls.coerce(a, manager) for a in arg.args
-            ]
-            return _SumStatesSupervisable(supervisables)
-        if isinstance(arg, cls.R0):
-            return _EffectiveR0Supervisable()
+        if isinstance(arg, cls):
+            return arg
+        if isinstance(arg, Callable):
+            return arg(manager)
         raise TypeError
 
     class Delayed(NamedTuple):
         arg: Any
         delay: int
 
+        def __call__(self, m):
+            return _DelayedSupervisable(Supervisable.coerce(self.arg, m), self.delay)
+
+    class Stack:
+        def __init__(self, *args):
+            self.args = args
+
+        def __call__(self, m):
+            return _StackedFloatSupervisable(
+                [Supervisable.coerce(a, m) for a in self.args]
+            )
+
     class Sum:
         def __init__(self, *args):
             self.args = args
 
+        def __call__(self, m):
+            return _SumSupervisable([Supervisable.coerce(a, m) for a in self.args])
+          
     class R0:
         def __init__(self):
             pass
+        def __call__(self, m):
+            return _EffectiveR0Supervisable()
 
 
 SupervisableMaker = Callable[[Any], Supervisable]
 
 
-class FloatSupervisable(Supervisable):
+class ValueSupervisable(Supervisable):
     def __init__(self):
         self.x = []
         self.y = []
 
     @abstractmethod
-    def get(self, manager) -> float:
+    def name(self) -> str:
         pass
 
     @abstractmethod
-    def name(self) -> str:
+    def get(self, manager):
+        pass
+
+    @abstractmethod
+    def stacked_plot(self, ax):
+        pass
+
+    @abstractmethod
+    def plot(self, ax):
         pass
 
     def snapshot(self, manager):
         self.x.append(manager.current_date)
         self.y.append(self.get(manager))
 
-    def scale(self):
-        if not self.y:
-            return None
-        return min(self.y), max(self.y)
 
+class FloatSupervisable(ValueSupervisable):
     def plot(self, ax, prefix="", style=""):
         # todo preferred color/style?
         ax.plot(self.x, self.y, style, label=prefix + self.name())
+
+    def stacked_plot(self, ax):
+        return ax.stackplot(self.x, self.y, label=self.name())
 
 
 class _StateSupervisable(FloatSupervisable):
@@ -245,8 +285,8 @@ class _StateSupervisable(FloatSupervisable):
         return self.state.name
 
 
-class _DelayedSupervisable(FloatSupervisable):
-    def __init__(self, inner: FloatSupervisable, delay: int):
+class _DelayedSupervisable(ValueSupervisable):
+    def __init__(self, inner: ValueSupervisable, delay: int):
         super().__init__()
         self.inner = inner
         self.delay = delay
@@ -261,17 +301,67 @@ class _DelayedSupervisable(FloatSupervisable):
     def name(self) -> str:
         return self.inner.name() + f" + {self.delay} days"
 
+    def names(self):
+        return [n + f" + {self.delay} days" for n in self.inner.names()]
 
-class _SumStatesSupervisable(FloatSupervisable):
-    def __init__(self, inners):
+    def plot(self, ax):
+        return type(self.inner).plot(self, ax)
+
+    def stacked_plot(self, ax):
+        return type(self.inner).stacked_plot(self, ax)
+
+
+class VectorSupervisable(ValueSupervisable, ABC):
+    @abstractmethod
+    def names(self):
+        pass
+
+    def _to_ys(self):
+        n = len(self.y[0])
+        return [[v[i] for v in self.y] for i in range(n)]
+
+    def plot(self, ax):
+        for n, y in zip(self.names(), self._to_ys()):
+            return ax.plot(self.x, y, label=n)
+
+    def stacked_plot(self, ax):
+        ax.stackplot(self.x, *self._to_ys(), labels=list(self.names()))
+
+
+class _StackedFloatSupervisable(VectorSupervisable):
+    def __init__(self, inners: List[FloatSupervisable]):
         super().__init__()
         self.inners = inners
 
-    def is_finished(self) -> bool:
-        return True
+    def get(self, manager):
+        return [i.get(manager) for i in self.inners]
+
+    def name(self) -> str:
+        return "Stacked (" + ", ".join(n.name() for n in self.inners) + ")"
+
+    def names(self):
+        return [i.name() for i in self.inners]
+
+
+class _SumSupervisable(ValueSupervisable):
+    def __init__(self, inners: List[ValueSupervisable]):
+        super().__init__()
+        self.inners = inners
 
     def get(self, manager) -> float:
-        return fsum(s.get(manager) for s in self.inners)
+        return sum(s.get(manager) for s in self.inners)
+
+    def names(self):
+        return [
+            "Total(" + ", ".join(names) + ")"
+            for names in zip(*(i.names() for i in self.inners))
+        ]
+
+    def plot(self, ax):
+        return type(self.inners[0]).plot(self, ax)
+
+    def stacked_plot(self, ax):
+        return type(self.inners[0]).stacked_plot(self, ax)
 
     def name(self) -> str:
         return "Total(" + ", ".join(n.name() for n in self.inners)
@@ -287,3 +377,4 @@ class _EffectiveR0Supervisable (FloatSupervisable):
 
     def name(self) -> str:
         return "effective R"
+
