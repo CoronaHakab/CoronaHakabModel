@@ -137,7 +137,6 @@ class AffinityMatrix:
 
         # a list of indexes of agents which still lack connections. used for efficiency
         available_agents = list(agents_to_use)
-        available_agents_len = len(available_agents)
 
         # pre-rolling all rolls for efficiency. for each connection, the 2nd agent will be rolled using this
         # todo make sure the later-used % operator doesn't harm the randomness
@@ -148,22 +147,21 @@ class AffinityMatrix:
         connections_cnt = 0
 
         # while there are still connections left to make
-        while available_agents_len >= 2 and connections_sum >= 2:
+        while len(available_agents) >= 2 and connections_sum >= 2:
 
             current_agent = available_agents.pop()
-            available_agents_len -= 1
 
             # temp holder for used agents, so that the same connection wont be made twice
             temp_agents_holder = []
 
             # creating all of first's connections
             for _ in range(remaining_contacts[current_agent]):
-                if connections_sum <= 1 or available_agents_len <= 1:
+                if connections_sum <= 1 or len(available_agents) <= 1:
                     break
 
                 # choosing 2nd agent for the connection
                 # todo make sure the % operator doesn't harm the randomness too much
-                next_roll = rolls.__next__() % available_agents_len
+                next_roll = rolls.__next__() % len(available_agents)
                 second_agent = available_agents[next_roll]
 
                 # adding the newly made connection to the to-be-added connections structure
@@ -180,12 +178,9 @@ class AffinityMatrix:
 
                 if remaining_contacts[second_agent] <= 0:
                     del (available_agents[next_roll])
-                    available_agents_len -= 1
                 else:
                     temp_agents_holder.append(available_agents.pop(next_roll))
-                    available_agents_len -= 1
             # returning all the agents back from the temp place holder
-            available_agents_len += len(temp_agents_holder)
             available_agents.extend(temp_agents_holder)
 
         # filling the matrix. sometimes there still remains 1 un-filled connection, and it is left as 0,0 connection, so reset 0,0
