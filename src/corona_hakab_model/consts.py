@@ -34,7 +34,7 @@ class Consts(NamedTuple):
     icu_to_hospitalized_days: rv_discrete = dist(
         7
     )  # todo maybe the program should juts print a question mark,  we'll see how the researchers like that!
-    detection_rate = 0.2
+    detection_rate = 0.7
 
     def average_time_in_each_state(self):
         """

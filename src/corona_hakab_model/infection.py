@@ -57,7 +57,7 @@ class InfectionManager:
                 elif self.manager.consts.full_isolation_sicks:
                     self.agents_to_full_isolation.append(agent)
 
-        self.manager.detected = self.manager.consts.detection_rate * self.manager.in_silent_mode
-        self.manager.in_silent_mode -= self.manager.detected
+        self.manager.detected = self.manager.consts.detection_rate * self.manager.in_silent_state
+        self.manager.in_silent_state -= self.manager.detected
 
         return new_infected
