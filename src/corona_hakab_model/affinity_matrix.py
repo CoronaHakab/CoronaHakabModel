@@ -1,5 +1,4 @@
 import logging
-import math
 from typing import Dict, List, Sequence
 
 import numpy as np
