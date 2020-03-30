@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-from typing import Any, Iterable
+from typing import Callable, Dict, Iterable, List, Union
 
 import infection
 import numpy as np
@@ -8,6 +8,7 @@ import update_matrix
 from affinity_matrix import AffinityMatrix
 from agent import Agent
 from consts import Consts
+from medical_state import MedicalState
 from state_machine import PendingTransfers
 from supervisor import Supervisable, Supervisor
 
@@ -19,8 +20,8 @@ class SimulationManager:
 
     def __init__(
         self,
-        supervisable_makers: Iterable[Any],
-        consts=Consts(),
+        supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
+        consts: Consts = Consts(),
         input_matrix_path: str = None,
         output_matrix_path: str = None,
     ):
@@ -74,7 +75,7 @@ class SimulationManager:
 
         self.supervisor.snapshot(self)
 
-    def progress_transfers(self, new_sick):
+    def progress_transfers(self, new_sick: Dict[MedicalState, List]):
         # all the new sick agents are leaving their previous step
         changed_state_leaving = new_sick
         # agents which are going to enter the new state
@@ -142,6 +143,7 @@ class SimulationManager:
         self.supervisor.stack_plot(**kwargs)
 
     def __str__(self):
-        return "<SimulationManager: SIZE_OF_POPULATION={}, STEPS_TO_RUN={}>".format(
-            self.consts.population_size, self.consts.total_steps
+        return (
+            f"<SimulationManager: SIZE_OF_POPULATION={self.consts.population_size}, "
+            f"STEPS_TO_RUN={self.consts.total_steps}>"
         )

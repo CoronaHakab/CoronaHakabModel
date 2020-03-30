@@ -5,10 +5,24 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from bisect import bisect
 from functools import lru_cache
-from typing import Any, Callable, List, NamedTuple, Sequence
+from typing import Any, Callable, List, NamedTuple, Sequence, Tuple
 
-import matplotlib_set_backend  # noqa: F401
+import manager
 import numpy as np
+
+try:
+    import PySide2
+except ImportError:
+    pass
+else:
+    try:
+        import matplotlib
+    except ImportError:
+        pass
+    else:
+        matplotlib.use("Qt5Agg")
+        del matplotlib
+    del PySide2
 
 try:
     # plt is optional
@@ -25,7 +39,7 @@ class Supervisor:
     # todo I want the supervisor to decide when the simulation ends
     # todo record write/read results as text
 
-    def __init__(self, supervisables: Sequence[Supervisable], manager):
+    def __init__(self, supervisables: Sequence[Supervisable], manager: "manager.SimulationManager"):
         self.supervisables = supervisables
         self.manager = manager
 
@@ -35,7 +49,7 @@ class Supervisor:
 
     # todo stacked_plot
 
-    def plot(self, max_scale=True, auto_show=True, save=True):
+    def plot(self, max_scale: bool = True, auto_show: bool = True, save: bool = True):
         output_dir = "../output/"
         total_size = self.manager.consts.population_size
         title = f"Infections vs. Days, size={total_size:,}"
@@ -50,8 +64,9 @@ class Supervisor:
         text_height = ax.get_ylim()[-1] / 2
         # policies
         if self.manager.consts.active_isolation:
-            title = title + "\napplying lockdown from day {} to day {}".format(
-                self.manager.consts.stop_work_days, self.manager.consts.resume_work_days
+            title += (
+                f"\napplying lockdown from day {self.manager.consts.stop_work_days} "
+                f"to day {self.manager.consts.resume_work_days}"
             )
             ax.axvline(x=self.manager.consts.stop_work_days, color="#0000ff")
             ax.text(
@@ -68,12 +83,12 @@ class Supervisor:
                 rotation=90,
             )
         if self.manager.consts.home_isolation_sicks:
-            title = title + "\napplying home isolation for confirmed cases ({} of cases)".format(
-                self.manager.consts.caught_sicks_ratio
+            title += (
+                f"\napplying home isolation for confirmed cases " f"({self.manager.consts.caught_sicks_ratio} of cases)"
             )
         if self.manager.consts.full_isolation_sicks:
-            title = title + "\napplying full isolation for confirmed cases ({} of cases)".format(
-                self.manager.consts.caught_sicks_ratio
+            title += (
+                f"\napplying full isolation for confirmed cases " f"({self.manager.consts.caught_sicks_ratio} of cases)"
             )
 
         # plot parameters
@@ -90,14 +105,15 @@ class Supervisor:
         # showing and saving the graph
         if save:
             fig.savefig(
-                f"{output_dir}{total_size} agents, applying isolation = {self.manager.consts.active_isolation}, max scale = {max_scale}"
+                f"{output_dir}{total_size} agents, applying isolation = {self.manager.consts.active_isolation}, "
+                f"max scale = {max_scale}"
             )
         if auto_show:
             plt.show()
 
     @staticmethod
     def static_plot(
-        simulations_info: Sequence[("SimulationManager", str, Sequence[str])],
+        simulations_info: Sequence[Tuple["manager.SimulationManager", str, Sequence[str]]],
         title="comparing",
         save_name=None,
         max_height=-1,
@@ -138,7 +154,7 @@ class Supervisor:
         if auto_show:
             plt.show()
 
-    def stack_plot(self, auto_show=True):
+    def stack_plot(self, auto_show: bool = True):
         # todo plot and stack_plot share a lot of of components, they need to be unified
         fig, ax = plt.subplots()
 
@@ -159,7 +175,7 @@ class Supervisor:
 
 class Supervisable(ABC):
     @abstractmethod
-    def snapshot(self, manager):
+    def snapshot(self, manager: "manager.SimulationManager"):
         pass
 
     @abstractmethod
@@ -180,7 +196,7 @@ class Supervisable(ABC):
 
     @classmethod
     @lru_cache
-    def coerce(cls, arg, manager) -> Supervisable:
+    def coerce(cls, arg, manager: "manager.SimulationManager") -> Supervisable:
         if isinstance(arg, str):
             return _StateSupervisable(manager.medical_machine[arg])
         if isinstance(arg, cls):
@@ -249,7 +265,7 @@ class ValueSupervisable(Supervisable):
         pass
 
     @abstractmethod
-    def get(self, manager):
+    def get(self, manager: "manager.SimulationManager"):
         pass
 
     @abstractmethod
@@ -260,7 +276,7 @@ class ValueSupervisable(Supervisable):
     def plot(self, ax):
         pass
 
-    def snapshot(self, manager):
+    def snapshot(self, manager: "manager.SimulationManager"):
         self.x.append(manager.current_date)
         self.y.append(self.get(manager))
 
@@ -292,7 +308,7 @@ class _StateSupervisable(FloatSupervisable):
         super().__init__()
         self.state = state
 
-    def get(self, manager) -> float:
+    def get(self, manager: "manager.SimulationManager") -> float:
         return self.state.agent_count
 
     def name(self) -> str:
@@ -305,7 +321,7 @@ class _DelayedSupervisable(ValueSupervisable):
         self.inner = inner
         self.delay = delay
 
-    def get(self, manager) -> float:
+    def get(self, manager: "manager.SimulationManager") -> float:
         desired_date = manager.current_date - self.delay
         desired_index = bisect(self.inner.x, desired_date)
         if desired_index >= len(self.inner.x):
@@ -347,7 +363,7 @@ class _StackedFloatSupervisable(VectorSupervisable):
         super().__init__()
         self.inners = inners
 
-    def get(self, manager):
+    def get(self, manager: "manager.SimulationManager"):
         return [i.get(manager) for i in self.inners]
 
     def name(self) -> str:
@@ -363,7 +379,7 @@ class _SumSupervisable(ValueSupervisable):
         self.inners = inners
         self.kwargs = kwargs
 
-    def get(self, manager) -> float:
+    def get(self, manager: "manager.SimulationManager") -> float:
         return sum(s.get(manager) for s in self.inners)
 
     def names(self):

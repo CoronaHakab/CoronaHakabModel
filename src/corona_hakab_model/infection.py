@@ -1,7 +1,9 @@
 from collections import defaultdict
+from typing import Dict, List
 
 import manager
 import numpy as np
+from medical_state import MedicalState
 
 
 class InfectionManager:
@@ -14,13 +16,13 @@ class InfectionManager:
         self.agents_to_full_isolation = []
         self.manager = sim_manager
 
-    def infection_step(self):
+    def infection_step(self) -> Dict[MedicalState, List]:
         # perform infection
         self.agents_to_home_isolation.clear()
         self.agents_to_full_isolation.clear()
         return self._perform_infection()
 
-    def _perform_infection(self):
+    def _perform_infection(self) -> Dict[MedicalState, List]:
         """
         perform the infection stage by multiply matrix with infected vector and try to infect agents.
 

@@ -128,7 +128,8 @@ class Consts(ConstParameters):
         except TypeError as e:
             raise TypeError("Unhashable value in parameters") from e
 
-    def average_time_in_each_state(self):
+
+    def average_time_in_each_state(self) -> Dict[MedicalState, int]:
         """
         calculate the average time an infected agent spends in any of the states.
         uses markov chain to do the calculations
@@ -172,23 +173,23 @@ class Consts(ConstParameters):
         return states_duration
 
     @property
-    def silent_to_symptomatic_probability(self):
+    def silent_to_symptomatic_probability(self) -> float:
         return 1 - self.silent_to_asymptomatic_probability
 
     @property
-    def symptomatic_to_hospitalized_probability(self):
+    def symptomatic_to_hospitalized_probability(self) -> float:
         return 1 - self.symptomatic_to_asymptomatic_probability
 
     @property
-    def hospitalized_to_icu_probability(self):
+    def hospitalized_to_icu_probability(self) -> float:
         return 1 - self.hospitalized_to_asymptomatic_probability
 
     @property
-    def icu_to_dead_probability(self):
+    def icu_to_dead_probability(self) -> float:
         return 1 - self.icu_to_hospitalized_probability
 
     @lru_cache
-    def medical_state_machine(self):
+    def medical_state_machine(self) -> MedicalStateMachine:
         class SusceptibleTerminalState(SusceptibleState, TerminalState):
             pass
 
