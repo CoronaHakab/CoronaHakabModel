@@ -100,6 +100,7 @@ ConstParameters = namedtuple("ConstParameters", sorted(default_parameters))
 
 
 class Consts(ConstParameters):
+
     @staticmethod
     def default():
         return Consts(**default_parameters)
@@ -109,27 +110,15 @@ class Consts(ConstParameters):
         """
         Load parameters from file and return Consts object with those values.
 
-        We sanitize the loaded data, for obvious reasons.
+        No need to sanitize the eval'd data as we disabled __builtins__ and only passed specific functions
         Documentation about what is allowed and not allowed can be found at the top of this page.
         """
         with open(param_path, "rt") as read_file:
             data = read_file.read()
 
-        Consts.sanitize_data(data)
-        parameters = eval(data)
+        parameters = eval(data, {'__builtins__': None, 'dist': dist, 'rv_discrete': rv_discrete})
 
         return Consts(**parameters)
-
-    @staticmethod
-    def sanitize_data(data):
-        assert not any([
-            "import " in data,
-            "open" in data,
-            "exit" in data,
-            "return " in data,
-            "def " in data,
-            "class " in data,
-        ])
 
     def average_time_in_each_state(self):
         """
