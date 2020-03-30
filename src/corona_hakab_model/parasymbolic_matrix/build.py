@@ -2,12 +2,12 @@ import subprocess
 from pathlib import Path
 import itertools as it
 
-from swimport import FileSource, Swim, pools, ContainerSwim, Function, TypedefBehaviour
+from swimport import FileSource, Swim, pools, ContainerSwim, Function, Typedef
 
 PY_ROOT = r"T:\py_envs\3.8"
 SWIG_PATH = r"T:\programs\swigwin-4.0.1\swig.exe"
 PY_INCLUDE_PATH = PY_ROOT + r'\include'
-PY_LIB_PATH = PY_ROOT + r'\libs\python37.lib'
+PY_LIB_PATH = PY_ROOT + r'\libs\python38.lib'
 
 windows_kit_template = r'C:\Program Files (x86)\Windows Kits\10\{}\10.0.17763.0' + "\\"
 MSVC_dir = r'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.24.28314' + "\\"
@@ -28,17 +28,22 @@ COMPILE_ADDITIONAL_LIBS = [
     MSVC_dir + r'lib\x64\libcmt.lib',
     MSVC_dir + r'lib\x64\oldnames.lib',
     MSVC_dir + r'lib\x64\libvcruntime.lib',
+    MSVC_dir + r'lib\x64\libconcrt.lib',
     windows_kit_lib + r'um\x64\kernel32.lib',
     windows_kit_lib + r'ucrt\x64\libucrt.lib',
-    windows_kit_lib + r'um\x64\Uuid.lib'
+    windows_kit_lib + r'um\x64\Uuid.lib',
 ]
 
-optimization = '/O2'
+optimization = '/O2'  # in case of fire, set to Od
 
 
 def write_swim():
     src = FileSource("parasymbolic.hpp")
     swim = Swim("parasymbolic")
+
+    swim.add_raw('%nodefaultctor;')
+    swim.add_python_begin("import numpy as np")
+    swim.add_python_begin("from contextlib import contextmanager")
 
     swim(
         pools.include(src)
@@ -49,23 +54,36 @@ def write_swim():
     )
 
     swim(
-        pools.numpy_arrays()
+        Typedef.Behaviour()(src)
     )
 
     swim(
-        "dtype" >> TypedefBehaviour()
+        pools.numpy_arrays(typedefs=tuple({"size_t": 'unsigned long long', "dtype": 'float'}.items()))
     )
-
-    bswim = ContainerSwim("BareSparseMatrix", src)
-    cswim = ContainerSwim("CoffedSparseMatrix", src)
     pswim = ContainerSwim("ParasymbolicMatrix", src)
 
-    bswim(Function.Behaviour())
-    cswim(Function.Behaviour())
+    pswim('operator\*=' >> Function.Behaviour(append_python="return self"))
     pswim(Function.Behaviour())
-
-    swim(bswim)
-    swim(cswim)
+    pswim.extend_py_def("prob_any", 'self, v',
+                        """
+                        nz = np.flatnonzero(v).astype(np.uint64, copy=False)
+                        return self._prob_any(v, nz)
+                        """)
+    pswim.extend_py_def("__setitem__", 'self, key, v',
+                        """
+                        comp, row, indices = key
+                        indices = np.asanyarray(indices, dtype=np.uint64)
+                        v = np.asanyarray(v, dtype=np.float32)
+                        self.batch_set(comp, row, indices, v)
+                        """)
+    pswim.extend_py_def("lock_rebuild", "self",
+                        """
+                        self.set_calc_lock(True)
+                        yield self
+                        self.set_calc_lock(False)
+                        """,
+                        wrapper="contextmanager"
+                        )
     swim(pswim)
 
     swim.write("parasymbolic.i")
@@ -95,14 +113,18 @@ def compile():
         '/LIBPATH', PY_LIB_PATH,
         *it.chain.from_iterable(('/LIBPATH', l) for l in COMPILE_ADDITIONAL_LIBS),
         '/IMPLIB:' + str(tmpdir / 'example.lib'),
-        '/OUT:' + '_example.pyd'
+        '/OUT:' + '_parasymbolic.pyd'
     ], stdout=subprocess.PIPE, text=True)
     if proc.returncode != 0:
         print(proc.stdout)
         raise Exception(f'cl returned {proc.returncode}')
 
 
-if __name__ == '__main__':
+def build():
     write_swim()
     run_swim()
     compile()
+
+
+if __name__ == '__main__':
+    build()

@@ -22,7 +22,7 @@ class BareSparseMatrix{
         BareSparseMatrix(size_t size);
         dtype get(size_t row,size_t column);
         void batch_set(size_t row, size_t const* A_columns, size_t c_len, dtype const* A_values, size_t v_len);
-        dtype get_total();
+        double get_total();
         virtual ~BareSparseMatrix();
 };
 
@@ -47,22 +47,32 @@ class ParasymbolicMatrix{
         dtype* factors;
         CoffedSparseMatrix** components;
         BareSparseMatrix inner;
-        ParasymbolicMatrix(dtype* factors, CoffedSparseMatrix * const* comps, size_t len);
+        bool calc_lock;
+
+        ctpl::thread_pool pool;
 
         void rebuild_all();
         void rebuild_row(size_t);
         void rebuild_column(size_t);
         void rebuild_factor(dtype);
-    public:
-        static ParasymbolicMatrix* from_tuples(std::vector<std::tuple<CoffedSparseMatrix*, dtype>>);
-        dtype get(size_t row, size_t column);
-        dtype total();
-        void prob_any(dtype const* A_v, size_t v_len, size_t const * A_non_zero_indices, size_t nzi_len,
+
+        void _prob_any_row(size_t row_num, dtype const* A_v, size_t v_len, size_t const * A_non_zero_indices, size_t nzi_len,
                         dtype** AF_out, size_t* o_size);
-        ParasymbolicMatrix& operator*=(dtype rhs);
+    public:
+        ParasymbolicMatrix(size_t size, size_t component_count);
+        dtype get(size_t row, size_t column);
+        dtype get(size_t comp, size_t row, size_t column);
+        double total();
+        void _prob_any(dtype const* A_v, size_t v_len, size_t const * A_non_zero_indices, size_t nzi_len,
+                        dtype** AF_out, size_t* o_size);
+        void operator*=(dtype rhs);
+        void set_factors(dtype const* A_factors, size_t f_len);
         void mul_sub_row(size_t component, size_t row, dtype factor);
         void mul_sub_col(size_t component, size_t col, dtype factor);
         void reset_mul_row(size_t component, size_t row);
         void reset_mul_col(size_t component, size_t col);
+        void batch_set(size_t component_num, size_t row, size_t const* A_columns, size_t c_len,
+         dtype const* A_values, size_t v_len);
+        void set_calc_lock(bool value);
         virtual ~ParasymbolicMatrix();
 };
