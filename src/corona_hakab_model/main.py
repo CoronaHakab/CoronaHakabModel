@@ -38,7 +38,7 @@ def main():
     if args.parameters:
         consts = Consts.from_file(args.parameters)
     else:
-        consts = Consts.default()
+        consts = Consts()
 
     sm = SimulationManager(
         (

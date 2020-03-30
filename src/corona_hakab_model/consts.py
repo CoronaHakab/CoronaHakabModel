@@ -99,9 +99,6 @@ ConstParameters = namedtuple("ConstParameters", sorted(default_parameters),
 
 
 class Consts(ConstParameters):
-    @staticmethod
-    def default():
-        return Consts(**default_parameters)
 
     @staticmethod
     def from_file(param_path):

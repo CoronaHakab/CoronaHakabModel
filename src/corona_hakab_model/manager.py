@@ -20,7 +20,7 @@ class SimulationManager:
     def __init__(
         self,
         supervisable_makers: Iterable[Any],
-        consts=Consts.default(),
+        consts=Consts(),
         input_matrix_path: str = None,
         output_matrix_path: str = None,
     ):
