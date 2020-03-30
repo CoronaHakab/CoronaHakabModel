@@ -94,7 +94,8 @@ default_parameters = {
     "detection_rate": 0.7,
 }
 
-ConstParameters = namedtuple("ConstParameters", sorted(default_parameters))
+ConstParameters = namedtuple("ConstParameters", sorted(default_parameters),
+                             defaults=[default_parameters[key] for key in sorted(default_parameters)])
 
 
 class Consts(ConstParameters):
