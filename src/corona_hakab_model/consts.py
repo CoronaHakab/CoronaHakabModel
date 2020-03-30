@@ -1,4 +1,4 @@
-from collections import Hashable, namedtuple
+from collections import namedtuple
 from functools import lru_cache
 from itertools import count
 from typing import Dict
@@ -118,8 +118,11 @@ class Consts(ConstParameters):
 
     @staticmethod
     def sanitize_parameters(parameters):
-        for key, value in parameters.items():
-            assert isinstance(value, Hashable), f"{key} of value {value} in parameter file is unhashable"
+        consts = Consts(**parameters)
+        try:
+            hash(consts)
+        except TypeError:
+            raise InvalidParameterException("Unhashable value in parameters")
 
     def average_time_in_each_state(self):
         """
@@ -254,6 +257,10 @@ class UnknownParameterException(Exception):
         error_massage = f"Unknown parameter name - {parameter_name}"
         super(UnknownParameterException).__init__(error_massage)
 
+class InvalidParameterException(Exception):
+    def __init__(self, reason):
+        error_message = f"Invalid parameters. reason:{reason}"
+        super(InvalidParameterException).__init__(error_message)
 
 if __name__ == "__main__":
     c = Consts()
