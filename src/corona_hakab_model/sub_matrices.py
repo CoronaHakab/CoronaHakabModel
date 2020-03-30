@@ -33,7 +33,9 @@ class ClusteredConnectionsMatrix:
 
     __slots__ = "type", "agents", "mean_connections_amount", "connection_strength", "p"
 
-    def __init__(self, type: str, agents: List[Agent], mean_connections_amount: int, connection_strength: float, p: float = 1):
+    def __init__(
+        self, type: str, agents: List[Agent], mean_connections_amount: int, connection_strength: float, p: float = 1
+    ):
         self.type = type
         self.agents = agents
         self.mean_connections_amount = mean_connections_amount

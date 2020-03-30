@@ -7,7 +7,7 @@ import numpy as np
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
 from state_machine import StochasticState, TerminalState
-from sub_matrices import CircularConnectionsMatrix, NonCircularConnectionMatrix, ClusteredConnectionsMatrix
+from sub_matrices import CircularConnectionsMatrix, ClusteredConnectionsMatrix, NonCircularConnectionMatrix
 from util import dist, rv_discrete, upper_bound
 
 """
@@ -127,7 +127,6 @@ class Consts(ConstParameters):
             hash(consts)
         except TypeError as e:
             raise TypeError("Unhashable value in parameters") from e
-
 
     def average_time_in_each_state(self) -> Dict[MedicalState, int]:
         """
@@ -259,6 +258,7 @@ class Consts(ConstParameters):
             ClusteredConnectionsMatrix("work", None, self.work_scale_factor, self.work_strength),
             ClusteredConnectionsMatrix("school", None, self.school_scale_factor, self.school_strength),
         ]
+
 
 if __name__ == "__main__":
     c = Consts()

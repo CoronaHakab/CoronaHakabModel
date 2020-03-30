@@ -1,13 +1,12 @@
 import logging
+import math
 from typing import Dict, List, Sequence
 
 import numpy as np
 from agent import Agent, TrackingCircle
+from node import Node
 from scipy.sparse import lil_matrix, load_npz, save_npz
 from scipy.stats import rv_discrete
-import math
-from node import Node
-
 
 m_type = lil_matrix
 
@@ -76,7 +75,7 @@ class AffinityMatrix:
                 self.clustered_matrix_generation(
                     self.agents, matrix.mean_connections_amount, matrix.connection_strength
                 ).tocsr(),
-                matrix.type
+                matrix.type,
             )
             for matrix in self.consts.clustered_matrices
         ]
@@ -269,8 +268,9 @@ class AffinityMatrix:
         matrix[ids, ids] = 0
         return matrix
 
-    def clustered_matrix_generation(self, agents: List[Agent], mean_connections_amount: int,
-                                    connection_strength=1, p: float = 1):
+    def clustered_matrix_generation(
+        self, agents: List[Agent], mean_connections_amount: int, connection_strength=1, p: float = 1
+    ):
         """
         returns a matrix of clustered connections.
         :param agents: agents to use in this connection
@@ -300,19 +300,20 @@ class AffinityMatrix:
 
         # manually generate the first m + 1 connections
         for i in range(m + 1):
-            other_nodes = nodes[0:m + 1]
+            other_nodes = nodes[0 : m + 1]
             other_nodes.pop(i)
             nodes[i].add_connections(other_nodes)
             inserted_nodes.append(nodes[i])
 
             # add the newly made connections to the connections list
-            connections[0, connections_cnt:connections_cnt + len(other_nodes)] = nodes[i].index
-            connections[1, connections_cnt:connections_cnt + len(other_nodes)] = np.fromiter(
-                [node.index for node in other_nodes], int)
+            connections[0, connections_cnt : connections_cnt + len(other_nodes)] = nodes[i].index
+            connections[1, connections_cnt : connections_cnt + len(other_nodes)] = np.fromiter(
+                [node.index for node in other_nodes], int
+            )
             connections_cnt += len(other_nodes)
 
         # add the rest of the nodes, one at a time
-        for node in nodes[m + 1:]:
+        for node in nodes[m + 1 :]:
             # randomly select the first node to connect. pops him so that he won't be choosen again
             rand_node = inserted_nodes.pop(math.floor(rolls.__next__() * len(inserted_nodes)))
 
