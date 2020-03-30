@@ -20,9 +20,7 @@ class AffinityMatrix:
     Naturally, W is symmetric.
     """
 
-    def __init__(
-        self, manager, input_matrix_path: str = None, output_matrix_path: str = None
-    ):
+    def __init__(self, manager, input_matrix_path: str = None, output_matrix_path: str = None):
         self.consts = manager.consts
         self.size = len(manager.agents)  # population size
         self.logger = logging.getLogger("simulation")
@@ -78,9 +76,7 @@ class AffinityMatrix:
         self.normalize()
 
         if output_matrix_path and m_type == lil_matrix:
-            self.logger.info(
-                f"Saving AffinityMatrix internal matrix to {output_matrix_path}"
-            )
+            self.logger.info(f"Saving AffinityMatrix internal matrix to {output_matrix_path}")
             try:
                 with open(output_matrix_path, "wb") as f_matrix:
                     save_npz(f_matrix, self.matrix)

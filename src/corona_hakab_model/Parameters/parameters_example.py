@@ -1,6 +1,6 @@
 # flake8: noqa
 
-#This is only as an example, and holds the default values
+# This is only as an example, and holds the default values
 
 
 {
@@ -15,9 +15,7 @@
     "silent_to_symptomatic_days": dist(0, 3, 10),
     "asymptomatic_to_recovered_days": dist(3, 5, 7),
     "symptomatic_to_asymptomatic_days": dist(7, 10, 14),
-    "symptomatic_to_hospitalized_days": dist(
-        0, 1.5, 10
-    ),  # todo range not specified in sources
+    "symptomatic_to_hospitalized_days": dist(0, 1.5, 10),  # todo range not specified in sources
     "hospitalized_to_asymptomatic_days": dist(18),
     "hospitalized_to_icu_days": dist(5),  # todo probably has a range
     "icu_to_deceased_days": dist(7),  # todo probably has a range
@@ -56,8 +54,9 @@
     "resume_work_days": 80,
     # social stats
     # the average family size
-    "family_size_distribution": rv_discrete(1, 7, name="family", values=(
-        [1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081])),    # the average workplace size
+    "family_size_distribution": rv_discrete(
+        1, 7, name="family", values=([1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081])
+    ),  # the average workplace size
     # work circles size distribution
     "work_size_distribution": dist(30, 80),  # todo replace with distribution
     # work scale factor (1/alpha)
@@ -67,16 +66,12 @@
     # strangers scale factor (1/alpha)
     "strangers_scale_factor": 150,
     "school_scale_factor": 100,
-
     # relative strengths of each connection (in terms of infection chance)
     # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
-
     "family_strength_not_workers": 0.75,
     "family_strength": 1,
     "work_strength": 0.1,
     "stranger_strength": 0.01,
     "school_strength": 0.1,
-
     "detection_rate": 0.7,
 }
-

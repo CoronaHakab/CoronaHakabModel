@@ -16,36 +16,23 @@ def main():
         """
     COVID-19 Simulation
     Optional:
-    Input path of a pre-generated matrix
+        Input path of a pre-generated matrix
         OR
-    Output path for the matrix generated now
-    
+        Output path for the matrix generated now
     Optional:
-    Parameters file (see Parameters/parameters_example.py)
-    
+        Parameters file (see Parameters/parameters_example.py)
     CRITICAL -
-    The size of the matrix is not checked when loading an existing file!
-    If the size of the population changed - make sure the matrix is appropriate.
+        The size of the matrix is not checked when loading an existing file!
+        If the size of the population changed - make sure the matrix is appropriate.
     """
     )
     parser.add_argument(
-        "-i",
-        "--input-matrix",
-        dest="input_matrix_path",
-        help="npz file path of a pre-generated matrix",
+        "-i", "--input-matrix", dest="input_matrix_path", help="npz file path of a pre-generated matrix",
     )
     parser.add_argument(
-        "-o",
-        "--output-matrix",
-        dest="output_matrix_path",
-        help="npz file path for the newly-generated matrix",
+        "-o", "--output-matrix", dest="output_matrix_path", help="npz file path for the newly-generated matrix",
     )
-    parser.add_argument(
-        "-p",
-        "--parameters",
-        dest="parameters",
-        help="Parameter file with consts for the simulation"
-    )
+    parser.add_argument("-p", "--parameters", dest="parameters", help="Parameter file with consts for the simulation")
     args = parser.parse_args()
 
     if args.parameters:
@@ -77,7 +64,7 @@ def main():
         ),
         input_matrix_path=args.input_matrix_path,
         output_matrix_path=args.output_matrix_path,
-        consts=consts
+        consts=consts,
     )
 
     sm.run()

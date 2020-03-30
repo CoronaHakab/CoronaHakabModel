@@ -1,15 +1,14 @@
 from collections import namedtuple
 from functools import lru_cache
 from itertools import count
-from typing import Dict, NamedTuple
+from typing import Dict
 
 import numpy as np
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
 from state_machine import StochasticState, TerminalState
-from util import dist, upper_bound, rv_discrete
 from sub_matrices import CircularConnectionsMatrix, NonCircularConnectionMatrix
-from util import dist, upper_bound
+from util import dist, rv_discrete, upper_bound
 
 """
 Overview:
@@ -34,9 +33,7 @@ default_parameters = {
     "silent_to_symptomatic_days": dist(0, 3, 10),
     "asymptomatic_to_recovered_days": dist(3, 5, 7),
     "symptomatic_to_asymptomatic_days": dist(7, 10, 14),
-    "symptomatic_to_hospitalized_days": dist(
-        0, 1.5, 10
-    ),  # todo range not specified in sources
+    "symptomatic_to_hospitalized_days": dist(0, 1.5, 10),  # todo range not specified in sources
     "hospitalized_to_asymptomatic_days": dist(18),
     "hospitalized_to_icu_days": dist(5),  # todo probably has a range
     "icu_to_deceased_days": dist(7),  # todo probably has a range
@@ -77,7 +74,7 @@ default_parameters = {
     # the average family size
     "family_size_distribution": rv_discrete(
         1, 7, name="family", values=([1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081])
-    ),    # the average workplace size
+    ),  # the average workplace size
     # work circles size distribution
     "work_size_distribution": dist(30, 80),  # todo replace with distribution
     # work scale factor (1/alpha)
@@ -87,24 +84,20 @@ default_parameters = {
     # strangers scale factor (1/alpha)
     "strangers_scale_factor": 150,
     "school_scale_factor": 100,
-
     # relative strengths of each connection (in terms of infection chance)
     # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
-
     "family_strength_not_workers": 0.75,
     "family_strength": 1,
     "work_strength": 0.1,
     "stranger_strength": 0.01,
     "school_strength": 0.1,
-
-    "detection_rate": 0.7
+    "detection_rate": 0.7,
 }
 
 ConstParameters = namedtuple("ConstParameters", sorted(default_parameters))
 
 
 class Consts(ConstParameters):
-
     @staticmethod
     def default():
         return Consts(**default_parameters)
@@ -120,10 +113,9 @@ class Consts(ConstParameters):
         with open(param_path, "rt") as read_file:
             data = read_file.read()
 
-        parameters = eval(data, {'__builtins__': None, 'dist': dist, 'rv_discrete': rv_discrete})
+        parameters = eval(data, {"__builtins__": None, "dist": dist, "rv_discrete": rv_discrete})
 
         return Consts(**parameters)
-
 
     def average_time_in_each_state(self):
         """
@@ -242,7 +234,7 @@ class Consts(ConstParameters):
         return [
             CircularConnectionsMatrix("home", None, self.family_size_distribution, self.family_strength),
             CircularConnectionsMatrix("work", None, self.work_size_distribution, self.work_strength),
-            ]
+        ]
 
     @property
     def non_circular_matrices(self):

@@ -16,6 +16,7 @@ class SimulationManager:
     """
     A simulation manager is the main class, it manages the steps performed with policies
     """
+
     def __init__(
         self,
         supervisable_makers: Iterable[Any],
