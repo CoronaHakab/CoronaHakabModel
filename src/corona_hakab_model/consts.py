@@ -99,7 +99,7 @@ ConstParameters = namedtuple("ConstParameters", sorted(default_parameters),
 
 
 class Consts(ConstParameters):
-
+    __slots__ = ()
     @staticmethod
     def from_file(param_path):
         """
