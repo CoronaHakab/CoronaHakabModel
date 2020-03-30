@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import Hashable, namedtuple
 from functools import lru_cache
 from itertools import count
 from typing import Dict
@@ -112,8 +112,14 @@ class Consts(ConstParameters):
             data = read_file.read()
 
         parameters = eval(data, {"__builtins__": None, "dist": dist, "rv_discrete": rv_discrete})
+        Consts.sanitize_parameters(parameters)
 
         return Consts(**parameters)
+
+    @staticmethod
+    def sanitize_parameters(parameters):
+        for key, value in parameters.items():
+            assert isinstance(value, Hashable), f"{key} of value {value} in parameter file is unhashable"
 
     def average_time_in_each_state(self):
         """
