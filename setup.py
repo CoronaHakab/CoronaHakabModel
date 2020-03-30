@@ -1,12 +1,6 @@
 import setuptools
 
-from src.corona_hakab_model_data.__data__ import (
-    __author__,
-    __author_email__,
-    __license__,
-    __url__,
-    __version__,
-)
+from src.corona_hakab_model_data.__data__ import __author__, __author_email__, __license__, __url__, __version__
 
 setuptools.setup(
     name="corona_hakab_model",

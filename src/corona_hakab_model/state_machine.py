@@ -3,34 +3,21 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections import defaultdict, namedtuple
 from functools import cached_property
-from typing import (
-    Collection,
-    Dict,
-    Generic,
-    Iterable,
-    List,
-    Optional,
-    Sequence,
-    Set,
-    Tuple,
-    TypeVar,
-    Union,
-)
+from typing import Collection, Dict, Generic, Iterable, List, Optional, Sequence, Set, Tuple, TypeVar, Union
 
 import numpy as np
 from agent import Agent, Circle
 from scipy.stats import rv_discrete
 from util import upper_bound
 
-PendingTransfer = namedtuple(
-    "PendingTransfer", ["agent", "target_state", "origin_state", "original_duration"]
-)
+PendingTransfer = namedtuple("PendingTransfer", ["agent", "target_state", "origin_state", "original_duration"])
 
 TransferCollection = Dict[int, List[PendingTransfer]]
 
 
 class PendingTransfers:
     def __init__(self):
+        # in x time steps execute the list of pending transfers (change between states)
         self.inner: Dict[int, List[PendingTransfer]] = defaultdict(list)
 
     def append(self, transfer: PendingTransfer):
@@ -44,12 +31,12 @@ class PendingTransfers:
     def advance(self) -> Sequence[PendingTransfer]:
         # todo improve? (rotating array?)
         new_inner = defaultdict(list)
-        ret = ()
+        ret = ()  # no transfers to do in the current step
         for k, v in self.inner.items():
             if k:
                 new_inner[k - 1] = v
             else:
-                ret = v
+                ret = v  # the list of transfers to do now (key=0)
         self.inner = new_inner
         return ret
 
@@ -76,20 +63,17 @@ class StochasticState(State):
     # todo enforce probabilities sum to 1?
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.probs_cumulative = np.array([], dtype=float)
+        self.probs_cumulative: np.ndarray = np.array([], dtype=float)
         self.destinations: List[State] = []
         self.durations: List[rv_discrete] = []
 
-    def prob_specific(self, ind):
+    def prob_specific(self, ind: int) -> float:
         if ind == 0:
             return self.probs_cumulative[0]
         return self.probs_cumulative[ind] - self.probs_cumulative[ind - 1]
 
     def add_transfer(
-        self,
-        destination: State,
-        duration: rv_discrete,
-        probability: Union[float, type(...)],
+        self, destination: State, duration: rv_discrete, probability: Union[float, type(...)],
     ):
         if probability is ...:
             p = 1
@@ -108,23 +92,13 @@ class StochasticState(State):
         self._add_descendant(destination)
 
     def transfer(self, agents: Set[Agent]) -> Iterable[PendingTransfer]:
-        transfer_indices = np.searchsorted(
-            self.probs_cumulative, np.random.random(len(agents))
-        )
+        transfer_indices = np.searchsorted(self.probs_cumulative, np.random.random(len(agents)))
         bin_count = np.bincount(transfer_indices)
         if len(bin_count) > len(self.probs_cumulative):
             raise Exception("probs must sum to 1")
-        durations = [
-            iter(d.rvs(c))
-            for (c, s, d) in zip(bin_count, self.destinations, self.durations)
-        ]
+        durations = [iter(d.rvs(c)) for (c, s, d) in zip(bin_count, self.destinations, self.durations)]
         return [
-            PendingTransfer(
-                agent,
-                self.destinations[transfer_ind],
-                self,
-                durations[transfer_ind].__next__(),
-            )
+            PendingTransfer(agent, self.destinations[transfer_ind], self, durations[transfer_ind].__next__(),)
             for transfer_ind, agent in zip(transfer_indices, agents)
         ]
 
