@@ -13,9 +13,9 @@ from util import dist, upper_bound
 
 class Consts(NamedTuple):
     # simulation parameters
-    population_size = 10_000
-    total_steps = 300
-    initial_infected_count = 20
+    population_size: int = 10_000
+    total_steps: int = 300
+    initial_infected_count: int = 20
 
     # corona stats
     # todo replace with distribution
@@ -32,9 +32,9 @@ class Consts(NamedTuple):
     icu_to_hospitalized_days: rv_discrete = dist(
         7
     )  # todo maybe the program should juts print a question mark,  we'll see how the researchers like that!
-    detection_rate = 0.7
+    detection_rate: float = 0.7
 
-    def average_time_in_each_state(self):
+    def average_time_in_each_state(self) -> Dict[MedicalState, int]:
         """
         calculate the average time an infected agent spends in any of the states.
         uses markov chain to do the calculations
@@ -78,28 +78,28 @@ class Consts(NamedTuple):
         return states_duration
 
     # average probability for transmitions:
-    silent_to_asymptomatic_probability = 0.2
+    silent_to_asymptomatic_probability: float = 0.2
 
     @property
-    def silent_to_symptomatic_probability(self):
+    def silent_to_symptomatic_probability(self) -> float:
         return 1 - self.silent_to_asymptomatic_probability
 
-    symptomatic_to_asymptomatic_probability = 0.85
+    symptomatic_to_asymptomatic_probability: float = 0.85
 
     @property
-    def symptomatic_to_hospitalized_probability(self):
+    def symptomatic_to_hospitalized_probability(self) -> float:
         return 1 - self.symptomatic_to_asymptomatic_probability
 
-    hospitalized_to_asymptomatic_probability = 0.8
+    hospitalized_to_asymptomatic_probability: float = 0.8
 
     @property
-    def hospitalized_to_icu_probability(self):
+    def hospitalized_to_icu_probability(self) -> float:
         return 1 - self.hospitalized_to_asymptomatic_probability
 
-    icu_to_hospitalized_probability = 0.65
+    icu_to_hospitalized_probability: float = 0.65
 
     @property
-    def icu_to_dead_probability(self):
+    def icu_to_dead_probability(self) -> float:
         return 1 - self.icu_to_hospitalized_probability
 
     # probability of an infected symptomatic agent infecting others
@@ -115,20 +115,20 @@ class Consts(NamedTuple):
     # todo why does this exist? doesn't the policy set this? at least make this an enum
     # note not to set both home isolation and full isolation true
     # whether to isolation detected agents to their homes (allow familial contact)
-    home_isolation_sicks = False
+    home_isolation_sicks: bool = False
     # whether to isolation detected agents fully (no contact)
-    full_isolation_sicks = False
+    full_isolation_sicks: bool = False
     # how many of the infected agents are actually caught and isolated
-    caught_sicks_ratio = 0.3
+    caught_sicks_ratio: float = 0.3
 
     # policy stats
     # todo this reeeeally shouldn't be hard-coded
     # defines whether or not to apply a isolation (work shut-down)
-    active_isolation = True
+    active_isolation: bool = True
     # the date to stop work at
-    stop_work_days = 40
+    stop_work_days: int = 40
     # the date to resume work at
-    resume_work_days = 80
+    resume_work_days: int = 80
 
     # social stats
     # family circles size distribution
@@ -136,19 +136,19 @@ class Consts(NamedTuple):
         1, 7, name="family", values=([1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081])
     )
     # work circles size distribution
-    work_size_distribution = dist(30, 80)
+    work_size_distribution: rv_discrete = dist(30, 80)
     # work scale factor (1/alpha)
-    work_scale_factor = 40
+    work_scale_factor: float = 40
     # strangers scale factor (1/alpha)
-    strangers_scale_factor = 150
-    school_scale_factor = 100
+    strangers_scale_factor: float = 150
+    school_scale_factor: float = 100
 
     # relative strengths of each connection (in terms of infection chance)
     # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
-    family_strength = 1
-    work_strength = 0.1
-    stranger_strength = 0.01
-    school_strength = 0.1
+    family_strength: float = 1
+    work_strength: float = 0.1
+    stranger_strength: float = 0.01
+    school_strength: float = 0.1
 
     circular_matrices = [
         CircularConnectionsMatrix("home", None, family_size_distribution, family_strength),
@@ -162,7 +162,7 @@ class Consts(NamedTuple):
     ]
 
     @lru_cache
-    def medical_state_machine(self):
+    def medical_state_machine(self) -> MedicalStateMachine:
         class SusceptibleTerminalState(SusceptibleState, TerminalState):
             pass
 
