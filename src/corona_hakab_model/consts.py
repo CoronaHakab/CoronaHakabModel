@@ -94,12 +94,16 @@ default_parameters = {
     "detection_rate": 0.7,
 }
 
-ConstParameters = namedtuple("ConstParameters", sorted(default_parameters),
-                             defaults=[default_parameters[key] for key in sorted(default_parameters)])
+ConstParameters = namedtuple(
+    "ConstParameters",
+    sorted(default_parameters),
+    defaults=[default_parameters[key] for key in sorted(default_parameters)],
+)
 
 
 class Consts(ConstParameters):
     __slots__ = ()
+
     @staticmethod
     def from_file(param_path):
         """
@@ -257,10 +261,12 @@ class UnknownParameterException(Exception):
         error_massage = f"Unknown parameter name - {parameter_name}"
         super(UnknownParameterException).__init__(error_massage)
 
+
 class InvalidParameterException(Exception):
     def __init__(self, reason):
         error_message = f"Invalid parameters. reason:{reason}"
         super(InvalidParameterException).__init__(error_message)
+
 
 if __name__ == "__main__":
     c = Consts()
