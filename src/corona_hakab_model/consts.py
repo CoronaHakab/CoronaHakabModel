@@ -256,12 +256,6 @@ class Consts(ConstParameters):
         ]
 
 
-class UnknownParameterException(Exception):
-    def __init__(self, parameter_name):
-        error_massage = f"Unknown parameter name - {parameter_name}"
-        super(UnknownParameterException).__init__(error_massage)
-
-
 if __name__ == "__main__":
     c = Consts()
     print(c.average_time_in_each_state())
