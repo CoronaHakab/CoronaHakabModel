@@ -43,6 +43,7 @@ class AffinityMatrix:
         self.agents = self.manager.agents
 
         self.logger.info("Building circular connections matrices")
+
         # all circular matrices. keeping as a tuple of matrix and type (i.e, home, work, school and so)
         self.circular_matrices = [
             (
