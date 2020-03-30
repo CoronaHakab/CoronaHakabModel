@@ -6,25 +6,14 @@ from warnings import warn
 import yappi
 from manager import SimulationManager
 
-qcachegrind_path = Path(
-    r"D:\chrome downloads\qcachegrind074-32bit-x86\qcachegrind074-x86\qcachegrind.exe"
-)
+qcachegrind_path = Path(r"D:\chrome downloads\qcachegrind074-32bit-x86\qcachegrind074-x86\qcachegrind.exe")
 profile_gen = False
 
 if __name__ == "__main__":
     if profile_gen:
         yappi.start()
     sm = SimulationManager(
-        (
-            "Recovered",
-            "Deceased",
-            "Symptomatic",
-            "Asymptomatic",
-            "Hospitalized",
-            "ICU",
-            "Latent",
-            "Silent",
-        )
+        ("Recovered", "Deceased", "Symptomatic", "Asymptomatic", "Hospitalized", "ICU", "Latent", "Silent",)
     )
     if not profile_gen:
         yappi.start()

@@ -1,20 +1,20 @@
 from functools import lru_cache
 from itertools import count
-from math import fsum
-from typing import NamedTuple
+from typing import Dict, NamedTuple
 
 import numpy as np
-from medical_state import ImmuneState, InfectableState, InfectiousState
+from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
 from scipy.stats import rv_discrete
 from state_machine import StochasticState, TerminalState
-from util import dist
+from sub_matrices import CircularConnectionsMatrix, NonCircularConnectionMatrix
+from util import dist, upper_bound
 
 
 class Consts(NamedTuple):
     # simulation parameters
     population_size = 10_000
-    total_steps = 200
+    total_steps = 300
     initial_infected_count = 20
 
     # corona stats
@@ -25,85 +25,65 @@ class Consts(NamedTuple):
     silent_to_symptomatic_days: rv_discrete = dist(0, 3, 10)
     asymptomatic_to_recovered_days: rv_discrete = dist(3, 5, 7)
     symptomatic_to_asymptomatic_days: rv_discrete = dist(7, 10, 14)
-    symptomatic_to_hospitalized_days: rv_discrete = dist(
-        0, 1.5, 10
-    )  # todo range not specified in sources
+    symptomatic_to_hospitalized_days: rv_discrete = dist(0, 1.5, 10)  # todo range not specified in sources
     hospitalized_to_asymptomatic_days: rv_discrete = dist(18)
     hospitalized_to_icu_days: rv_discrete = dist(5)  # todo probably has a range
     icu_to_deceased_days: rv_discrete = dist(7)  # todo probably has a range
     icu_to_hospitalized_days: rv_discrete = dist(
         7
     )  # todo maybe the program should juts print a question mark,  we'll see how the researchers like that!
+    detection_rate = 0.7
 
-    @lru_cache()
-    def n_average_infecting_days(self):
-        # todo fix
+    def average_time_in_each_state(self):
         """
-        returns the expected time of infectivness of an infected people (for normalization)
-        assuming you are not contagious when in a hospital nor in icu.
-        also ignoring moving back from icu to asymptomatic
+        calculate the average time an infected agent spends in any of the states.
+        uses markov chain to do the calculations
+        note that it doesnt work well for terminal states
+        :return: dict of states: int, representing the average time an agent would be in a given state
         """
-
-        per_TOL = 1e-6
-        p_TOL = 1e-2
-        min_t = 10
-
+        TOL = 1e-6
         m = self.medical_state_machine()
-        i_state = m.state_upon_infection
-        infectious_states = [s for s in m.states if s.infectiousness]
-        infectious_arr = []
-        for t in count():
-            infectious_arr.append(
-                v := fsum(i_state.probability(t, s, per_TOL) for s in infectious_states)
-            )
-            if t > min_t and v < p_TOL:
+        M, terminal_states, transfer_states, entry_columns = m.markovian
+        z = len(M)
+
+        p = entry_columns[m.state_upon_infection]
+        terminal_mask = np.zeros(z, bool)
+        terminal_mask[list(terminal_states.values())] = True
+
+        states_duration: Dict[MedicalState:int] = Dict.fromkeys(m.states, 0)
+        states_duration[m.state_upon_infection] = 1
+
+        index_to_state: Dict[int:MedicalState] = {}
+        for state, index in terminal_states.items():
+            index_to_state[index] = state
+        for state, dict in transfer_states.items():
+            first_index = dict[0]
+            last_index = dict[max(dict.keys())] + upper_bound(state.durations[-1])
+            for index in range(first_index, last_index):
+                index_to_state[index] = state
+
+        prev_v = 0.0
+        for time in count(1):
+            p = M @ p
+            v = np.sum(p, where=terminal_mask)
+            d = v - prev_v
+            prev_v = v
+
+            for i, prob in enumerate(p):
+                states_duration[index_to_state[i]] += prob
+
+            # run at least as many times as the node number to ensure we reached all terminal nodes
+            if time > z and d < TOL:
                 break
+        return states_duration
 
-        infectious_arr = np.array(infectious_arr)
-        return np.sum(
-            np.arange(len(infectious_arr) - 1)
-            * infectious_arr[:-1]
-            * (1 - infectious_arr[1:])
-        )
-
-    def average_infecting_days(self):
-        """
-        returns the expected time of infectiousness of an infected person (for normalization)
-        assuming you are not contagious when in a hospital nor in icu.
-        also ignoring moving back from icu to asymptomatic
-        """
-        silent_time = (
-            self.silent_to_asymptomatic_probability
-            * self.silent_to_asymptomatic_days.mean()
-            + self.silent_to_symptomatic_probability
-            * self.silent_to_symptomatic_days.mean()
-        )
-        asymptomatic_time = (
-            self.asymptomatic_to_recovered_days.mean()
-            * self.silent_to_asymptomatic_probability
-        )
-        symptomatic_time = self.silent_to_symptomatic_probability * (
-            (self.symptomatic_to_asymptomatic_days.mean() + asymptomatic_time)
-            * self.symptomatic_to_asymptomatic_probability
-            + self.symptomatic_to_hospitalized_days.mean()
-            * self.symptomatic_to_hospitalized_probability
-        )
-        hospitalization_time = (
-            self.silent_to_symptomatic_probability
-            * self.symptomatic_to_hospitalized_probability
-            * self.hospitalized_to_asymptomatic_probability
-            * asymptomatic_time
-        )
-        return silent_time + asymptomatic_time + symptomatic_time + hospitalization_time
-
-    # average probability for transmissions:
+    # average probability for transmitions:
     silent_to_asymptomatic_probability = 0.2
 
     @property
     def silent_to_symptomatic_probability(self):
         return 1 - self.silent_to_asymptomatic_probability
 
-    # from being symptomatic a person can become asymptomatic or get hospitalized
     symptomatic_to_asymptomatic_probability = 0.85
 
     @property
@@ -128,97 +108,78 @@ class Consts(NamedTuple):
     asymptomatic_infection_ratio: float = 0.25
     # probability of an infected silent agent infecting others
     silent_infection_ratio: float = 0.3  # todo i made this up, need to get the real number
-
-    # R0 stands for the average number of people one patient infects during the whole course of his illness.
     # base r0 of the disease
     r0: float = 2.4
 
-    def expected_infection_ratio(self):
-        """
-        The expected infection ratio of a random infected agent
-        """
-        asymptomatic_time = (
-            self.asymptomatic_to_recovered_days.mean()
-            * self.silent_to_asymptomatic_probability
-        )
-        symptomatic_time = self.silent_to_symptomatic_probability * (
-            self.symptomatic_to_asymptomatic_days.mean()
-            * self.symptomatic_to_asymptomatic_probability
-            + self.symptomatic_to_hospitalized_days.mean()
-            * self.symptomatic_to_hospitalized_probability
-        )
-        silent_time = (
-            self.silent_to_symptomatic_probability
-            * self.silent_to_symptomatic_days.mean()
-            + self.silent_to_asymptomatic_probability
-            * self.silent_to_asymptomatic_days.mean()
-        )
-        total_time = asymptomatic_time + symptomatic_time + silent_time
-        return (
-            self.asymptomatic_infection_ratio * asymptomatic_time
-            + self.symptomatic_infection_ratio * symptomatic_time
-            + self.silent_infection_ratio * silent_time
-        ) / total_time
-
-    # quarantine policy
+    # isolation policy
     # todo why does this exist? doesn't the policy set this? at least make this an enum
-    # note not to set both home quarantine and full quarantine true
-    # whether to quarantine detected agents to their homes (allow familial contact)
-    home_quarantine_sicks = False
-    # whether to quarantine detected agents fully (no contact)
-    full_quarantine_sicks = False
-    # how many of the infected agents are actually caught and quarantined
+    # note not to set both home isolation and full isolation true
+    # whether to isolation detected agents to their homes (allow familial contact)
+    home_isolation_sicks = False
+    # whether to isolation detected agents fully (no contact)
+    full_isolation_sicks = False
+    # how many of the infected agents are actually caught and isolated
     caught_sicks_ratio = 0.3
 
     # policy stats
     # todo this reeeeally shouldn't be hard-coded
-    # defines whether or not to apply a quarantine (work shut-down)
-    active_quarantine = False
+    # defines whether or not to apply a isolation (work shut-down)
+    active_isolation = True
     # the date to stop work at
-    stop_work_days = 30
+    stop_work_days = 40
     # the date to resume work at
-    resume_work_days = 60
+    resume_work_days = 80
 
     # social stats
-    # the average family size
-    average_family_size = 5  # todo replace with distribution
-    # the average workplace size
-    average_work_size = 50  # todo replace with distribution
-    # the average amount of stranger contacts per person
-    average_amount_of_strangers = 200  # todo replace with distribution
+    # family circles size distribution
+    family_size_distribution = rv_discrete(
+        1, 7, name="family", values=([1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081])
+    )
+    # work circles size distribution
+    work_size_distribution = dist(30, 80)
+    # work scale factor (1/alpha)
+    work_scale_factor = 40
+    # strangers scale factor (1/alpha)
+    strangers_scale_factor = 150
+    school_scale_factor = 100
 
     # relative strengths of each connection (in terms of infection chance)
-    # todo so if all these strength are relative only to each other (and nothing else), why are none of them 1?
-    family_strength_not_workers = 0.75
-    family_strength = 0.4
-    work_strength = 0.04
-    stranger_strength = 0.004
+    # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
+    family_strength = 1
+    work_strength = 0.1
+    stranger_strength = 0.01
+    school_strength = 0.1
+
+    circular_matrices = [
+        CircularConnectionsMatrix("home", None, family_size_distribution, family_strength),
+        CircularConnectionsMatrix("work", None, work_size_distribution, work_strength),
+    ]
+
+    non_circular_matrices = [
+        NonCircularConnectionMatrix("work", None, work_scale_factor, work_strength),
+        NonCircularConnectionMatrix("school", None, school_scale_factor, school_strength),
+        NonCircularConnectionMatrix("strangers", None, strangers_scale_factor, stranger_strength),
+    ]
 
     @lru_cache
     def medical_state_machine(self):
-        class InfectableTerminalState(InfectableState, TerminalState):
+        class SusceptibleTerminalState(SusceptibleState, TerminalState):
             pass
 
         class ImmuneStochasticState(ImmuneState, StochasticState):
             pass
 
-        class InfectiousStochasticState(InfectiousState, StochasticState):
+        class ContagiousStochasticState(ContagiousState, StochasticState):
             pass
 
         class ImmuneTerminalState(ImmuneState, TerminalState):
             pass
 
-        susceptible = InfectableTerminalState("Susceptible")
+        susceptible = SusceptibleTerminalState("Susceptible")
         latent = ImmuneStochasticState("Latent")
-        silent = InfectiousStochasticState(
-            "Silent", infectiousness=self.silent_infection_ratio
-        )
-        symptomatic = InfectiousStochasticState(
-            "Symptomatic", infectiousness=self.symptomatic_infection_ratio
-        )
-        asymptomatic = InfectiousStochasticState(
-            "Asymptomatic", infectiousness=self.asymptomatic_infection_ratio
-        )
+        silent = ContagiousStochasticState("Silent", contagiousness=self.silent_infection_ratio)
+        symptomatic = ContagiousStochasticState("Symptomatic", contagiousness=self.symptomatic_infection_ratio)
+        asymptomatic = ContagiousStochasticState("Asymptomatic", contagiousness=self.asymptomatic_infection_ratio)
 
         hospitalized = ImmuneStochasticState("Hospitalized")
         icu = ImmuneStochasticState("ICU")
@@ -231,32 +192,20 @@ class Consts(NamedTuple):
         latent.add_transfer(silent, self.latent_to_silent_days, ...)
 
         silent.add_transfer(
-            asymptomatic,
-            self.silent_to_asymptomatic_days,
-            self.silent_to_asymptomatic_probability,
+            asymptomatic, self.silent_to_asymptomatic_days, self.silent_to_asymptomatic_probability,
         )
         silent.add_transfer(symptomatic, self.silent_to_symptomatic_days, ...)
 
         symptomatic.add_transfer(
-            asymptomatic,
-            self.symptomatic_to_asymptomatic_days,
-            self.symptomatic_to_asymptomatic_probability,
+            asymptomatic, self.symptomatic_to_asymptomatic_days, self.symptomatic_to_asymptomatic_probability,
         )
-        symptomatic.add_transfer(
-            hospitalized, self.symptomatic_to_hospitalized_days, ...
-        )
+        symptomatic.add_transfer(hospitalized, self.symptomatic_to_hospitalized_days, ...)
 
-        hospitalized.add_transfer(
-            icu, self.hospitalized_to_icu_days, self.hospitalized_to_icu_probability
-        )
-        hospitalized.add_transfer(
-            asymptomatic, self.hospitalized_to_asymptomatic_days, ...
-        )
+        hospitalized.add_transfer(icu, self.hospitalized_to_icu_days, self.hospitalized_to_icu_probability)
+        hospitalized.add_transfer(asymptomatic, self.hospitalized_to_asymptomatic_days, ...)
 
         icu.add_transfer(
-            hospitalized,
-            self.icu_to_hospitalized_days,
-            self.icu_to_hospitalized_probability,
+            hospitalized, self.icu_to_hospitalized_days, self.icu_to_hospitalized_probability,
         )
         icu.add_transfer(deceased, self.icu_to_deceased_days, ...)
 
@@ -267,5 +216,4 @@ class Consts(NamedTuple):
 
 if __name__ == "__main__":
     c = Consts()
-    print(c.average_infecting_days())
-    print(c.n_average_infecting_days())
+    print(c.average_time_in_each_state())

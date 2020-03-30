@@ -1,4 +1,4 @@
-from util import upper_bound, dist, lower_bound
+from util import dist, lower_bound, upper_bound
 
 
 def basic_test():

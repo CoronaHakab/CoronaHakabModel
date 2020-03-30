@@ -2,36 +2,22 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections import defaultdict, namedtuple
-from math import fsum
-from typing import (
-    Collection,
-    Dict,
-    Generic,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Set,
-    Tuple,
-    TypeVar,
-    Union,
-)
+from functools import cached_property
+from typing import Collection, Dict, Generic, Iterable, List, Optional, Sequence, Set, Tuple, TypeVar, Union
 
 import numpy as np
 from agent import Agent, Circle
 from scipy.stats import rv_discrete
-from util import lower_bound, upper_bound
+from util import upper_bound
 
-PendingTransfer = namedtuple(
-    "PendingTransfer", ["agent", "target_state", "origin_state", "original_duration"]
-)
+PendingTransfer = namedtuple("PendingTransfer", ["agent", "target_state", "origin_state", "original_duration"])
 
 TransferCollection = Dict[int, List[PendingTransfer]]
 
 
 class PendingTransfers:
     def __init__(self):
+        # in x time steps execute the list of pending transfers (change between states)
         self.inner: Dict[int, List[PendingTransfer]] = defaultdict(list)
 
     def append(self, transfer: PendingTransfer):
@@ -45,12 +31,12 @@ class PendingTransfers:
     def advance(self) -> Sequence[PendingTransfer]:
         # todo improve? (rotating array?)
         new_inner = defaultdict(list)
-        ret = ()
+        ret = ()  # no transfers to do in the current step
         for k, v in self.inner.items():
             if k:
                 new_inner[k - 1] = v
             else:
-                ret = v
+                ret = v  # the list of transfers to do now (key=0)
         self.inner = new_inner
         return ret
 
@@ -69,31 +55,25 @@ class State(Circle, ABC):
     def transfer(self, agents: Collection[Agent]) -> Iterable[PendingTransfer]:
         pass
 
-    @abstractmethod
-    def probability(self, time: int, state: State, tol: float) -> float:
-        pass
-
     def __str__(self):
         return f"<state {self.name}>"
 
 
 class StochasticState(State):
+    # todo enforce probabilities sum to 1?
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.probs_cumulative = np.array([], dtype=float)
         self.destinations: List[State] = []
         self.durations: List[rv_discrete] = []
 
-    def probs_specific(self):
-        ret = np.copy(self.probs_cumulative)
-        ret[1:] -= ret[:1]
-        return ret
+    def prob_specific(self, ind):
+        if ind == 0:
+            return self.probs_cumulative[0]
+        return self.probs_cumulative[ind] - self.probs_cumulative[ind - 1]
 
     def add_transfer(
-        self,
-        destination: State,
-        duration: rv_discrete,
-        probability: Union[float, type(...)],
+        self, destination: State, duration: rv_discrete, probability: Union[float, type(...)],
     ):
         if probability is ...:
             p = 1
@@ -112,51 +92,20 @@ class StochasticState(State):
         self._add_descendant(destination)
 
     def transfer(self, agents: Set[Agent]) -> Iterable[PendingTransfer]:
-        transfer_indices = np.searchsorted(
-            self.probs_cumulative, np.random.random(len(agents))
-        )
+        transfer_indices = np.searchsorted(self.probs_cumulative, np.random.random(len(agents)))
         bin_count = np.bincount(transfer_indices)
-        durations = [
-            iter(d.rvs(c))
-            for (c, s, d) in zip(bin_count, self.destinations, self.durations)
-        ]
+        if len(bin_count) > len(self.probs_cumulative):
+            raise Exception("probs must sum to 1")
+        durations = [iter(d.rvs(c)) for (c, s, d) in zip(bin_count, self.destinations, self.durations)]
         return [
-            PendingTransfer(
-                agent,
-                self.destinations[transfer_ind],
-                self,
-                durations[transfer_ind].__next__(),
-            )
+            PendingTransfer(agent, self.destinations[transfer_ind], self, durations[transfer_ind].__next__(),)
             for transfer_ind, agent in zip(transfer_indices, agents)
         ]
-
-    def probability(self, time: int, state: State, tol: float) -> float:
-        if state is self:
-            return fsum(
-                (probability * duration.sf(time))
-                for probability, duration in zip(self.probs_specific(), self.durations)
-            )
-        ret = 0
-        for probability, duration, dest in zip(
-            self.probs_specific(), self.durations, self.destinations
-        ):
-            if probability <= tol:
-                continue
-            for trans_time in range(lower_bound(duration), upper_bound(duration) + 1):
-                if time - trans_time < 0:
-                    break
-                stp = probability * duration.pmf(trans_time)
-                if stp > tol:
-                    ret += stp * dest.probability(time - trans_time, state, tol / stp)
-        return ret
 
 
 class TerminalState(State):
     def transfer(self, agents: Set[Agent]) -> Iterable[PendingTransfer]:
         return ()
-
-    def probability(self, time: int, state: State, tol: float) -> float:
-        return state is self
 
 
 T = TypeVar("T", bound=State)
@@ -183,5 +132,68 @@ class StateMachine(Generic[T]):
             self.states.append(state)
 
         state.machine = self
+
+    @cached_property
+    def markovian(self):
+        """
+        Return a markovian matrix for all the states (inc. partial transfers)
+        returns a 3-tuple: the matrix, the indices for the terminal nodes, and the entry columns for all states
+        """
+
+        # each initial transfer state gets its own index
+        transfer_states: Dict[StochasticState, Dict[int, int]] = {}
+
+        # terminal_states each get their own index
+        terminal_states: Dict[TerminalState, int] = {}
+
+        next_index = 0
+        for s in self.states:
+            if isinstance(s, TerminalState):
+                terminal_states[s] = next_index
+                next_index += 1
+            elif isinstance(s, StochasticState):
+                state_dict = {}
+                for i, dur in enumerate(s.durations):
+                    state_dict[i] = next_index
+                    next_index += upper_bound(dur)
+                transfer_states[s] = state_dict
+            else:
+                raise TypeError
+
+        ret = np.zeros((next_index, next_index), dtype=float)
+        entry_columns: Dict[State, np.ndarray] = {}
+        for t_state, i in terminal_states.items():
+            ec = np.zeros(next_index, float)
+            ec[i] = 1
+            entry_columns[t_state] = ec
+
+        for s_state, s_dict in transfer_states.items():
+            ec = np.zeros(next_index, float)
+            for transfer_index, node_index in s_dict.items():
+                p_of_transfer = s_state.prob_specific(transfer_index)
+                ec[node_index] = p_of_transfer
+            entry_columns[s_state] = ec
+
+        for t_state, terminal_index in terminal_states.items():
+            # todo if this is slow we can do it faster
+            ret[:, terminal_index] = entry_columns[t_state]
+
+        for s_state, sub_dict in transfer_states.items():
+            for transfer_index, transfer_start in sub_dict.items():
+                dur = s_state.durations[transfer_index]
+                dest = s_state.destinations[transfer_index]
+                p_passed = 1
+                for i in range(upper_bound(dur)):
+                    p_exit_unbiased = dur.pmf(i + 1)
+                    p_exit = p_exit_unbiased / p_passed
+                    p_passed *= 1 - p_exit
+                    ret[:, transfer_start + i] = p_exit * entry_columns[dest]
+                    ret[transfer_start + i + 1, transfer_start + i] += 1 - p_exit
+
+        # todo remove?
+        for col in range(next_index):
+            assert np.sum(ret[:, col]) == 1
+
+        return ret, terminal_states, transfer_states, entry_columns
 
     # todo function to draw a pretty graph
