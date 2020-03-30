@@ -10,9 +10,7 @@ class UpdateMatrixManager:
     def __init__(self, affinity_matrix_ref):
         self.affinity_matrix = affinity_matrix_ref
 
-    def update_matrix_step(
-        self, agents_to_home_isolation=(), agents_to_full_isolation=()
-    ):
+    def update_matrix_step(self, agents_to_home_isolation=(), agents_to_full_isolation=()):
         """
         Update the matrix step
         """
@@ -82,18 +80,12 @@ class UpdateMatrixManager:
             np.full(self.affinity_matrix.size, agent.ID, dtype=int),
             np.arange(self.affinity_matrix.size),
         )
-        temp = 1 - (
-            (families[indices] + works[indices] + random[indices])
-            * self.affinity_matrix.factor
-        )
+        temp = 1 - ((families[indices] + works[indices] + random[indices]) * self.affinity_matrix.factor)
         self.affinity_matrix.matrix[indices] = np.log(temp)
 
         # changing your row (now you will be infected by people outside your home)
         indices = (indices[1], indices[0])
-        temp = 1 - (
-            (families[indices] + works[indices] + random[indices])
-            * self.affinity_matrix.factor
-        )
+        temp = 1 - ((families[indices] + works[indices] + random[indices]) * self.affinity_matrix.factor)
         self.affinity_matrix.matrix[indices] = np.log(temp)
 
         agent.is_home_isolated = False
