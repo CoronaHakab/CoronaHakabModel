@@ -1,3 +1,5 @@
+#include "ctpl_stl.h"
+
 #include <map>
 #include <vector>
 #include <tuple>
@@ -41,15 +43,28 @@ class CoffedSparseMatrix: public BareSparseMatrix{
         virtual ~CoffedSparseMatrix();
 };
 
+class FastSparseMatrix{
+    private:
+        std::vector<size_t>* indices;
+        std::vector<dtype>* data;
+        size_t size;
+        col_type* columns;
+
+        friend class ParasymbolicMatrix;
+    public:
+        FastSparseMatrix(size_t size);
+        ~FastSparseMatrix();
+};
+
 class ParasymbolicMatrix{
     private:
         size_t component_count;
         dtype* factors;
         CoffedSparseMatrix** components;
-        BareSparseMatrix inner;
+        FastSparseMatrix inner;
         bool calc_lock;
 
-        ctpl::thread_pool pool;
+        ctpl::thread_pool* pool;
 
         void rebuild_all();
         void rebuild_row(size_t);

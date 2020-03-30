@@ -1,8 +1,10 @@
 #include "parasymbolic.hpp"
-#include "ctpl_stl.h"
 #include <math.h>
 #include <iostream>
 #include <thread>
+#include <algorithm>
+
+#define POOL_SIZE 3
 
 // region bare
 BareSparseMatrix::BareSparseMatrix(size_t size): size(size), total(0){
@@ -129,19 +131,30 @@ CoffedSparseMatrix::~CoffedSparseMatrix(){
 }
 // endregion
 // region parasymbolic
+FastSparseMatrix::FastSparseMatrix(size_t size): size(size){
+    indices = new std::vector<size_t>[size];
+    data = new std::vector<dtype>[size];
+    columns = new col_type[size];
+}
+FastSparseMatrix::~FastSparseMatrix(){
+    delete[] indices;
+    delete[] data;
+    delete[] columns;
+}
+
 ParasymbolicMatrix::ParasymbolicMatrix(size_t size, size_t component_count):
- component_count(component_count), inner(size), calc_lock(false), pool(thread::hardware_concurrency()-2){
+ component_count(component_count), inner(size), calc_lock(false){
     factors = new dtype[component_count];
     components = new CoffedSparseMatrix*[component_count];
     for (auto i = 0; i < component_count; i++){
         factors[i] = 1;
         components[i] = new CoffedSparseMatrix(size);
     }
+    pool = new ctpl::thread_pool(POOL_SIZE);
     rebuild_all();
 }
 
 void ParasymbolicMatrix::rebuild_all(){
-    inner.total = NAN;
     // todo parallelize
     for(auto row_num = 0; row_num < inner.size; row_num++){
         rebuild_row(row_num);
@@ -149,22 +162,23 @@ void ParasymbolicMatrix::rebuild_all(){
 }
 void ParasymbolicMatrix::rebuild_row(size_t row_num){
     // todo most of the time, we'll only need to reset some cells in each row (only non-zero in the changed cells)
-    row_type& row = inner.rows[row_num];
-    row.clear();
-    decltype(row.begin())* comp_iters = new decltype(row.begin())[component_count];
-    decltype(row.end())* comp_ends = new decltype(row.end())[component_count];
+    auto& row_indices = inner.indices[row_num];
+    auto& row_data = inner.data[row_num];
+
+    row_indices.clear();
+    row_data.clear();
+
+    using row_iter = decltype(components[0]->rows[0].cbegin());
+
+    row_iter* comp_iters = new row_iter[component_count];
+    row_iter* comp_ends = new row_iter[component_count];
     dtype** comp_col_coffs = new dtype*[component_count];
     dtype* comp_row_coffs = new dtype[component_count];
     for (auto comp_num = 0; comp_num < component_count; comp_num++){
-        comp_ends[comp_num] = components[comp_num]->rows[row_num].end();
-        if ((comp_row_coffs[comp_num] = components[comp_num]->row_coefficients[row_num]) == 0
-            || factors[comp_num] == 0){
-            comp_iters[comp_num] = comp_ends[comp_num];
-        }
-        else{
-            comp_iters[comp_num] = components[comp_num]->rows[row_num].begin();
-            comp_col_coffs[comp_num] = components[comp_num]->col_coefficients;
-        }
+        comp_ends[comp_num] = components[comp_num]->rows[row_num].cend();
+        comp_row_coffs[comp_num] = components[comp_num]->row_coefficients[row_num];
+        comp_iters[comp_num] = components[comp_num]->rows[row_num].cbegin();
+        comp_col_coffs[comp_num] = components[comp_num]->col_coefficients;
     }
     auto min_set = std::unordered_set<size_t>();
     while (true){
@@ -191,7 +205,8 @@ void ParasymbolicMatrix::rebuild_row(size_t row_num){
             //we are done with this row
             break;
         }
-        row.insert({min_index, total});
+        row_indices.push_back(min_index);
+        row_data.push_back(total);
         inner.columns[min_index].insert(row_num);
         for (auto iter_to_advance: min_set){
             comp_iters[iter_to_advance]++;
@@ -199,6 +214,25 @@ void ParasymbolicMatrix::rebuild_row(size_t row_num){
         min_set.clear();
     }
 }
+
+int binary_search(std::vector<size_t>& haystack, size_t needle){
+    if (haystack.empty())
+        return -1;
+    int start = 0;
+    int end = ((int)haystack.size())-1;
+    while (start <= end){
+        auto mid = (start+end)/2;
+        auto v = haystack[mid];
+        if (v == needle)
+            return mid;
+        if (v < needle)
+            start = mid+1;
+        else
+            end = mid-1;
+    }
+    return -1;
+}
+
 void ParasymbolicMatrix::rebuild_column(size_t col_num){
     auto col_set = inner.columns[col_num];
     for(auto row_num: col_set){
@@ -206,23 +240,28 @@ void ParasymbolicMatrix::rebuild_column(size_t col_num){
         for (auto comp_num = 0; comp_num < component_count; comp_num++){
             total += components[comp_num]->get(row_num, col_num) * factors[comp_num];
         }
-        inner.set(row_num, col_num, total);
+        auto& row_indices = inner.indices[row_num];
+        auto bin = binary_search(row_indices, col_num);
+        inner.data[row_num][bin] = total;
     }
 }
 void ParasymbolicMatrix::rebuild_factor(dtype factor){
     for (auto row_num = 0; row_num < inner.size; row_num++){
-        auto& row = inner.rows[row_num];
-        for (auto iter = row.begin(); iter != row.end(); ++iter){
-            iter->second *= factor;
+        auto& row_data = inner.data[row_num];
+        for (auto iter = row_data.begin(); iter != row_data.end(); ++iter){
+            *iter *= factor;
         }
     }
-    inner.total *= factor;
 }
 
 dtype ParasymbolicMatrix::get(size_t row, size_t column){
     if (calc_lock)
         return NAN;
-    return inner.get(row, column);
+    auto& row_indices = inner.indices[row];
+    auto bin = binary_search(row_indices, column);
+    if (bin == -1)
+        return 0;
+    return inner.data[row][bin];
 }
 dtype ParasymbolicMatrix::get(size_t comp, size_t row, size_t column){
     if (calc_lock)
@@ -232,28 +271,39 @@ dtype ParasymbolicMatrix::get(size_t comp, size_t row, size_t column){
 double ParasymbolicMatrix::total(){
     if (calc_lock)
         return NAN;
-    return inner.get_total();
+    dtype ret = 0;
+    // todo kahan?
+    for (auto i = 0; i < inner.size; i++){
+        auto& data = inner.data[i];
+        for (auto j = data.cbegin(); j < data.cend(); j++)
+            ret += *j;
+    }
+    return ret;
 }
 
 void ParasymbolicMatrix::_prob_any_row(size_t row_num, dtype const* A_v, size_t v_len, size_t const * A_non_zero_indices, size_t nzi_len,
                         dtype** AF_out, size_t* o_size){
     dtype inv_ret = 1;
     size_t nz_index = 0;
-    auto& row = inner.rows[row_num];
-    auto& r_iter = row.cbegin();
-    auto& r_end = row.cend();
-    while (r_iter != r_end && nz_index != nzi_len){
-        auto i = r_iter->first;
+    auto& row_indices = inner.indices[row_num];
+    auto& row_data = inner.data[row_num];
+    auto& r_i_iter = row_indices.cbegin();
+    auto& r_i_end = row_indices.cend();
+    auto& r_d_iter = row_data.cbegin();
+    while (r_i_iter != r_i_end && nz_index != nzi_len){
+        auto i = *r_i_iter;
         auto j = A_non_zero_indices[nz_index];
         if (i < j){
-            r_iter++;
+            r_i_iter++;
+            r_d_iter++;
         }
         else if (j < i){
             nz_index++;
         }
         else /*j == i*/{
-            inv_ret *= (1 - r_iter->second * A_v[j]);
-            r_iter++;
+            inv_ret *= (1 - (*r_d_iter) * A_v[j]);
+            r_i_iter++;
+            r_d_iter++;
             nz_index++;
         }
     }
@@ -266,7 +316,7 @@ void ParasymbolicMatrix::_prob_any(dtype const* A_v, size_t v_len, size_t const 
     *AF_out = new dtype[inner.size];
     std::vector<std::future<void>> futures (inner.size);
     for (auto row_num = 0; row_num < inner.size; row_num++){
-        futures[row_num] = pool.push([=](int) {
+        futures[row_num] = pool->push([=](int) {
                 this->_prob_any_row(row_num, A_v, v_len, A_non_zero_indices, nzi_len, AF_out, o_size);
             }
         );
@@ -285,7 +335,6 @@ void ParasymbolicMatrix::operator*=(dtype rhs){
 }
 
 void ParasymbolicMatrix::set_factors(dtype const* A_factors, size_t f_len){
-    inner.total = NAN;
     for (auto comp_num = 0; comp_num < f_len; comp_num++){
         factors[comp_num] = A_factors[comp_num];
     }
@@ -293,28 +342,24 @@ void ParasymbolicMatrix::set_factors(dtype const* A_factors, size_t f_len){
 }
 
 void ParasymbolicMatrix::mul_sub_row(size_t component, size_t row, dtype factor){
-    inner.total = NAN;
     auto comp = components[component];
     comp->mul_row(row, factor);
     if (!calc_lock) rebuild_row(row);
 }
 
 void ParasymbolicMatrix::mul_sub_col(size_t component, size_t col, dtype factor){
-    inner.total = NAN;
     auto comp = components[component];
     comp->mul_col(col, factor);
     if (!calc_lock) rebuild_column(col);
 }
 
 void ParasymbolicMatrix::reset_mul_row(size_t component, size_t row){
-    inner.total = NAN;
     auto comp = components[component];
     comp->reset_mul_row(row);
     if (!calc_lock) rebuild_row(row);
 }
 
 void ParasymbolicMatrix::reset_mul_col(size_t component, size_t col){
-    inner.total = NAN;
     auto comp = components[component];
     comp->reset_mul_col(col);
     if (!calc_lock) rebuild_column(col);
@@ -322,7 +367,6 @@ void ParasymbolicMatrix::reset_mul_col(size_t component, size_t col){
 
 void ParasymbolicMatrix::batch_set(size_t component_num, size_t row, size_t const* A_columns, size_t c_len,
          dtype const* A_values, size_t v_len){
-    inner.total = NAN;
     components[component_num]->batch_set(row, A_columns, c_len, A_values, v_len);
     if (!calc_lock) rebuild_row(row);
 }
@@ -335,5 +379,6 @@ void ParasymbolicMatrix::set_calc_lock(bool value){
 ParasymbolicMatrix::~ParasymbolicMatrix(){
     delete[] components;
     delete[] factors;
+    delete pool;
 }
 // endregion

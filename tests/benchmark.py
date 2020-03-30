@@ -99,7 +99,7 @@ def benchmark(size, depth, pre_set, operation):
 
 
 if __name__ == '__main__':
-    t = 500
+    t = 1000
 
     v = np.random.choice([0, 0.2, 0.5, 0.3, 1], t)
     v = np.asarray(v, dtype=np.float32)
@@ -122,7 +122,7 @@ if __name__ == '__main__':
 
 
     def poa(m):
-        for _ in range(1_000):
+        for _ in range(10_000):
             a = m.prob_any(v)
         return a
 
@@ -132,4 +132,4 @@ if __name__ == '__main__':
     )
     for name, args in benchmarks:
         p, s = benchmark(*args)
-        print(f'{name}, parasymmetric: {p}, scipy: {s}')
+        print(f'{name}, parasymbolic: {p}, scipy: {s}')

@@ -136,6 +136,7 @@ def test_parasym():
     m = operate(main)
     c = operate(mock)
     for i, j in zip(m, c):
+        print(i)
         assert i == j
         check_equal(main, mock, i)
 
