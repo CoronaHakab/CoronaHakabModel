@@ -8,6 +8,7 @@ from typing import List, Dict, Sequence
 from scipy.stats import rv_discrete
 import math
 from sub_matrices import CircularConnectionsMatrix, NonCircularConnectionMatrix
+from node import Node
 
 
 m_type = lil_matrix
@@ -241,4 +242,82 @@ class AffinityMatrix:
         # note that the previous loop also creates a connection between each agent and himself. this part removes it
         ids = [agent.index for agent in agents]
         matrix[ids, ids] = 0
+        return matrix
+
+    def clustered_matrix_generation(self, agents: List[Agent], mean_connections_amount: int,
+                                    connection_strength=1, p: float = 1):
+        """
+        returns a matrix of clustered connections.
+        :param agents: agents to use in this connection
+        :param mean_connections_amount: the average amount of connections wanted (1 / alpha in exponential distribution)
+        :param connection_strength: the strength of each connection
+        :param p: another part of the model. currently un-used, possible to add later or
+        :return:
+        """
+        indexes = [agent.index for agent in agents]
+        # matrix to fill and return
+        matrix = lil_matrix((self.size, self.size), dtype=np.float32)
+        # list of nodes. each contains his id and a list of neighbers
+        nodes: List[Node] = [Node(index) for index in indexes]
+        # the number of edges that will be made with each addition of node to the graph
+        m = mean_connections_amount // 2
+        # the number of nodes. writes it for simplicity
+        n = len(indexes)
+        # saves the connections to add, so that filling the matrix will be done only 1 time (more efficient)
+        connections = np.zeros((2, len(indexes) * m), dtype=int)
+        connections_cnt = 0
+        # pre-generates all rolls for efficiency
+        rolls = iter(np.random.random(n * (1 + m)))
+        # saves the already-instered nodes
+        inserted_nodes = []
+
+        np.random.shuffle(nodes)
+
+        # manually generate the first m + 1 connections
+        for i in range(m + 1):
+            other_nodes = nodes[0:m + 1]
+            other_nodes.pop(i)
+            nodes[i].add_connections(other_nodes)
+            inserted_nodes.append(nodes[i])
+
+            # add the newly made connections to the connections list
+            connections[0, connections_cnt:connections_cnt + len(other_nodes)] = nodes[i].index
+            connections[1, connections_cnt:connections_cnt + len(other_nodes)] = np.fromiter(
+                [node.index for node in other_nodes], int)
+            connections_cnt += len(other_nodes)
+
+        # add the rest of the nodes, one at a time
+        for node in nodes[m + 1:]:
+            # randomly select the first node to connect. pops him so that he won't be choosen again
+            rand_node = inserted_nodes.pop(math.floor(rolls.__next__() * len(inserted_nodes)))
+
+            # add connection to connections list
+            connections[0, connections_cnt] = node.index
+            connections[1, connections_cnt] = rand_node.index
+            connections_cnt += 1
+
+            # todo change this to use p, and not only p = 1
+            # randomly choose the rest of the connections from rand_node connections.
+            nodes_to_return = []
+            for _ in range(m - 1):
+                # randomly choose a node from rand_node connections
+                new_rand = rand_node.pop_random(rolls.__next__())
+                nodes_to_return.append(new_rand)
+                Node.connect(node, new_rand)
+
+                # add connection to connections list
+                connections[0, connections_cnt] = node.index
+                connections[1, connections_cnt] = new_rand.index
+                connections_cnt += 1
+
+            # connect current node with rand node. note that this only happens here to not pick yourself later on
+            Node.connect(node, rand_node)
+            # return the popped nodes back to rand_node connections, and rand node back to already inserted list
+            rand_node.add_connections(nodes_to_return)
+            inserted_nodes.append(rand_node)
+            inserted_nodes.append(node)
+
+        # insert all connections to matrix
+        matrix[connections[0], connections[1]] = connection_strength
+        matrix[connections[1], connections[0]] = connection_strength
         return matrix
