@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 
 from consts import Consts
 from manager import SimulationManager
-from supervisor import Supervisable, Supervisor
+from supervisor import LambdaValueSupervisable, Supervisable, Supervisor
 
 
 def check_args(args):
@@ -48,26 +48,36 @@ def main():
     )
     args = parser.parse_args()
 
+    if args.parameters:
+        consts = Consts.from_file(args.parameters)
+    else:
+        consts = Consts.default()
+
     sm = SimulationManager(
         (
             "Symptomatic",
-            Supervisable.Delayed("Symptomatic", 3),
+            # Supervisable.Delayed("Symptomatic", 3),
             "Deceased",
             "Asymptomatic",
             "Hospitalized",
             "ICU",
             "Latent",
             "Silent",
-            "Susceptible",
+            # "Susceptible",
             "Recovered",
             Supervisable.Sum(
-                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"
+                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", name="currently sick"
             ),
-            #Supervisable.R0(),
+            # Supervisable.NewCasesCounter(),
+            # Supervisable.GrowthFactor(
+            #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
+            #    Supervisable.NewCasesCounter()),
+            LambdaValueSupervisable("Detected Daily", lambda manager: manager.detected_daily)
+            # Supervisable.R0(),
         ),
         input_matrix_path=args.input_matrix_path,
         output_matrix_path=args.output_matrix_path,
-        parameters_file=args.parameters
+        consts=consts
     )
 
     sm.run()
@@ -78,14 +88,7 @@ def compare_simulations_example():
     sm1 = SimulationManager(
         (
             Supervisable.Sum(
-                "Symptomatic",
-                "Asymptomatic",
-                "Latent",
-                "Silent",
-                "ICU",
-                "Hospitalized",
-                "Recovered",
-                "Deceased",
+                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", "Recovered", "Deceased"
             ),
             "Symptomatic",
             "Recovered",
@@ -97,14 +100,7 @@ def compare_simulations_example():
     sm2 = SimulationManager(
         (
             Supervisable.Sum(
-                "Symptomatic",
-                "Asymptomatic",
-                "Latent",
-                "Silent",
-                "ICU",
-                "Hospitalized",
-                "Recovered",
-                "Deceased",
+                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", "Recovered", "Deceased"
             ),
             "Symptomatic",
             "Recovered",
@@ -114,10 +110,7 @@ def compare_simulations_example():
     sm2.run()
 
     Supervisor.static_plot(
-        (
-            (sm1, f"ro = {sm1.consts.r0}:", ("y-", "y--", "y:")),
-            (sm2, f"ro = {sm2.consts.r0}:", ("c-", "c--", "c:")),
-        ),
+        ((sm1, f"ro = {sm1.consts.r0}:", ("y-", "y--", "y:")), (sm2, f"ro = {sm2.consts.r0}:", ("c-", "c--", "c:"))),
         f"comparing r0 = {sm1.consts.r0} to r0={sm2.consts.r0}",
     )
 

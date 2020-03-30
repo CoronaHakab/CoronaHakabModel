@@ -1,7 +1,7 @@
 from collections import namedtuple
 from functools import lru_cache
 from itertools import count
-from typing import Dict
+from typing import Dict, NamedTuple
 
 import numpy as np
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
@@ -9,6 +9,7 @@ from medical_state_machine import MedicalStateMachine
 from state_machine import StochasticState, TerminalState
 from util import dist, upper_bound, rv_discrete
 from sub_matrices import CircularConnectionsMatrix, NonCircularConnectionMatrix
+from util import dist, upper_bound
 
 """
 Overview:
@@ -74,8 +75,9 @@ default_parameters = {
     "resume_work_days": 80,
     # social stats
     # the average family size
-    "family_size_distribution": rv_discrete(1, 7, name="family", values=(
-        [1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081])),    # the average workplace size
+    "family_size_distribution": rv_discrete(
+        1, 7, name="family", values=([1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081])
+    ),    # the average workplace size
     # work circles size distribution
     "work_size_distribution": dist(30, 80),  # todo replace with distribution
     # work scale factor (1/alpha)
@@ -94,6 +96,8 @@ default_parameters = {
     "work_strength": 0.1,
     "stranger_strength": 0.01,
     "school_strength": 0.1,
+
+    "detection_rate": 0.7
 }
 
 ConstParameters = namedtuple("ConstParameters", sorted(default_parameters))
@@ -119,6 +123,7 @@ class Consts(ConstParameters):
         parameters = eval(data, {'__builtins__': None, 'dist': dist, 'rv_discrete': rv_discrete})
 
         return Consts(**parameters)
+
 
     def average_time_in_each_state(self):
         """
@@ -195,15 +200,9 @@ class Consts(ConstParameters):
 
         susceptible = SusceptibleTerminalState("Susceptible")
         latent = ImmuneStochasticState("Latent")
-        silent = ContagiousStochasticState(
-            "Silent", contagiousness=self.silent_infection_ratio
-        )
-        symptomatic = ContagiousStochasticState(
-            "Symptomatic", contagiousness=self.symptomatic_infection_ratio
-        )
-        asymptomatic = ContagiousStochasticState(
-            "Asymptomatic", contagiousness=self.asymptomatic_infection_ratio
-        )
+        silent = ContagiousStochasticState("Silent", contagiousness=self.silent_infection_ratio)
+        symptomatic = ContagiousStochasticState("Symptomatic", contagiousness=self.symptomatic_infection_ratio)
+        asymptomatic = ContagiousStochasticState("Asymptomatic", contagiousness=self.asymptomatic_infection_ratio)
 
         hospitalized = ImmuneStochasticState("Hospitalized")
         icu = ImmuneStochasticState("ICU")
@@ -216,32 +215,20 @@ class Consts(ConstParameters):
         latent.add_transfer(silent, self.latent_to_silent_days, ...)
 
         silent.add_transfer(
-            asymptomatic,
-            self.silent_to_asymptomatic_days,
-            self.silent_to_asymptomatic_probability,
+            asymptomatic, self.silent_to_asymptomatic_days, self.silent_to_asymptomatic_probability,
         )
         silent.add_transfer(symptomatic, self.silent_to_symptomatic_days, ...)
 
         symptomatic.add_transfer(
-            asymptomatic,
-            self.symptomatic_to_asymptomatic_days,
-            self.symptomatic_to_asymptomatic_probability,
+            asymptomatic, self.symptomatic_to_asymptomatic_days, self.symptomatic_to_asymptomatic_probability,
         )
-        symptomatic.add_transfer(
-            hospitalized, self.symptomatic_to_hospitalized_days, ...
-        )
+        symptomatic.add_transfer(hospitalized, self.symptomatic_to_hospitalized_days, ...)
 
-        hospitalized.add_transfer(
-            icu, self.hospitalized_to_icu_days, self.hospitalized_to_icu_probability
-        )
-        hospitalized.add_transfer(
-            asymptomatic, self.hospitalized_to_asymptomatic_days, ...
-        )
+        hospitalized.add_transfer(icu, self.hospitalized_to_icu_days, self.hospitalized_to_icu_probability)
+        hospitalized.add_transfer(asymptomatic, self.hospitalized_to_asymptomatic_days, ...)
 
         icu.add_transfer(
-            hospitalized,
-            self.icu_to_hospitalized_days,
-            self.icu_to_hospitalized_probability,
+            hospitalized, self.icu_to_hospitalized_days, self.icu_to_hospitalized_probability,
         )
         icu.add_transfer(deceased, self.icu_to_deceased_days, ...)
 

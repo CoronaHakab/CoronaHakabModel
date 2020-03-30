@@ -1,29 +1,14 @@
-# flake8: noqa
+# flake8: noqa flake8 doesn't support named expressions := so for now we have to exclude this file for now:(
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from bisect import bisect
 from functools import lru_cache
-from math import fsum
-from typing import Any, Callable, List, NamedTuple, Optional, Sequence, Tuple
+from typing import Any, Callable, List, NamedTuple, Sequence
 
+import matplotlib_set_backend  # noqa: F401
 import numpy as np
-from state_machine import TerminalState
-
-try:
-    import PySide2
-except ImportError:
-    pass
-else:
-    try:
-        import matplotlib
-    except ImportError:
-        pass
-    else:
-        matplotlib.use("Qt5Agg")
-        del matplotlib
-    del PySide2
 
 try:
     # plt is optional
@@ -83,18 +68,12 @@ class Supervisor:
                 rotation=90,
             )
         if self.manager.consts.home_isolation_sicks:
-            title = (
-                title
-                + "\napplying home isolation for confirmed cases ({} of cases)".format(
-                    self.manager.consts.caught_sicks_ratio
-                )
+            title = title + "\napplying home isolation for confirmed cases ({} of cases)".format(
+                self.manager.consts.caught_sicks_ratio
             )
         if self.manager.consts.full_isolation_sicks:
-            title = (
-                title
-                + "\napplying full isolation for confirmed cases ({} of cases)".format(
-                    self.manager.consts.caught_sicks_ratio
-                )
+            title = title + "\napplying full isolation for confirmed cases ({} of cases)".format(
+                self.manager.consts.caught_sicks_ratio
             )
 
         # plot parameters
@@ -222,22 +201,39 @@ class Supervisable(ABC):
             self.args = args
 
         def __call__(self, m):
-            return _StackedFloatSupervisable(
-                [Supervisable.coerce(a, m) for a in self.args]
-            )
+            return _StackedFloatSupervisable([Supervisable.coerce(a, m) for a in self.args])
 
     class Sum:
-        def __init__(self, *args):
+        def __init__(self, *args, **kwargs):
             self.args = args
+            self.kwargs = kwargs
 
         def __call__(self, m):
-            return _SumSupervisable([Supervisable.coerce(a, m) for a in self.args])
-          
+            return _SumSupervisable([Supervisable.coerce(a, m) for a in self.args], **self.kwargs)
+
     class R0:
         def __init__(self):
             pass
+
         def __call__(self, m):
             return _EffectiveR0Supervisable()
+
+    class NewCasesCounter:
+        def __init__(self):
+            pass
+
+        def __call__(self, manager):
+            return _NewInfectedCount()
+
+    class GrowthFactor:
+        def __init__(self, sum_supervisor: "Sum", new_infected_supervisor: "NewCasesCounter"):
+            self.new_infected_supervisor = new_infected_supervisor
+            self.sum_supervisor = sum_supervisor
+
+        def __call__(self, m):
+            return _GrowthFactor(
+                Supervisable.coerce(self.new_infected_supervisor, m), Supervisable.coerce(self.sum_supervisor, m)
+            )
 
 
 SupervisableMaker = Callable[[Any], Supervisable]
@@ -276,6 +272,19 @@ class FloatSupervisable(ValueSupervisable):
 
     def stacked_plot(self, ax):
         return ax.stackplot(self.x, self.y, label=self.name())
+
+
+class LambdaValueSupervisable(FloatSupervisable):
+    def __init__(self, name: str, lam: Callable):
+        super().__init__()
+        self._name = name
+        self.lam = lam
+
+    def name(self) -> str:
+        return self._name
+
+    def get(self, manager) -> float:
+        return self.lam(manager)
 
 
 class _StateSupervisable(FloatSupervisable):
@@ -349,18 +358,16 @@ class _StackedFloatSupervisable(VectorSupervisable):
 
 
 class _SumSupervisable(ValueSupervisable):
-    def __init__(self, inners: List[ValueSupervisable]):
+    def __init__(self, inners: List[ValueSupervisable], **kwargs):
         super().__init__()
         self.inners = inners
+        self.kwargs = kwargs
 
     def get(self, manager) -> float:
         return sum(s.get(manager) for s in self.inners)
 
     def names(self):
-        return [
-            "Total(" + ", ".join(names) + ")"
-            for names in zip(*(i.names() for i in self.inners))
-        ]
+        return ["Total(" + ", ".join(names) + ")" for names in zip(*(i.names() for i in self.inners))]
 
     def plot(self, ax):
         return type(self.inners[0]).plot(self, ax)
@@ -369,17 +376,51 @@ class _SumSupervisable(ValueSupervisable):
         return type(self.inners[0]).stacked_plot(self, ax)
 
     def name(self) -> str:
+        if "name" in self.kwargs:
+            return self.kwargs["name"]
         return "Total(" + ", ".join(n.name() for n in self.inners)
 
-class _EffectiveR0Supervisable (FloatSupervisable):
+
+class _EffectiveR0Supervisable(FloatSupervisable):
     def __init__(self):
         super().__init__()
 
     def get(self, manager) -> float:
         # note that this calculation is VARY heavy
         suseptable_indexes = np.flatnonzero(manager.susceptible_vector)
-        return np.sum(1 - np.exp(manager.matrix.matrix[suseptable_indexes].data)) * manager.matrix.total_contagious_probability / manager.matrix.size
+        return (
+            np.sum(1 - np.exp(manager.matrix.matrix[suseptable_indexes].data))
+            * manager.matrix.total_contagious_probability
+            / manager.matrix.size
+        )
 
     def name(self) -> str:
         return "effective R"
 
+
+class _NewInfectedCount(FloatSupervisable):
+    def __init__(self):
+        super().__init__()
+
+    def get(self, manager) -> float:
+        return manager.new_sick_counter
+
+    def name(self) -> str:
+        return "new infected"
+
+
+class _GrowthFactor(FloatSupervisable):
+    def __init__(self, new_infected_supervisor, sum_supervisor):
+        super().__init__()
+        self.new_infected_supervisor = new_infected_supervisor
+        self.sum_supervisor = sum_supervisor
+
+    def get(self, manager) -> float:
+        new_infected = self.new_infected_supervisor.get(manager)
+        sum = self.sum_supervisor.get(manager)
+        if sum == 0:
+            return np.nan
+        return new_infected / sum
+
+    def name(self) -> str:
+        return "growth factor"
