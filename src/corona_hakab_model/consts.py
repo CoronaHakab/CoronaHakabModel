@@ -125,8 +125,8 @@ class Consts(ConstParameters):
         consts = Consts(**parameters)
         try:
             hash(consts)
-        except TypeError:
-            raise InvalidParameterException("Unhashable value in parameters")
+        except TypeError as e:
+            raise TypeError("Unhashable value in parameters") from e
 
     def average_time_in_each_state(self):
         """
@@ -260,12 +260,6 @@ class UnknownParameterException(Exception):
     def __init__(self, parameter_name):
         error_massage = f"Unknown parameter name - {parameter_name}"
         super(UnknownParameterException).__init__(error_massage)
-
-
-class InvalidParameterException(Exception):
-    def __init__(self, reason):
-        error_message = f"Invalid parameters. reason:{reason}"
-        super(InvalidParameterException).__init__(error_message)
 
 
 if __name__ == "__main__":
