@@ -9,6 +9,7 @@ from affinity_matrix import AffinityMatrix
 from agent import Agent
 from consts import Consts
 from medical_state import MedicalState
+from parasymbolic_matrix import ParasymbolicMatrix
 from state_machine import PendingTransfers
 from supervisor import Supervisable, Supervisor
 
@@ -19,11 +20,11 @@ class SimulationManager:
     """
 
     def __init__(
-        self,
-        supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
-        consts: Consts = Consts(),
-        input_matrix_path: str = None,
-        output_matrix_path: str = None,
+            self,
+            supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
+            consts: Consts = Consts(),
+            input_matrix_path: str = None,
+            output_matrix_path: str = None,
     ):
         self.consts = consts
         self.medical_machine = consts.medical_state_machine()
@@ -44,7 +45,9 @@ class SimulationManager:
         self.agents = [Agent(i, self, initial_state) for i in range(self.consts.population_size)]
         initial_state.add_many(self.agents)
 
-        self.matrix = AffinityMatrix(self, input_matrix_path, output_matrix_path)
+        if input_matrix_path or output_matrix_path:
+            raise NotImplementedError  # todo
+        self.matrix = AffinityMatrix(self)
 
         self.supervisor = Supervisor([Supervisable.coerce(a, self) for a in supervisable_makers], self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self.matrix)

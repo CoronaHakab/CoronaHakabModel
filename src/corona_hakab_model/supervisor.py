@@ -404,6 +404,7 @@ class _EffectiveR0Supervisable(FloatSupervisable):
     def get(self, manager) -> float:
         # note that this calculation is VARY heavy
         suseptable_indexes = np.flatnonzero(manager.susceptible_vector)
+        # todo someone who knows how this works fix it
         return (
             np.sum(1 - np.exp(manager.matrix.matrix[suseptable_indexes].data))
             * manager.matrix.total_contagious_probability

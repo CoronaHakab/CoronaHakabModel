@@ -21,6 +21,7 @@ Usage:
 1. Create a default consts object - consts = Consts()
 2. Load a parameters file - consts = Consts.from_file(path)
 """
+# todo why is this two classes and so weirdly made? fix
 default_parameters = {
     "population_size": 10_000,
     "total_steps": 350,
@@ -127,7 +128,6 @@ class Consts(ConstParameters):
             hash(consts)
         except TypeError as e:
             raise TypeError("Unhashable value in parameters") from e
-
 
     def average_time_in_each_state(self) -> Dict[MedicalState, int]:
         """
@@ -241,14 +241,15 @@ class Consts(ConstParameters):
         return ret
 
     @property
+    #todo this should be a consts
     def circular_matrices(self):
-
         return [
             CircularConnectionsMatrix("home", None, self.family_size_distribution, self.family_strength),
             CircularConnectionsMatrix("work", None, self.work_size_distribution, self.work_strength),
         ]
 
     @property
+    # todo this should be a consts
     def non_circular_matrices(self):
         return [
             NonCircularConnectionMatrix("work", None, self.work_scale_factor, self.work_strength),
