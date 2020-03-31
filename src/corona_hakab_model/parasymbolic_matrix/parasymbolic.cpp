@@ -4,9 +4,11 @@
 #include <thread>
 #include <algorithm>
 
-#define POOL_SIZE 3
+#define POOL_SIZE 2
 
 // region bare
+//todo merge bare and coffs
+//todo function to get pool_size
 BareSparseMatrix::BareSparseMatrix(size_t size): size(size), total(0){
     rows = new row_type[size];
     columns = new col_type[size];
@@ -287,23 +289,20 @@ void ParasymbolicMatrix::_prob_any_row(size_t row_num, dtype const* A_v, size_t 
     size_t nz_index = 0;
     auto& row_indices = inner.indices[row_num];
     auto& row_data = inner.data[row_num];
-    auto& r_i_iter = row_indices.cbegin();
-    auto& r_i_end = row_indices.cend();
-    auto& r_d_iter = row_data.cbegin();
-    while (r_i_iter != r_i_end && nz_index != nzi_len){
-        auto i = *r_i_iter;
+    size_t r_i_index = 0;
+    size_t t_i_len = row_indices.size();
+    while (r_i_index != t_i_len && nz_index != nzi_len){
+        auto i = row_indices[r_i_index];
         auto j = A_non_zero_indices[nz_index];
         if (i < j){
-            r_i_iter++;
-            r_d_iter++;
+            r_i_index++;
         }
         else if (j < i){
             nz_index++;
         }
         else /*j == i*/{
-            inv_ret *= (1 - (*r_d_iter) * A_v[j]);
-            r_i_iter++;
-            r_d_iter++;
+            inv_ret *= (1 - row_data[r_i_index] * A_v[j]);
+            r_i_index++;
             nz_index++;
         }
     }

@@ -82,10 +82,11 @@ class ScipyMatrix:
 def benchmark(size, depth, pre_set, operation):
     ps = ParasymbolicMatrix(size, depth)
     sm = ScipyMatrix(size, depth)
-    pre_set(ps)
-    print("ps set")
-    pre_set(sm)
-    print('ms set')
+    if pre_set:
+        pre_set(ps)
+        print("ps set")
+        pre_set(sm)
+        print('ms set')
     # measure ps
     start_time = time()
     p_ret = operation(ps)
@@ -117,8 +118,6 @@ if __name__ == '__main__':
             for c in range(3):
                 for row in range(t):
                     m[c, row, row_indices[row]] = row_values[row]
-                    if row % 50 == 0:
-                        print(f'row {row}')
 
 
     def poa(m):
@@ -129,6 +128,7 @@ if __name__ == '__main__':
 
     benchmarks = (
         (f"poa {t}x3", (t, 3, build_x_3, poa)),
+        (f"build {t}x3", (t, 3, None, build_x_3))
     )
     for name, args in benchmarks:
         p, s = benchmark(*args)
