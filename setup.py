@@ -12,7 +12,7 @@ setuptools.setup(
     description="Corona Hakab Model Simulator",
     package_dir={"": "src"},
     packages=["corona_hakab_model", "corona_hakab_model_data"],
-    install_requires=["numpy", "scipy", "scikit-learn"],
+    install_requires=["numpy", "scipy", "scikit-learn", "pytest"],
     extras_require={
         "quality": ["pytest", "tox", "flake8", "isort", "black"],
         "profiling": ["yappi"],
