@@ -6,7 +6,12 @@ from typing import List, Sequence, Iterable
 import numpy as np
 
 from agent import TrackingCircle
-from parasymbolic_matrix import ParasymbolicMatrix
+
+use_parasymbolic_matrix = False
+if use_parasymbolic_matrix:
+    from parasymbolic_matrix import ParasymbolicMatrix as CoronaMatrix
+else:
+    from scipy_matrix import ScipyMatrix as CoronaMatrix
 
 
 class AffinityMatrix:
@@ -36,7 +41,7 @@ class AffinityMatrix:
         for j, ncm in enumerate(self.consts.non_circular_matrices, len(self.circular_matrix_types)):
             self.non_circular_matrix_types[ncm.name] = (j, ncm)
         self.depth = j + 1
-        self.inner = ParasymbolicMatrix(self.size, self.depth)
+        self.inner = CoronaMatrix(self.size, self.depth)
 
         self.agents = self.manager.agents
 
