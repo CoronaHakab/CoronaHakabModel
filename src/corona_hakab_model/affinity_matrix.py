@@ -4,7 +4,7 @@ from random import sample, shuffle
 from typing import Iterable, List
 
 import numpy as np
-from agent import TrackingCircle, Agent
+from agent import Agent, TrackingCircle
 from consts import Consts
 
 use_parasymbolic_matrix = False
