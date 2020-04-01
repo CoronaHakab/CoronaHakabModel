@@ -46,7 +46,7 @@ class SimulationManager:
 
         if input_matrix_path or output_matrix_path:
             raise NotImplementedError  # todo
-        self.matrix = AffinityMatrix(self)
+        self.matrix = AffinityMatrix(self.agents, self.consts)
 
         self.supervisor = Supervisor([Supervisable.coerce(a, self) for a in supervisable_makers], self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self.matrix)

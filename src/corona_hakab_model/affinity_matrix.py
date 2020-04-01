@@ -26,8 +26,8 @@ class AffinityMatrix:
 
     def __init__(self, agents: Iterable[Agent], consts: Consts):
         self.consts = consts
-        self.size = consts.populetion_size
-        assert len(agents) == consts.populetion_size, "Size of population doesn't match agent list size!"
+        self.size = consts.population_size
+        assert len(agents) == consts.population_size, "Size of population doesn't match agent list size!"
         self.logger = logging.getLogger("simulation")
 
         self.logger.info("Building new AffinityMatrix")
