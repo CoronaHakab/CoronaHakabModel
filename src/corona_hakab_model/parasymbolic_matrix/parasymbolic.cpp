@@ -372,6 +372,7 @@ void ParasymbolicMatrix::batch_set(size_t component_num, size_t row, size_t cons
 
 void ParasymbolicMatrix::set_calc_lock(bool value){
     calc_lock = value;
+    // todo we probably don't have to rebuild the entire matrix
     if (!calc_lock) rebuild_all();
 }
 
