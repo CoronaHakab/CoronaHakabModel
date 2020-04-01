@@ -4,7 +4,8 @@ from random import sample, shuffle
 from typing import Iterable, List
 
 import numpy as np
-from agent import TrackingCircle
+from agent import TrackingCircle, Agent
+from consts import Consts
 
 use_parasymbolic_matrix = False
 if use_parasymbolic_matrix:
@@ -23,14 +24,11 @@ class AffinityMatrix:
     Naturally, W is symmetric.
     """
 
-    def __init__(self, manager, input_matrix_path: str = None, output_matrix_path: str = None):
-        self.consts = manager.consts
-        self.size = len(manager.agents)  # population size
+    def __init__(self, agents: Iterable[Agent], consts: Consts):
+        self.consts = consts
+        self.size = consts.populetion_size
+        assert len(agents) == consts.populetion_size, "Size of population doesn't match agent list size!"
         self.logger = logging.getLogger("simulation")
-
-        self.manager = manager
-        if input_matrix_path or output_matrix_path:
-            raise NotImplementedError
 
         self.logger.info("Building new AffinityMatrix")
         self.circular_matrix_types = {}
@@ -42,7 +40,7 @@ class AffinityMatrix:
         self.depth = j + 1
         self.inner = CoronaMatrix(self.size, self.depth)
 
-        self.agents = self.manager.agents
+        self.agents = agents
 
         self.logger.info("Building circular connections matrices")
 
