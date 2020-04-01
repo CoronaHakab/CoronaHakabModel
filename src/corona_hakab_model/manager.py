@@ -9,7 +9,6 @@ from affinity_matrix import AffinityMatrix
 from agent import Agent
 from consts import Consts
 from medical_state import MedicalState
-from parasymbolic_matrix import ParasymbolicMatrix
 from state_machine import PendingTransfers
 from supervisor import Supervisable, Supervisor
 
