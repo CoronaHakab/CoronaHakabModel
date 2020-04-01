@@ -1,7 +1,7 @@
 import logging
 import math
 from random import shuffle, sample
-from typing import List, Sequence, Iterable
+from typing import List, Iterable
 
 import numpy as np
 
