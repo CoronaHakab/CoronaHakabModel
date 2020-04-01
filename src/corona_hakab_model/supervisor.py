@@ -8,21 +8,8 @@ from functools import lru_cache
 from typing import Any, Callable, List, NamedTuple, Sequence, Tuple
 
 import manager
+import matplotlib_set_backend
 import numpy as np
-
-try:
-    import PySide2
-except ImportError:
-    pass
-else:
-    try:
-        import matplotlib
-    except ImportError:
-        pass
-    else:
-        matplotlib.use("Qt5Agg")
-        del matplotlib
-    del PySide2
 
 try:
     # plt is optional

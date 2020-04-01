@@ -1,15 +1,13 @@
+from contextlib import contextmanager
+
 import numpy as np
 from scipy.sparse import lil_matrix
-from contextlib import contextmanager
 
 
 class ScipyMatrix:
     def __init__(self, size, depth):
         self.size = size
-        self.sub_matrices = \
-            [
-                lil_matrix((size, size), dtype=np.float32) for _ in range(depth)
-            ]
+        self.sub_matrices = [lil_matrix((size, size), dtype=np.float32) for _ in range(depth)]
         self.coffs = [1 for _ in range(depth)]
         self.sum = None
         self.lg = None
@@ -17,9 +15,7 @@ class ScipyMatrix:
         self.rebuild_all()
 
     def rebuild_all(self):
-        self.sum = sum(
-            s * c for (s, c) in zip(self.sub_matrices, self.coffs)
-        )
+        self.sum = sum(s * c for (s, c) in zip(self.sub_matrices, self.coffs))
 
         self.lg = lil_matrix((self.size, self.size), dtype=np.float32)
         # scipy.sparse.csr_matrix.nonzero
@@ -76,4 +72,3 @@ class ScipyMatrix:
         yield self
         self.build_lock = True
         self.rebuild_all()
-

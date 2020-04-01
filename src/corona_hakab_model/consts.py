@@ -241,7 +241,7 @@ class Consts(ConstParameters):
         return ret
 
     @property
-    #todo this should be a consts
+    # todo this should be a consts
     def circular_matrices(self):
         return [
             CircularConnectionsMatrix("home", None, self.family_size_distribution, self.family_strength),

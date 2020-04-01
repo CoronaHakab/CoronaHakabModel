@@ -1,10 +1,9 @@
 import logging
 import math
-from random import shuffle, sample
-from typing import List, Iterable
+from random import sample, shuffle
+from typing import Iterable, List
 
 import numpy as np
-
 from agent import TrackingCircle
 
 use_parasymbolic_matrix = False
@@ -144,9 +143,7 @@ class AffinityMatrix:
             # todo i don't like this min, it indicates an issue
             rc = min(remaining_contacts[current_agent_id], len(agent_id_pool))
             conns = np.array(sample(agent_id_pool, rc))
-            connections[current_agent_id].extend(
-                conns
-            )
+            connections[current_agent_id].extend(conns)
             remaining_contacts[conns] -= 1
 
             to_remove = set(conns[remaining_contacts[conns] == 0])

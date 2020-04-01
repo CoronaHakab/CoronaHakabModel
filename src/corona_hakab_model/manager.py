@@ -19,11 +19,11 @@ class SimulationManager:
     """
 
     def __init__(
-            self,
-            supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
-            consts: Consts = Consts(),
-            input_matrix_path: str = None,
-            output_matrix_path: str = None,
+        self,
+        supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
+        consts: Consts = Consts(),
+        input_matrix_path: str = None,
+        output_matrix_path: str = None,
     ):
         self.consts = consts
         self.medical_machine = consts.medical_state_machine()

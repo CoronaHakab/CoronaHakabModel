@@ -1,5 +1,3 @@
-import numpy as np
-
 from affinity_matrix import AffinityMatrix
 from agent import Agent
 
@@ -33,12 +31,12 @@ class UpdateMatrixManager:
         """
         if agent.is_home_isolated:
             return
-        fam_index = self.affinity_matrix.circular_matrix_types['home']
+        fam_index = self.affinity_matrix.circular_matrix_types["home"]
         for i in range(self.affinity_matrix.depth):
             if i == fam_index:
                 continue
-            self.affinity_matrix.inner.mul_sub_col(i,agent.index,0)
-            self.affinity_matrix.inner.mul_sub_row(i,agent.index,0)
+            self.affinity_matrix.inner.mul_sub_col(i, agent.index, 0)
+            self.affinity_matrix.inner.mul_sub_row(i, agent.index, 0)
 
         agent.is_home_isolated = True
 

@@ -2,7 +2,6 @@ from contextlib import contextmanager
 from itertools import product
 
 import numpy as np
-
 from parasymbolic_matrix import ParasymbolicMatrix
 
 
@@ -21,24 +20,18 @@ class MockParasymbolicMatrix:
             return sum(self.get(i, j) for i, j in product(range(self.size), repeat=2))
 
     def __init__(self, size, components):
-        self.components = [
-            self.MockCoffMatrix(size) for _ in range(components)
-        ]
+        self.components = [self.MockCoffMatrix(size) for _ in range(components)]
         self.coffs = [1 for _ in range(components)]
 
         self.size = size
 
     def get(self, arg1, arg2, arg3=None):
         if arg3 is None:
-            return sum(
-                c.get(arg1, arg2) * f for (c, f) in zip(self.components, self.coffs)
-            )
+            return sum(c.get(arg1, arg2) * f for (c, f) in zip(self.components, self.coffs))
         return self.components[arg1].get(arg2, arg3)
 
     def total(self):
-        return sum(
-            c.total() * f for (c, f) in zip(self.components, self.coffs)
-        )
+        return sum(c.total() * f for (c, f) in zip(self.components, self.coffs))
 
     def prob_any(self, v):
         ret = []
@@ -46,7 +39,7 @@ class MockParasymbolicMatrix:
         for row in range(self.size):
             i_r = 1
             for col in range(self.size):
-                i_r *= (1 - v[col] * self.get(row, col))
+                i_r *= 1 - v[col] * self.get(row, col)
             ret.append(1 - i_r)
         return ret
 
@@ -84,9 +77,9 @@ v = np.array([0.2, 0, 0.5], dtype=np.float32)
 def check_equal(ps: ParasymbolicMatrix, mck: MockParasymbolicMatrix, msg: str):
     for i, j in product(range(3), repeat=2):
         p, m = ps.get(i, j), mck.get(i, j)
-        assert np.isclose(p, m), f'{msg}, [{i},{j}] {p} vs {m}'
+        assert np.isclose(p, m), f"{msg}, [{i},{j}] {p} vs {m}"
     assert np.isclose(ps.total(), mck.total()), msg
-    p,m = ps.prob_any(v), mck.prob_any(v)
+    p, m = ps.prob_any(v), mck.prob_any(v)
     assert np.allclose(p, m), msg
 
 
@@ -99,34 +92,34 @@ def operate(parasym):
         parasym[1, 0, [2]] = [0.1]
         parasym[1, 2, [0, 2]] = [0.5, 0.5]
 
-    yield 'post_build'
+    yield "post_build"
 
     parasym[0, 1, [1]] = [0.3]
-    yield 'set_no_lock'
+    yield "set_no_lock"
 
     parasym.set_factors([0.5, 0])
-    yield 'set_factors'
+    yield "set_factors"
 
     parasym.set_factors([1, 1])
-    yield 'reset_factors'
+    yield "reset_factors"
 
     parasym *= 12.65
-    yield 'mul big'
+    yield "mul big"
 
     parasym *= 0.01
-    yield 'mul small'
+    yield "mul small"
 
     parasym.mul_sub_row(1, 2, 0.5)
-    yield 'msr'
+    yield "msr"
 
     parasym.mul_sub_col(0, 1, 0)
-    yield 'msc'
+    yield "msc"
 
     parasym.reset_mul_row(1, 2)
-    yield 'rsr'
+    yield "rsr"
 
     parasym.reset_mul_col(0, 1)
-    yield 'rsc'
+    yield "rsc"
 
 
 def test_parasym():
@@ -141,5 +134,5 @@ def test_parasym():
         check_equal(main, mock, i)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_parasym()
