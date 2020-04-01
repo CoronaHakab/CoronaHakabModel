@@ -17,6 +17,7 @@ setuptools.setup(
         "quality": ["pytest", "tox", "flake8", "isort", "black"],
         "profiling": ["yappi"],
         "pretty graphs": ["pyside2"],
+        "building": ["swimport"],
     },
     python_requires=">=3.8.0",
     include_package_data=True,
