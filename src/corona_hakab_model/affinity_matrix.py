@@ -43,13 +43,12 @@ class AffinityMatrix:
         for j, ncm in enumerate(self.consts.non_circular_matrices, len(self.circular_matrix_types)):
             self.non_circular_matrix_types[ncm.name] = (j, ncm)
 
-        l = 0
         self.clustered_matrix_types = {}
-        for l, clm in enumerate(self.consts.clustered_matrices,
+        for k, clm in enumerate(self.consts.clustered_matrices,
                                 len(self.circular_matrix_types) + len(self.non_circular_matrix_types)):
-            self.clustered_matrix_types[clm.name] = (l, clm)
+            self.clustered_matrix_types[clm.name] = (k, clm)
 
-        self.depth = l + 1
+        self.depth = k + 1
         self.inner = CoronaMatrix(self.size, self.depth)
 
         self.agents = agents
