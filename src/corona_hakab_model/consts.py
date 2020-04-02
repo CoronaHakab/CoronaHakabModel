@@ -21,6 +21,7 @@ Usage:
 1. Create a default consts object - consts = Consts()
 2. Load a parameters file - consts = Consts.from_file(path)
 """
+# todo why is this two classes and so weirdly made? fix
 default_parameters = {
     "population_size": 10_000,
     "total_steps": 350,
@@ -144,10 +145,10 @@ class Consts(ConstParameters):
         terminal_mask = np.zeros(z, bool)
         terminal_mask[list(terminal_states.values())] = True
 
-        states_duration: Dict[MedicalState:int] = Dict.fromkeys(m.states, 0)
+        states_duration: Dict[MedicalState, int] = Dict.fromkeys(m.states, 0)
         states_duration[m.state_upon_infection] = 1
 
-        index_to_state: Dict[int:MedicalState] = {}
+        index_to_state: Dict[int, MedicalState] = {}
         for state, index in terminal_states.items():
             index_to_state[index] = state
         for state, dict in transfer_states.items():
@@ -240,13 +241,14 @@ class Consts(ConstParameters):
         return ret
 
     @property
+    # todo this should be a consts
     def circular_matrices(self):
-
         return [
             CircularConnectionsMatrix("home", None, self.family_size_distribution, self.family_strength),
         ]
 
     @property
+    # todo this should be a consts
     def non_circular_matrices(self):
         return [
             NonCircularConnectionMatrix("strangers", None, self.strangers_scale_factor, self.stranger_strength),
