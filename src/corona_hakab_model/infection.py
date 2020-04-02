@@ -40,7 +40,7 @@ class InfectionManager:
         u = self.manager.matrix.inner.prob_any(v)
         # calculate the infections boolean vector
 
-        infections = self.manager.susceptible_vector & (np.random.random(u.shape) < (1 - np.exp(u)))
+        infections = self.manager.susceptible_vector & (np.random.random(u.shape) < u)
         infected_indices = np.flatnonzero(infections)
 
         # caught_rolls: boolean vector, True if an agent is known to be infected

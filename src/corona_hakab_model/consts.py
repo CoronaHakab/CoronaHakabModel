@@ -7,7 +7,7 @@ import numpy as np
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
 from state_machine import StochasticState, TerminalState
-from sub_matrices import CircularConnectionsMatrix, NonCircularConnectionMatrix
+from sub_matrices import CircularConnectionsMatrix, ClusteredConnectionsMatrix, NonCircularConnectionMatrix
 from util import dist, rv_discrete, upper_bound
 
 """
@@ -24,7 +24,7 @@ Usage:
 # todo why is this two classes and so weirdly made? fix
 default_parameters = {
     "population_size": 10_000,
-    "total_steps": 350,
+    "total_steps": 300,
     "initial_infected_count": 20,
     # Tsvika: Currently the distribution is selected based on the number of input parameters.
     # Think we should do something more readable later on.
@@ -245,16 +245,20 @@ class Consts(ConstParameters):
     def circular_matrices(self):
         return [
             CircularConnectionsMatrix("home", None, self.family_size_distribution, self.family_strength),
-            CircularConnectionsMatrix("work", None, self.work_size_distribution, self.work_strength),
         ]
 
     @property
     # todo this should be a consts
     def non_circular_matrices(self):
         return [
-            NonCircularConnectionMatrix("work", None, self.work_scale_factor, self.work_strength),
-            NonCircularConnectionMatrix("school", None, self.school_scale_factor, self.school_strength),
             NonCircularConnectionMatrix("strangers", None, self.strangers_scale_factor, self.stranger_strength),
+        ]
+
+    @property
+    def clustered_matrices(self):
+        return [
+            ClusteredConnectionsMatrix("work", None, self.work_scale_factor, self.work_strength),
+            ClusteredConnectionsMatrix("school", None, self.school_scale_factor, self.school_strength),
         ]
 
 

@@ -27,3 +27,17 @@ class NonCircularConnectionMatrix:
         self.agents = agents
         self.scale_factor = scale_factor
         self.connection_strength = connection_strength
+
+
+class ClusteredConnectionsMatrix:
+
+    __slots__ = "name", "agents", "mean_connections_amount", "connection_strength", "p"
+
+    def __init__(
+        self, name: str, agents: List[Agent], mean_connections_amount: int, connection_strength: float, p: float = 1
+    ):
+        self.name = name
+        self.agents = agents
+        self.mean_connections_amount = mean_connections_amount
+        self.connection_strength = connection_strength
+        self.p = p
