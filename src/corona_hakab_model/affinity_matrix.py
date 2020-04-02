@@ -8,6 +8,7 @@ from agent import Agent, TrackingCircle
 from node import Node
 from scipy.sparse import lil_matrix
 from consts import Consts
+from itertools import islice
 
 use_parasymbolic_matrix = True
 if use_parasymbolic_matrix:
@@ -42,6 +43,7 @@ class AffinityMatrix:
         for j, ncm in enumerate(self.consts.non_circular_matrices, len(self.circular_matrix_types)):
             self.non_circular_matrix_types[ncm.name] = (j, ncm)
 
+        l = 0
         self.clustered_matrix_types = {}
         for l, clm in enumerate(self.consts.clustered_matrices,
                                 len(self.circular_matrix_types) + len(self.non_circular_matrix_types)):
@@ -178,7 +180,7 @@ class AffinityMatrix:
             connections[nodes[i].index].extend([node.index for node in other_nodes])
 
         # add the rest of the nodes, one at a time
-        for node in nodes[m + 1:]:
+        for node in islice(nodes, m+1, None):
             # randomly select the first node to connect. pops him so that he won't be choosen again
             rand_node = inserted_nodes.pop(math.floor(rolls.__next__() * len(inserted_nodes)))
 
