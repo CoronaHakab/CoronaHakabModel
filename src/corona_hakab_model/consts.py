@@ -77,16 +77,13 @@ default_parameters = {
         1, 7, name="family", values=([1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081])
     ),  # the average workplace size
     # work circles size distribution
-    "work_size_distribution": dist(30, 80),  # todo replace with distribution
+    "work_size_distribution": dist(30, 80),
     # work scale factor (1/alpha)
     "work_scale_factor": 40,
-    # the average amount of stranger contacts per person
-    "average_amount_of_strangers": 200,  # todo replace with distribution
-    # strangers scale factor (1/alpha)
+    # scale factor for amount of connections (1/alpha)
     "strangers_scale_factor": 150,
     "school_scale_factor": 100,
     # relative strengths of each connection (in terms of infection chance)
-    # todo so if all these strength are relative only to each other (and nothing else), whe are none of them 1?
     "family_strength_not_workers": 0.75,
     "family_strength": 1,
     "work_strength": 0.1,

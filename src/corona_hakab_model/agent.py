@@ -12,6 +12,9 @@ class Agent:
         "is_home_isolated",
         "is_full_isolated",
         "manager",
+        "age",
+        "geographic_circle",
+        "social_circles"
     )
 
     def __init__(self, index, manager, initial_state: "medical_state.MedicalState"):
@@ -24,6 +27,9 @@ class Agent:
 
         self.is_home_isolated = False
         self.is_full_isolated = False
+
+        self.geographic_circle = None
+        self.social_circles = []
 
     def set_medical_state_no_inform(self, new_state: "medical_state.MedicalState"):
         self.medical_state = new_state
