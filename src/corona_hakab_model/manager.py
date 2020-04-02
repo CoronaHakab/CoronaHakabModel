@@ -131,7 +131,6 @@ class SimulationManager:
         self.setup_sick()
 
         for i in range(self.consts.total_steps):
-            print(i)
             if self.consts.active_isolation:
                 if i == self.consts.stop_work_days:
                     self.matrix.change_connections_policy({"home", "strangers"})
