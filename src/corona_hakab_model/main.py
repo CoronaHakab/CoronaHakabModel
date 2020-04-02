@@ -66,7 +66,7 @@ def main():
         output_matrix_path=args.output_matrix_path,
         consts=consts,
     )
-
+    print(sm)
     sm.run()
     sm.plot(save=True, max_scale=False)
 

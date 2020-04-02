@@ -51,9 +51,11 @@ class InfectionManager:
         # key = medical state (currently only susceptible state which an agent can be infected)
         # value = list of agents
         new_infected = defaultdict(list)
+
         for index, caught in zip(infected_indices, caught_rolls):
             agent = self.manager.agents[index]
             new_infected[agent.medical_state].append(agent)
+
             if caught:
                 # what to do with an infected agent that got caught
                 if self.manager.consts.home_isolation_sicks:

@@ -8,7 +8,7 @@ import update_matrix
 from affinity_matrix import AffinityMatrix
 from agent import Agent
 from consts import Consts
-from medical_state import MedicalState
+from medical_state import MedicalState,MedicalStateManager
 from state_machine import PendingTransfers
 from supervisor import Supervisable, Supervisor
 
@@ -51,6 +51,7 @@ class SimulationManager:
         self.supervisor = Supervisor([Supervisable.coerce(a, self) for a in supervisable_makers], self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self.matrix)
         self.infection_manager = infection.InfectionManager(self)
+        self.medical_state_manager = MedicalStateManager(self)
 
         self.current_date = 0
 
@@ -71,41 +72,41 @@ class SimulationManager:
         new_sick = self.infection_manager.infection_step()
 
         # progress transfers
-        self.progress_transfers(new_sick)
+        self.medical_state_manager.step(new_sick)
 
         self.current_date += 1
 
         self.supervisor.snapshot(self)
 
-    def progress_transfers(self, new_sick: Dict[MedicalState, List]):
-        # all the new sick agents are leaving their previous step
-        changed_state_leaving = new_sick
-        # agents which are going to enter the new state
-        changed_state_introduced = defaultdict(list)
-        # list of all the new sick agents
-        new_sick_list = sum(changed_state_leaving.values(), [])
-
-        # saves this number for supervising
-        self.new_sick_counter = len(new_sick_list)
-        # all the new sick are going to get to the next state
-        changed_state_introduced[self.medical_machine.state_upon_infection] = new_sick_list
-
-        for s in new_sick_list:
-            s.set_medical_state_no_inform(self.medical_machine.state_upon_infection)
-
-        moved = self.pending_transfers.advance()
-        for (agent, destination, origin, _) in moved:
-            agent.set_medical_state_no_inform(destination)
-
-            changed_state_introduced[destination].append(agent)
-            changed_state_leaving[origin].append(agent)
-
-        for state, agents in changed_state_introduced.items():
-            state.add_many(agents)
-            self.pending_transfers.extend(state.transfer(agents))
-
-        for state, agents in changed_state_leaving.items():
-            state.remove_many(agents)
+    # def progress_transfers(self, new_sick: Dict[MedicalState, List]):
+    #     # all the new sick agents are leaving their previous step
+    #     changed_state_leaving = new_sick
+    #     # agents which are going to enter the new state
+    #     changed_state_introduced = defaultdict(list)
+    #     # list of all the new sick agents
+    #     new_sick_list = sum(changed_state_leaving.values(), [])
+    #
+    #     # saves this number for supervising
+    #     self.new_sick_counter = len(new_sick_list)
+    #     # all the new sick are going to get to the next state
+    #     changed_state_introduced[self.medical_machine.state_upon_infection] = new_sick_list
+    #
+    #     for s in new_sick_list:
+    #         s.set_medical_state_no_inform(self.medical_machine.state_upon_infection)
+    #
+    #     moved = self.pending_transfers.advance()
+    #     for (agent, destination, origin, _) in moved:
+    #         agent.set_medical_state_no_inform(destination)
+    #
+    #         changed_state_introduced[destination].append(agent)
+    #         changed_state_leaving[origin].append(agent)
+    #
+    #     for state, agents in changed_state_introduced.items():
+    #         state.add_many(agents)
+    #         self.pending_transfers.extend(state.transfer(agents))
+    #
+    #     for state, agents in changed_state_leaving.items():
+    #         state.remove_many(agents)
 
     def setup_sick(self):
         """"
@@ -130,6 +131,7 @@ class SimulationManager:
         self.setup_sick()
 
         for i in range(self.consts.total_steps):
+            print(i)
             if self.consts.active_isolation:
                 if i == self.consts.stop_work_days:
                     self.matrix.change_connections_policy({"home", "strangers"})

@@ -7,7 +7,7 @@ import numpy as np
 from agent import Agent, TrackingCircle
 from consts import Consts
 
-use_parasymbolic_matrix = False
+use_parasymbolic_matrix = True
 if use_parasymbolic_matrix:
     from parasymbolic_matrix import ParasymbolicMatrix as CoronaMatrix
 else:
