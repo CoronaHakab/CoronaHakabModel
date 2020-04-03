@@ -21,8 +21,8 @@ class PendingTransfers:
         self.inner: Dict[int, List[PendingTransfer]] = defaultdict(list)
 
     def append(self, transfer: PendingTransfer):
-        key = transfer.original_duration
-        self.inner[key].append(transfer)
+        days_left = transfer.original_duration - 1
+        self.inner[days_left].append(transfer)
 
     def extend(self, transfers):
         for t in transfers:
@@ -32,11 +32,11 @@ class PendingTransfers:
         # todo improve? (rotating array?)
         new_inner = defaultdict(list)
         ret = ()  # no transfers to do in the current step
-        for k, v in self.inner.items():
-            if k:
-                new_inner[k - 1] = v
+        for days_left, v in self.inner.items():
+            if days_left > 0:
+                new_inner[days_left - 1] = v
             else:
-                ret = v  # the list of transfers to do now (key=0)
+                ret = v  # the list of transfers to do now (days_left=0)
         self.inner = new_inner
         return ret
 
