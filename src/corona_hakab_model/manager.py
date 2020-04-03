@@ -1,6 +1,5 @@
 import logging
-from collections import defaultdict
-from typing import Callable, Dict, Iterable, List, Union
+from typing import Callable, Iterable, Union
 
 import infection
 import numpy as np
@@ -8,7 +7,7 @@ import update_matrix
 from affinity_matrix import AffinityMatrix
 from agent import Agent
 from consts import Consts
-from medical_state import MedicalState,MedicalStateManager
+from medical_state_manager import MedicalStateManager
 from state_machine import PendingTransfers
 from supervisor import Supervisable, Supervisor
 
