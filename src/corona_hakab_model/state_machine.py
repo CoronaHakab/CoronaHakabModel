@@ -21,7 +21,7 @@ class PendingTransfers:
         self.inner: Dict[int, List[PendingTransfer]] = defaultdict(list)
 
     def append(self, transfer: PendingTransfer):
-        days_left = transfer.original_duration - 1
+        days_left = max(0, transfer.original_duration - 1)  # TODO: Temp fix since we don't support durations of 0 days
         self.inner[days_left].append(transfer)
 
     def extend(self, transfers):
