@@ -8,7 +8,6 @@ from affinity_matrix import AffinityMatrix
 from agent import Agent
 from consts import Consts
 from medical_state_manager import MedicalStateManager
-from state_machine import PendingTransfers
 from supervisor import Supervisable, Supervisor
 
 
@@ -28,7 +27,6 @@ class SimulationManager:
         self.medical_machine = consts.medical_state_machine()
         initial_state = self.medical_machine.initial
 
-        self.pending_transfers = PendingTransfers()
         self.in_silent_state = 0
         self.detected_daily = 0
         self.logger = logging.getLogger("simulation")
@@ -77,36 +75,6 @@ class SimulationManager:
 
         self.supervisor.snapshot(self)
 
-    # def progress_transfers(self, new_sick: Dict[MedicalState, List]):
-    #     # all the new sick agents are leaving their previous step
-    #     changed_state_leaving = new_sick
-    #     # agents which are going to enter the new state
-    #     changed_state_introduced = defaultdict(list)
-    #     # list of all the new sick agents
-    #     new_sick_list = sum(changed_state_leaving.values(), [])
-    #
-    #     # saves this number for supervising
-    #     self.new_sick_counter = len(new_sick_list)
-    #     # all the new sick are going to get to the next state
-    #     changed_state_introduced[self.medical_machine.state_upon_infection] = new_sick_list
-    #
-    #     for s in new_sick_list:
-    #         s.set_medical_state_no_inform(self.medical_machine.state_upon_infection)
-    #
-    #     moved = self.pending_transfers.advance()
-    #     for (agent, destination, origin, _) in moved:
-    #         agent.set_medical_state_no_inform(destination)
-    #
-    #         changed_state_introduced[destination].append(agent)
-    #         changed_state_leaving[origin].append(agent)
-    #
-    #     for state, agents in changed_state_introduced.items():
-    #         state.add_many(agents)
-    #         self.pending_transfers.extend(state.transfer(agents))
-    #
-    #     for state, agents in changed_state_leaving.items():
-    #         state.remove_many(agents)
-
     def setup_sick(self):
         """"
         setting up the simulation with a given amount of infected people
@@ -115,13 +83,15 @@ class SimulationManager:
         agents_to_infect = self.agents[: self.consts.initial_infected_count]
 
         for agent in agents_to_infect:
-            agent.set_medical_state_no_inform(self.medical_machine.state_upon_infection)
+            agent.set_medical_state_no_inform(self.medical_machine.default_state_upon_infection)
 
         self.medical_machine.initial.remove_many(agents_to_infect)
-        self.medical_machine.state_upon_infection.add_many(agents_to_infect)
+        self.medical_machine.default_state_upon_infection.add_many(agents_to_infect)
 
         # take list of agents and create a pending transfer from their initial state to the next state
-        self.pending_transfers.extend(self.medical_machine.state_upon_infection.transfer(agents_to_infect))
+        self.medical_state_manager.pending_transfers.extend(
+            self.medical_machine.default_state_upon_infection.transfer(agents_to_infect)
+        )
 
     def run(self):
         """

@@ -1,11 +1,16 @@
 from medical_state import MedicalState
 from state_machine import StateMachine
+from agent import AgentTraits
 
 
 class MedicalStateMachine(StateMachine[MedicalState]):
-    def __init__(self, initial_state: MedicalState, state_upon_infection: MedicalState, **kwargs):
+    def __init__(self, initial_state: MedicalState, default_state_upon_infection: MedicalState, **kwargs):
         super().__init__(initial_state, **kwargs)
-        self.state_upon_infection = state_upon_infection
-        self.add_state(state_upon_infection)
+        self.default_state_upon_infection = default_state_upon_infection
+        self.add_state(default_state_upon_infection)
 
+    def get_state_upon_infection(self, agent: AgentTraits) -> MedicalState:
+        if agent:  # placeholder
+            pass
+        return self.default_state_upon_infection
         # todo add virtual link between initial and infected state for graphs

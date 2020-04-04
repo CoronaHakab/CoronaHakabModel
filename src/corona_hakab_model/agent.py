@@ -11,13 +11,16 @@ class Agent:
         "medical_state",
         "is_home_isolated",
         "is_full_isolated",
-        "manager",
+        "simulation_manager",
+        "traits"
     )
 
-    def __init__(self, index, manager, initial_state: "medical_state.MedicalState"):
+    def __init__(self, index, simulation_manager, initial_state: "medical_state.MedicalState"):
         self.index = index
 
-        self.manager = manager
+        self.traits = AgentTraits()
+
+        self.simulation_manager = simulation_manager
 
         self.medical_state: "medical_state.MedicalState" = None
         self.set_medical_state_no_inform(initial_state)
@@ -28,16 +31,24 @@ class Agent:
     def set_medical_state_no_inform(self, new_state: "medical_state.MedicalState"):
         self.medical_state = new_state
         # count how many entered silent state
-        if new_state == self.manager.medical_machine.states_by_name["Silent"]:
-            self.manager.in_silent_state += 1
-        self.manager.contagiousness_vector[self.index] = new_state.contagiousness
-        self.manager.susceptible_vector[self.index] = new_state.susceptible
+        if new_state == self.simulation_manager.medical_machine.states_by_name["Silent"]:
+            self.simulation_manager.in_silent_state += 1
+        self.simulation_manager.contagiousness_vector[self.index] = new_state.contagiousness
+        self.simulation_manager.susceptible_vector[self.index] = new_state.susceptible
 
     def __str__(self):
         return f"<Person,  index={self.index}, medical={self.medical_state}>"
 
     def get_infection_ratio(self):
         return self.medical_state.contagiousness
+
+
+class AgentTraits:
+    """
+    Individual traits of an agent - Age, Susceptability, obedience...
+    """
+    def __init__(self, age: int = 25):
+        self.age = age
 
 
 class Circle:
