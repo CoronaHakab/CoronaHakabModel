@@ -60,7 +60,6 @@ class GenerationManager:
         self.create_whole_population_circles()
 
         #create_matrix_from_circles()
-        print("done")
 
     def create_geographic_circles(self):
         """

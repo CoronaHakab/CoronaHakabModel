@@ -41,7 +41,10 @@ class SimulationManager:
         # the manager holds the vector, but the agents update it
         self.contagiousness_vector = np.empty(self.consts.population_size, dtype=float)  # how likely to infect others
         self.susceptible_vector = np.empty(self.consts.population_size, dtype=bool)  # can get infected
-        self.agents = [Agent(i, self, initial_state) for i in range(self.consts.population_size)]
+
+        self.agents = [Agent(i) for i in range(self.consts.population_size)]
+        for agent in self.agents:
+            agent.add_to_simulation(self, initial_state)
         initial_state.add_many(self.agents)
 
         if input_matrix_path or output_matrix_path:
