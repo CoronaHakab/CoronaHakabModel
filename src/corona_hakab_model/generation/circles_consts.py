@@ -6,7 +6,7 @@ from typing import Dict, Tuple
 
 
 # todo switch to a named tuple, and allow loading from a file
-class GenerationConsts:
+class CirclesConsts:
 
     def __init__(self):
         self.population_size = 10_000
