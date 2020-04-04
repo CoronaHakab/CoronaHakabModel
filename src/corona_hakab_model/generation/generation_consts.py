@@ -1,7 +1,7 @@
 from collections import namedtuple
 from util import rv_discrete, dist
 from generation.connection_types import ConnectionTypes
-from cached_property import cached_property
+from functools import cached_property
 from typing import Dict, Tuple
 
 

@@ -150,3 +150,6 @@ static
 
 # SciPy data structures
 .npz
+
+# serialized objects
+.pickle
