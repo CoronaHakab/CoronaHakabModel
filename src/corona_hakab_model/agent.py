@@ -1,6 +1,3 @@
-import medical_state
-
-
 class Agent:
     """
     This class represents a person in our doomed world.
@@ -14,22 +11,27 @@ class Agent:
         "manager",
         "age",
         "geographic_circle",
-        "social_circles"
+        "social_circles",
     )
 
-    def __init__(self, index, manager, initial_state: "medical_state.MedicalState"):
+    # todo note that this changed to fit generation. should update simulation manager accordingly
+    def __init__(self, index):
         self.index = index
 
-        self.manager = manager
-
-        self.medical_state: "medical_state.MedicalState" = None
-        self.set_medical_state_no_inform(initial_state)
-
+        # todo remove those, and update isolation mechanism
         self.is_home_isolated = False
         self.is_full_isolated = False
 
         self.geographic_circle = None
         self.social_circles = []
+
+        # don't know if this is necessary
+        self.manager = None
+        self.medical_state = None
+
+    def add_to_simulation(self, manager, initial_state: "medical_state.MedicalState"):
+        self.manager = manager
+        self.set_medical_state_no_inform(initial_state)
 
     def set_medical_state_no_inform(self, new_state: "medical_state.MedicalState"):
         self.medical_state = new_state
