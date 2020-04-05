@@ -21,6 +21,6 @@ class MatrixConsts(NamedTuple):
         ConnectionTypes.Work: 12.6,
         ConnectionTypes.Other: 6,
     }
-    use_parasimbolic_matrix = (True,)
+    use_parasymbolic_matrix = True
     clustering_switching_point = (50,)
     community_triad_probability = (1,)  # p

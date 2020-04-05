@@ -1,3 +1,4 @@
+import logging
 import math
 import pickle
 from itertools import islice
@@ -37,16 +38,17 @@ class MatrixGenerator:
     EXPORT_FILE_NAME = "matrix_data.pickle"
 
     def __init__(
-        self, population_data: PopulationData, matrix_consts: MatrixConsts = MatrixConsts(),
+        self,  population_data: PopulationData, matrix_consts: MatrixConsts = MatrixConsts(),
     ):
         # initiate everything
+        self.logger = logging.getLogger("MatrixGenerator")
         self.matrix_data = MatrixData()
         self.matrix_consts = matrix_consts
         self._unpack_population_data(population_data)
         self.size = len(self.agents)
         self.depth = len(ConnectionTypes)
 
-        CoronaMatrix = corona_matrix.get_corona_matrix_class(self.consts.use_parasymbolic_matrix)
+        CoronaMatrix = corona_matrix.get_corona_matrix_class(matrix_consts.use_parasymbolic_matrix)
         self.logger.info("Using CoronaMatrix of type {}".format(CoronaMatrix.__name__))
         self.matrix = CoronaMatrix(self.size, self.depth)
 
