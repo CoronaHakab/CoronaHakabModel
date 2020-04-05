@@ -1,8 +1,28 @@
 from generation.connection_types import ConnectionTypes
+from generation.circles import SocialCircle
 from agent import Agent
 import numpy as np
-from typing import Iterable
+from typing import Iterable, Callable, Any
 
+class Policy:
+    def __init__(self, 
+                connection_change_factor : float,  
+                conditions : Iterable[Callable[[Any], bool]]):
+        self.factor = connection_change_factor
+        self.conditions = conditions
+        
+    def check_applies(self, arg):
+        applies = True
+        for condition in self.conditions:
+            applies = applies and condition(arg)
+        return applies
+
+class PolicyByCircles:
+    def __init__(self, 
+                 policy : Policy, 
+                 circles: Iterable[SocialCircle]):
+        self.circles = circles
+        self.policy = policy
 
 class UpdateMatrixManager:
     """
@@ -54,9 +74,25 @@ class UpdateMatrixManager:
         self.matrix.set_factors(factors)
         self.normalize()
 
-    def update_matrix_step(self):
+    def update_matrix_step(self, circle_policies : Iterable[PolicyByCircles]):
         """
         Update the matrix step
         """
         # for now, we will not update the matrix at all
-        pass
+        for policy_by_circle in circle_policies:
+            for circle in policy_by_circle:
+                # check if circle is relevent to conditions
+                flag = True
+                for condition in policy_by_circle.conditions:
+                    flag = flag and condition(circle)
+                if not flag:
+                    # some condition returned False - skip circle
+                    continue
+                
+                connection_type = circle.connection_type
+                factor = policy_by_circle.connection_change_factor
+                for agent in circle.agents:
+                    self.matrix.mul_sub_row(connection_type, agent.index, factor)
+                    self.matrix.mul_sub_col(connection_type, agent.index, factor)
+                
+                        
