@@ -1,10 +1,32 @@
 # Corona Hakab Simulator
 
-## Run the simulator
-- setup: **python setup.py install**
+## Install and run the simulator from PyCharm (recommended):
+- Install Python 3.8 (i.e. to C:\Python38)
+- Install PyCharm (Community edition is good enough)
+- VCS -> Checkout from version control -> git
+    - **https://github.com/CoronaHakab/CoronaHakabModel.git**
+    - choose directory as you please
+- File -> Settings -> Project Interpreter -> Right click on the cog on the top right -> add
+    - Pipenv environment ->
+        - Base Interpreter Python 3.8 (C:\Python38)
+        - Check install packages from pipfile
+        - Pipenv executable (C:\Python38\Scripts\pipenv.exe)
+        - OK
+- In order to make PyCharm recognize the project modules:
+    - right click src folder -> Mark directory as -> Source Root
+    - right click src/corona_hakab_model folder -> Mark directory as -> Source Root
+- double click src/corona_hakab_model folder/main.py and run it (Run -> Run)
+
+## Install and run the simulator from cmd (also possible):
+- Install Python 3.8
+- run **git clone https://github.com/CoronaHakab/CoronaHakabModel.git** from your dev directory (i.e. c:\dev)
+- Create a pipenv environment and install the dependencies
+    - full dependencies (for developers): **pipenv install --dev**
+    - minimal dependencies (for researches): **pipenv install**
 - go to src/corona_hakab_model folder
-- run: **python main.py**
-- Optional - Export/Import matrices!
+    - run: **python main.py**
+
+## Optional - Export/Import matrices!
 - Export: **python main.py -o <PATH>**
 - Import: **python main.py -i <PATH>**
 
