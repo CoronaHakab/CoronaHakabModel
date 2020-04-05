@@ -57,11 +57,11 @@ class SimulationManager:
         self.susceptible_vector = np.zeros(len(self.agents), dtype=bool)  # can get infected
 
         # healthcare related data
-        self.living_agents_vector = np.ones(self.consts.population_size, dtype=bool)
-        self.test_willingness_vector = np.zeros(self.consts.population_size, dtype=float)
-        self.tested_vector = np.zeros(self.consts.population_size, dtype=bool)
-        self.tested_positive_vector = np.zeros(self.consts.population_size, dtype=bool)
-        self.date_of_last_test = np.zeros(self.consts.population_size, dtype=int)
+        self.living_agents_vector = np.ones(len(self.agents), dtype=bool)
+        self.test_willingness_vector = np.zeros(len(self.agents), dtype=float)
+        self.tested_vector = np.zeros(len(self.agents), dtype=bool)
+        self.tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
+        self.date_of_last_test = np.zeros(len(self.agents), dtype=int)
         self.pending_test_results = PendingTestResults()
 
 
@@ -113,12 +113,7 @@ class SimulationManager:
 
         self.detected_daily = len(agents_detected)
 
-        # send the detected agents to the selected kind of isolation
-        if self.consts.home_isolation_sicks:
-            self.update_matrix_manager.update_matrix_step(agents_to_home_isolation=agents_detected)
-        elif self.consts.full_isolation_sicks:
-            self.update_matrix_manager.update_matrix_step(agents_to_full_isolation=agents_detected)
-
+        # TODO send the detected agents to the selected kind of isolation
         # TODO: Track isolated agents
         # TODO: Remove healthy agents from isolation?
 
@@ -201,6 +196,6 @@ class SimulationManager:
 
     def __str__(self):
         return (
-            f"<SimulationManager: SIZE_OF_POPULATION={self.consts.population_size}, "
+            f"<SimulationManager: SIZE_OF_POPULATION={len(self.agents)}, "
             f"STEPS_TO_RUN={self.consts.total_steps}>"
         )
