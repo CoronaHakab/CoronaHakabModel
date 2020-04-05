@@ -41,6 +41,64 @@ class PendingTransfers:
         return ret
 
 
+class StochasticTransferGenerator:
+    # todo enforce probabilities sum to 1?
+    def __init__(self):
+        self.probs_cumulative: np.ndarray = np.array([], dtype=float)
+        self.destinations: List[State] = []
+        self.durations: List[rv_discrete] = []
+
+    def prob_specific(self, ind: int) -> float:
+        if ind == 0:
+            return self.probs_cumulative[0]
+        return self.probs_cumulative[ind] - self.probs_cumulative[ind - 1]
+
+    def add_transfer(self, destination: State, duration: rv_discrete, probability: Union[float, type(...)]):
+        if probability is ...:
+            p = 1
+        elif self.durations:
+            p = self.probs_cumulative[-1] + probability
+            if p > 1:
+                raise ValueError("probability higher than 1")
+        else:
+            p = probability
+        # todo improve?
+        self.probs_cumulative = np.append(self.probs_cumulative, p)
+
+        self.destinations.append(destination)
+        self.durations.append(duration)
+
+    # def transfer(self, agents: Set[Agent]) -> Iterable[PendingTransfer]:
+    #     # TODO if this state is age-aware - work according to age-specific data
+    #     # TODO else fallback to old algorithm
+    #     pass
+    #     # if not self.age_table:
+    #     return self.transfer_agent_agnostic(agents)
+    #
+    #     unhandles_agents = []
+    #     result = []
+    #     for agent in agents:
+    #         if agent.age < 30:
+    #             pass
+
+    def transfer(self, agents: Set[Agent], origin_state: State) -> Iterable[PendingTransfer]:
+
+        # roll a die for each agent, not taking the agent into account.
+        # the transfer_indices[i] will have the result for agent in index i
+        transfer_indices = np.searchsorted(self.probs_cumulative, np.random.random(len(agents)))
+        # count up how many got each result
+        bin_count = np.bincount(transfer_indices)
+        if len(bin_count) > len(self.probs_cumulative):
+            raise Exception("probs must sum to 1")
+        # create generators for durations for each state
+        durations = [iter(d.rvs(c)) for (c, s, d) in zip(bin_count, self.destinations, self.durations)]
+        # for each agent, create the pending transfer of the predetermined outcome.
+        return [
+            PendingTransfer(agent, self.destinations[transfer_ind], origin_state, durations[transfer_ind].__next__(), )
+            for transfer_ind, agent in zip(transfer_indices, agents)
+        ]
+
+
 class State(Circle, ABC):
     def __init__(self, name):
         super().__init__()
@@ -63,44 +121,29 @@ class StochasticState(State):
     # todo enforce probabilities sum to 1?
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.probs_cumulative: np.ndarray = np.array([], dtype=float)
-        self.destinations: List[State] = []
-        self.durations: List[rv_discrete] = []
+        self.generator = StochasticTransferGenerator()
 
     def prob_specific(self, ind: int) -> float:
-        if ind == 0:
-            return self.probs_cumulative[0]
-        return self.probs_cumulative[ind] - self.probs_cumulative[ind - 1]
+        # Assumes all population is of same age
+        return self.generator.prob_specific(ind)
 
-    def add_transfer(
-        self, destination: State, duration: rv_discrete, probability: Union[float, type(...)],
-    ):
-        if probability is ...:
-            p = 1
-        elif self.durations:
-            p = self.probs_cumulative[-1] + probability
-            if p > 1:
-                raise ValueError("probability higher than 1")
-        else:
-            p = probability
-        # todo improve?
-        self.probs_cumulative = np.append(self.probs_cumulative, p)
-
-        self.destinations.append(destination)
-        self.durations.append(duration)
+    def add_transfer(self, destination: State, duration: rv_discrete, probability: Union[float, type(...)]):
+        self.generator.add_transfer(destination, duration, probability)
 
         self._add_descendant(destination)
 
     def transfer(self, agents: Set[Agent]) -> Iterable[PendingTransfer]:
-        transfer_indices = np.searchsorted(self.probs_cumulative, np.random.random(len(agents)))
-        bin_count = np.bincount(transfer_indices)
-        if len(bin_count) > len(self.probs_cumulative):
-            raise Exception("probs must sum to 1")
-        durations = [iter(d.rvs(c)) for (c, s, d) in zip(bin_count, self.destinations, self.durations)]
-        return [
-            PendingTransfer(agent, self.destinations[transfer_ind], self, durations[transfer_ind].__next__(),)
-            for transfer_ind, agent in zip(transfer_indices, agents)
-        ]
+        return self.generator.transfer(agents, self)
+
+    @property
+    def durations(self):
+        return self.generator.durations
+
+    @property
+    def destinations(self):
+        return self.generator.destinations
+
+#class AgeStochasticState(State):
 
 
 class TerminalState(State):
