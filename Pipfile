@@ -1,0 +1,26 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+yappi = "*"
+pytest = "*"
+tox = "*"
+flake8 = "*"
+isort = "*"
+black = "*"
+swimport = "*"
+
+[packages]
+numpy = "*"
+scipy = "*"
+scikit-learn = "*"
+pyside2 = "*"
+matplotlib = "*"
+
+[requires]
+python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true
