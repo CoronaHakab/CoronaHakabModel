@@ -69,7 +69,7 @@ def main():
         gm.matrix_data,
         consts=consts,
     )
-
+    print(sm)
     sm.run()
     sm.plot(save=True, max_scale=False)
 

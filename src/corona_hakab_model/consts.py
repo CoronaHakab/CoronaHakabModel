@@ -41,7 +41,7 @@ default_parameters = {
     "icu_to_hospitalized_days": dist(
         7
     ),  # todo maybe the program should juts print a question mark,  we'll see how the researchers like that!
-    # average probability for transmitions:
+    # average probability for transitions:
     "silent_to_asymptomatic_probability": 0.2,
     "symptomatic_to_asymptomatic_probability": 0.85,
     "hospitalized_to_asymptomatic_probability": 0.8,
@@ -150,12 +150,12 @@ class Consts(ConstParameters):
         M, terminal_states, transfer_states, entry_columns = m.markovian
         z = len(M)
 
-        p = entry_columns[m.state_upon_infection]
+        p = entry_columns[m.default_state_upon_infection]
         terminal_mask = np.zeros(z, bool)
         terminal_mask[list(terminal_states.values())] = True
 
         states_duration: Dict[MedicalState, int] = Dict.fromkeys(m.states, 0)
-        states_duration[m.state_upon_infection] = 1
+        states_duration[m.default_state_upon_infection] = 1
 
         index_to_state: Dict[int, MedicalState] = {}
         for state, index in terminal_states.items():
