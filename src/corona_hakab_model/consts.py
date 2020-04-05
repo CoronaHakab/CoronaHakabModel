@@ -93,6 +93,7 @@ default_parameters = {
     "stranger_strength": 0.01,
     "school_strength": 0.1,
     "detection_rate": 0.7,
+    "use_parasymbolic_matrix": True,
 }
 
 ConstParameters = namedtuple(
