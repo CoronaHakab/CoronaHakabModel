@@ -60,11 +60,10 @@ class MatrixGenerator:
 
             for con_type in Geographic_Clustered_types:
                 # todo create(). replace with the correct algorithm
-
                 current_depth += 1
 
         print("done")
-        # todo normalize_matrix()
+        # todo note that it ain't normalizing matrix. it has to be done in simulation manager, with a given consts object.
 
     # todo support import of circles generator info. for now only getting one in init
     def import_circles(self, circles_generator):
@@ -107,9 +106,8 @@ class MatrixGenerator:
             con_amount = math.ceil((daily_connections_float + weekly_connections_float) / 2) + 1
 
             # checks, if the circle is too small, creates this as a family for now
-            # todo, add small clustering algorithm
             if con_amount > n or n < self.matrix_consts.clustering_switching_point[0]:
-                # todo use small circles algorithm
+                self.add_small_circle_connections(circle, connections, total_connections_float)
                 continue
 
             # manually generate the minimum required connections
@@ -162,6 +160,36 @@ class MatrixGenerator:
                                           p=[daily_connections_float / total_connections_float, weekly_connections_float / total_connections_float])
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
+
+    # todo when the amount of people in the circle is VARY small, needs different solution
+    def add_small_circle_connections(self, circle: SocialCircle, connections: List[List], scale_factor: float):
+        """
+        used to create the connections for circles too small for the clustering algorithm.
+        creates circle's connections, and adds them to a given connections list
+        :param circle: the social circle too small
+        :param connections: the connections list
+        :param scale_factor: average amount of connections for each agent
+        :return:
+        """
+        remaining_contacts = np.ceil(np.random.exponential(scale_factor - 0.5, len(self.agents))).astype(int)
+
+        agent_id_pool = set([agent.index for agent in circle.agents])
+
+        # while there are still connections left to make
+        while len(agent_id_pool) >= 2:
+            current_agent_id = agent_id_pool.pop()
+
+            rc = min(remaining_contacts[current_agent_id], len(agent_id_pool))
+            conns = np.array(sample(agent_id_pool, rc))
+            connections[current_agent_id].extend(conns)
+            for other_agent_id in conns:
+                connections[other_agent_id].append(current_agent_id)
+            remaining_contacts[conns] -= 1
+
+            to_remove = set(conns[remaining_contacts[conns] == 0])
+            assert to_remove <= agent_id_pool
+
+            agent_id_pool.difference_update(to_remove)
 
     @staticmethod
     def random_round(x: float, shape: int = 1):
