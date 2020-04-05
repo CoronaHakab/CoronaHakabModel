@@ -5,6 +5,8 @@
 # the SWIG interface file instead.
 
 
+from sparse_base import SparseBase, ManifestBase
+
 import numpy as np
 size_t = np.dtype('uint64')
 
@@ -81,7 +83,7 @@ class MagicOperator(object):
 # Register MagicOperator in _sparse:
 _sparse.MagicOperator_swigregister(MagicOperator)
 
-class ManifestMatrix(object):
+class ManifestMatrix(ManifestBase):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
 
     def __init__(self, *args, **kwargs):
@@ -153,7 +155,7 @@ __temp_def.prev = __temp_store
 ManifestMatrix.__getitem__ = __temp_def
 del __temp_store, __temp_def
 
-class SparseMatrix(object):
+class SparseMatrix(SparseBase):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
     size = property(_sparse.SparseMatrix_size_get)
@@ -288,7 +290,7 @@ del __temp_store, __temp_def
 __temp_store = getattr(SparseMatrix,"""manifest""",None)
 def __temp_def(self, sample=None):
 	if sample is None:
-	    sample = np.random(self.nz_count(), dtype=np.float32)
+	    sample = generator.random(self.nz_count(), dtype=np.float32)
 	return self.manifest.prev(self, sample)
 if isinstance(__temp_store, (classmethod, staticmethod, property)):
 	__temp_def = type(__temp_store)(__temp_def)

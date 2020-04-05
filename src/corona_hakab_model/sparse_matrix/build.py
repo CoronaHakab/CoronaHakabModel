@@ -44,6 +44,8 @@ def write_swim():
     swim.add_raw("%nodefaultctor ManifestMatrix;")
     swim.add_raw("%nodefaultctor SparseMatrix;")
     swim.add_python_begin("""
+    from sparse_base import SparseBase, ManifestBase
+    
     import numpy as np
     size_t = np.dtype('uint64')
     """)
@@ -68,7 +70,7 @@ def write_swim():
     oswim = ContainerSwim("MagicOperator", src, director=True)
     oswim(Function.Behaviour())
 
-    mswim = ContainerSwim("ManifestMatrix", src)
+    mswim = ContainerSwim("ManifestMatrix", src, wrapper_superclass='"ManifestBase"')
     mswim(Function.Behaviour())
     mswim.extend_py_def(
         "I_POA",
@@ -87,7 +89,7 @@ def write_swim():
         """
     )
 
-    pswim = ContainerSwim("SparseMatrix", src)
+    pswim = ContainerSwim("SparseMatrix", src, wrapper_superclass='"SparseBase"')
     pswim(Function.Behaviour())
     pswim.extend_py_def(
         "__getitem__",
@@ -104,7 +106,7 @@ def write_swim():
         "self, sample=None",
         """
         if sample is None:
-            sample = np.random(self.nz_count(), dtype=np.float32)
+            sample = generator.random(self.nz_count(), dtype=np.float32)
         return self.manifest.prev(self, sample)
         """
     )
