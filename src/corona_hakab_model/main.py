@@ -42,24 +42,23 @@ def main():
 
     sm = SimulationManager(
         (
-            # "Symptomatic",
-            # Supervisable.Delayed("Symptomatic", 3),
-            # "Deceased",
-            # "Asymptomatic",
-            # "Hospitalized",
-            # "ICU",
-            # "Latent",
-            # "Silent",
+            "Latent",
+            "Silent",
+            "Asymptomatic",
+            "Symptomatic",
+            "Deceased",
+            "Hospitalized",
+            "ICU",
             # "Susceptible",
-            # "Recovered",
+            "Recovered",
             Supervisable.Sum(
                 "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", name="currently sick"
             ),
             # Supervisable.NewCasesCounter(),
             # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
-            #    Supervisable.NewCasesCounter()),
-            LambdaValueSupervisable("Detected Daily", lambda manager: manager.detected_daily),
+            # Supervisable.NewCasesCounter(),
+            # LambdaValueSupervisable("Detected Daily", lambda manager: manager.detected_daily),
             LambdaValueSupervisable("Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
             # Supervisable.R0(),
             # Supervisable.Delayed("Symptomatic", 3),
