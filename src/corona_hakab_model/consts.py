@@ -103,6 +103,8 @@ default_parameters = {
     "use_parasymbolic_matrix": True,
     "detection_test": DetectionTest(detection_prob=0.98, false_alarm_prob=0.02, time_until_result=3),
     "daily_num_of_tests": 3000,
+    "testing_gap_after_positive_test": 6,
+    "testing_gap_after_negative_test": 1,
     "testing_policy": (
         lambda agent: agent.medical_state.name == 'Recovered',
         lambda agent: agent.medical_state.name == 'Symptomatic',

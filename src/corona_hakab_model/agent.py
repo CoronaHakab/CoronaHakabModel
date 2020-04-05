@@ -32,7 +32,7 @@ class Agent:
         self.is_full_isolated = False
 
     def set_test_start(self):
-        self.manager.date_of_last_test = self.manager.current_date
+        self.manager.date_of_last_test[self.index] = self.manager.current_date
 
     def set_test_result(self, test_result):
         # TODO: add a property here

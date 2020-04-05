@@ -11,7 +11,6 @@ from agent import Agent
 if TYPE_CHECKING:
     from manager import SimulationManager
 
-MIN_DAYS_FOR_RETEST = 1
 
 PendingTestResult = namedtuple("PendingTestResult", ["agent", "test_result", "original_duration"])
 
@@ -44,9 +43,15 @@ class HealthcareManager:
     def _get_testable(self):
         tested_pos_too_recently = self.manager.tested_vector & \
                                   self.manager.tested_positive_vector & \
-                                  (self.manager.current_date - self.manager.date_of_last_test < MIN_DAYS_FOR_RETEST)
+                                  (self.manager.current_date - self.manager.date_of_last_test <
+                                   self.manager.consts.testing_gap_after_positive_test)
 
-        return np.logical_not(tested_pos_too_recently) & self.manager.living_agents_vector
+        tested_neg_too_recently = self.manager.tested_vector & \
+                                  np.logical_not(self.manager.tested_positive_vector) & \
+                                  (self.manager.current_date - self.manager.date_of_last_test <
+                                   self.manager.consts.testing_gap_after_negative_test)
+
+        return np.logical_not(tested_pos_too_recently | tested_neg_too_recently) & self.manager.living_agents_vector
 
     def testing_step(self, test: DetectionTest, num_of_tests, priorities: List[Callable[[Agent], bool]]):
         # Who can to be tested
