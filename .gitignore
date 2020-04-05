@@ -152,4 +152,4 @@ static
 .npz
 
 # serialized objects
-.pickle
+*.pickle
