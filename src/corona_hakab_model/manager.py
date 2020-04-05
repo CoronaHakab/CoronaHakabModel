@@ -3,12 +3,14 @@ from collections import defaultdict
 from typing import Callable, Dict, Iterable, List, Union
 
 import numpy as np
+import healthcare
 
 import infection
 import update_matrix
 from affinity_matrix import AffinityMatrix
 from agent import Agent
 from consts import Consts
+from healthcare import PendingTestResults, PendingTestResult
 from medical_state import MedicalState
 from state_machine import PendingTransfers
 from supervisor import Supervisable, Supervisor
@@ -31,7 +33,6 @@ class SimulationManager:
         initial_state = self.medical_machine.initial
 
         self.pending_transfers = PendingTransfers()
-        self.in_silent_state = 0
         self.detected_daily = 0
         self.logger = logging.getLogger("simulation")
         logging.basicConfig()
@@ -40,8 +41,18 @@ class SimulationManager:
         self.logger.info(f"Generating {self.consts.population_size} agents")
 
         # the manager holds the vector, but the agents update it
-        self.contagiousness_vector = np.empty(self.consts.population_size, dtype=float)  # how likely to infect others
-        self.susceptible_vector = np.empty(self.consts.population_size, dtype=bool)  # can get infected
+        self.contagiousness_vector = np.zeros(self.consts.population_size, dtype=float)  # how likely to infect others
+        self.susceptible_vector = np.zeros(self.consts.population_size, dtype=bool)  # can get infected
+
+        # healthcare related data
+        self.living_agents_vector = np.ones(self.consts.population_size, dtype=bool)
+        self.test_willingness_vector = np.zeros(self.consts.population_size, dtype=float)
+        self.tested_vector = np.zeros(self.consts.population_size, dtype=bool)
+        self.tested_positive_vector = np.zeros(self.consts.population_size, dtype=bool)
+        self.date_of_last_test = np.zeros(self.consts.population_size, dtype=int)
+        self.pending_test_results = PendingTestResults()
+
+
         self.agents = [Agent(i, self, initial_state) for i in range(self.consts.population_size)]
         initial_state.add_many(self.agents)
 
@@ -52,6 +63,8 @@ class SimulationManager:
         self.supervisor = Supervisor([Supervisable.coerce(a, self) for a in supervisable_makers], self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self.matrix)
         self.infection_manager = infection.InfectionManager(self)
+        self.healthcare_manager = healthcare.HealthcareManager(self)
+
 
         self.current_date = 0
 
@@ -74,9 +87,26 @@ class SimulationManager:
         # progress transfers
         self.progress_transfers(new_sick)
 
+        # run tests
+        new_tests = self.healthcare_manager.testing_step(self.consts.detection_test, self.consts.daily_num_of_tests,
+                                                         self.consts.testing_policy)
+        self.progress_tests(new_tests)
+
         self.current_date += 1
 
         self.supervisor.snapshot(self)
+
+    def progress_tests(self, new_tests: List[PendingTestResult]):
+        self.detected_daily = 0
+        new_results = self.pending_test_results.advance()
+        for agent, test_result, _ in new_results:
+            agent.set_test_result(test_result)
+            if test_result:
+                self.detected_daily += 1
+
+        for new_test in new_tests:
+            new_test.agent.set_test_start()
+            self.pending_test_results.append(new_test)
 
     def progress_transfers(self, new_sick: Dict[MedicalState, List]):
         # all the new sick agents are leaving their previous step

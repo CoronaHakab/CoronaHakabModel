@@ -61,10 +61,4 @@ class InfectionManager:
                 elif self.manager.consts.full_isolation_sicks:
                     self.agents_to_full_isolation.append(agent)
 
-        # detected_daily keeps the amount of agents that got detected in the current step
-        # each silent agent has detection_rate chance of being detected in each step.
-        self.manager.detected_daily = round(self.manager.consts.detection_rate * self.manager.in_silent_state)
-        # the detected agents from this step are deducted from the total silent agents
-        self.manager.in_silent_state -= self.manager.detected_daily
-
         return new_infected

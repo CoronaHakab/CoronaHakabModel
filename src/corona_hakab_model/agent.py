@@ -1,4 +1,9 @@
-import medical_state
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from medical_state import MedicalState
+    from manager import SimulationManager
 
 
 class Agent:
@@ -14,24 +19,37 @@ class Agent:
         "manager",
     )
 
-    def __init__(self, index, manager, initial_state: "medical_state.MedicalState"):
+    def __init__(self, index, manager: SimulationManager, initial_state: MedicalState):
         self.index = index
 
         self.manager = manager
 
-        self.medical_state: "medical_state.MedicalState" = None
+        self.medical_state: MedicalState = None
+
         self.set_medical_state_no_inform(initial_state)
 
         self.is_home_isolated = False
         self.is_full_isolated = False
 
-    def set_medical_state_no_inform(self, new_state: "medical_state.MedicalState"):
+    def set_test_start(self):
+        self.manager.date_of_last_test = self.manager.current_date
+
+    def set_test_result(self, test_result):
+        # TODO: add a property here
+        self.manager.tested_positive_vector[self.index] = test_result
+        self.manager.tested_vector[self.index] = True
+
+
+
+    def set_medical_state_no_inform(self, new_state: MedicalState):
         self.medical_state = new_state
-        # count how many entered silent state
-        if new_state == self.manager.medical_machine.states_by_name["Silent"]:
-            self.manager.in_silent_state += 1
+
+        if new_state == self.manager.medical_machine.states_by_name["Deceased"]:
+            self.manager.living_agents_vector[self.index] = False
+
         self.manager.contagiousness_vector[self.index] = new_state.contagiousness
         self.manager.susceptible_vector[self.index] = new_state.susceptible
+        self.manager.test_willingness_vector[self.index] = new_state.test_willingness
 
     def __str__(self):
         return f"<Person,  index={self.index}, medical={self.medical_state}>"

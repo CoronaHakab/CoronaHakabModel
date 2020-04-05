@@ -8,37 +8,17 @@ from typing import Collection, Dict, Generic, Iterable, List, Optional, Sequence
 import numpy as np
 from agent import Agent, Circle
 from scipy.stats import rv_discrete
-from util import upper_bound
+from util import upper_bound, Queue
 
 PendingTransfer = namedtuple("PendingTransfer", ["agent", "target_state", "origin_state", "original_duration"])
 
 TransferCollection = Dict[int, List[PendingTransfer]]
 
 
-class PendingTransfers:
+class PendingTransfers(Queue[PendingTransfer]):
     def __init__(self):
         # in x time steps execute the list of pending transfers (change between states)
-        self.inner: Dict[int, List[PendingTransfer]] = defaultdict(list)
-
-    def append(self, transfer: PendingTransfer):
-        days_left = max(0, transfer.original_duration - 1)  # TODO: Temp fix since we don't support durations of 0 days
-        self.inner[days_left].append(transfer)
-
-    def extend(self, transfers):
-        for t in transfers:
-            self.append(t)
-
-    def advance(self) -> Sequence[PendingTransfer]:
-        # todo improve? (rotating array?)
-        new_inner = defaultdict(list)
-        ret = ()  # no transfers to do in the current step
-        for days_left, v in self.inner.items():
-            if days_left > 0:
-                new_inner[days_left - 1] = v
-            else:
-                ret = v  # the list of transfers to do now (days_left=0)
-        self.inner = new_inner
-        return ret
+        super().__init__()
 
 
 class State(Circle, ABC):
