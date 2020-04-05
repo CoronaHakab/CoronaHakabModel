@@ -45,23 +45,3 @@ class MedicalStateManager:
 
         for state, agents in changed_state_leaving.items():
             state.remove_many(agents)
-
-    def add_newly_infected(self, newly_infected):
-        """
-        Sets the default medical state to every newly infected agent
-        """
-
-    def advance_disease(self):
-        moved = self.pending_transfers.advance()
-        for (agent, destination, origin, _) in moved:
-            agent.set_medical_state_no_inform(destination)
-
-            changed_state_introduced[destination].append(agent)
-            changed_state_leaving[origin].append(agent)
-
-        for state, agents in changed_state_introduced.items():
-            state.add_many(agents)
-            self.pending_transfers.extend(state.transfer(agents))
-
-        for state, agents in changed_state_leaving.items():
-            state.remove_many(agents)
