@@ -5,7 +5,9 @@ from consts import Consts
 from manager import SimulationManager
 
 folder = os.path.dirname(__file__)
-f = open(os.path.join(folder, 'simulation_test_ranges.json'), 'r')
+results_file = os.path.join(folder, 'simulation_test_ranges.json')
+consts_file = os.path.join(folder, 'default_consts.py')
+f = open(results_file, 'r')
 range_per_day_dict = json.load(f)
 
 
@@ -14,7 +16,7 @@ def test_no_policy_simulation():
     run the simulation with no policy and fixed R0
     Ranges for each state was generate from real sim runs, might be flaky.
     """
-    consts = Consts(active_isolation=False, population_size=1_000, r0=2.4)
+    consts = Consts.from_file(consts_file)
     keys = range_per_day_dict[0].keys()
     sm = SimulationManager(supervisable_makers=keys, consts=consts)
     sm.run()

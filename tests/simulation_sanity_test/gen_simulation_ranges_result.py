@@ -5,6 +5,7 @@ from numpy import inf
 
 from consts import Consts
 from manager import SimulationManager
+from tests.simulation_sanity_test.simulation_test import consts_file
 
 
 class Range:
@@ -48,7 +49,7 @@ def gen_no_policy_simulation():
     """
     for 500 rounds, run the simulation and update each day ranges according to the global min and max values per state.
     """
-    consts = Consts(active_isolation=False, population_size=1_000, r0=2.4)
+    consts = Consts.from_file(consts_file)
     range_per_day_dict = [deepcopy(test_states) for _ in range(consts.total_steps)]
 
     for i in range(500):
