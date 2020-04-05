@@ -3,7 +3,7 @@ from generation.connection_types import ConnectionTypes, Connect_To_All_types, R
     Geographic_Clustered_types
 from generation.matrix_consts import MatrixConsts
 from generation.circles_generator import PopulationData
-from parasymbolic_matrix import ParasymbolicMatrix as CoronaMatrix
+import corona_matrix
 from typing import List
 from generation.circles import SocialCircle
 import numpy as np
@@ -46,6 +46,9 @@ class MatrixGenerator:
         self._unpack_population_data(population_data)
         self.size = len(self.agents)
         self.depth = len(ConnectionTypes)
+
+        CoronaMatrix = corona_matrix.get_corona_matrix_class(self.consts.use_parasymbolic_matrix)
+        self.logger.info("Using CoronaMatrix of type {}".format(CoronaMatrix.__name__))
         self.matrix = CoronaMatrix(self.size, self.depth)
 
         # create all sub matrices
