@@ -2,8 +2,9 @@ import logging
 from collections import defaultdict
 from typing import Callable, Dict, Iterable, List, Union
 
-import infection
 import numpy as np
+
+import infection
 import update_matrix
 from affinity_matrix import AffinityMatrix
 from agent import Agent
@@ -19,11 +20,11 @@ class SimulationManager:
     """
 
     def __init__(
-        self,
-        supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
-        consts: Consts = Consts(),
-        input_matrix_path: str = None,
-        output_matrix_path: str = None,
+            self,
+            supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
+            consts: Consts = Consts(),
+            input_matrix_path: str = None,
+            output_matrix_path: str = None,
     ):
         self.consts = consts
         self.medical_machine = consts.medical_state_machine()
@@ -137,6 +138,10 @@ class SimulationManager:
                     self.matrix.change_connections_policy({"home", "strangers", "school", "work"})
             self.step()
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
+
+        # clearing lru cache after run
+        self.consts.medical_state_machine.cache_clear()
+        Supervisable.coerce.cache_clear()
 
     def plot(self, **kwargs):
         self.supervisor.plot(**kwargs)

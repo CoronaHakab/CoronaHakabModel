@@ -1,4 +1,5 @@
 import json
+import warnings
 
 from consts import Consts
 from manager import SimulationManager
@@ -8,7 +9,11 @@ range_per_day_dict = json.load(f)
 
 
 def test_no_policy_simulation():
-    consts = Consts(active_isolation=False)
+    """
+    run the simulation with no policy and fixed R0
+    """
+    warnings.warn(UserWarning("Ranges for each state was generate from real sim runs, might be flaky."))
+    consts = Consts(active_isolation=False, population_size=1_000, r0=2.4)
     keys = range_per_day_dict[0].keys()
     sm = SimulationManager(supervisable_makers=keys, consts=consts)
     sm.run()

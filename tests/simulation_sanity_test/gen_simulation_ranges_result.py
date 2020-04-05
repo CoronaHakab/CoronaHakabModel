@@ -23,17 +23,15 @@ class Range:
 
     def update(self, x):
         if x >= self._max:
-            self._max = 1.1 * x + 10
+            self._max = x
         if x <= self._min:
-            self._min = 1.1 * x - 10
-
-    def to_str(self):
-        return f"Range({self._min}, {self._max})"
+            self._min = x
 
     def to_dict(self):
-        return {'min': self._min, 'max': self._max}
+        return {'min': self._min * 0.9 - 10, 'max': self._max * 1.1 + 10}  # take 10% margin
 
 
+# initialize state to test and set ranges
 test_states = dict(
     Symptomatic=Range(inf, -inf),
     Deceased=Range(inf, -inf),
@@ -46,10 +44,14 @@ test_states = dict(
 )
 
 
-def test_no_policy_simulation():
-    consts = Consts(active_isolation=False)
+def gen_no_policy_simulation():
+    """
+    for 500 rounds, run the simulation and update each day ranges according to the global min and max values per state.
+    """
+    consts = Consts(active_isolation=False, population_size=1_000, r0=2.4)
     range_per_day_dict = [deepcopy(test_states) for _ in range(consts.total_steps)]
-    for i in range(1_000):
+
+    for i in range(500):
         print(i)
         sm = SimulationManager(supervisable_makers=test_states.keys(), consts=consts)
         sm.run()
@@ -60,8 +62,13 @@ def test_no_policy_simulation():
             for test_state, val in zip(range_per_day_dict, val_per_day):
                 test_state[name].update(val)
 
+    # translate to dict
     for i in range(consts.total_steps):
         range_per_day_dict[i] = {state: val.to_dict() for state, val in range_per_day_dict[i].items()}
-
+    # dump to json
     with open('simulation_test_ranges.json', 'w') as f:
         json.dump(range_per_day_dict, f)
+
+
+if __name__ == "__main__":
+    gen_no_policy_simulation()
