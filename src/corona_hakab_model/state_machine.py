@@ -6,7 +6,7 @@ from functools import cached_property
 from typing import Collection, Dict, Generic, Iterable, List, Optional, Sequence, Set, Tuple, TypeVar, Union
 
 import numpy as np
-from agent import Agent, Circle, TrackingCircle
+from agent import Agent, TrackingCircle
 from scipy.stats import rv_discrete
 from util import upper_bound
 
@@ -47,6 +47,7 @@ class StochasticTransferGenerator:
     It had a set of probabilities for a set of outcomes - both the next state and the duration of the current state.
 
     """
+
     # todo enforce probabilities sum to 1?
     def __init__(self):
         self.probs_cumulative: np.ndarray = np.array([], dtype=float)
@@ -86,7 +87,7 @@ class StochasticTransferGenerator:
         durations = [iter(d.rvs(c)) for (c, s, d) in zip(bin_count, self.destinations, self.durations)]
         # for each agent, create the pending transfer of the predetermined outcome.
         return [
-            PendingTransfer(agent, self.destinations[transfer_ind], origin_state, durations[transfer_ind].__next__(), )
+            PendingTransfer(agent, self.destinations[transfer_ind], origin_state, durations[transfer_ind].__next__(),)
             for transfer_ind, agent in zip(transfer_indices, agents)
         ]
 
@@ -143,6 +144,7 @@ class AgentAwareState(State):
     At the moment, only age is accounted for
     TODO account for more parameters
     """
+
     # todo enforce probabilities sum to 1?
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -244,8 +246,7 @@ class AgentAwareState(State):
         bucket = self.get_bucket_for_agent(agent)
 
         # Sanity
-        assert agent not in self.agents_by_bucket[bucket], \
-            "Adding the same Agent into the same state twice!"
+        assert agent not in self.agents_by_bucket[bucket], "Adding the same Agent into the same state twice!"
 
         self.agents_by_bucket[bucket].add(agent)
         # Sanity of counters
@@ -262,8 +263,9 @@ class AgentAwareState(State):
             added_agents_by_bucket[self.get_bucket_for_agent(agent)].add(agent)
         for bucket, agents in added_agents_by_bucket.items():
             # Sanity
-            assert not self.agents_by_bucket[bucket].intersection(agents),\
-                "Adding the same Agent into the same state twice!"
+            assert not self.agents_by_bucket[bucket].intersection(
+                agents
+            ), "Adding the same Agent into the same state twice!"
 
             self.agents_by_bucket[bucket].update(agents)
 

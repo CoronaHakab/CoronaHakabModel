@@ -85,8 +85,9 @@ class TrackingCircle(Circle):
         if self.agents.intersection(set(agents)):
             raise ValueError("DuplicateAgent")
         self.agents.update(agents)
-        assert self.agent_count == len(self.agents), \
-            f"self.agent_count: {self.agent_count}, len(self.agents): {len(self.agents)}"
+        assert self.agent_count == len(
+            self.agents
+        ), f"self.agent_count: {self.agent_count}, len(self.agents): {len(self.agents)}"
 
     def remove_many(self, agents):
         super().remove_many(agents)
