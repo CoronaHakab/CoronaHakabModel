@@ -6,6 +6,8 @@
 
 #define POOL_SIZE 2
 
+using namespace std;
+
 // region bare
 //todo merge bare and coffs
 //todo function to get pool_size
