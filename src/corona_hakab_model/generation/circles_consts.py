@@ -9,6 +9,7 @@ from typing import Dict, Tuple
 class CirclesConsts:
 
     def __init__(self):
+        # todo remove population size from main consts
         self.population_size = 10_000
         self.ages = [10, 40, 70]
         self.age_prob = [0.30, 0.45, 0.25]

@@ -1,12 +1,13 @@
 from enum import IntEnum, unique
 
 
+# the value represents the depth in the matrix
 @unique
 class ConnectionTypes(IntEnum):
-    Work = 1
-    School = 2
-    Family = 3
-    Other = 4
+    Work = 0
+    School = 1
+    Family = 2
+    Other = 3
 
 
 # used for circles generation

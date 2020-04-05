@@ -2,7 +2,7 @@ from itertools import islice
 from generation.connection_types import ConnectionTypes, Connect_To_All_types, Random_Clustered_types, \
     Geographic_Clustered_types
 from generation.matrix_consts import MatrixConsts
-from generation.circles_generator import CirclesGenerator
+from generation.circles_generator import PopulationData
 from parasymbolic_matrix import ParasymbolicMatrix as CoronaMatrix
 from typing import List
 from generation.circles import SocialCircle
@@ -10,6 +10,18 @@ import numpy as np
 import math
 from generation.node import Node
 from random import sample, random
+import pickle
+
+
+class MatrixData:
+    __slots__ = (
+        "matrix_type",
+        "matrix"
+    )
+
+    def __init__(self):
+        self.matrix_type = None
+        self.matrix = None
 
 
 # todo right now only supports parasymbolic matrix. need to merge with corona matrix class import selector
@@ -17,28 +29,20 @@ class MatrixGenerator:
     """
     this module gets the circles and agents created in circles generator and creates a matrix and sub matrices with them.
     """
-    __slots__ = (
-        "matrix_type",
-        "matrix",
-        "normalization_factor",
-        "total_contagious_probability",
-        "matrix_consts",
-        "agents",
-        "social_circles_by_connection_type",
-        "geographic_circles",
-        "size",
-        "depth",
-    )
+
+    # import/export variables
+    EXPORT_OUTPUT_DIR   = "../../output/"
+    EXPORT_FILE_NAME    = "matrix_data.pickle"
 
     def __init__(
             self,
-            circles_generator: CirclesGenerator,
+            population_data: PopulationData,
             matrix_consts: MatrixConsts = MatrixConsts(),
     ):
         # initiate everything
+        self.matrix_data = MatrixData()
         self.matrix_consts = matrix_consts
-        # todo allow import from a json
-        self.import_circles(circles_generator)
+        self.unpack_population_data(population_data)
         self.size = len(self.agents)
         self.depth = len(ConnectionTypes)
         self.matrix = CoronaMatrix(self.size, self.depth)
@@ -48,30 +52,27 @@ class MatrixGenerator:
             # todo switch the depth logic, to get a connection type instead of int depth
             current_depth = 0
 
-            for con_type in Connect_To_All_types:
-                self._create_fully_connected_circles_matrix(con_type, self.social_circles_by_connection_type[con_type],
-                                                           current_depth)
-                current_depth += 1
-
-            for con_type in Random_Clustered_types:
-                self._create_random_clustered_circles_matrix(con_type, self.social_circles_by_connection_type[con_type],
-                                                            current_depth)
-                current_depth += 1
-
-            for con_type in Geographic_Clustered_types:
-                self._create_community_clustered_circles_matrix(con_type, self.social_circles_by_connection_type[con_type], 
+            for con_type in ConnectionTypes:
+                if con_type in Connect_To_All_types:
+                    self.create_fully_connected_circles_matrix(con_type,
+                                                               self.social_circles_by_connection_type[con_type],
+                                                               current_depth)
+                elif con_type in Random_Clustered_types:
+                    self.create_random_clustered_circles_matrix(con_type,
+                                                                self.social_circles_by_connection_type[con_type],
+                                                                current_depth)
+                elif con_type in Geographic_Clustered_types:
+                    self._create_community_clustered_circles_matrix(con_type, self.social_circles_by_connection_type[con_type], 
                                                                      current_depth)
-
                 current_depth += 1
 
-        print("done")
-        # todo normalize_matrix()
+        # export the matrix data
+        # self.export_matrix_data()
 
-    # todo support import of circles generator info. for now only getting one in init
-    def import_circles(self, circles_generator):
-        self.agents = circles_generator.agents
-        self.social_circles_by_connection_type = circles_generator.social_circles_by_connection_type
-        self.geographic_circles = circles_generator.geographic_circles
+    def unpack_population_data(self, population_data):
+        self.agents = population_data.agents
+        self.social_circles_by_connection_type = population_data.social_circles_by_connection_type
+        self.geographic_circles = population_data.geographic_circles
 
     def _create_fully_connected_circles_matrix(self, con_type: ConnectionTypes, circles: List[SocialCircle], depth):
         connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
@@ -93,6 +94,9 @@ class MatrixGenerator:
         weekly_connections_float = self.matrix_consts.weekly_connections_amount_by_connection_type[con_type]
         total_connections_float = daily_connections_float + weekly_connections_float
 
+        # adding all super small circles, into one circle, and randomly create connections inside it
+        super_small_circles_combined = SocialCircle(con_type)
+
         for circle in circles:
             agents = circle.agents
             indexes = [agent.index for agent in agents]
@@ -107,10 +111,14 @@ class MatrixGenerator:
             np.random.shuffle(nodes)
             con_amount = math.ceil((daily_connections_float + weekly_connections_float) / 2) + 1
 
-            # checks, if the circle is too small, creates this as a family for now
-            # todo, add small clustering algorithm
-            if con_amount > n or n < self.matrix_consts.clustering_switching_point[0]:
-                # todo use small circles algorithm
+            # checks, if the circle is too small for any algorithm. if so adds to super small circle
+            if con_amount > n:
+                super_small_circles_combined.add_many(circle.agents)
+                continue
+
+            # checks, if the circle is too small for normal clustering
+            if n < self.matrix_consts.clustering_switching_point[0]:
+                self.add_small_circle_connections(circle, connections, total_connections_float)
                 continue
 
             # manually generate the minimum required connections
@@ -154,13 +162,18 @@ class MatrixGenerator:
                 inserted_nodes.add(rand_node)
                 inserted_nodes.add(node)
 
+        # adding connections between all super small circles
+        self.add_small_circle_connections(super_small_circles_combined, connections, total_connections_float)
+
         # insert all connections to matrix
         for agent, conns in zip(self.agents, connections):
             conns = np.array(conns)
             conns.sort()
             # rolls for each connection, whether it is daily or weekly
+            daily_share = daily_connections_float / total_connections_float
+            weekly_share = weekly_connections_float / total_connections_float
             strengthes = np.random.choice([connection_strength, connection_strength / 7], size=len(conns),
-                                          p=[daily_connections_float / total_connections_float, weekly_connections_float / total_connections_float])
+                                          p=[daily_share, weekly_share])
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
             
@@ -229,6 +242,38 @@ class MatrixGenerator:
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
 
+    # todo when the amount of people in the circle is vary small, needs different solution
+    def add_small_circle_connections(self, circle: SocialCircle, connections: List[List], scale_factor: float):
+        """
+        used to create the connections for circles too small for the clustering algorithm.
+        creates circle's connections, and adds them to a given connections list
+        :param circle: the social circle too small
+        :param connections: the connections list
+        :param scale_factor: average amount of connections for each agent
+        :return:
+        """
+        remaining_contacts = {agent.index: math.ceil(np.random.exponential(scale_factor - 0.5)) for agent in circle.agents}
+
+        agent_id_pool = set([agent.index for agent in circle.agents])
+
+        # while there are still connections left to make
+        while len(agent_id_pool) >= 2:
+            current_agent_id = agent_id_pool.pop()
+
+            rc = min(remaining_contacts[current_agent_id], len(agent_id_pool))
+            conns = np.array(sample(agent_id_pool, rc))
+            connections[current_agent_id].extend(conns)
+            for other_agent_id in conns:
+                connections[other_agent_id].append(current_agent_id)
+            to_remove = set()
+            for id in conns:
+                remaining_contacts[id] -= 1
+                if remaining_contacts[id] == 0:
+                    to_remove.add(id)
+            assert to_remove <= agent_id_pool
+
+            agent_id_pool.difference_update(to_remove)
+
     @staticmethod
     def random_round(x: float, shape: int = 1):
         """
@@ -240,3 +285,10 @@ class MatrixGenerator:
         floor_prob = math.ceil(x) - x
         ceil_prob = x - math.floor(x)
         return np.random.choice([math.floor(x), math.ceil(x)], size=shape, p=[floor_prob, ceil_prob])
+
+    def export_matrix_data(self):
+        self.matrix_data.matrix_type = "parasymbolic"
+        self.matrix_data.matrix = self.matrix
+
+        with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, 'wb') as export_file:
+            pickle.dump(self.matrix_data, export_file)
