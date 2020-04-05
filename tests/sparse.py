@@ -59,10 +59,8 @@ class npSparseMatrix:
     def probs_actual(self):
         ret = np.copy(self.probs)
         for i in range(self.size):
-            if self.prob_coff_row[i] != 1:
-                ret[i] *= self.prob_coff_row[i]
-            if self.prob_coff_col[i] != 1:
-                ret[:, i] *= self.prob_coff_col[i]
+            ret[i] *= self.prob_coff_row[i]
+            ret[:, i] *= self.prob_coff_col[i]
         return ret
 
     def manifest(self, sample=None):
@@ -73,8 +71,10 @@ class npSparseMatrix:
         inner = np.zeros_like(self.vals)
         for row, col in product(range(self.size), repeat=2):
             p = pactual[row, col]
-            if p != 0 and next(s) < p:
-                inner[row, col] = self.vals[row, col]
+            if self.probs[row, col] != 0:
+                r = next(s)
+                if r < p:
+                    inner[row, col] = self.vals[row, col] + self.val_offs_row[row] + self.val_offs_col[col]
 
         return npManifest(self, inner)
 
@@ -83,6 +83,9 @@ class npManifest:
     def __init__(self, origin, inner):
         self.origin = origin
         self.inner = inner
+
+    def __getitem__(self, item):
+        return self.inner[item]
 
     def I_POA(self, v):
         ret = np.ones(self.origin.size, dtype=np.float32)
@@ -109,12 +112,16 @@ def check_equal(ps: SparseMatrix, mck: npSparseMatrix, msg: str):
     sample = generator.random(ps.nz_count(), dtype=np.float32)
     m = ps.manifest(sample)
     mm = mck.manifest(sample)
+    for i, j in product(range(mck.size), repeat=2):
+        p_v = m[i, j]
+        m_v = mm[i, j]
+        assert np.allclose(p_v, m_v), f"{msg}, manifest, [{i},{j}] {p_v} vs {m_v}"
     i = m.I_POA(v)
     im = mm.I_POA(v)
-    assert np.allclose(i,im), f"{msg}, IOP {i} vs {im}"
+    assert np.allclose(i, im), f"{msg}, IOP {i} vs {im}, inner: \n{mm.inner}"
     mnz = m.nz_rows()
     mmnz = mm.nz_rows()
-    assert mnz == mmnz,  f"{msg}, NZR {mnz} vs {mmnz}"
+    assert mnz == mmnz, f"{msg}, NZR {mnz} vs {mmnz}, inner: \n{mm.inner}"
 
 
 def operate(matrix: Union[npSparseMatrix, SparseMatrix]):
@@ -128,6 +135,10 @@ def operate(matrix: Union[npSparseMatrix, SparseMatrix]):
     yield 'mr'
     matrix.col_set_prob_coff(0, 0)
     yield 'mc'
+    matrix.row_set_value_offset(2, 1)
+    yield 'or'
+    matrix.col_set_value_offset(1, 1)
+    yield 'oc'
 
 
 def test_sparse():
@@ -138,7 +149,8 @@ def test_sparse():
     m = operate(main)
     c = operate(mock)
     for i, j in zip(m, c):
-        print(i)
+        if __name__ == "__main__":
+            print(i)
         assert i == j
         check_equal(main, mock, i)
 

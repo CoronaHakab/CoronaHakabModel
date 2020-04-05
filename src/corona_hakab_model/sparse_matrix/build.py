@@ -33,8 +33,8 @@ COMPILE_ADDITIONAL_LIBS = [
     windows_kit_lib + r"ucrt\x64\libucrt.lib",
     windows_kit_lib + r"um\x64\Uuid.lib",
 ]
-# todo reset
-optimization = "/Od"  # in case of fire, set to Od
+
+optimization = "/O2"  # in case of fire, set to Od
 
 
 def write_swim():
@@ -76,6 +76,14 @@ def write_swim():
         """
         nz = np.flatnonzero(v).astype(np.uint64, copy=False)
         return self.I_POA.prev(self, v, nz)
+        """
+    )
+    mswim.extend_py_def(
+        "__getitem__",
+        "self,item",
+        """
+        i, j = item
+        return self.get(i, j)
         """
     )
 

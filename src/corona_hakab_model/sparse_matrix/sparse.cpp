@@ -5,6 +5,28 @@ dtype MagicOperator::operate(dtype w_val, dtype v_val) const{
     return 1 - w_val*v_val;
 }
 
+int binary_search(size_t* haystack, size_t len, size_t needle){
+    if (len == 0)
+        return -1;
+    int start = 0;
+    int end = len-1;
+    while (start <= end){
+        auto mid = (start+end)/2;
+        auto v = haystack[mid];
+        if (v == needle)
+            return mid;
+        if (v < needle)
+            start = mid+1;
+        else
+            end = mid-1;
+    }
+    return -1;
+}
+
+int SparseMatrix::col_ind(size_t row, size_t column) const{
+    return binary_search(row_indices[row], row_lens[row], column);
+}
+
 SparseMatrix::SparseMatrix(size_t size, MagicOperator* const& op):
 size(size), op(op), _nz_count(0){
     row_lens = new size_t[size];
@@ -40,31 +62,12 @@ void SparseMatrix::batch_set(size_t row, size_t const* A_columns, size_t c_len, 
     }
 }
 
-int binary_search(size_t* haystack, size_t len, size_t needle){
-    if (len == 0)
-        return -1;
-    int start = 0;
-    int end = len-1;
-    while (start <= end){
-        auto mid = (start+end)/2;
-        auto v = haystack[mid];
-        if (v == needle)
-            return mid;
-        if (v < needle)
-            start = mid+1;
-        else
-            end = mid-1;
-    }
-    return -1;
+bool SparseMatrix::has_value(size_t row, size_t column) const{
+    return col_ind(row,column) != -1;
 }
 
-bool SparseMatrix::has_value(size_t row, size_t column){
-    int ind = binary_search(row_indices[row], row_lens[row], column);
-    return (ind != -1);
-}
-
-std::tuple<dtype, dtype> SparseMatrix::get(size_t row,size_t column){
-    int ind = binary_search(row_indices[row], row_lens[row], column);
+std::tuple<dtype, dtype> SparseMatrix::get(size_t row,size_t column) const{
+    int ind = col_ind(row,column);
     return std::make_tuple(row_probs[row][ind], row_values[row][ind]);
 }
 
@@ -83,7 +86,7 @@ ManifestMatrix* SparseMatrix::manifest(dtype const* A_rolls, size_t r_len){
         auto im = ret->is_manifest[r];
         for (size_t c = 0; c < len; c++){
             auto c_i = row_ind[c];
-            auto effective_m = row_mul * row_prob[c] * prob_column_coefficients[c_i];
+            auto effective_m = row_prob[c] * row_mul * prob_column_coefficients[c_i];
             im[c] = A_rolls[roll_ind++] < effective_m;
         }
     }
@@ -129,6 +132,14 @@ ManifestMatrix::ManifestMatrix(SparseMatrix* const & origin):
     for (size_t r = 0; r < origin->size; r++){
         is_manifest[r] = new bool[origin->row_lens[r]];
     }
+}
+
+dtype ManifestMatrix::get(size_t row,size_t column){
+    auto c_i = origin->col_ind(row, column);
+    if ((c_i != -1) && this->is_manifest[row][c_i]){
+        return std::get<1>(origin->get(row, column)) + origin->value_row_offsets[row] + origin->value_column_offsets[column];
+    }
+    return 0;
 }
 
 void ManifestMatrix::I_POA(dtype const* A_values, size_t v_len, size_t const* A_nz_indices, size_t nzi_len, dtype** AF_out, size_t* o_len){
