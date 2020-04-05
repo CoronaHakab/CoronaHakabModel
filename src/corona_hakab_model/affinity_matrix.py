@@ -6,12 +6,13 @@ from typing import Iterable, List
 import numpy as np
 from agent import Agent, TrackingCircle
 from node import Node
+from scipy.sparse import lil_matrix
 from consts import Consts
 from itertools import islice
 
 use_parasymbolic_matrix = True
 if use_parasymbolic_matrix:
-    from sparse_matrix import ParasymbolicMatrix as CoronaMatrix
+    from parasymbolic_matrix import ParasymbolicMatrix as CoronaMatrix
 else:
     from scipy_matrix import ScipyMatrix as CoronaMatrix
 
@@ -222,10 +223,8 @@ class AffinityMatrix:
         connections = [[] for _ in self.agents]
 
         agent_id_pool = set(range(len(self.agents)))
-        print("d",depth)
 
         # while there are still connections left to make
-        print("drawing")
         while len(agent_id_pool) >= 2:
             current_agent_id = agent_id_pool.pop()
 
@@ -238,10 +237,10 @@ class AffinityMatrix:
             remaining_contacts[conns] -= 1
 
             to_remove = set(conns[remaining_contacts[conns] == 0])
-            #assert to_remove <= agent_id_pool
+            assert to_remove <= agent_id_pool
 
             agent_id_pool.difference_update(to_remove)
-        print("setting")
+
         for agent, conns in zip(self.agents, connections):
             conns = np.array(conns)
             conns.sort()

@@ -1,8 +1,9 @@
 from argparse import ArgumentParser
 
 from consts import Consts
+from generation.generation_manager import GenerationManger
 from manager import SimulationManager
-from supervisor import LambdaValueSupervisable, Supervisable, Supervisor
+from supervisor import Supervisable, Supervisor
 
 
 def check_args(args):
@@ -40,6 +41,7 @@ def main():
     else:
         consts = Consts()
 
+    gm = GenerationManger()
     sm = SimulationManager(
         (
             "Latent",
@@ -62,8 +64,8 @@ def main():
             # Supervisable.R0(),
             # Supervisable.Delayed("Symptomatic", 3),
         ),
-        input_matrix_path=args.input_matrix_path,
-        output_matrix_path=args.output_matrix_path,
+        gm.population_data,
+        gm.matrix_data,
         consts=consts,
     )
 
