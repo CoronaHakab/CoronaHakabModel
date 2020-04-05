@@ -27,8 +27,8 @@ int SparseMatrix::col_ind(size_t row, size_t column) const{
     return binary_search(row_indices[row], row_lens[row], column);
 }
 
-SparseMatrix::SparseMatrix(size_t size, MagicOperator* const& op):
-size(size), op(op), _nz_count(0){
+SparseMatrix::SparseMatrix(size_t size):
+size(size), _nz_count(0){
     row_lens = new size_t[size];
     row_indices = new size_t*[size];
     row_probs = new dtype*[size];
@@ -142,7 +142,7 @@ dtype ManifestMatrix::get(size_t row,size_t column){
     return 0;
 }
 
-void ManifestMatrix::I_POA(dtype const* A_values, size_t v_len, size_t const* A_nz_indices, size_t nzi_len, dtype** AF_out, size_t* o_len){
+void ManifestMatrix::I_POA(dtype const* A_values, size_t v_len, size_t const* A_nz_indices, size_t nzi_len, MagicOperator* const& op, dtype** AF_out, size_t* o_len){
     *AF_out = new dtype[origin->size];
     *o_len = origin->size;
     for (size_t row = 0; row < origin->size; row++){
@@ -173,7 +173,7 @@ void ManifestMatrix::I_POA(dtype const* A_values, size_t v_len, size_t const* A_
             else{
                 auto r_val = row_values[column_index] + row_offset + origin->value_column_offsets[r_column];
                 auto v_val = A_values[v_column];
-                auto m = origin->op->operate(r_val, v_val);
+                auto m = op->operate(r_val, v_val);
                 total *= m;
                 column_index++;
                 nzi++;

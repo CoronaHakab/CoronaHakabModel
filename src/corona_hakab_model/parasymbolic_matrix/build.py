@@ -38,104 +38,67 @@ optimization = "/O2"  # in case of fire, set to Od
 
 
 def write_swim():
-    src = FileSource("sparse.hpp")
-    swim = Swim("sparse")
+    src = FileSource("parasymbolic.hpp")
+    swim = Swim("parasymbolic")
 
-    swim.add_raw("%nodefaultctor ManifestMatrix;")
-    swim.add_raw("%nodefaultctor SparseMatrix;")
-    swim.add_python_begin("""
-    import numpy as np
-    size_t = np.dtype('uint64')
-    """)
+    swim.add_raw("%nodefaultctor;")
+    swim.add_python_begin("import numpy as np")
+    swim.add_python_begin("from contextlib import contextmanager")
 
     swim(pools.include(src))
 
-    swim(
-        pools.primitive(
-            additionals = False,
-            out_iterable_types=()
-        )
-    )
-    swim(pools.list('size_t'))
-    swim(pools.list('std::vector<size_t>'))
+    swim(pools.primitive())
 
     swim(Typedef.Behaviour()(src))
 
     swim(pools.numpy_arrays(typedefs=tuple({"size_t": "unsigned long long", "dtype": "float"}.items())))
-    swim(pools.tuple("dtype", "dtype"))
-    swim(pools.print())
+    pswim = ContainerSwim("ParasymbolicMatrix", src)
 
-    oswim = ContainerSwim("MagicOperator", src, director=True)
-    oswim(Function.Behaviour())
-
-    mswim = ContainerSwim("ManifestMatrix", src)
-    mswim(Function.Behaviour())
-    mswim.extend_py_def(
-        "I_POA",
-        "self, v, op",
-        """
-        nz = np.flatnonzero(v).astype(np.uint64, copy=False)
-        return self.I_POA.prev(self, v, nz, op)
-        """
-    )
-    mswim.extend_py_def(
-        "__getitem__",
-        "self,item",
-        """
-        i, j = item
-        return self.get(i, j)
-        """
-    )
-
-    pswim = ContainerSwim("SparseMatrix", src)
+    pswim(r"operator\*=" >> Function.Behaviour(append_python="return self"))
     pswim(Function.Behaviour())
     pswim.extend_py_def(
-        "__getitem__",
-        "self,item",
+        "prob_any",
+        "self, v",
         """
-        i, j = item
-        if not self.has_value(i, j):
-            return None
-        return self.get(i, j)
-        """
+                        nz = np.flatnonzero(v).astype(np.uint64, copy=False)
+                        return self._prob_any(v, nz)
+                        """,
     )
     pswim.extend_py_def(
-        "manifest",
-        "self, sample=None",
+        "__setitem__",
+        "self, key, v",
         """
-        if sample is None:
-            sample = np.random(self.nz_count(), dtype=np.float32)
-        return self.manifest.prev(self, sample)
-        """
+                        comp, row, indices = key
+                        indices = np.asanyarray(indices, dtype=np.uint64)
+                        v = np.asanyarray(v, dtype=np.float32)
+                        self.batch_set(comp, row, indices, v)
+                        """,
     )
     pswim.extend_py_def(
-        "batch_set",
-        "self,row,columns,probs,values",
+        "lock_rebuild",
+        "self",
         """
-        columns = np.asanyarray(columns, dtype=size_t)
-        probs = np.asanyarray(probs, dtype=np.float32)
-        values = np.asanyarray(values, dtype=np.float32)
-        return self.batch_set.prev(self, row,columns,probs,values)
-        """
+                        self.set_calc_lock(True)
+                        yield self
+                        self.set_calc_lock(False)
+                        """,
+        wrapper="contextmanager",
     )
-
-    swim(oswim)
-    swim(mswim)
     swim(pswim)
 
-    swim.write("sparse.i")
+    swim.write("parasymbolic.i")
 
 
 def run_swim():
     subprocess.run(
-        [SWIG_PATH, "-c++", "-python", "-py3", "sparse.i"], stdout=None, check=True  # '-debug-tmsearch',
+        [SWIG_PATH, "-c++", "-python", "-py3", "parasymbolic.i"], stdout=None, check=True  # '-debug-tmsearch',
     )
 
 
 def compile():
     tmpdir = Path("temp")
-    src_path = Path("sparse.cpp")
-    cxx_path = "../sparse_matrix/sparse_wrap.cxx"
+    src_path = Path("parasymbolic.cpp")
+    cxx_path = "parasymbolic_wrap.cxx"
 
     tmpdir.mkdir(exist_ok=True, parents=True)
     # todo compile with warnings?
@@ -159,7 +122,7 @@ def compile():
             PY_LIB_PATH,
             *it.chain.from_iterable(("/LIBPATH", l) for l in COMPILE_ADDITIONAL_LIBS),
             "/IMPLIB:" + str(tmpdir / "example.lib"),
-            "/OUT:" + "_sparse.pyd",
+            "/OUT:" + "_parasymbolic.pyd",
         ],
         stdout=subprocess.PIPE,
         text=True,

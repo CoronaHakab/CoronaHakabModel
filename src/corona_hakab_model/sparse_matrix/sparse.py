@@ -100,17 +100,18 @@ class ManifestMatrix(object):
         """
         return _sparse.ManifestMatrix_get(self, row, column)
 
-    def I_POA(self, A_values: "dtype const *", A_nz_indices: "size_t const *") -> "void":
+    def I_POA(self, A_values: "dtype const *", A_nz_indices: "size_t const *", op: "MagicOperator") -> "void":
         r"""
-        I_POA(self, A_values, A_nz_indices)
+        I_POA(self, A_values, A_nz_indices, op)
 
         Parameters
         ----------
         A_values: dtype const *
         A_nz_indices: size_t const *
+        op: MagicOperator *const &
 
         """
-        return _sparse.ManifestMatrix_I_POA(self, A_values, A_nz_indices)
+        return _sparse.ManifestMatrix_I_POA(self, A_values, A_nz_indices, op)
 
     def nz_rows(self) -> "std::vector< std::vector< size_t > >":
         r"""nz_rows(self) -> std::vector< std::vector< size_t > >"""
@@ -119,7 +120,7 @@ class ManifestMatrix(object):
 
     if '''I_POA''' not in locals():
 
-    	def I_POA(self, v): pass
+    	def I_POA(self, v, op): pass
 
 
     if '''__getitem__''' not in locals():
@@ -132,9 +133,9 @@ _sparse.ManifestMatrix_swigregister(ManifestMatrix)
 
 
 __temp_store = getattr(ManifestMatrix,"""I_POA""",None)
-def __temp_def(self, v):
+def __temp_def(self, v, op):
 	nz = np.flatnonzero(v).astype(np.uint64, copy=False)
-	return self.I_POA.prev(self, v, nz)
+	return self.I_POA.prev(self, v, nz, op)
 if isinstance(__temp_store, (classmethod, staticmethod, property)):
 	__temp_def = type(__temp_store)(__temp_def)
 __temp_def.prev = __temp_store
@@ -157,17 +158,16 @@ class SparseMatrix(object):
     __repr__ = _swig_repr
     size = property(_sparse.SparseMatrix_size_get)
 
-    def __init__(self, size: "size_t", op: "MagicOperator"):
+    def __init__(self, size: "size_t"):
         r"""
-        __init__(self, size, op) -> SparseMatrix
+        __init__(self, size) -> SparseMatrix
 
         Parameters
         ----------
         size: size_t
-        op: MagicOperator *const &
 
         """
-        _sparse.SparseMatrix_swiginit(self, _sparse.new_SparseMatrix(size, op))
+        _sparse.SparseMatrix_swiginit(self, _sparse.new_SparseMatrix(size))
 
     def batch_set(self, row: "size_t", A_columns: "size_t const *", A_probs: "dtype const *", A_values: "dtype const *") -> "void":
         r"""

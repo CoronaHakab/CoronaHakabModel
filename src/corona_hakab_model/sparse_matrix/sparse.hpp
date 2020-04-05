@@ -27,7 +27,6 @@ class SparseMatrix{
         dtype* prob_column_coefficients;
         dtype* value_row_offsets;
         dtype* value_column_offsets;
-        MagicOperator const* op;
         size_t _nz_count;
 
         int col_ind(size_t row, size_t col) const;
@@ -36,7 +35,7 @@ class SparseMatrix{
     public:
         const size_t size;
 
-        SparseMatrix(size_t size, MagicOperator* const& op);
+        SparseMatrix(size_t size);
         void batch_set(size_t row, size_t const* A_columns, size_t c_len, dtype const* A_probs, size_t p_len, dtype const* A_values, size_t v_len);
         bool has_value(size_t row,size_t column) const;
         std::tuple<dtype, dtype> get(size_t row,size_t column) const;
@@ -62,7 +61,8 @@ class ManifestMatrix{
     public:
         dtype get(size_t row,size_t column);
         void I_POA(dtype const* A_values, size_t v_len, size_t const* A_nz_indices, size_t nzi_len,
-                dtype** AF_out, size_t* o_len);
+            MagicOperator* const& op,
+            dtype** AF_out, size_t* o_len);
         std::vector<std::vector<size_t>> nz_rows();
         virtual ~ManifestMatrix();
 };

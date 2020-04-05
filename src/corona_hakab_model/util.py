@@ -1,3 +1,6 @@
+from itertools import islice
+from typing import Iterable
+
 from scipy.stats import binom, randint, rv_discrete
 
 
@@ -29,3 +32,15 @@ def upper_bound(d):
 
 def lower_bound(d):
     return d.a + d.kwds.get("loc", 0)
+
+
+def is_strict_sorted(s: Iterable):
+    i = iter(s)
+    try:
+        prev = next(i)
+    except StopIteration:
+        return True
+    for x in i:
+        if x <= prev:
+            return False
+    return True
