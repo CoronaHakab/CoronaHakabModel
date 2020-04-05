@@ -6,16 +6,10 @@ from typing import Iterable, List
 import numpy as np
 from agent import Agent, TrackingCircle
 from node import Node
-from scipy.sparse import lil_matrix
 from consts import Consts
 from itertools import islice
 
-use_parasymbolic_matrix = True
-if use_parasymbolic_matrix:
-    from parasymbolic_matrix import ParasymbolicMatrix as CoronaMatrix
-else:
-    from scipy_matrix import ScipyMatrix as CoronaMatrix
-
+import corona_matrix
 
 class AffinityMatrix:
     """
@@ -49,6 +43,9 @@ class AffinityMatrix:
             self.clustered_matrix_types[clm.name] = (k, clm)
 
         self.depth = k + 1
+
+        CoronaMatrix = corona_matrix.get_corona_matrix_class(self.consts.use_parasymbolic_matrix)
+        self.logger.info("Using CoronaMatrix of type {}".format(CoronaMatrix.__name__))
         self.inner = CoronaMatrix(self.size, self.depth)
 
         self.agents = agents
