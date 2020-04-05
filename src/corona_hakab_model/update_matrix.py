@@ -1,8 +1,8 @@
 from typing import Iterable
 
 import numpy as np
-from agent import Agent
 from generation.connection_types import ConnectionTypes
+from manager import SimulationManager
 
 
 class UpdateMatrixManager:

@@ -5,7 +5,6 @@ from typing import Callable, Dict, Iterable, List, Union
 import infection
 import numpy as np
 import update_matrix
-from agent import Agent
 from consts import Consts
 from generation.circles_generator import PopulationData
 from generation.connection_types import ConnectionTypes

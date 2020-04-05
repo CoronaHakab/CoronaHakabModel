@@ -1,6 +1,5 @@
-import pickle
-
 # for exporting with pickle (/serializing) - set a high recursion rate
+import pickle
 import sys
 from typing import List
 

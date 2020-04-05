@@ -1,9 +1,6 @@
-from collections import namedtuple
-from typing import Dict, Tuple
-
 from cached_property import cached_property
 from generation.connection_types import ConnectionTypes
-from util import dist, rv_discrete
+from util import rv_discrete
 
 
 # todo switch to a named tuple, and allow loading from a file

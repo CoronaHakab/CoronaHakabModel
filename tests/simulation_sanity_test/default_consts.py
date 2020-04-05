@@ -1,3 +1,5 @@
+from util import dist, rv_discrete
+
 {
     "population_size": 1_000,
     "total_steps": 300,

@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 from consts import Consts
 from generation.generation_manager import GenerationManger
 from manager import SimulationManager
-from supervisor import LambdaValueSupervisable, Supervisable, Supervisor
+from supervisor import Supervisable, Supervisor
 
 
 def check_args(args):
