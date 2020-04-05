@@ -4,7 +4,6 @@ from itertools import count
 from typing import Dict
 
 import numpy as np
-
 from healthcare import DetectionTest
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
@@ -47,12 +46,10 @@ default_parameters = {
     "symptomatic_to_asymptomatic_probability": 0.85,
     "hospitalized_to_asymptomatic_probability": 0.8,
     "icu_to_hospitalized_probability": 0.65,
-
     # the probability that an infected agent is asking to be tested
     "symptomatic_test_willingness": 0.6,
     "asymptomatic_test_willingness": 0.05,
     "silent_test_willingness": 0.01,
-
     # probability of an infected symptomatic agent infecting others
     "symptomatic_infection_ratio": 0.75,
     # probability of an infected asymptomatic agent infecting others
@@ -102,9 +99,9 @@ default_parameters = {
     "testing_gap_after_positive_test": 4,
     "testing_gap_after_negative_test": 1,
     "testing_policy": (
-        lambda agent: agent.medical_state.name == 'Recovered',
-        lambda agent: agent.medical_state.name == 'Symptomatic',
-    )  # TODO: Define better API
+        lambda agent: agent.medical_state.name == "Recovered",
+        lambda agent: agent.medical_state.name == "Symptomatic",
+    ),  # TODO: Define better API
 }
 
 ConstParameters = namedtuple(
@@ -216,12 +213,19 @@ class Consts(ConstParameters):
 
         susceptible = SusceptibleTerminalState("Susceptible")
         latent = ImmuneStochasticState("Latent", detectable=False)
-        silent = ContagiousStochasticState("Silent", contagiousness=self.silent_infection_ratio,
-                                           test_willingness=self.silent_test_willingness)
-        symptomatic = ContagiousStochasticState("Symptomatic", contagiousness=self.symptomatic_infection_ratio,
-                                                test_willingness=self.symptomatic_test_willingness)
-        asymptomatic = ContagiousStochasticState("Asymptomatic", contagiousness=self.asymptomatic_infection_ratio,
-                                                 test_willingness=self.asymptomatic_test_willingness)
+        silent = ContagiousStochasticState(
+            "Silent", contagiousness=self.silent_infection_ratio, test_willingness=self.silent_test_willingness
+        )
+        symptomatic = ContagiousStochasticState(
+            "Symptomatic",
+            contagiousness=self.symptomatic_infection_ratio,
+            test_willingness=self.symptomatic_test_willingness,
+        )
+        asymptomatic = ContagiousStochasticState(
+            "Asymptomatic",
+            contagiousness=self.asymptomatic_infection_ratio,
+            test_willingness=self.asymptomatic_test_willingness,
+        )
 
         hospitalized = ImmuneStochasticState("Hospitalized", detectable=True)
         icu = ImmuneStochasticState("ICU", detectable=True)

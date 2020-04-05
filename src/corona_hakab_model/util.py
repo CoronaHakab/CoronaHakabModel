@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Generic, TypeVar, List, Dict, Sequence
+from typing import Dict, Generic, List, Sequence, TypeVar
 
 from scipy.stats import binom, randint, rv_discrete
 
@@ -35,6 +35,8 @@ def lower_bound(d):
 
 
 T = TypeVar("T")
+
+
 class Queue(Generic[T]):
     def __init__(self):
         # in x time steps return the list of pending elements

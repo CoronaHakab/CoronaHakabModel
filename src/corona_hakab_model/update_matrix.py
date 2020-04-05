@@ -2,6 +2,7 @@ from typing import Iterable
 
 import numpy as np
 from generation.connection_types import ConnectionTypes
+
 # from manager import SimulationManager
 
 
@@ -10,7 +11,7 @@ class UpdateMatrixManager:
     Manages the "Update Matrix" stage of the simulation.
     """
 
-    def __init__(self, manager: "SimulationManager"):
+    def __init__(self, manager: "SimulationManager"):  # noqa: F821 - todo how to fix it?
         self.manager = manager
         # unpacking commonly used information from manager
         self.matrix = manager.matrix

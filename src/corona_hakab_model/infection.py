@@ -1,15 +1,13 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+
+from collections import defaultdict
+from typing import TYPE_CHECKING, Dict, List
+
+import numpy as np
 
 if TYPE_CHECKING:
     from medical_state import MedicalState
     from manager import SimulationManager
-
-from collections import defaultdict
-from typing import Dict, List
-
-import numpy as np
-from medical_state import MedicalState
 
 
 class InfectionManager:

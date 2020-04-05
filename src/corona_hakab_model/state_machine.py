@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections import defaultdict, namedtuple
+from collections import namedtuple
 from functools import cached_property
-from typing import Collection, Dict, Generic, Iterable, List, Optional, Sequence, Set, Tuple, TypeVar, Union
+from typing import Collection, Dict, Generic, Iterable, List, Optional, Set, Tuple, TypeVar, Union
 
 import numpy as np
 from agent import Agent, Circle
 from scipy.stats import rv_discrete
-from util import upper_bound, Queue
+from util import Queue, upper_bound
 
 PendingTransfer = namedtuple("PendingTransfer", ["agent", "target_state", "origin_state", "original_duration"])
 

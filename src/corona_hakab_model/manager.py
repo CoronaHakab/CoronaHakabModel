@@ -2,16 +2,15 @@ import logging
 from collections import defaultdict
 from typing import Callable, Dict, Iterable, List, Union
 
-import numpy as np
 import healthcare
-
 import infection
+import numpy as np
 import update_matrix
 from consts import Consts
 from generation.circles_generator import PopulationData
 from generation.connection_types import ConnectionTypes
 from generation.matrix_generator import MatrixData
-from healthcare import PendingTestResults, PendingTestResult
+from healthcare import PendingTestResult, PendingTestResults
 from medical_state import MedicalState
 from state_machine import PendingTransfers
 from supervisor import Supervisable, Supervisor
@@ -64,7 +63,6 @@ class SimulationManager:
         self.date_of_last_test = np.zeros(len(self.agents), dtype=int)
         self.pending_test_results = PendingTestResults()
 
-
         # initializing agents to current simulation
         for agent in self.agents:
             agent.add_to_simulation(self, initial_state)
@@ -87,8 +85,9 @@ class SimulationManager:
         run one step
         """
         # run tests
-        new_tests = self.healthcare_manager.testing_step(self.consts.detection_test, self.consts.daily_num_of_tests,
-                                                         self.consts.testing_policy)
+        new_tests = self.healthcare_manager.testing_step(
+            self.consts.detection_test, self.consts.daily_num_of_tests, self.consts.testing_policy
+        )
 
         # progress tests and isolate the detected agents (update the matrix)
         self.progress_tests_and_isolation(new_tests)
@@ -195,7 +194,4 @@ class SimulationManager:
         self.supervisor.stack_plot(**kwargs)
 
     def __str__(self):
-        return (
-            f"<SimulationManager: SIZE_OF_POPULATION={len(self.agents)}, "
-            f"STEPS_TO_RUN={self.consts.total_steps}>"
-        )
+        return f"<SimulationManager: SIZE_OF_POPULATION={len(self.agents)}, " f"STEPS_TO_RUN={self.consts.total_steps}>"

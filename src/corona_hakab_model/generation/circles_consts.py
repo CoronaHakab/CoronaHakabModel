@@ -1,4 +1,5 @@
 from functools import cached_property
+
 from generation.connection_types import ConnectionTypes
 from util import rv_discrete
 
