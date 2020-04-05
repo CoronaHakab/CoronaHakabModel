@@ -1,8 +1,9 @@
-from generation.circles_generator import CirclesGenerator
-from generation.matrix_generator import MatrixGenerator
-from generation.circles_consts import CirclesConsts
-from generation.matrix_consts import MatrixConsts
 import logging
+
+from generation.circles_consts import CirclesConsts
+from generation.circles_generator import CirclesGenerator
+from generation.matrix_consts import MatrixConsts
+from generation.matrix_generator import MatrixGenerator
 
 
 class GenerationManger:
@@ -13,10 +14,8 @@ class GenerationManger:
     generation manager is in charge of calling each of the sub-parts of the generation, and taking thier results.
     generation manager can export the entire generation information as a json.
     """
-    __slots__ = (
-        "matrix_data",
-        "population_data"
-    )
+
+    __slots__ = ("matrix_data", "population_data")
 
     def __init__(self):
         # setting logger

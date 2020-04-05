@@ -6,15 +6,20 @@ from random import random
 import infection
 import numpy as np
 import update_matrix
-from agent import Agent
 from consts import Consts
+from generation.circles_generator import PopulationData
+from generation.connection_types import ConnectionTypes
+from generation.matrix_generator import MatrixData
 from medical_state import MedicalState
 from state_machine import PendingTransfers
 from supervisor import Supervisable, Supervisor
+<<<<<<< HEAD
 from generation.circles_generator import PopulationData
 from generation.matrix_generator import MatrixData
 from generation.connection_types import ConnectionTypes
 from update_matrix import PolicyByCircles
+=======
+>>>>>>> 432e4ba6797eb55a21897ca80129ade1c91a9876
 
 
 class SimulationManager:
@@ -154,11 +159,17 @@ class SimulationManager:
         for i in range(self.consts.total_steps):
             if self.consts.active_isolation:
                 if i == self.consts.stop_work_days:
-                    self.update_matrix_manager.change_connections_policy({ConnectionTypes.Family, ConnectionTypes.Other})
+                    self.update_matrix_manager.change_connections_policy(
+                        {ConnectionTypes.Family, ConnectionTypes.Other}
+                    )
                 elif i == self.consts.resume_work_days:
                     self.update_matrix_manager.change_connections_policy(ConnectionTypes)
             self.step()
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
+
+        # clearing lru cache after run
+        self.consts.medical_state_machine.cache_clear()
+        Supervisable.coerce.cache_clear()
 
     def plot(self, **kwargs):
         self.supervisor.plot(**kwargs)

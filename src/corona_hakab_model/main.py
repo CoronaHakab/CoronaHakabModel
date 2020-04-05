@@ -1,9 +1,9 @@
 from argparse import ArgumentParser
 
 from consts import Consts
-from manager import SimulationManager
-from supervisor import LambdaValueSupervisable, Supervisable, Supervisor
 from generation.generation_manager import GenerationManger
+from manager import SimulationManager
+from supervisor import Supervisable, Supervisor
 
 
 def check_args(args):
@@ -61,8 +61,8 @@ def main():
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
             #    Supervisable.NewCasesCounter()),
             # LambdaValueSupervisable("Detected Daily", lambda manager: manager.detected_daily)
-            #Supervisable.R0(),
-            #Supervisable.Delayed("Symptomatic", 3),
+            # Supervisable.R0(),
+            # Supervisable.Delayed("Symptomatic", 3),
         ),
         gm.population_data,
         gm.matrix_data,

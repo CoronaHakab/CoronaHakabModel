@@ -1,3 +1,6 @@
+import medical_state
+
+
 class Agent:
     """
     This class represents a person in our doomed world.

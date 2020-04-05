@@ -27,6 +27,8 @@ class PolicyByCircles:
         self.circles = circles
         self.policy = policy
 
+
+
 class UpdateMatrixManager:
     """
     Manages the "Update Matrix" stage of the simulation.

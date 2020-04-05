@@ -1,24 +1,26 @@
-from itertools import islice
-from generation.connection_types import ConnectionTypes, Connect_To_All_types, Random_Clustered_types, \
-    Geographic_Clustered_types
-from generation.matrix_consts import MatrixConsts
-from generation.circles_generator import PopulationData
-from parasymbolic_matrix import ParasymbolicMatrix as CoronaMatrix
-from typing import List
-from generation.circles import SocialCircle
-import numpy as np
+import logging
 import math
-from generation.node import Node
-from random import sample, random
 import pickle
+from itertools import islice
+from random import random, sample
+from typing import List
+
+import corona_matrix
+import numpy as np
+from generation.circles import SocialCircle
+from generation.circles_generator import PopulationData
+from generation.connection_types import (
+    Connect_To_All_types,
+    ConnectionTypes,
+    Geographic_Clustered_types,
+    Random_Clustered_types,
+)
+from generation.matrix_consts import MatrixConsts
+from generation.node import Node
 
 
 class MatrixData:
-    __slots__ = (
-        "matrix_type",
-        "matrix",
-        "depth"
-    )
+    __slots__ = ("matrix_type", "matrix", "depth")
 
     def __init__(self):
         self.matrix_type = None
@@ -32,20 +34,22 @@ class MatrixGenerator:
     """
 
     # import/export variables
-    EXPORT_OUTPUT_DIR   = "../../output/"
-    EXPORT_FILE_NAME    = "matrix_data.pickle"
+    EXPORT_OUTPUT_DIR = "../../output/"
+    EXPORT_FILE_NAME = "matrix_data.pickle"
 
     def __init__(
-            self,
-            population_data: PopulationData,
-            matrix_consts: MatrixConsts = MatrixConsts(),
+        self,  population_data: PopulationData, matrix_consts: MatrixConsts = MatrixConsts(),
     ):
         # initiate everything
+        self.logger = logging.getLogger("MatrixGenerator")
         self.matrix_data = MatrixData()
         self.matrix_consts = matrix_consts
         self._unpack_population_data(population_data)
         self.size = len(self.agents)
         self.depth = len(ConnectionTypes)
+
+        CoronaMatrix = corona_matrix.get_corona_matrix_class(matrix_consts.use_parasymbolic_matrix)
+        self.logger.info("Using CoronaMatrix of type {}".format(CoronaMatrix.__name__))
         self.matrix = CoronaMatrix(self.size, self.depth)
 
         # create all sub matrices
@@ -55,16 +59,17 @@ class MatrixGenerator:
 
             for con_type in ConnectionTypes:
                 if con_type in Connect_To_All_types:
-                    self._create_fully_connected_circles_matrix(con_type,
-                                                               self.social_circles_by_connection_type[con_type],
-                                                               current_depth)
+                    self._create_fully_connected_circles_matrix(
+                        con_type, self.social_circles_by_connection_type[con_type], current_depth
+                    )
                 elif con_type in Random_Clustered_types:
-                    self._create_random_clustered_circles_matrix(con_type,
-                                                                self.social_circles_by_connection_type[con_type],
-                                                                current_depth)
+                    self._create_random_clustered_circles_matrix(
+                        con_type, self.social_circles_by_connection_type[con_type], current_depth
+                    )
                 elif con_type in Geographic_Clustered_types:
-                    self._create_community_clustered_circles_matrix(con_type, self.social_circles_by_connection_type[con_type], 
-                                                                     current_depth)
+                    self._create_community_clustered_circles_matrix(
+                        con_type, self.social_circles_by_connection_type[con_type], current_depth
+                    )
                 current_depth += 1
 
         # current patch since matrix is un-serializable
@@ -110,7 +115,8 @@ class MatrixGenerator:
             # the number of nodes. writes it for simplicity
             n = len(indexes)
             connections_amounts = iter(
-                self.random_round(((daily_connections_float + weekly_connections_float) / 2), shape=n))
+                self.random_round(((daily_connections_float + weekly_connections_float) / 2), shape=n)
+            )
             # saves the already-inserted nodes
             inserted_nodes = set()
             np.random.shuffle(nodes)
@@ -128,7 +134,7 @@ class MatrixGenerator:
 
             # manually generate the minimum required connections
             for i in range(con_amount):
-                other_nodes = nodes[0: con_amount]
+                other_nodes = nodes[0:con_amount]
                 other_nodes.pop(i)
                 nodes[i].add_connections(other_nodes)
                 inserted_nodes.add(nodes[i])
@@ -177,11 +183,12 @@ class MatrixGenerator:
             # rolls for each connection, whether it is daily or weekly
             daily_share = daily_connections_float / total_connections_float
             weekly_share = weekly_connections_float / total_connections_float
-            strengthes = np.random.choice([connection_strength, connection_strength / 7], size=len(conns),
-                                          p=[daily_share, weekly_share])
+            strengthes = np.random.choice(
+                [connection_strength, connection_strength / 7], size=len(conns), p=[daily_share, weekly_share]
+            )
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
-            
+
     def _create_community_clustered_circles_matrix(self, con_type: ConnectionTypes, circles: List[SocialCircle], depth):
         # the new connections will be saved here
         connections = [[] for _ in self.agents]
@@ -190,10 +197,13 @@ class MatrixGenerator:
         daily_connections_float = self.matrix_consts.daily_connections_amount_by_connection_type[con_type]
         weekly_connections_float = self.matrix_consts.weekly_connections_amount_by_connection_type[con_type]
         total_connections_float = daily_connections_float + weekly_connections_float
-        
+
         # the number of nodes. writes it for simplicity
         connections_amounts = iter(
-            MatrixGenerator.random_round(((daily_connections_float + weekly_connections_float) / 2), shape=len(self.agents)))
+            MatrixGenerator.random_round(
+                ((daily_connections_float + weekly_connections_float) / 2), shape=len(self.agents)
+            )
+        )
 
         for circle in circles:
             agents = circle.agents
@@ -208,7 +218,7 @@ class MatrixGenerator:
             for node in nodes:
                 # first find a random node. Should never fail as we have inserted a node before.
                 first_connection = sample(connected_nodes, 1)[0]
-                
+
                 num_connections = connections_amounts.__next__()
                 # fill connections other than first_connection
                 while len(node.connected) < num_connections - 1:
@@ -217,17 +227,19 @@ class MatrixGenerator:
                         possible_nodes = first_connection.connected
                     else:
                         # connect with a node NOT from the first_connection's connections
-                        possible_nodes = connected_nodes.difference(set([first_connection])).difference(first_connection.connected)
-                    
+                        possible_nodes = connected_nodes.difference(set([first_connection])).difference(
+                            first_connection.connected
+                        )
+
                     # prevent connecting a connected node
                     possible_nodes = possible_nodes.difference(node.connected)
-                    
+
                     # edge cases - take any node. this takes care of both sides of previous IF failing.
-                    if len(possible_nodes) == 0: 
+                    if len(possible_nodes) == 0:
                         possible_nodes = connected_nodes.difference(set([first_connection])).difference(node.connected)
                         if len(possible_nodes) == 0:
                             break
-                    
+
                     random_friend = sample(possible_nodes, 1)[0]
                     Node.connect(random_friend, node)
                 # connect to bff here to prevent self-selection in bff's friends
@@ -237,14 +249,20 @@ class MatrixGenerator:
             nodes.append(first_node)
             for connected_node in nodes:
                 connections[connected_node.index].extend([other_node.index for other_node in connected_node.connected])
-                
+
         # insert all connections to matrix
         for agent, conns in zip(self.agents, connections):
             conns = np.array(conns)
             conns.sort()
             # rolls for each connection, whether it is daily or weekly
-            strengthes = np.random.choice([connection_strength, connection_strength / 7], size=len(conns),
-                                          p=[daily_connections_float / total_connections_float, weekly_connections_float / total_connections_float])
+            strengthes = np.random.choice(
+                [connection_strength, connection_strength / 7],
+                size=len(conns),
+                p=[
+                    daily_connections_float / total_connections_float,
+                    weekly_connections_float / total_connections_float,
+                ],
+            )
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
 
@@ -258,7 +276,9 @@ class MatrixGenerator:
         :param scale_factor: average amount of connections for each agent
         :return:
         """
-        remaining_contacts = {agent.index: math.ceil(np.random.exponential(scale_factor - 0.5)) for agent in circle.agents}
+        remaining_contacts = {
+            agent.index: math.ceil(np.random.exponential(scale_factor - 0.5)) for agent in circle.agents
+        }
 
         agent_id_pool = set([agent.index for agent in circle.agents])
 
@@ -297,5 +317,5 @@ class MatrixGenerator:
         self.matrix_data.matrix = self.matrix
         self.matrix_data.depth = self.depth
 
-        with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, 'wb') as export_file:
+        with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, "wb") as export_file:
             pickle.dump(self.matrix_data, export_file)
