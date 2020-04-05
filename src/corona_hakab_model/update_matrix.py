@@ -2,7 +2,7 @@ from typing import Iterable
 
 import numpy as np
 from generation.connection_types import ConnectionTypes
-from manager import SimulationManager
+# from manager import SimulationManager
 
 
 class UpdateMatrixManager:
