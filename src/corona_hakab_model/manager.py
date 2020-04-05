@@ -2,8 +2,9 @@ import logging
 from collections import defaultdict
 from typing import Callable, Dict, Iterable, List, Union
 
-import infection
 import numpy as np
+
+import infection
 import update_matrix
 from agent import Agent
 from consts import Consts
@@ -149,6 +150,10 @@ class SimulationManager:
                     self.update_matrix_manager.change_connections_policy(ConnectionTypes)
             self.step()
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
+
+        # clearing lru cache after run
+        self.consts.medical_state_machine.cache_clear()
+        Supervisable.coerce.cache_clear()
 
     def plot(self, **kwargs):
         self.supervisor.plot(**kwargs)
