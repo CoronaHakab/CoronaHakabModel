@@ -237,6 +237,6 @@ class MatrixGenerator:
         :param shape: amount of wanted rolls
         :return: numpy array of ints, each is either floor or ceil
         """
-        floor_prob = x - math.floor(x)
-        ceil_prob = math.ceil(x) - x
+        floor_prob = math.ceil(x) - x
+        ceil_prob = x - math.floor(x)
         return np.random.choice([math.floor(x), math.ceil(x)], size=shape, p=[floor_prob, ceil_prob])
