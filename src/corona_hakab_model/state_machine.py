@@ -6,7 +6,7 @@ from functools import cached_property
 from typing import Collection, Dict, Generic, Iterable, List, Optional, Sequence, Set, Tuple, TypeVar, Union
 
 import numpy as np
-from agent import Agent, Circle
+from agent import Agent, Circle, TrackingCircle
 from scipy.stats import rv_discrete
 from util import upper_bound
 
@@ -68,19 +68,6 @@ class StochasticTransferGenerator:
         self.destinations.append(destination)
         self.durations.append(duration)
 
-    # def transfer(self, agents: Set[Agent]) -> Iterable[PendingTransfer]:
-    #     # TODO if this state is age-aware - work according to age-specific data
-    #     # TODO else fallback to old algorithm
-    #     pass
-    #     # if not self.age_table:
-    #     return self.transfer_agent_agnostic(agents)
-    #
-    #     unhandles_agents = []
-    #     result = []
-    #     for agent in agents:
-    #         if agent.age < 30:
-    #             pass
-
     def transfer(self, agents: Set[Agent], origin_state: State) -> Iterable[PendingTransfer]:
 
         # roll a die for each agent, not taking the agent into account.
@@ -99,7 +86,7 @@ class StochasticTransferGenerator:
         ]
 
 
-class State(Circle, ABC):
+class State(TrackingCircle, ABC):
     def __init__(self, name):
         super().__init__()
         self.name = name
@@ -123,10 +110,6 @@ class StochasticState(State):
         super().__init__(*args, **kwargs)
         self.generator = StochasticTransferGenerator()
 
-    def prob_specific(self, ind: int) -> float:
-        # Assumes all population is of same age
-        return self.generator.prob_specific(ind)
-
     def add_transfer(self, destination: State, duration: rv_discrete, probability: Union[float, type(...)]):
         self.generator.add_transfer(destination, duration, probability)
 
@@ -134,6 +117,9 @@ class StochasticState(State):
 
     def transfer(self, agents: Set[Agent]) -> Iterable[PendingTransfer]:
         return self.generator.transfer(agents, self)
+
+    def prob_specific(self, ind: int) -> float:
+        return self.generator.prob_specific(ind)
 
     @property
     def durations(self):
@@ -143,7 +129,48 @@ class StochasticState(State):
     def destinations(self):
         return self.generator.destinations
 
-#class AgeStochasticState(State):
+
+class AgentAwareState(State):
+    """
+    An agent aware state is one that sorts agents into buckets, and holds a specific generator for each bucket.
+    Actions are performed on each bucket.
+
+    At the moment, only age is accounted for
+    TODO account for more parameters
+    """
+    # todo enforce probabilities sum to 1?
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # This dict will hold the different generators of the state, and will use the appropriate one based on traits
+        # For now, this only takes note of age, meaning the dict is {age_range: StochasticTransferGenerator}
+        self.generators = defaultdict(StochasticTransferGenerator)
+        self.agents_by_bucket = defaultdict(set)
+
+    def get_bucket(self, max_age):
+        if max_age in sorted(self.generators):  # Placeholder
+            pass
+        return max_age
+
+    def add_transfer(self, max_age, destination: State, duration: rv_discrete, probability: Union[float, type(...)]):
+        bucket = self.get_bucket(max_age)
+        self.generators[bucket].add_transfer(destination, duration, probability)
+
+        self._add_descendant(destination)
+
+    def prob_specific(self, ind: int) -> float:
+        # Assumes all population is of same age
+        return self.generators[900].prob_specific(ind)
+
+    def transfer(self, agents: Set[Agent]) -> Iterable[PendingTransfer]:
+        """
+        Run transfer on each bucket and return sum of PendingTransfer lists
+        """
+        pending_transfers = []
+        for bucket, generator in self.generators.items():
+            # Extend list with each bucket's transfers
+            pending_transfers.extend(generator.transfer(self.agents_by_bucket[bucket], self))
+
+        return pending_transfers
 
 
 class TerminalState(State):
