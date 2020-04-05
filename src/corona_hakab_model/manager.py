@@ -16,7 +16,7 @@ from medical_state import MedicalState
 from state_machine import PendingTransfers
 from medical_state_manager import MedicalStateManager
 from supervisor import Supervisable, Supervisor
-from update_matrix import PolicyByCircles
+from update_matrix import Policy
 
 
 class SimulationManager:
@@ -48,7 +48,7 @@ class SimulationManager:
 
         # setting up medical things
         self.consts = consts
-        self.medical_machine = consts.medical_state_machine()
+        self.medical_machine = Consts.medical_state_machine(consts)
         initial_state = self.medical_machine.initial
 
         self.pending_transfers = PendingTransfers()
@@ -132,16 +132,16 @@ class SimulationManager:
             self.pending_test_results.append(new_test)
         
     def change_school_openage(self):
-        if not Consts.should_change_school_openage or self.current_date not in Consts.school_openage_factors.keys():
+        if not self.consts.should_change_school_openage or self.current_step not in self.consts.school_openage_factors.keys():
             return 
         
         # first reset all schools
         self.update_matrix_manager.reset_policies_by_connection_type(ConnectionTypes.School)
         
         # create Policy object
-        new_openage_factor = Consts.school_openage_factors[self.current_date]
-        def should_open(): return random() > new_openage_factor
-        policy = Policy(0, should_open) # 0 - school is closed
+        new_openage_factor = self.consts.school_openage_factors[self.current_step]
+        def should_open(*args): return random() > new_openage_factor
+        policy = Policy(0, [should_open]) # 0 - school is closed
         self.update_matrix_manager.apply_policy_on_circles(policy, self.social_circles_by_connection_type[ConnectionTypes.School])
 
     def setup_sick(self):

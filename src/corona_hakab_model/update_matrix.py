@@ -81,7 +81,7 @@ class UpdateMatrixManager:
     def reset_policies_by_connection_type(self, connection_type):
         for i in range(self.size):
             self.matrix.reset_mul_row(connection_type, i)
-            self.matrix.reset_mul_cul(connection_type, i)
+            self.matrix.reset_mul_col(connection_type, i)
 
     def update_matrix_step(self):
         """
