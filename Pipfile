@@ -18,6 +18,8 @@ scipy = "*"
 scikit-learn = "*"
 pyside2 = "*"
 matplotlib = "*"
+cached-property = "*"
+util = "*"
 
 [requires]
 python_version = "3.8"

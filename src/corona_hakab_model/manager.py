@@ -2,13 +2,13 @@ import logging
 from collections import defaultdict
 from typing import Callable, Dict, Iterable, List, Union
 
-import numpy as np
-
 import infection
+import numpy as np
 import update_matrix
-from affinity_matrix import AffinityMatrix
-from agent import Agent
 from consts import Consts
+from generation.circles_generator import PopulationData
+from generation.connection_types import ConnectionTypes
+from generation.matrix_generator import MatrixData
 from medical_state import MedicalState
 from state_machine import PendingTransfers
 from supervisor import Supervisable, Supervisor
@@ -20,12 +20,28 @@ class SimulationManager:
     """
 
     def __init__(
-            self,
-            supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
-            consts: Consts = Consts(),
-            input_matrix_path: str = None,
-            output_matrix_path: str = None,
+        self,
+        supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
+        population_data: PopulationData,
+        matrix_data: MatrixData,
+        consts: Consts = Consts(),
     ):
+        # setting logger
+        self.logger = logging.getLogger("simulation")
+        logging.basicConfig()
+        self.logger.setLevel(logging.INFO)
+        self.logger.info("Creating a new simulation.")
+
+        # unpacking data from generation
+        self.agents = population_data.agents
+        self.geographic_circles = population_data.geographic_circles
+        self.social_circles_by_connection_type = population_data.social_circles_by_connection_type
+
+        self.matrix_type = matrix_data.matrix_type
+        self.matrix = matrix_data.matrix
+        self.depth = matrix_data.depth
+
+        # setting up medical things
         self.consts = consts
         self.medical_machine = consts.medical_state_machine()
         initial_state = self.medical_machine.initial
@@ -33,24 +49,19 @@ class SimulationManager:
         self.pending_transfers = PendingTransfers()
         self.in_silent_state = 0
         self.detected_daily = 0
-        self.logger = logging.getLogger("simulation")
-        logging.basicConfig()
-        self.logger.setLevel(logging.INFO)
-        self.logger.info("Creating a new simulation.")
-        self.logger.info(f"Generating {self.consts.population_size} agents")
 
         # the manager holds the vector, but the agents update it
-        self.contagiousness_vector = np.empty(self.consts.population_size, dtype=float)  # how likely to infect others
-        self.susceptible_vector = np.empty(self.consts.population_size, dtype=bool)  # can get infected
-        self.agents = [Agent(i, self, initial_state) for i in range(self.consts.population_size)]
+        self.contagiousness_vector = np.empty(len(self.agents), dtype=float)  # how likely to infect others
+        self.susceptible_vector = np.empty(len(self.agents), dtype=bool)  # can get infected
+
+        # initializing agents to current simulation
+        for agent in self.agents:
+            agent.add_to_simulation(self, initial_state)
         initial_state.add_many(self.agents)
 
-        if input_matrix_path or output_matrix_path:
-            raise NotImplementedError  # todo
-        self.matrix = AffinityMatrix(self.agents, self.consts)
-
+        # initializing simulation modules
         self.supervisor = Supervisor([Supervisable.coerce(a, self) for a in supervisable_makers], self)
-        self.update_matrix_manager = update_matrix.UpdateMatrixManager(self.matrix)
+        self.update_matrix_manager = update_matrix.UpdateMatrixManager(self)
         self.infection_manager = infection.InfectionManager(self)
 
         self.current_date = 0
@@ -63,10 +74,9 @@ class SimulationManager:
         """
         run one step
         """
+        # todo this does nothing right now.
         # update matrix
-        self.update_matrix_manager.update_matrix_step(
-            self.infection_manager.agents_to_home_isolation, self.infection_manager.agents_to_full_isolation,
-        )
+        self.update_matrix_manager.update_matrix_step()
 
         # run infection
         new_sick = self.infection_manager.infection_step()
@@ -133,9 +143,11 @@ class SimulationManager:
         for i in range(self.consts.total_steps):
             if self.consts.active_isolation:
                 if i == self.consts.stop_work_days:
-                    self.matrix.change_connections_policy({"home", "strangers"})
+                    self.update_matrix_manager.change_connections_policy(
+                        {ConnectionTypes.Family, ConnectionTypes.Other}
+                    )
                 elif i == self.consts.resume_work_days:
-                    self.matrix.change_connections_policy({"home", "strangers", "school", "work"})
+                    self.update_matrix_manager.change_connections_policy(ConnectionTypes)
             self.step()
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
 

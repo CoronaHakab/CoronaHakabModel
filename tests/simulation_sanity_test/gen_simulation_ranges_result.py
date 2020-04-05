@@ -1,10 +1,9 @@
 import json
 from copy import deepcopy
 
-from numpy import inf
-
 from consts import Consts
 from manager import SimulationManager
+from numpy import inf
 from tests.simulation_sanity_test.simulation_test import consts_file
 
 
@@ -29,7 +28,7 @@ class Range:
             self._min = x
 
     def to_dict(self):
-        return {'min': self._min * 0.9 - 10, 'max': self._max * 1.1 + 10}  # take 10% margin
+        return {"min": self._min * 0.9 - 10, "max": self._max * 1.1 + 10}  # take 10% margin
 
 
 # initialize state to test and set ranges
@@ -41,7 +40,7 @@ test_states = dict(
     ICU=Range(inf, -inf),
     Latent=Range(inf, -inf),
     Silent=Range(inf, -inf),
-    Recovered=Range(inf, -inf)
+    Recovered=Range(inf, -inf),
 )
 
 
@@ -67,7 +66,7 @@ def gen_no_policy_simulation():
     for i in range(consts.total_steps):
         range_per_day_dict[i] = {state: val.to_dict() for state, val in range_per_day_dict[i].items()}
     # dump to json
-    with open('simulation_test_ranges.json', 'w') as f:
+    with open("simulation_test_ranges.json", "w") as f:
         json.dump(range_per_day_dict, f)
 
 
