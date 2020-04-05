@@ -343,7 +343,7 @@ class StateMachine(Generic[T]):
             if isinstance(s, TerminalState):
                 terminal_states[s] = next_index
                 next_index += 1
-            elif isinstance(s, StochasticState) or isinstance(s, AgentAwareState):
+            elif isinstance(s, StochasticState):
                 state_dict = {}
                 for i, dur in enumerate(s.durations):
                     state_dict[i] = next_index
