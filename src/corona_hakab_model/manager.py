@@ -2,18 +2,17 @@ import logging
 from collections import defaultdict
 from typing import Callable, Dict, Iterable, List, Union
 
-import numpy as np
-
 import infection
+import numpy as np
 import update_matrix
 from agent import Agent
 from consts import Consts
+from generation.circles_generator import PopulationData
+from generation.connection_types import ConnectionTypes
+from generation.matrix_generator import MatrixData
 from medical_state import MedicalState
 from state_machine import PendingTransfers
 from supervisor import Supervisable, Supervisor
-from generation.circles_generator import PopulationData
-from generation.matrix_generator import MatrixData
-from generation.connection_types import ConnectionTypes
 
 
 class SimulationManager:
@@ -145,7 +144,9 @@ class SimulationManager:
         for i in range(self.consts.total_steps):
             if self.consts.active_isolation:
                 if i == self.consts.stop_work_days:
-                    self.update_matrix_manager.change_connections_policy({ConnectionTypes.Family, ConnectionTypes.Other})
+                    self.update_matrix_manager.change_connections_policy(
+                        {ConnectionTypes.Family, ConnectionTypes.Other}
+                    )
                 elif i == self.consts.resume_work_days:
                     self.update_matrix_manager.change_connections_policy(ConnectionTypes)
             self.step()

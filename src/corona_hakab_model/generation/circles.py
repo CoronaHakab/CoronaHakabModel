@@ -1,6 +1,7 @@
+from typing import Dict
+
 from generation.circles_consts import GeographicalCircleDataHolder
 from generation.connection_types import ConnectionTypes
-from typing import Dict
 
 
 class Circle:

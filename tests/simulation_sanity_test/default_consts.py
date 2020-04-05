@@ -26,8 +26,9 @@
     "active_isolation": False,
     "stop_work_days": 40,
     "resume_work_days": 80,
-    "family_size_distribution": rv_discrete(1, 7, name="family", values=(
-    [1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081])),
+    "family_size_distribution": rv_discrete(
+        1, 7, name="family", values=([1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081])
+    ),
     "work_size_distribution": dist(30, 80),
     "work_scale_factor": 40,
     "average_amount_of_strangers": 200,

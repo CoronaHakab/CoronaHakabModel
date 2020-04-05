@@ -1,7 +1,8 @@
-from generation.connection_types import ConnectionTypes
-from agent import Agent
-import numpy as np
 from typing import Iterable
+
+import numpy as np
+from agent import Agent
+from generation.connection_types import ConnectionTypes
 
 
 class UpdateMatrixManager:

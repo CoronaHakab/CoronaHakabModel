@@ -1,25 +1,37 @@
 from collections import namedtuple
-from util import rv_discrete, dist
-from generation.connection_types import ConnectionTypes
-from cached_property import cached_property
 from typing import Dict, Tuple
+
+from cached_property import cached_property
+from generation.connection_types import ConnectionTypes
+from util import dist, rv_discrete
 
 
 # todo switch to a named tuple, and allow loading from a file
 class CirclesConsts:
-
     def __init__(self):
         # todo remove population size from main consts
         self.population_size = 10_000
         self.ages = [10, 40, 70]
         self.age_prob = [0.30, 0.45, 0.25]
         self.connection_type_prob_by_age_index = [
-            {ConnectionTypes.Work: 0, ConnectionTypes.School: 0.95, ConnectionTypes.Family: 1.0,
-             ConnectionTypes.Other: 1.0},
-            {ConnectionTypes.Work: 0.9, ConnectionTypes.School: 0, ConnectionTypes.Family: 1.0,
-             ConnectionTypes.Other: 1.0},
-            {ConnectionTypes.Work: 0.25, ConnectionTypes.School: 0, ConnectionTypes.Family: 1.0,
-             ConnectionTypes.Other: 1.0}
+            {
+                ConnectionTypes.Work: 0,
+                ConnectionTypes.School: 0.95,
+                ConnectionTypes.Family: 1.0,
+                ConnectionTypes.Other: 1.0,
+            },
+            {
+                ConnectionTypes.Work: 0.9,
+                ConnectionTypes.School: 0,
+                ConnectionTypes.Family: 1.0,
+                ConnectionTypes.Other: 1.0,
+            },
+            {
+                ConnectionTypes.Work: 0.25,
+                ConnectionTypes.School: 0,
+                ConnectionTypes.Family: 1.0,
+                ConnectionTypes.Other: 1.0,
+            },
         ]
         self.circle_size_distribution_by_connection_type = {
             ConnectionTypes.School: ([100, 500, 1000, 1500], [0.03, 0.45, 0.35, 0.17]),
@@ -32,7 +44,7 @@ class CirclesConsts:
         self.geo_circles_agents_share = [0.6, 0.4]
         self.multi_zone_connection_type_to_geo_circle_probability = [
             {ConnectionTypes.Work: {self.geo_circles_names[0]: 0.7, self.geo_circles_names[1]: 0.3}},
-            {ConnectionTypes.Work: {self.geo_circles_names[0]: 0.2, self.geo_circles_names[1]: 0.8}}
+            {ConnectionTypes.Work: {self.geo_circles_names[0]: 0.2, self.geo_circles_names[1]: 0.8}},
         ]
 
     @property
@@ -45,9 +57,10 @@ class CirclesConsts:
                 self.age_distribution,
                 self.circle_size_distribution_by_connection_type,
                 self.connection_types_prob_by_age,
-                self.multi_zone_connection_type_to_geo_circle_probability[i]
+                self.multi_zone_connection_type_to_geo_circle_probability[i],
             )
-            for i in range(self.geo_circles_amount)]
+            for i in range(self.geo_circles_amount)
+        ]
 
     @cached_property
     def age_distribution(self):
@@ -66,18 +79,19 @@ class GeographicalCircleDataHolder:
         "social_circles_logics",
         "connection_types_prob_by_age",
         "circles_size_distribution_by_connection_type",
-        "multi_zone_connection_type_to_geo_circle_probability"
+        "multi_zone_connection_type_to_geo_circle_probability",
     )
 
     # todo define how social circles logics should be represented
-    def __init__(self,
-                 name: str,
-                 agents_share: float,
-                 age_distribution: rv_discrete,
-                 circles_size_distribution_by_connection_type,
-                 connection_types_prob_by_age,
-                 multi_zone_connection_type_to_geo_circle_probability,
-                 ):
+    def __init__(
+        self,
+        name: str,
+        agents_share: float,
+        age_distribution: rv_discrete,
+        circles_size_distribution_by_connection_type,
+        connection_types_prob_by_age,
+        multi_zone_connection_type_to_geo_circle_probability,
+    ):
         self.name = name
         self.agents_share = agents_share
         self.age_distribution = age_distribution

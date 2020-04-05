@@ -1,10 +1,10 @@
-from generation.circles import Circle
+from typing import List
+
+import numpy as np
+from generation.circles import Circle, SocialCircle
 from generation.circles_consts import GeographicalCircleDataHolder
 from generation.connection_types import ConnectionTypes, In_Zone_types, Multi_Zone_types
-from typing import List
-import numpy as np
-from util import rv_discrete, dist
-from generation.circles import SocialCircle
+from util import dist, rv_discrete
 
 
 class GeographicCircle(Circle):
@@ -14,7 +14,7 @@ class GeographicCircle(Circle):
         "all_social_circles",
         "data_holder",
         "connection_type_to_agents",
-        "connection_type_to_social_circles"
+        "connection_type_to_social_circles",
     )
 
     def __init__(self, data_holder: GeographicalCircleDataHolder):
@@ -82,31 +82,29 @@ class GeographicCircle(Circle):
         for connection_type in Multi_Zone_types:
             agents = self.connection_type_to_agents[connection_type]
             circles_names = list(
-                self.data_holder.multi_zone_connection_type_to_geo_circle_probability[connection_type].keys())
+                self.data_holder.multi_zone_connection_type_to_geo_circle_probability[connection_type].keys()
+            )
             circles_probabilites = list(
-                self.data_holder.multi_zone_connection_type_to_geo_circle_probability[connection_type].values())
+                self.data_holder.multi_zone_connection_type_to_geo_circle_probability[connection_type].values()
+            )
             rolls = np.random.choice(circles_names, size=len(agents), p=circles_probabilites)
             for agent, roll in zip(agents, rolls):
                 geographic_circle_to_agents_by_connection_types[connection_type][roll].append(agent)
-
 
     def add_agent(self, agent):
         super().add_agent(agent)
         self.agents.append(agent)
         assert self.agent_count == len(self.agents)
 
-
     def remove_agent(self, agent):
         super().remove_agent(agent)
         self.agents.remove(agent)
         assert self.agent_count == len(self.agents)
 
-
     def add_many(self, agents):
         super().add_many(agents)
         self.agents.extend(agents)
         assert self.agent_count == len(self.agents)
-
 
     def remove_many(self, agents):
         super().remove_many(agents)
