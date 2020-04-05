@@ -1,8 +1,13 @@
 # Corona Hakab Simulator
 
 ## Install and run the simulator from PyCharm (recommended):
-- Install Python 3.8 (i.e. to C:\Python38)
+- Install Python 3.8.x for Win64
+    - Download Windows x86-64 executable installer from **https://www.python.org/downloads/windows/**
+    - Install it (i.e. to C:\Python38)
+- Install GIT
+    - Download and install 64-bit Git for Windows Setup from **https://git-scm.com/**
 - Install PyCharm (Community edition is good enough)
+    - **https://www.jetbrains.com/pycharm/download/#section=windows**
 - VCS -> Checkout from version control -> git
     - **https://github.com/CoronaHakab/CoronaHakabModel.git**
     - choose directory as you please
