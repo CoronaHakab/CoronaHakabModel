@@ -95,6 +95,9 @@ class MatrixGenerator:
         weekly_connections_float = self.matrix_consts.weekly_connections_amount_by_connection_type[con_type]
         total_connections_float = daily_connections_float + weekly_connections_float
 
+        # adding all super small circles, into one circle, and randomly create connections inside it
+        super_small_circles_combined = SocialCircle(con_type)
+
         for circle in circles:
             agents = circle.agents
             indexes = [agent.index for agent in agents]
@@ -109,8 +112,13 @@ class MatrixGenerator:
             np.random.shuffle(nodes)
             con_amount = math.ceil((daily_connections_float + weekly_connections_float) / 2) + 1
 
-            # checks, if the circle is too small, creates this as a family for now
-            if con_amount > n or n < self.matrix_consts.clustering_switching_point[0]:
+            # checks, if the circle is too small for any algorithm. if so adds to super small circle
+            if con_amount > n:
+                super_small_circles_combined.add_many(circle.agents)
+                continue
+
+            # checks, if the circle is too small for normal clustering
+            if n < self.matrix_consts.clustering_switching_point[0]:
                 self.add_small_circle_connections(circle, connections, total_connections_float)
                 continue
 
@@ -155,13 +163,18 @@ class MatrixGenerator:
                 inserted_nodes.add(rand_node)
                 inserted_nodes.add(node)
 
+        # adding connections between all super small circles
+        self.add_small_circle_connections(super_small_circles_combined, connections, total_connections_float)
+
         # insert all connections to matrix
         for agent, conns in zip(self.agents, connections):
             conns = np.array(conns)
             conns.sort()
             # rolls for each connection, whether it is daily or weekly
+            daily_share = daily_connections_float / total_connections_float
+            weekly_share = weekly_connections_float / total_connections_float
             strengthes = np.random.choice([connection_strength, connection_strength / 7], size=len(conns),
-                                          p=[daily_connections_float / total_connections_float, weekly_connections_float / total_connections_float])
+                                          p=[daily_share, weekly_share])
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
 
@@ -175,7 +188,6 @@ class MatrixGenerator:
         :param scale_factor: average amount of connections for each agent
         :return:
         """
-        remaining_contacts = np.ceil(np.random.exponential(scale_factor - 0.5, circle.agent_count)).astype(int)
         remaining_contacts = {agent.index: math.ceil(np.random.exponential(scale_factor - 0.5)) for agent in circle.agents}
 
         agent_id_pool = set([agent.index for agent in circle.agents])

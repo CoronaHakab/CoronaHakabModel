@@ -22,6 +22,6 @@ class MatrixConsts(NamedTuple):
         ConnectionTypes.Other: 6
     }
     use_parasimbolic_matrix = True,
-    clustering_switching_point = 20,
+    clustering_switching_point = 50,
 
 
