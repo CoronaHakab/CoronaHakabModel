@@ -42,7 +42,7 @@ class MatrixGenerator:
         # initiate everything
         self.matrix_data = MatrixData()
         self.matrix_consts = matrix_consts
-        self.unpack_population_data(population_data)
+        self._unpack_population_data(population_data)
         self.size = len(self.agents)
         self.depth = len(ConnectionTypes)
         self.matrix = CoronaMatrix(self.size, self.depth)
@@ -54,11 +54,11 @@ class MatrixGenerator:
 
             for con_type in ConnectionTypes:
                 if con_type in Connect_To_All_types:
-                    self.create_fully_connected_circles_matrix(con_type,
+                    self._create_fully_connected_circles_matrix(con_type,
                                                                self.social_circles_by_connection_type[con_type],
                                                                current_depth)
                 elif con_type in Random_Clustered_types:
-                    self.create_random_clustered_circles_matrix(con_type,
+                    self._create_random_clustered_circles_matrix(con_type,
                                                                 self.social_circles_by_connection_type[con_type],
                                                                 current_depth)
                 elif con_type in Geographic_Clustered_types:
@@ -69,7 +69,7 @@ class MatrixGenerator:
         # export the matrix data
         # self.export_matrix_data()
 
-    def unpack_population_data(self, population_data):
+    def _unpack_population_data(self, population_data):
         self.agents = population_data.agents
         self.social_circles_by_connection_type = population_data.social_circles_by_connection_type
         self.geographic_circles = population_data.geographic_circles
@@ -118,7 +118,7 @@ class MatrixGenerator:
 
             # checks, if the circle is too small for normal clustering
             if n < self.matrix_consts.clustering_switching_point[0]:
-                self.add_small_circle_connections(circle, connections, total_connections_float)
+                self._add_small_circle_connections(circle, connections, total_connections_float)
                 continue
 
             # manually generate the minimum required connections
@@ -163,7 +163,7 @@ class MatrixGenerator:
                 inserted_nodes.add(node)
 
         # adding connections between all super small circles
-        self.add_small_circle_connections(super_small_circles_combined, connections, total_connections_float)
+        self._add_small_circle_connections(super_small_circles_combined, connections, total_connections_float)
 
         # insert all connections to matrix
         for agent, conns in zip(self.agents, connections):
@@ -228,7 +228,8 @@ class MatrixGenerator:
                 # connect to bff here to prevent self-selection in bff's friends
                 Node.connect(first_connection, node)
                 connected_nodes.add(node)
-            
+
+            nodes.append(first_node)
             for connected_node in nodes:
                 connections[connected_node.index].extend([other_node.index for other_node in connected_node.connected])
                 
@@ -243,7 +244,7 @@ class MatrixGenerator:
             self.matrix[depth, agent.index, conns] = v
 
     # todo when the amount of people in the circle is vary small, needs different solution
-    def add_small_circle_connections(self, circle: SocialCircle, connections: List[List], scale_factor: float):
+    def _add_small_circle_connections(self, circle: SocialCircle, connections: List[List], scale_factor: float):
         """
         used to create the connections for circles too small for the clustering algorithm.
         creates circle's connections, and adds them to a given connections list
