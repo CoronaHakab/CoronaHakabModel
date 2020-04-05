@@ -44,7 +44,7 @@ class HealthcareManager:
             self.manager.tested_vector
             & self.manager.tested_positive_vector
             & (
-                self.manager.current_date - self.manager.date_of_last_test
+                self.manager.current_step - self.manager.date_of_last_test
                 < self.manager.consts.testing_gap_after_positive_test
             )
         )
@@ -53,7 +53,7 @@ class HealthcareManager:
             self.manager.tested_vector
             & np.logical_not(self.manager.tested_positive_vector)
             & (
-                self.manager.current_date - self.manager.date_of_last_test
+                self.manager.current_step - self.manager.date_of_last_test
                 < self.manager.consts.testing_gap_after_negative_test
             )
         )
