@@ -1,6 +1,7 @@
 import logging
 from collections import defaultdict
 from typing import Callable, Dict, Iterable, List, Union
+from random import random
 
 import infection
 import numpy as np
@@ -13,6 +14,7 @@ from supervisor import Supervisable, Supervisor
 from generation.circles_generator import PopulationData
 from generation.matrix_generator import MatrixData
 from generation.connection_types import ConnectionTypes
+from update_matrix import PolicyByCircles
 
 
 class SimulationManager:
@@ -78,6 +80,14 @@ class SimulationManager:
         # todo this does nothing right now.
         # update matrix
         self.update_matrix_manager.update_matrix_step()
+        
+        # change school openage policies
+        if Consts.should_change_school_openage and self.current_date in Consts.school_openage_factors.keys():
+            new_openage_factor = Consts.school_openage_factors[self.current_date]
+            def should_open(): return random() > new_openage_factor
+            policy = Policy(0, should_open)
+            circles_policy = PolicyByCircles(policy, self.social_circles_by_connection_type[ConnectionTypes.School])
+            self.update_matrix_manager.apply_policy_on_circles(circles_policy)
 
         # run infection
         new_sick = self.infection_manager.infection_step()

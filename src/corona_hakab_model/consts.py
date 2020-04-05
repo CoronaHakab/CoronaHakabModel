@@ -89,6 +89,9 @@ default_parameters = {
     "stranger_strength": 0.01,
     "school_strength": 0.1,
     "detection_rate": 0.7,
+    # dictionary of {date : percent} that controls what percentage of schools are open
+    "school_openage_factors": {14: 0, 30: 0.5, 45: 1},
+    "should_change_school_openage": True
 }
 
 ConstParameters = namedtuple(

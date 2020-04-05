@@ -5,6 +5,9 @@ import numpy as np
 from typing import Iterable, Callable, Any
 
 class Policy:
+    """
+    This represents a policy. 
+    """
     def __init__(self, 
                 connection_change_factor : float,  
                 conditions : Iterable[Callable[[Any], bool]]):
@@ -74,25 +77,28 @@ class UpdateMatrixManager:
         self.matrix.set_factors(factors)
         self.normalize()
 
-    def update_matrix_step(self, circle_policies : Iterable[PolicyByCircles]):
+    def update_matrix_step(self):
         """
         Update the matrix step
         """
+        pass
+    
+    def apply_policy_on_circles(self, circles_policy : PolicyByCircles):
         # for now, we will not update the matrix at all
-        for policy_by_circle in circle_policies:
-            for circle in policy_by_circle:
-                # check if circle is relevent to conditions
-                flag = True
-                for condition in policy_by_circle.conditions:
-                    flag = flag and condition(circle)
-                if not flag:
-                    # some condition returned False - skip circle
-                    continue
-                
-                connection_type = circle.connection_type
-                factor = policy_by_circle.connection_change_factor
-                for agent in circle.agents:
-                    self.matrix.mul_sub_row(connection_type, agent.index, factor)
-                    self.matrix.mul_sub_col(connection_type, agent.index, factor)
-                
-                        
+    
+        for circle in circles_policy:
+            # check if circle is relevent to conditions
+            flag = True
+            for condition in circles_policy.conditions:
+                flag = flag and condition(circle)
+            if not flag:
+                # some condition returned False - skip circle
+                continue
+            
+            connection_type = circle.connection_type
+            factor = circles_policy.factor
+            for agent in circle.agents:
+                self.matrix.mul_sub_row(connection_type, agent.index, factor)
+                self.matrix.mul_sub_col(connection_type, agent.index, factor)
+            
+                    
