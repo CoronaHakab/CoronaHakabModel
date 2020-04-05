@@ -1,6 +1,5 @@
 from medical_state import MedicalState
 from state_machine import StateMachine
-from agent import AgentTraits
 
 
 class MedicalStateMachine(StateMachine[MedicalState]):
@@ -9,7 +8,7 @@ class MedicalStateMachine(StateMachine[MedicalState]):
         self.default_state_upon_infection = default_state_upon_infection
         self.add_state(default_state_upon_infection)
 
-    def get_state_upon_infection(self, agent: AgentTraits) -> MedicalState:
+    def get_state_upon_infection(self, agent) -> MedicalState:
         if agent:  # placeholder
             pass
         return self.default_state_upon_infection

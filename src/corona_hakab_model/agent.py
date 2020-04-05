@@ -12,13 +12,12 @@ class Agent:
         "is_home_isolated",
         "is_full_isolated",
         "simulation_manager",
-        "traits"
+        "traits",
+        "age",
     )
 
     def __init__(self, index, simulation_manager, initial_state: "medical_state.MedicalState"):
         self.index = index
-
-        self.traits = AgentTraits()
 
         self.simulation_manager = simulation_manager
 
@@ -41,14 +40,6 @@ class Agent:
 
     def get_infection_ratio(self):
         return self.medical_state.contagiousness
-
-
-class AgentTraits:
-    """
-    Individual traits of an agent - Age, Susceptability, obedience...
-    """
-    def __init__(self, age: int = 25):
-        self.age = age
 
 
 class Circle:
@@ -79,6 +70,8 @@ class TrackingCircle(Circle):
 
     def add_agent(self, agent):
         super().add_agent(agent)
+        if agent in self.agents:
+            raise ValueError("DuplicateAgent")
         self.agents.add(agent)
         assert self.agent_count == len(self.agents)
 
@@ -89,8 +82,11 @@ class TrackingCircle(Circle):
 
     def add_many(self, agents):
         super().add_many(agents)
+        if self.agents.intersection(set(agents)):
+            raise ValueError("DuplicateAgent")
         self.agents.update(agents)
-        assert self.agent_count == len(self.agents)
+        assert self.agent_count == len(self.agents), \
+            f"self.agent_count: {self.agent_count}, len(self.agents): {len(self.agents)}"
 
     def remove_many(self, agents):
         super().remove_many(agents)
