@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2671428af69720d8b236965ff2aec3a3525b535f483ac5c5843a3bcac508ba5d"
+            "sha256": "d22c9889c27341e89861866149ef53d50b6166cfaf5ab2cad42764b261090b59"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,12 @@
         ]
     },
     "default": {
+        "cppheaderparser": {
+            "hashes": [
+                "sha256:382b30416d95b0a5e8502b214810dcac2a56432917e2651447d3abe253e3cc42"
+            ],
+            "version": "==2.7.4"
+        },
         "cycler": {
             "hashes": [
                 "sha256:1d8a5ae1ff6c5cf9b93e8811e581232ad8920aeec647c37316ceac982b08cb2d",
@@ -97,6 +103,13 @@
             ],
             "index": "pypi",
             "version": "==1.18.2"
+        },
+        "ply": {
+            "hashes": [
+                "sha256:00c7c1aaa88358b9c765b6d3000c6eec0ba42abca5351b095321aef446081da3",
+                "sha256:096f9b8350b65ebd2fd1346b12452efe5b9607f7482813ffca50c22722a807ce"
+            ],
+            "version": "==3.11"
         },
         "pyparsing": {
             "hashes": [
@@ -195,6 +208,13 @@
                 "sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c"
             ],
             "version": "==1.14.0"
+        },
+        "swimport": {
+            "hashes": [
+                "sha256:a9be3f6be7dad2927d6e0e50af4a7e4c397b3c42df11fbeb323ee12c95fb3051"
+            ],
+            "index": "pypi",
+            "version": "==3.0.11"
         }
     },
     "develop": {
@@ -240,7 +260,7 @@
                 "sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff",
                 "sha256:e96da0d330793e2cb9485e9ddfd918d456036c7149416295932478192f4436a1"
             ],
-            "markers": "platform_system == 'Windows'",
+            "markers": "sys_platform == 'win32'",
             "version": "==0.4.3"
         },
         "distlib": {

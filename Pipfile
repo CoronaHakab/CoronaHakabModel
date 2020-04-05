@@ -10,6 +10,7 @@ tox = "*"
 flake8 = "*"
 isort = "*"
 black = "*"
+swimport = "*"
 
 [packages]
 numpy = "*"
