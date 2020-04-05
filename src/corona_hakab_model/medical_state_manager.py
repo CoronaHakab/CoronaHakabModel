@@ -9,7 +9,7 @@ from state_machine import PendingTransfer, PendingTransfers
 
 class MedicalStateManager:
     """
-   Manages the medical state
+    Manages the medical state
     """
 
     def __init__(self, sim_manager: "manager.SimulationManager"):

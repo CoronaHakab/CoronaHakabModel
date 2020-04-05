@@ -264,7 +264,7 @@ class ValueSupervisable(Supervisable):
         pass
 
     def snapshot(self, manager: "manager.SimulationManager"):
-        self.x.append(manager.current_date)
+        self.x.append(manager.current_step)
         self.y.append(self.get(manager))
 
 
@@ -309,7 +309,7 @@ class _DelayedSupervisable(ValueSupervisable):
         self.delay = delay
 
     def get(self, manager: "manager.SimulationManager") -> float:
-        desired_date = manager.current_date - self.delay
+        desired_date = manager.current_step - self.delay
         desired_index = bisect(self.inner.x, desired_date)
         if desired_index >= len(self.inner.x):
             return np.nan

@@ -4,4 +4,4 @@
 # For the available values to set, go to corona_hakab_model/consts.py
 
 
-{}
+{"full_isolation_sicks": ((), (), ()),}

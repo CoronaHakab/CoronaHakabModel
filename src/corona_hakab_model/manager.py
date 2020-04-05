@@ -50,7 +50,7 @@ class SimulationManager:
         self.infection_manager = infection.InfectionManager(self)
         self.medical_state_manager = MedicalStateManager(self)
 
-        self.current_date = 0
+        self.current_step = 0
 
         self.new_sick_counter = 0
 
@@ -71,7 +71,7 @@ class SimulationManager:
         # progress transfers
         self.medical_state_manager.step(new_sick)
 
-        self.current_date += 1
+        self.current_step += 1
 
         self.supervisor.snapshot(self)
 
