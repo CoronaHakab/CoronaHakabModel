@@ -173,14 +173,15 @@ class MatrixGenerator:
         weekly_connections_float = self.matrix_consts.weekly_connections_amount_by_connection_type[con_type]
         total_connections_float = daily_connections_float + weekly_connections_float
         
+        # the number of nodes. writes it for simplicity
+        connections_amounts = iter(
+            MatrixGenerator.random_round(((daily_connections_float + weekly_connections_float) / 2), shape=len(self.agents)))
+
         for circle in circles:
             agents = circle.agents
             indexes = [agent.index for agent in agents]
             nodes: List[Node] = [Node(index) for index in indexes]
-            
-            
-            num_agent_edges = self.matrix_consts.community_member_edges[0]
-            
+
             # insert first node
             first_node = sample(nodes, 1)[0]
             connected_nodes = set([first_node])
@@ -190,8 +191,9 @@ class MatrixGenerator:
                 # first find a random node. Should never fail as we have inserted a node before.
                 first_connection = sample(connected_nodes, 1)[0]
                 
+                num_connections = connections_amounts.__next__()
                 # fill connections other than first_connection
-                while len(node.connected) < num_agent_edges - 1:
+                while len(node.connected) < num_connections - 1:
                     if random() < self.matrix_consts.community_triad_probability[0]:
                         # close the triad with a node from first_connection's connections
                         possible_nodes = first_connection.connected
