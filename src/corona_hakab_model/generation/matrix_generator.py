@@ -59,7 +59,7 @@ class MatrixGenerator:
                 current_depth += 1
 
             for con_type in Geographic_Clustered_types:
-                self._create_geographically_clustered_circles_matrix(con_type, self.social_circles_by_connection_type[con_type], 
+                self._create_community_clustered_circles_matrix(con_type, self.social_circles_by_connection_type[con_type], 
                                                                      current_depth)
 
                 current_depth += 1
@@ -164,7 +164,7 @@ class MatrixGenerator:
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
             
-    def _create_geographically_clustered_circles_matrix(self, con_type: ConnectionTypes, circles: List[SocialCircle], depth):
+    def _create_community_clustered_circles_matrix(self, con_type: ConnectionTypes, circles: List[SocialCircle], depth):
         # the new connections will be saved here
         connections = [[] for _ in self.agents]
         # gets data from matrix consts
