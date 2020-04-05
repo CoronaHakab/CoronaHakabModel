@@ -91,12 +91,7 @@ class SimulationManager:
         self.update_matrix_manager.update_matrix_step()
         
         # change school openage policies
-        if Consts.should_change_school_openage and self.current_date in Consts.school_openage_factors.keys():
-            new_openage_factor = Consts.school_openage_factors[self.current_date]
-            def should_open(): return random() > new_openage_factor
-            policy = Policy(0, should_open)
-            circles_policy = PolicyByCircles(policy, self.social_circles_by_connection_type[ConnectionTypes.School])
-            self.update_matrix_manager.apply_policy_on_circles(circles_policy)
+        self.change_school_openage()
         
         # run tests
         new_tests = self.healthcare_manager.testing_step(
@@ -163,6 +158,19 @@ class SimulationManager:
 
         for state, agents in changed_state_leaving.items():
             state.remove_many(agents)
+            
+    def change_school_openage(self):
+        if not Consts.should_change_school_openage or self.current_date not in Consts.school_openage_factors.keys():
+            return 
+        
+        # first reset all schools
+        self.update_matrix_manager.reset_policies_by_connection_type(ConnectionTypes.School)
+        
+        # create Policy object
+        new_openage_factor = Consts.school_openage_factors[self.current_date]
+        def should_open(): return random() > new_openage_factor
+        policy = Policy(0, should_open) # 0 - school is closed
+        self.update_matrix_manager.apply_policy_on_circles(policy, self.social_circles_by_connection_type[ConnectionTypes.School])
 
     def setup_sick(self):
         """"

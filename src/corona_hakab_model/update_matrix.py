@@ -78,28 +78,32 @@ class UpdateMatrixManager:
         self.matrix.set_factors(factors)
         self.normalize()
 
+    def reset_policies_by_connection_type(self, connection_type):
+        for i in range(self.size):
+            self.matrix.reset_mul_row(connection_type, i)
+            self.matrix.reset_mul_cul(connection_type, i)
+
     def update_matrix_step(self):
         """
         Update the matrix step
         """
         pass
     
-    def apply_policy_on_circles(self, circles_policy : PolicyByCircles):
+    def apply_policy_on_circles(self, policy: Policy, circles : Iterable[SocialCircle]):
         # for now, we will not update the matrix at all
     
-        for circle in circles_policy:
+        for circle in circles:
             # check if circle is relevent to conditions
             flag = True
-            for condition in circles_policy.conditions:
+            for condition in policy.conditions:
                 flag = flag and condition(circle)
             if not flag:
                 # some condition returned False - skip circle
                 continue
             
             connection_type = circle.connection_type
-            factor = circles_policy.factor
+            factor = policy.factor
             for agent in circle.agents:
                 self.matrix.mul_sub_row(connection_type, agent.index, factor)
                 self.matrix.mul_sub_col(connection_type, agent.index, factor)
             
-                    
