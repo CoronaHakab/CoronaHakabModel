@@ -16,9 +16,9 @@ class CirclesConsts:
         self.connection_type_prob_by_age_index = [
             {ConnectionTypes.Work: 0, ConnectionTypes.School: 0.95, ConnectionTypes.Family: 1.0,
              ConnectionTypes.Other: 1.0},
-            {ConnectionTypes.Work: 0.85, ConnectionTypes.School: 0, ConnectionTypes.Family: 1.0,
+            {ConnectionTypes.Work: 0.9, ConnectionTypes.School: 0, ConnectionTypes.Family: 1.0,
              ConnectionTypes.Other: 1.0},
-            {ConnectionTypes.Work: 0.15, ConnectionTypes.School: 0, ConnectionTypes.Family: 1.0,
+            {ConnectionTypes.Work: 0.25, ConnectionTypes.School: 0, ConnectionTypes.Family: 1.0,
              ConnectionTypes.Other: 1.0}
         ]
         self.circle_size_distribution_by_connection_type = {

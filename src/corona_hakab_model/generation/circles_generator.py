@@ -120,8 +120,9 @@ class CirclesGenerator:
         self.population_data.geographic_circles = self.geographic_circles
 
         # export population data using pickle
-        with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, 'wb') as export_file:
-            pickle.dump(self.population_data, export_file)
+        # todo fix recursion error
+        #with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, 'wb') as export_file:
+        #   pickle.dump(self.population_data, export_file)
 
     def import_population_data(self, import_file_path=None):
         if import_file_path is None:

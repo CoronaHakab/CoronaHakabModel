@@ -23,8 +23,7 @@ Usage:
 """
 # todo why is this two classes and so weirdly made? fix
 default_parameters = {
-    "population_size": 10_000,
-    "total_steps": 300,
+    "total_steps": 350,
     "initial_infected_count": 20,
     # Tsvika: Currently the distribution is selected based on the number of input parameters.
     # Think we should do something more readable later on.

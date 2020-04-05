@@ -6,10 +6,10 @@ from typing import NamedTuple
 # todo fix type and allow importing from a json
 class MatrixConsts(NamedTuple):
     connection_type_to_connection_strength = {
-        ConnectionTypes.Family: 1,
-        ConnectionTypes.Work: 0.2,
-        ConnectionTypes.School: 0.3,
-        ConnectionTypes.Other: 0.05
+        ConnectionTypes.Family: 3,
+        ConnectionTypes.Work: 0.66,
+        ConnectionTypes.School: 1,
+        ConnectionTypes.Other: 0.23
     }
     daily_connections_amount_by_connection_type = {
         ConnectionTypes.School: 6,
@@ -23,7 +23,7 @@ class MatrixConsts(NamedTuple):
     }
     use_parasimbolic_matrix = True,
     clustering_switching_point = 50,
-    community_triad_probability = 0.5, #p
+    community_triad_probability = 1, #p
 
 
 

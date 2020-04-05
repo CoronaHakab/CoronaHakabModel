@@ -2,6 +2,7 @@ from generation.circles_generator import CirclesGenerator
 from generation.matrix_generator import MatrixGenerator
 from generation.circles_consts import CirclesConsts
 from generation.matrix_consts import MatrixConsts
+import logging
 
 
 class GenerationManger:
@@ -13,12 +14,23 @@ class GenerationManger:
     generation manager can export the entire generation information as a json.
     """
     __slots__ = (
-
+        "matrix_data",
+        "population_data"
     )
 
     def __init__(self):
+        # setting logger
+        logger = logging.getLogger("generation")
+        logging.basicConfig()
+        logger.setLevel(logging.INFO)
+
+        logger.info("creating population and circles")
         circles_generation = CirclesGenerator(generation_consts=CirclesConsts())
+        self.population_data = circles_generation.population_data
+
+        logger.info("creating connections and matrix")
         matrix_generation = MatrixGenerator(circles_generation.population_data, matrix_consts=MatrixConsts())
+        self.matrix_data = matrix_generation.matrix_data
 
     # todo allow export of the entire generation
     def export(self):
@@ -27,5 +39,3 @@ class GenerationManger:
     # todo allow import of circles generation object, and creation of matrices based on it
     def import_circles_and_create_matrices(self):
         pass
-
-gm = GenerationManger()

@@ -6,8 +6,6 @@ class Agent:
     __slots__ = (
         "index",
         "medical_state",
-        "is_home_isolated",
-        "is_full_isolated",
         "manager",
         "age",
         "geographic_circle",
@@ -17,10 +15,6 @@ class Agent:
     # todo note that this changed to fit generation. should update simulation manager accordingly
     def __init__(self, index):
         self.index = index
-
-        # todo remove those, and update isolation mechanism
-        self.is_home_isolated = False
-        self.is_full_isolated = False
 
         self.geographic_circle = None
         self.social_circles = []

@@ -16,7 +16,8 @@ import pickle
 class MatrixData:
     __slots__ = (
         "matrix_type",
-        "matrix"
+        "matrix",
+        "depth"
     )
 
     def __init__(self):
@@ -66,6 +67,10 @@ class MatrixGenerator:
                                                                      current_depth)
                 current_depth += 1
 
+        # current patch since matrix is un-serializable
+        self.matrix_data.matrix_type = "parasymbolic"
+        self.matrix_data.matrix = self.matrix
+        self.matrix_data.depth = self.depth
         # export the matrix data
         # self.export_matrix_data()
 
@@ -290,6 +295,7 @@ class MatrixGenerator:
     def export_matrix_data(self):
         self.matrix_data.matrix_type = "parasymbolic"
         self.matrix_data.matrix = self.matrix
+        self.matrix_data.depth = self.depth
 
         with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, 'wb') as export_file:
             pickle.dump(self.matrix_data, export_file)
