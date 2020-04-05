@@ -7,15 +7,9 @@ from consts import generator
 from sparse_matrix import SparseMatrix, MagicOperator
 
 
-class npMagicOp:
-    def __call__(self, d, w):
-        return 1 - d * w
-
-
 class npSparseMatrix:
-    def __init__(self, size, magic_op):
+    def __init__(self, size):
         self.size = size
-        self.magic_op = magic_op
         self.probs = np.zeros((size, size), dtype=np.float32)
         self.vals = np.zeros((size, size), dtype=np.float32)
 
@@ -66,7 +60,7 @@ class npSparseMatrix:
     def manifest(self, sample=None):
         pactual = self.probs_actual()
         if sample is None:
-            sample = np.random.sample(self.nz_count())
+            sample = generator.random(self.nz_count())
         s = iter(sample)
         inner = np.zeros_like(self.vals)
         for row, col in product(range(self.size), repeat=2):
@@ -87,10 +81,10 @@ class npManifest:
     def __getitem__(self, item):
         return self.inner[item]
 
-    def I_POA(self, v):
+    def I_POA(self, v, op):
         ret = np.ones(self.origin.size, dtype=np.float32)
         for row, col in product(range(self.origin.size), repeat=2):
-            ret[row] *= self.origin.magic_op(self.inner[row, col], v[col])
+            ret[row] *= op.operate(self.inner[row, col], v[col])
         return ret
 
     def nz_rows(self):
@@ -101,7 +95,7 @@ class npManifest:
 
 
 v = np.array([0.2, 0.3, 0.6, 0], dtype=np.float32)
-
+magic = MagicOperator()
 
 def check_equal(ps: SparseMatrix, mck: npSparseMatrix, msg: str):
     for i, j in product(range(mck.size), repeat=2):
@@ -116,8 +110,8 @@ def check_equal(ps: SparseMatrix, mck: npSparseMatrix, msg: str):
         p_v = m[i, j]
         m_v = mm[i, j]
         assert np.allclose(p_v, m_v), f"{msg}, manifest, [{i},{j}] {p_v} vs {m_v}"
-    i = m.I_POA(v)
-    im = mm.I_POA(v)
+    i = m.I_POA(v, magic)
+    im = mm.I_POA(v, magic)
     assert np.allclose(i, im), f"{msg}, IOP {i} vs {im}, inner: \n{mm.inner}"
     mnz = m.nz_rows()
     mmnz = mm.nz_rows()
@@ -142,9 +136,8 @@ def operate(matrix: Union[npSparseMatrix, SparseMatrix]):
 
 
 def test_sparse():
-    magic = MagicOperator()
-    main = SparseMatrix(4, magic)
-    mock = npSparseMatrix(4, npMagicOp())
+    main = SparseMatrix(4)
+    mock = npSparseMatrix(4)
 
     m = operate(main)
     c = operate(mock)

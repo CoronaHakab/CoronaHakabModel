@@ -9,7 +9,7 @@ from medical_state_machine import MedicalStateMachine
 from state_machine import StochasticState, TerminalState
 from sub_matrices import CircularConnectionsMatrix, ClusteredConnectionsMatrix, NonCircularConnectionMatrix
 from util import dist, rv_discrete, upper_bound
-
+# todo make sure we only use this
 generator = np.random.default_rng()
 
 """
