@@ -43,22 +43,12 @@ class InfectionManager:
         infections = self.manager.susceptible_vector & (np.random.random(u.shape) < u)
         infected_indices = np.flatnonzero(infections)
 
-        # caught_rolls: boolean vector, True if an agent is known to be infected
-        # thus the authorities could act upon that
-        caught_rolls = np.random.random(len(infected_indices)) < self.manager.consts.caught_sicks_ratio
-
         # new_infected: dict -
         # key = medical state (currently only susceptible state which an agent can be infected)
         # value = list of agents
         new_infected = defaultdict(list)
-        for index, caught in zip(infected_indices, caught_rolls):
+        for index in infected_indices:
             agent = self.manager.agents[index]
             new_infected[agent.medical_state].append(agent)
-            if caught:
-                # what to do with an infected agent that got caught
-                if self.manager.consts.home_isolation_sicks:
-                    self.agents_to_home_isolation.append(agent)
-                elif self.manager.consts.full_isolation_sicks:
-                    self.agents_to_full_isolation.append(agent)
 
         return new_infected

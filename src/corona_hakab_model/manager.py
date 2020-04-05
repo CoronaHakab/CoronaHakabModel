@@ -52,7 +52,6 @@ class SimulationManager:
         self.date_of_last_test = np.zeros(self.consts.population_size, dtype=int)
         self.pending_test_results = PendingTestResults()
 
-
         self.agents = [Agent(i, self, initial_state) for i in range(self.consts.population_size)]
         initial_state.add_many(self.agents)
 
@@ -65,7 +64,6 @@ class SimulationManager:
         self.infection_manager = infection.InfectionManager(self)
         self.healthcare_manager = healthcare.HealthcareManager(self)
 
-
         self.current_date = 0
 
         self.new_sick_counter = 0
@@ -76,6 +74,13 @@ class SimulationManager:
         """
         run one step
         """
+        # run tests
+        new_tests = self.healthcare_manager.testing_step(self.consts.detection_test, self.consts.daily_num_of_tests,
+                                                         self.consts.testing_policy)
+
+        # progress tests and isolate the detected agents (update the matrix)
+        self.progress_tests_and_isolation(new_tests)
+
         # update matrix
         self.update_matrix_manager.update_matrix_step(
             self.infection_manager.agents_to_home_isolation, self.infection_manager.agents_to_full_isolation,
@@ -87,22 +92,28 @@ class SimulationManager:
         # progress transfers
         self.progress_transfers(new_sick)
 
-        # run tests
-        new_tests = self.healthcare_manager.testing_step(self.consts.detection_test, self.consts.daily_num_of_tests,
-                                                         self.consts.testing_policy)
-        self.progress_tests(new_tests)
-
         self.current_date += 1
 
         self.supervisor.snapshot(self)
 
-    def progress_tests(self, new_tests: List[PendingTestResult]):
-        self.detected_daily = 0
+    def progress_tests_and_isolation(self, new_tests: List[PendingTestResult]):
+        agents_detected = []
         new_results = self.pending_test_results.advance()
         for agent, test_result, _ in new_results:
             agent.set_test_result(test_result)
             if test_result:
-                self.detected_daily += 1
+                agents_detected.append(agents_detected)
+
+        self.detected_daily = len(agents_detected)
+
+        # send the detected agents to the selected kind of isolation
+        if self.consts.home_isolation_sicks:
+            self.update_matrix_manager.update_matrix_step(agents_to_home_isolation=agents_detected)
+        elif self.consts.full_isolation_sicks:
+            self.update_matrix_manager.update_matrix_step(agents_to_full_isolation=agents_detected)
+
+        # TODO: Track isolated agents
+        # TODO: Remove healthy agents from isolation?
 
         for new_test in new_tests:
             new_test.agent.set_test_start()
