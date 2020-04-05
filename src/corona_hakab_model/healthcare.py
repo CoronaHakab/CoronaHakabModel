@@ -63,18 +63,26 @@ class HealthcareManager:
                 tested.append(test.test(self.manager.agents[ind]))
                 num_of_tests -= 1
         else:
-            for priority_lambda in list(priorities) + \
-                                   [lambda _: True]:  # The last priority is anyone who isn't on the other priorities
-
+            for priority_lambda in list(priorities):
+                # First test the prioritized candidates
                 for ind in np.random.permutation(list(test_candidates_inds)):
                     # permute the indices so we won't always test the lower indices
                     if priority_lambda(self.manager.agents[ind]):
                         tested.append(test.test(self.manager.agents[ind]))
-                        test_candidates_inds.remove(ind)
+                        test_candidates_inds.remove(ind)  # Remove so it won't be tested again
                         num_of_tests -= 1
 
                         if num_of_tests == 0:
                             return tested
+
+            # Test the low prioritized now
+            num_of_low_priority_to_test = min(num_of_tests, len(test_candidates_inds))
+            low_priority_tested = [
+                test.test(self.manager.agents[ind]) for ind in
+                np.random.permutation(list(test_candidates_inds))[:num_of_low_priority_to_test]
+            ]
+            tested += low_priority_tested
+            num_of_tests -= len(low_priority_tested)
 
         # There are some tests left. Choose randomly from outside the pool
         test_leftovers_candidates_inds = np.flatnonzero(can_be_tested & np.logical_not(want_to_be_tested))
