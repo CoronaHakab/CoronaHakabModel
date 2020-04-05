@@ -24,6 +24,6 @@ class MatrixConsts(NamedTuple):
     use_parasimbolic_matrix = True,
     clustering_switching_point = 20,
     community_member_edges = 2, #m
-    community_triad_probability = 0.8, #p
+    community_triad_probability = 0.5, #p
 
 

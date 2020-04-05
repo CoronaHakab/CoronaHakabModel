@@ -188,30 +188,30 @@ class MatrixGenerator:
             # go over other nodes in circle
             for node in nodes:
                 # first find a random node. Should never fail as we have inserted a node before.
-                bff = sample(connected_nodes, 1)[0]
+                first_connection = sample(connected_nodes, 1)[0]
                 
-                # fill connections other than bff
+                # fill connections other than first_connection
                 while len(node.connected) < num_agent_edges - 1:
                     if random() < self.matrix_consts.community_triad_probability[0]:
-                        # close the triad with a node from bff's connections
-                        possible_nodes = bff.connected
+                        # close the triad with a node from first_connection's connections
+                        possible_nodes = first_connection.connected
                     else:
-                        # connect with a node NOT from the bff's connections
-                        possible_nodes = connected_nodes.difference(set([bff])).difference(bff.connected)
+                        # connect with a node NOT from the first_connection's connections
+                        possible_nodes = connected_nodes.difference(set([first_connection])).difference(first_connection.connected)
                     
                     # prevent connecting a connected node
                     possible_nodes = possible_nodes.difference(node.connected)
                     
                     # edge cases - take any node. this takes care of both sides of previous IF failing.
                     if len(possible_nodes) == 0: 
-                        possible_nodes = connected_nodes.difference(set([bff])).difference(node.connected)
+                        possible_nodes = connected_nodes.difference(set([first_connection])).difference(node.connected)
                         if len(possible_nodes) == 0:
                             break
                     
                     random_friend = sample(possible_nodes, 1)[0]
                     Node.connect(random_friend, node)
                 # connect to bff here to prevent self-selection in bff's friends
-                Node.connect(bff, node)
+                Node.connect(first_connection, node)
                 connected_nodes.add(node)
             
             for connected_node in nodes:
