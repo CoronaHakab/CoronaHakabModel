@@ -44,7 +44,9 @@ class SimulationManager:
         self.agents = [Agent(i, self, initial_state) for i in range(self.consts.population_size)]
         initial_state.add_many(self.agents)
 
-        self.matrix = AffinityMatrix(self, input_matrix_path, output_matrix_path)
+        if input_matrix_path or output_matrix_path:
+            raise NotImplementedError  # todo
+        self.matrix = AffinityMatrix(self.agents, self.consts)
 
         self.supervisor = Supervisor([Supervisable.coerce(a, self) for a in supervisable_makers], self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self.matrix)

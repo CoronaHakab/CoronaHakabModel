@@ -37,10 +37,10 @@ class InfectionManager:
         v = np.random.random(len(self.manager.agents)) < self.manager.contagiousness_vector
 
         # u = mat dot_product v (log of the probability that an agent will get infected)
-        u = self.manager.matrix.matrix.dot(v)
+        u = self.manager.matrix.inner.prob_any(v)
         # calculate the infections boolean vector
 
-        infections = self.manager.susceptible_vector & (np.random.random(u.shape) < (1 - np.exp(u)))
+        infections = self.manager.susceptible_vector & (np.random.random(u.shape) < u)
         infected_indices = np.flatnonzero(infections)
 
         # caught_rolls: boolean vector, True if an agent is known to be infected

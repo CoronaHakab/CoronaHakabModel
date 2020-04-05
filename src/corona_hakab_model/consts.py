@@ -7,7 +7,7 @@ import numpy as np
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
 from state_machine import StochasticState, TerminalState
-from sub_matrices import CircularConnectionsMatrix, NonCircularConnectionMatrix
+from sub_matrices import CircularConnectionsMatrix, ClusteredConnectionsMatrix, NonCircularConnectionMatrix
 from util import dist, rv_discrete, upper_bound
 
 """
@@ -21,9 +21,10 @@ Usage:
 1. Create a default consts object - consts = Consts()
 2. Load a parameters file - consts = Consts.from_file(path)
 """
+# todo why is this two classes and so weirdly made? fix
 default_parameters = {
     "population_size": 10_000,
-    "total_steps": 350,
+    "total_steps": 300,
     "initial_infected_count": 20,
     # Tsvika: Currently the distribution is selected based on the number of input parameters.
     # Think we should do something more readable later on.
@@ -128,7 +129,6 @@ class Consts(ConstParameters):
         except TypeError as e:
             raise TypeError("Unhashable value in parameters") from e
 
-
     def average_time_in_each_state(self) -> Dict[MedicalState, int]:
         """
         calculate the average time an infected agent spends in any of the states.
@@ -145,10 +145,10 @@ class Consts(ConstParameters):
         terminal_mask = np.zeros(z, bool)
         terminal_mask[list(terminal_states.values())] = True
 
-        states_duration: Dict[MedicalState:int] = Dict.fromkeys(m.states, 0)
+        states_duration: Dict[MedicalState, int] = Dict.fromkeys(m.states, 0)
         states_duration[m.state_upon_infection] = 1
 
-        index_to_state: Dict[int:MedicalState] = {}
+        index_to_state: Dict[int, MedicalState] = {}
         for state, index in terminal_states.items():
             index_to_state[index] = state
         for state, dict in transfer_states.items():
@@ -241,19 +241,24 @@ class Consts(ConstParameters):
         return ret
 
     @property
+    # todo this should be a consts
     def circular_matrices(self):
-
         return [
             CircularConnectionsMatrix("home", None, self.family_size_distribution, self.family_strength),
-            CircularConnectionsMatrix("work", None, self.work_size_distribution, self.work_strength),
         ]
 
     @property
+    # todo this should be a consts
     def non_circular_matrices(self):
         return [
-            NonCircularConnectionMatrix("work", None, self.work_scale_factor, self.work_strength),
-            NonCircularConnectionMatrix("school", None, self.school_scale_factor, self.school_strength),
             NonCircularConnectionMatrix("strangers", None, self.strangers_scale_factor, self.stranger_strength),
+        ]
+
+    @property
+    def clustered_matrices(self):
+        return [
+            ClusteredConnectionsMatrix("work", None, self.work_scale_factor, self.work_strength),
+            ClusteredConnectionsMatrix("school", None, self.school_scale_factor, self.school_strength),
         ]
 
 

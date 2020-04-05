@@ -8,21 +8,8 @@ from functools import lru_cache
 from typing import Any, Callable, List, NamedTuple, Sequence, Tuple
 
 import manager
+import matplotlib_set_backend
 import numpy as np
-
-try:
-    import PySide2
-except ImportError:
-    pass
-else:
-    try:
-        import matplotlib
-    except ImportError:
-        pass
-    else:
-        matplotlib.use("Qt5Agg")
-        del matplotlib
-    del PySide2
 
 try:
     # plt is optional
@@ -404,6 +391,7 @@ class _EffectiveR0Supervisable(FloatSupervisable):
     def get(self, manager) -> float:
         # note that this calculation is VARY heavy
         suseptable_indexes = np.flatnonzero(manager.susceptible_vector)
+        # todo someone who knows how this works fix it
         return (
             np.sum(1 - np.exp(manager.matrix.matrix[suseptable_indexes].data))
             * manager.matrix.total_contagious_probability
