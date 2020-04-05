@@ -175,7 +175,8 @@ class MatrixGenerator:
         :param scale_factor: average amount of connections for each agent
         :return:
         """
-        remaining_contacts = np.ceil(np.random.exponential(scale_factor - 0.5, len(self.agents))).astype(int)
+        remaining_contacts = np.ceil(np.random.exponential(scale_factor - 0.5, circle.agent_count)).astype(int)
+        remaining_contacts = {agent.index: math.ceil(np.random.exponential(scale_factor - 0.5)) for agent in circle.agents}
 
         agent_id_pool = set([agent.index for agent in circle.agents])
 
@@ -188,9 +189,11 @@ class MatrixGenerator:
             connections[current_agent_id].extend(conns)
             for other_agent_id in conns:
                 connections[other_agent_id].append(current_agent_id)
-            remaining_contacts[conns] -= 1
-
-            to_remove = set(conns[remaining_contacts[conns] == 0])
+            to_remove = set()
+            for id in conns:
+                remaining_contacts[id] -= 1
+                if remaining_contacts[id] == 0:
+                    to_remove.add(id)
             assert to_remove <= agent_id_pool
 
             agent_id_pool.difference_update(to_remove)

@@ -129,3 +129,8 @@ class CirclesGenerator:
 
         with open(import_file_path, 'rb') as import_file:
             self.population_data = pickle.load(import_file)
+
+        # fill imported data to self
+        self.agents = self.population_data.agents
+        self.social_circles_by_connection_type = self.population_data.social_circles_by_connection_type
+        self.geographic_circles = self.population_data.geographic_circles
