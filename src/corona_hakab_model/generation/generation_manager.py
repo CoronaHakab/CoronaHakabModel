@@ -18,7 +18,7 @@ class GenerationManger:
 
     def __init__(self):
         circles_generation = CirclesGenerator(generation_consts=CirclesConsts())
-        matrix_generation = MatrixGenerator(circles_generation, matrix_consts=MatrixConsts())
+        matrix_generation = MatrixGenerator(circles_generation.population_data, matrix_consts=MatrixConsts())
 
     # todo allow export of the entire generation
     def export(self):

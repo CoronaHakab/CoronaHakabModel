@@ -31,7 +31,7 @@ class MatrixGenerator:
     """
 
     # import/export variables
-    EXPORT_OUTPUT_DIR   = "../output/"
+    EXPORT_OUTPUT_DIR   = "../../output/"
     EXPORT_FILE_NAME    = "matrix_data.pickle"
 
     def __init__(
@@ -68,7 +68,7 @@ class MatrixGenerator:
                 current_depth += 1
 
         # export the matrix data
-        self.export_matrix_data()
+        # self.export_matrix_data()
 
     def unpack_population_data(self, population_data):
         self.agents = population_data.agents
@@ -208,8 +208,8 @@ class MatrixGenerator:
         return np.random.choice([math.floor(x), math.ceil(x)], size=shape, p=[floor_prob, ceil_prob])
 
     def export_matrix_data(self):
-        self.matrix_data.matrix_type = CoronaMatrix
+        self.matrix_data.matrix_type = "parasymbolic"
         self.matrix_data.matrix = self.matrix
 
         with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, 'wb') as export_file:
-            pickle.dump(self.matrix_datar, export_file)
+            pickle.dump(self.matrix_data, export_file)

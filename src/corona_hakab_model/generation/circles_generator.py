@@ -28,7 +28,7 @@ class PopulationData:
 class CirclesGenerator:
 
     # import/export variables
-    EXPORT_OUTPUT_DIR   = "../output/"
+    EXPORT_OUTPUT_DIR   = "../../output/"
     EXPORT_FILE_NAME    = "population_data.pickle"
 
     # todo split consts into generation_consts, simulation_consts, and plot_consts
