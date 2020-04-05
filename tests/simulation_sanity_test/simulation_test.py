@@ -5,9 +5,9 @@ from consts import Consts
 from manager import SimulationManager
 
 folder = os.path.dirname(__file__)
-results_file = os.path.join(folder, 'simulation_test_ranges.json')
-consts_file = os.path.join(folder, 'default_consts.py')
-f = open(results_file, 'r')
+results_file = os.path.join(folder, "simulation_test_ranges.json")
+consts_file = os.path.join(folder, "default_consts.py")
+f = open(results_file, "r")
 range_per_day_dict = json.load(f)
 
 
@@ -27,4 +27,4 @@ def test_no_policy_simulation():
         # check for each day if value is in range
         for test_state, val in zip(range_per_day_dict, val_per_day):
             state = test_state[name]
-            assert state['min'] <= val <= state['max']
+            assert state["min"] <= val <= state["max"]

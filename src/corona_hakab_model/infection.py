@@ -1,7 +1,13 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from medical_state import MedicalState
+    from manager import SimulationManager
+
 from collections import defaultdict
 from typing import Dict, List
 
-import manager
 import numpy as np
 from medical_state import MedicalState
 
@@ -11,15 +17,11 @@ class InfectionManager:
     Manages the infection stage
     """
 
-    def __init__(self, sim_manager: "manager.SimulationManager"):
-        self.agents_to_home_isolation = []
-        self.agents_to_full_isolation = []
+    def __init__(self, sim_manager: SimulationManager):
         self.manager = sim_manager
 
     def infection_step(self) -> Dict[MedicalState, List]:
         # perform infection
-        self.agents_to_home_isolation.clear()
-        self.agents_to_full_isolation.clear()
         return self._perform_infection()
 
     def _perform_infection(self) -> Dict[MedicalState, List]:
@@ -37,7 +39,7 @@ class InfectionManager:
         v = np.random.random(len(self.manager.agents)) < self.manager.contagiousness_vector
 
         # u = mat dot_product v (log of the probability that an agent will get infected)
-        u = self.manager.matrix.inner.prob_any(v)
+        u = self.manager.matrix.prob_any(v)
         # calculate the infections boolean vector
 
         infections = self.manager.susceptible_vector & (np.random.random(u.shape) < u)

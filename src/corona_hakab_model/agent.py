@@ -14,22 +14,26 @@ class Agent:
     __slots__ = (
         "index",
         "medical_state",
-        "is_home_isolated",
-        "is_full_isolated",
         "manager",
+        "age",
+        "geographic_circle",
+        "social_circles",
     )
 
-    def __init__(self, index, manager: SimulationManager, initial_state: MedicalState):
+    # todo note that this changed to fit generation. should update simulation manager accordingly
+    def __init__(self, index):
         self.index = index
 
-        self.manager = manager
+        self.geographic_circle = None
+        self.social_circles = []
 
+        # don't know if this is necessary
+        self.manager: SimulationManager = None
         self.medical_state: MedicalState = None
 
+    def add_to_simulation(self, manager: SimulationManager, initial_state: MedicalState):
+        self.manager = manager
         self.set_medical_state_no_inform(initial_state)
-
-        self.is_home_isolated = False
-        self.is_full_isolated = False
 
     def set_test_start(self):
         self.manager.date_of_last_test[self.index] = self.manager.current_date
@@ -41,11 +45,11 @@ class Agent:
 
     def set_medical_state_no_inform(self, new_state: MedicalState):
         self.medical_state = new_state
+        self.manager.contagiousness_vector[self.index] = new_state.contagiousness
 
         if new_state == self.manager.medical_machine.states_by_name["Deceased"]:
             self.manager.living_agents_vector[self.index] = False
 
-        self.manager.contagiousness_vector[self.index] = new_state.contagiousness
         self.manager.susceptible_vector[self.index] = new_state.susceptible
         self.manager.test_willingness_vector[self.index] = new_state.test_willingness
 
