@@ -2,7 +2,7 @@ from itertools import islice
 from generation.connection_types import ConnectionTypes, Connect_To_All_types, Random_Clustered_types, \
     Geographic_Clustered_types
 from generation.matrix_consts import MatrixConsts
-from generation.circles_generator import CirclesGenerator
+from generation.circles_generator import PopulationData
 from parasymbolic_matrix import ParasymbolicMatrix as CoronaMatrix
 from typing import List
 from generation.circles import SocialCircle
@@ -10,6 +10,18 @@ import numpy as np
 import math
 from generation.node import Node
 from random import sample
+import pickle
+
+
+class MatrixData:
+    __slots__ = (
+        "matrix_type",
+        "matrix"
+    )
+
+    def __init__(self):
+        self.matrix_type = None
+        self.matrix = None
 
 
 # todo right now only supports parasymbolic matrix. need to merge with corona matrix class import selector
@@ -17,28 +29,20 @@ class MatrixGenerator:
     """
     this module gets the circles and agents created in circles generator and creates a matrix and sub matrices with them.
     """
-    __slots__ = (
-        "matrix_type",
-        "matrix",
-        "normalization_factor",
-        "total_contagious_probability",
-        "matrix_consts",
-        "agents",
-        "social_circles_by_connection_type",
-        "geographic_circles",
-        "size",
-        "depth",
-    )
+
+    # import/export variables
+    EXPORT_OUTPUT_DIR   = "../output/"
+    EXPORT_FILE_NAME    = "matrix_data.pickle"
 
     def __init__(
             self,
-            circles_generator: CirclesGenerator,
+            population_data: PopulationData,
             matrix_consts: MatrixConsts = MatrixConsts(),
     ):
         # initiate everything
+        self.matrix_data = MatrixData()
         self.matrix_consts = matrix_consts
-        # todo allow import from a json
-        self.import_circles(circles_generator)
+        self.unpack_population_data(population_data)
         self.size = len(self.agents)
         self.depth = len(ConnectionTypes)
         self.matrix = CoronaMatrix(self.size, self.depth)
@@ -48,28 +52,28 @@ class MatrixGenerator:
             # todo switch the depth logic, to get a connection type instead of int depth
             current_depth = 0
 
-            for con_type in Connect_To_All_types:
-                self.create_fully_connected_circles_matrix(con_type, self.social_circles_by_connection_type[con_type],
-                                                           current_depth)
+            for con_type in ConnectionTypes:
+                if con_type in Connect_To_All_types:
+                    self.create_fully_connected_circles_matrix(con_type,
+                                                               self.social_circles_by_connection_type[con_type],
+                                                               current_depth)
+                elif con_type in Random_Clustered_types:
+                    self.create_random_clustered_circles_matrix(con_type,
+                                                                self.social_circles_by_connection_type[con_type],
+                                                                current_depth)
+                elif con_type in Geographic_Clustered_types:
+                    # todo create(). replace with the correct algorithm
+                    pass
+
                 current_depth += 1
 
-            for con_type in Random_Clustered_types:
-                self.create_random_clustered_circles_matrix(con_type, self.social_circles_by_connection_type[con_type],
-                                                            current_depth)
-                current_depth += 1
+        # export the matrix data
+        self.export_matrix_data()
 
-            for con_type in Geographic_Clustered_types:
-                # todo create(). replace with the correct algorithm
-                current_depth += 1
-
-        print("done")
-        # todo note that it ain't normalizing matrix. it has to be done in simulation manager, with a given consts object.
-
-    # todo support import of circles generator info. for now only getting one in init
-    def import_circles(self, circles_generator):
-        self.agents = circles_generator.agents
-        self.social_circles_by_connection_type = circles_generator.social_circles_by_connection_type
-        self.geographic_circles = circles_generator.geographic_circles
+    def unpack_population_data(self, population_data):
+        self.agents = population_data.agents
+        self.social_circles_by_connection_type = population_data.social_circles_by_connection_type
+        self.geographic_circles = population_data.geographic_circles
 
     def create_fully_connected_circles_matrix(self, con_type: ConnectionTypes, circles: List[SocialCircle], depth):
         connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
@@ -161,7 +165,7 @@ class MatrixGenerator:
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
 
-    # todo when the amount of people in the circle is VARY small, needs different solution
+    # todo when the amount of people in the circle is vary small, needs different solution
     def add_small_circle_connections(self, circle: SocialCircle, connections: List[List], scale_factor: float):
         """
         used to create the connections for circles too small for the clustering algorithm.
@@ -202,3 +206,10 @@ class MatrixGenerator:
         floor_prob = x - math.floor(x)
         ceil_prob = math.ceil(x) - x
         return np.random.choice([math.floor(x), math.ceil(x)], size=shape, p=[floor_prob, ceil_prob])
+
+    def export_matrix_data(self):
+        self.matrix_data.matrix_type = CoronaMatrix
+        self.matrix_data.matrix = self.matrix
+
+        with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, 'wb') as export_file:
+            pickle.dump(self.matrix_datar, export_file)

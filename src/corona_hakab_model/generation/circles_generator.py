@@ -5,16 +5,31 @@ from generation.geographic_circle import GeographicCircle
 from generation.connection_types import ConnectionTypes, Multi_Zone_types, Whole_Population_types
 from generation.circles import SocialCircle
 from util import rv_discrete
+import pickle
+
+# for exporting with pickle (/serializing) - set a high recursion rate
+import sys
+sys.setrecursionlimit(5000)
+
+
+class PopulationData:
+    __slots__ = (
+        "agents",
+        "geographic_circles",
+        "social_circles_by_connection_type"
+    )
+
+    def __init__(self):
+        self.agents = []
+        self.geographic_circles: List[GeographicCircle] = []
+        self.social_circles_by_connection_type = {}
 
 
 class CirclesGenerator:
-    __slots__ = (
-        "agents",
-        "connection_types",
-        "geographic_circles",
-        "social_circles_by_connection_type",
-        "circles_consts"
-    )
+
+    # import/export variables
+    EXPORT_OUTPUT_DIR   = "../output/"
+    EXPORT_FILE_NAME    = "population_data.pickle"
 
     # todo split consts into generation_consts, simulation_consts, and plot_consts
     def __init__(
@@ -22,6 +37,7 @@ class CirclesGenerator:
             generation_consts: CirclesConsts = CirclesConsts(),
     ):
         self.circles_consts = generation_consts
+        self.population_data = PopulationData()
         self.agents = [Agent(index) for index in range(self.circles_consts.population_size)]
 
         # create geographic circles, and allocate each with agents
@@ -54,6 +70,7 @@ class CirclesGenerator:
         # create whole population circles
         self.create_whole_population_circles()
 
+        # export the population data
         self.export()
 
     def create_geographic_circles(self):
@@ -96,6 +113,19 @@ class CirclesGenerator:
             social_circle.add_many(self.agents)
             self.social_circles_by_connection_type[connection_type].append(social_circle)
 
-    # todo add an export function
     def export(self):
-        pass
+        # fill population data with my data
+        self.population_data.agents = self.agents
+        self.population_data.social_circles_by_connection_type = self.social_circles_by_connection_type
+        self.population_data.geographic_circles = self.geographic_circles
+
+        # export population data using pickle
+        with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, 'wb') as export_file:
+            pickle.dump(self.population_data, export_file)
+
+    def import_population_data(self, import_file_path=None):
+        if import_file_path is None:
+            import_file_path = self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME
+
+        with open(import_file_path, 'rb') as import_file:
+            self.population_data = pickle.load(import_file)

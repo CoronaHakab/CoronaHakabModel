@@ -3,7 +3,7 @@ from collections import namedtuple
 from typing import NamedTuple
 
 
-# todo switch with a named tuple and allow import / export
+# todo fix type and allow importing from a json
 class MatrixConsts(NamedTuple):
     connection_type_to_connection_strength = {
         ConnectionTypes.Family: 1,
