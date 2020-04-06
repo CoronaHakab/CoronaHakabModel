@@ -102,6 +102,9 @@ default_parameters = {
         lambda agent: agent.medical_state.name == "Recovered",
         lambda agent: agent.medical_state.name == "Symptomatic",
     ),  # TODO: Define better API
+    # dictionary of {date : percent} that controls what percentage of schools are open
+    "school_openage_factors": {1: 0, 30: 0.5, 45: 1},
+    "should_change_school_openage": False
 }
 
 ConstParameters = namedtuple(

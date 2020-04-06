@@ -1,9 +1,31 @@
-from typing import Iterable
-
-import numpy as np
 from generation.connection_types import ConnectionTypes
+from generation.circles import SocialCircle
+from agent import Agent
+import numpy as np
+from typing import Iterable, Callable, Any
 
-# from manager import SimulationManager
+class Policy:
+    """
+    This represents a policy. 
+    """
+    def __init__(self, 
+                connection_change_factor : float,  
+                conditions : Iterable[Callable[[Any], bool]]):
+        self.factor = connection_change_factor
+        self.conditions = conditions
+        
+    def check_applies(self, arg):
+        applies = True
+        for condition in self.conditions:
+            applies = applies and condition(arg)
+        return applies
+
+class PolicyByCircles:
+    def __init__(self, 
+                 policy : Policy, 
+                 circles: Iterable[SocialCircle]):
+        self.circles = circles
+        self.policy = policy
 
 
 class UpdateMatrixManager:
@@ -56,9 +78,32 @@ class UpdateMatrixManager:
         self.matrix.set_factors(factors)
         self.normalize()
 
+    def reset_policies_by_connection_type(self, connection_type):
+        for i in range(self.size):
+            self.matrix.reset_mul_row(connection_type, i)
+            self.matrix.reset_mul_col(connection_type, i)
+
     def update_matrix_step(self):
         """
         Update the matrix step
         """
-        # for now, we will not update the matrix at all
         pass
+    
+    def apply_policy_on_circles(self, policy: Policy, circles : Iterable[SocialCircle]):
+        # for now, we will not update the matrix at all
+    
+        for circle in circles:
+            # check if circle is relevent to conditions
+            flag = True
+            for condition in policy.conditions:
+                flag = flag and condition(circle)
+            if not flag:
+                # some condition returned False - skip circle
+                continue
+            
+            connection_type = circle.connection_type
+            factor = policy.factor
+            for agent in circle.agents:
+                self.matrix.mul_sub_row(connection_type, agent.index, factor)
+                self.matrix.mul_sub_col(connection_type, agent.index, factor)
+            
