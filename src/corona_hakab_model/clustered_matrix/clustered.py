@@ -10,10 +10,22 @@ from sparse_base import SparseBase, ManifestBase
 
 
 class Cluster:
+    __slots__ = (
+        'indices',
+        'size',
+        'probs',
+        'vals',
+        'probs_row_mul',
+        'probs_col_mul',
+        'vals_row_offs',
+        'vals_col_offs',
+        '_probs_actual',
+        '_vals_actual'
+    )
+
     def __init__(self, indices: Iterable[int]):
         self.indices = sorted(indices)
         self.size = len(self.indices)
-        self.inv_indices = {v: i for (i, v) in enumerate(self.indices)}
         self.probs = np.zeros((self.size, self.size), dtype=np.float32)
         self.vals = np.zeros((self.size, self.size), dtype=np.float32)
 
@@ -73,6 +85,13 @@ class Cluster:
 
 
 class ClusteredSparseMatrix(SparseBase):
+    __slots__ = (
+        'size',
+        'cluster_index',
+        'local_indices',
+        'clusters'
+    )
+
     def __init__(self, clusters: Iterable[Collection[int]]):
         self.size = sum(len(c) for c in clusters)
         self.cluster_index = np.empty(self.size, dtype=int)
@@ -136,6 +155,11 @@ class ClusteredSparseMatrix(SparseBase):
 
 
 class ManifestClusters(ManifestBase):
+    __slots__ = (
+        'original',
+        'inners'
+    )
+
     def __init__(self, original: ClusteredSparseMatrix):
         self.original = original
         self.inners = [
