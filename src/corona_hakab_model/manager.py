@@ -48,7 +48,7 @@ class SimulationManager:
 
         # setting up medical things
         self.consts = consts
-        self.medical_machine = Consts.medical_state_machine(consts)
+        self.medical_machine = consts.medical_state_machine()
         initial_state = self.medical_machine.initial
 
         self.pending_transfers = PendingTransfers()
@@ -180,7 +180,7 @@ class SimulationManager:
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
 
         # clearing lru cache after run
-        self.consts.medical_state_machine.cache_clear()
+        #self.consts.medical_state_machine.cache_clear()
         Supervisable.coerce.cache_clear()
 
     def plot(self, **kwargs):
