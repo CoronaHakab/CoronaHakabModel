@@ -19,6 +19,7 @@ class SusceptibleState(MedicalState, ABC):
         super().__init__(*args, **kwargs)
         self.test_willingness = test_willingness
 
+    contagiousness = 0
     susceptible = True
     detectable = False
 

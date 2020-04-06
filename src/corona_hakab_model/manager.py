@@ -75,7 +75,9 @@ class SimulationManager:
         self.supervisor = Supervisor([Supervisable.coerce(a, self) for a in supervisable_makers], self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self)
         self.infection_manager = infection.InfectionManager(self)
-        self.healthcare_manager = healthcare.HealthcareManager(self)
+        self.healthcare_manager = healthcare.HealthcareManager(self, self.consts.daily_num_of_tests_schedule,
+                                                               self.consts.detection_test,
+                                                               self.consts.testing_priorities)
         self.medical_state_manager = MedicalStateManager(self)
 
         self.current_step = 0
@@ -96,9 +98,7 @@ class SimulationManager:
         self.change_school_openage()
         
         # run tests
-        new_tests = self.healthcare_manager.testing_step(
-            self.consts.detection_test, self.consts.daily_num_of_tests, self.consts.testing_policy
-        )
+        new_tests = self.healthcare_manager.testing_step()
 
         # progress tests and isolate the detected agents (update the matrix)
         self.progress_tests_and_isolation(new_tests)

@@ -108,10 +108,10 @@ default_parameters = {
     "recovered_test_willingness": 0.1,
 
     "detection_test": DetectionTest(detection_prob=0.98, false_alarm_prob=0.02, time_until_result=3),
-    "daily_num_of_tests": 3000,
+    "daily_num_of_tests_schedule": {0: 100, 10: 1000, 20: 2000, 50: 4000},
     "testing_gap_after_positive_test": 4,
     "testing_gap_after_negative_test": 1,
-    "testing_policy": (
+    "testing_priorities": (
         lambda agent: agent.medical_state.name == "Recovered",
         lambda agent: agent.medical_state.name == "Symptomatic",
     ),  # TODO: Define better API
