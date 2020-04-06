@@ -1,6 +1,6 @@
 from itertools import product
-
 import numpy as np
+from src.timeit_print import timeit_print
 
 v = np.array([0.2, 0, 0.5], dtype=np.float32)
 
@@ -53,9 +53,8 @@ def operate(parasym):
     yield "rsc"
 
 
-def subtest_parasym(MatrixA, MatrixB):
-    test_name = f"{MatrixA.__name__} vs {MatrixB.__name__}"
-    print(test_name + ": running test")
+@timeit_print
+def subtest_compare(MatrixA, MatrixB):
     main = MatrixA(3, 2)
     mock = MatrixB(3, 2)
 
@@ -65,20 +64,4 @@ def subtest_parasym(MatrixA, MatrixB):
         print(i)
         assert i == j
         check_equal(main, mock, i)
-    print(test_name + ": OK")
 
-
-def test_parasym():
-    from parasymbolic_matrix import ParasymbolicMatrix
-    from parasymbolic_matrix.mock_parasymbolic_matrix import MockParasymbolicMatrix
-    from scipy_matrix import ScipyMatrix
-
-    MatrixA = ParasymbolicMatrix
-    MatrixB = MockParasymbolicMatrix
-    MatrixC = ScipyMatrix
-    subtest_parasym(MatrixA, MatrixB)
-    subtest_parasym(MatrixA, MatrixC)
-
-
-if __name__ == "__main__":
-    test_parasym()

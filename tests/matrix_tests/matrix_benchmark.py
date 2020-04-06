@@ -1,35 +1,35 @@
 from time import time
+from src.timeit_print import timeit_print
 
 import numpy as np
+
+
+def benchmark_run(matrix, pre_set, operation):
+    if pre_set:
+        pre_set(matrix)
+        print(f"{type(matrix).__name__} set")
+
+    print(f"measure {type(matrix).__name__}")
+    start_time = time()
+    ret = operation(matrix)  # noqa: F841
+    duration = time() - start_time
+
+    return ret, duration
 
 
 def benchmark(MatrixA, MatrixB, size, depth, pre_set, operation):
     matrix_a = MatrixA(size, depth)
     matrix_b = MatrixB(size, depth)
-    if pre_set:
-        pre_set(matrix_a)
-        print(f"{MatrixA.__name__} set")
-        pre_set(matrix_b)
-        print(f"{MatrixB.__name__} set")
 
-    print(f"measure {MatrixA.__name__}")
-    start_time = time()
-    a_ret = operation(matrix_a)  # noqa: F841
-    a_duration = time() - start_time
-
-    print(f"measure {MatrixB.__name__}")
-    start_time = time()
-    b_ret = operation(matrix_b)  # noqa: F841
-    b_duration = time() - start_time
+    a_ret, a_duration = benchmark_run(matrix_a, pre_set, operation)
+    b_ret, b_duration = benchmark_run(matrix_b, pre_set, operation)
 
     # assert np.allclose(a_ret, b_ret) or a_ret is b_ret # todo this fails for some reason...
     return a_duration, b_duration
 
 
-def subtest_bench_parasym_scipy(MatrixA, MatrixB):
-    test_name = f"{MatrixA.__name__} vs {MatrixB.__name__}"
-    print(test_name + ": running benchmark")
-
+@timeit_print
+def subtest_bench(MatrixA, MatrixB):
     t = 1000
 
     v = np.random.choice([0, 0.2, 0.5, 0.3, 1], t)
@@ -55,21 +55,3 @@ def subtest_bench_parasym_scipy(MatrixA, MatrixB):
     for name, args in benchmarks:
         p, s = benchmark(MatrixA, MatrixB, *args)
         print(f"{name}, {MatrixA.__name__}: {p}, {MatrixB.__name__}: {s}")
-    print(test_name + ": benchmark done")
-
-
-def test_bench_parasym_scipy():
-    from parasymbolic_matrix import ParasymbolicMatrix
-    from parasymbolic_matrix.mock_parasymbolic_matrix import MockParasymbolicMatrix
-    from scipy_matrix import ScipyMatrix
-
-    MatrixA = ParasymbolicMatrix
-    MatrixB = MockParasymbolicMatrix
-    MatrixC = ScipyMatrix
-
-    subtest_bench_parasym_scipy(MatrixA, MatrixC)
-    subtest_bench_parasym_scipy(MatrixA, MatrixB)
-
-
-if __name__ == "__main__":
-    test_bench_parasym_scipy()
