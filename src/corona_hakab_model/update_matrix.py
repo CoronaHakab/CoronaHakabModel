@@ -1,30 +1,30 @@
-from generation.connection_types import ConnectionTypes
-from generation.circles import SocialCircle
-from agent import Agent
+from typing import Any, Callable, Iterable
+
 import numpy as np
-from typing import Iterable, Callable, Any
+from agent import Agent
+from generation.circles import SocialCircle
+from generation.connection_types import ConnectionTypes
 from policies_manager import ConditionedPolicy
+
 
 class Policy:
     """
     This represents a policy. 
     """
-    def __init__(self, 
-                connection_change_factor : float,  
-                conditions : Iterable[Callable[[Any], bool]]):
+
+    def __init__(self, connection_change_factor: float, conditions: Iterable[Callable[[Any], bool]]):
         self.factor = connection_change_factor
         self.conditions = conditions
-        
+
     def check_applies(self, arg):
         applies = True
         for condition in self.conditions:
             applies = applies and condition(arg)
         return applies
 
+
 class PolicyByCircles:
-    def __init__(self, 
-                 policy : Policy, 
-                 circles: Iterable[SocialCircle]):
+    def __init__(self, policy: Policy, circles: Iterable[SocialCircle]):
         self.circles = circles
         self.policy = policy
 
@@ -98,14 +98,20 @@ class UpdateMatrixManager:
             if not flag:
                 # some condition returned False - skip circle
                 continue
-            
+
             connection_type = circle.connection_type
             factor = policy.factor
             for agent in circle.agents:
                 self.matrix.mul_sub_row(connection_type, agent.index, factor)
                 self.matrix.mul_sub_col(connection_type, agent.index, factor)
 
-    def check_and_apply(self, con_type: ConnectionTypes, circles: Iterable[SocialCircle], conditioned_policy: ConditionedPolicy, **activating_condition_kwargs):
+    def check_and_apply(
+        self,
+        con_type: ConnectionTypes,
+        circles: Iterable[SocialCircle],
+        conditioned_policy: ConditionedPolicy,
+        **activating_condition_kwargs,
+    ):
         if (not conditioned_policy.active) and conditioned_policy.activating_condition(activating_condition_kwargs):
             self.logger.info("activating policy on circles")
             self.reset_policies_by_connection_type(con_type)

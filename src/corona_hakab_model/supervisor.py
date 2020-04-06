@@ -48,18 +48,6 @@ class Supervisor:
         if max_scale:
             ax.set_ylim((0, total_size))
 
-        text_height = ax.get_ylim()[-1] / 2
-
-        # policies
-        for day, message in self.manager.policies_messages.items():
-            ax.axvline(x=day, color="#0000cc")
-            ax.text(
-                day + 2,
-                text_height,
-                message,
-                rotation=90,
-            )
-
         # plot parameters
         ax.set_title(title)
         ax.set_xlabel("days", color="#1C2833")
@@ -71,12 +59,18 @@ class Supervisor:
             s.plot(ax)
         ax.legend()
 
+        text_height = ax.get_ylim()[-1] / 3
+
+        # policies
+        for day, message in self.manager.policies_messages.items():
+            ax.axvline(x=day, color="#0000cc")
+            ax.text(
+                day + 2, text_height, message, rotation=90,
+            )
+
         # showing and saving the graph
         if save:
-            fig.savefig(
-                f"{output_dir}{total_size} agents"
-                f"max scale = {max_scale}"
-            )
+            fig.savefig(f"{output_dir}{total_size} agents" f"max scale = {max_scale}")
         if auto_show:
             plt.show()
 

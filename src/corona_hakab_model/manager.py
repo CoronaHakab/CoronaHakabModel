@@ -1,7 +1,7 @@
 import logging
 from collections import defaultdict
-from typing import Callable, Dict, Iterable, List, Union
 from random import random
+from typing import Callable, Dict, Iterable, List, Union
 
 import healthcare
 import infection
@@ -13,11 +13,11 @@ from generation.connection_types import ConnectionTypes
 from generation.matrix_generator import MatrixData
 from healthcare import PendingTestResult, PendingTestResults
 from medical_state import MedicalState
-from state_machine import PendingTransfers
 from medical_state_manager import MedicalStateManager
+from policies_manager import PolicyManager
+from state_machine import PendingTransfers
 from supervisor import Supervisable, Supervisor
 from update_matrix import Policy
-from policies_manager import PolicyManager
 
 
 class SimulationManager:
@@ -95,7 +95,7 @@ class SimulationManager:
         """
         # checks if there is a policy to active.
         self.policy_manager.perform_policies()
-        
+
         # run tests
         new_tests = self.healthcare_manager.testing_step(
             self.consts.detection_test, self.consts.daily_num_of_tests, self.consts.testing_policy
@@ -161,7 +161,7 @@ class SimulationManager:
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
 
         # clearing lru cache after run
-        #self.consts.medical_state_machine.cache_clear()
+        # self.consts.medical_state_machine.cache_clear()
         Supervisable.coerce.cache_clear()
 
     def plot(self, **kwargs):

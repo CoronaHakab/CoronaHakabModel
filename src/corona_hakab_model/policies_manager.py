@@ -1,9 +1,9 @@
 import logging
-import numpy as np
-from typing import Iterable, Callable, Any, List
+from typing import Any, Callable, Iterable, List
 
-from generation.connection_types import ConnectionTypes
+import numpy as np
 from generation.circles import SocialCircle
+from generation.connection_types import ConnectionTypes
 
 
 class PolicyManager:
@@ -22,7 +22,9 @@ class PolicyManager:
         # checks for a matrices summing change policy
         if self.consts.change_policies and self.manager.current_step in self.consts.policies_changes:
             self.logger.info("changing policy")
-            self.update_matrix_manager.change_connections_policy(self.consts.policies_changes[self.manager.current_step][0])
+            self.update_matrix_manager.change_connections_policy(
+                self.consts.policies_changes[self.manager.current_step][0]
+            )
             self.add_message_to_manager(self.consts.policies_changes[self.manager.current_step][1])
 
         # check for a partial opening policy
@@ -58,9 +60,7 @@ class Policy:
     This represents a policy.
     """
 
-    def __init__(self,
-                 connection_change_factor: float,
-                 conditions: Iterable[Callable[[Any], bool]]):
+    def __init__(self, connection_change_factor: float, conditions: Iterable[Callable[[Any], bool]]):
         self.factor = connection_change_factor
         self.conditions = conditions
 
@@ -72,9 +72,7 @@ class Policy:
 
 
 class PolicyByCircles:
-    def __init__(self,
-                 policy: Policy,
-                 circles: Iterable[SocialCircle]):
+    def __init__(self, policy: Policy, circles: Iterable[SocialCircle]):
         self.circles = circles
         self.policy = policy
 
@@ -83,6 +81,7 @@ class ConditionedPolicy:
     """
     this class contains a policy that is supposed to run when a given condition is satisfied.
     """
+
     __slots__ = "activating_condition", "policy", "active", "message"
 
     def __init__(self, activating_condition: Callable[[Any], bool], policy: Policy, active=False, message=""):

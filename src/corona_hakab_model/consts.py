@@ -2,17 +2,17 @@ from collections import namedtuple
 from functools import lru_cache
 from itertools import count
 from typing import Dict
-import numpy as np
-from numpy.random import random
 
+import numpy as np
+from generation.connection_types import ConnectionTypes
 from healthcare import DetectionTest
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
+from numpy.random import random
+from policies_manager import ConditionedPolicy, Policy
 from state_machine import StochasticState, TerminalState
 from sub_matrices import CircularConnectionsMatrix, ClusteredConnectionsMatrix, NonCircularConnectionMatrix
 from util import dist, rv_discrete, upper_bound
-from generation.connection_types import ConnectionTypes
-from policies_manager import Policy, ConditionedPolicy
 
 """
 Overview:
@@ -61,7 +61,6 @@ default_parameters = {
     "silent_infection_ratio": 0.3,  # todo i made this up, need to get the real number
     # base r0 of the disease
     "r0": 2.4,
-
     # tests data
     "detection_test": DetectionTest(detection_prob=0.98, false_alarm_prob=0.02, time_until_result=3),
     "daily_num_of_tests": 3000,
@@ -71,16 +70,14 @@ default_parameters = {
         lambda agent: agent.medical_state.name == "Recovered",
         lambda agent: agent.medical_state.name == "Symptomatic",
     ),  # TODO: Define better API
-
     # policies data
     # a dictionary of type day:List[ConnectionTypes]. on each day, keeps only the given connection types opened
     "policies_changes": {
         40: ([ConnectionTypes.Family, ConnectionTypes.Other], "closing schools and works"),
         70: ([ConnectionTypes.Family, ConnectionTypes.Other, ConnectionTypes.School], "opening schools"),
-        100: (ConnectionTypes, "opening works")
+        100: (ConnectionTypes, "opening works"),
     },
     "change_policies": False,
-
     # policies acting on a specific connection type, when a term is satisfied
     "partial_opening_active": True,
     # each connection type gets a list of conditioned policies
@@ -88,25 +85,33 @@ default_parameters = {
     # each policy changes the multiplication factor of a specific circle
     # each policy is activated only if a list of terms is full-filled.
     "connection_type_to_conditioned_policy": {
-        ConnectionTypes.School:
-        [
+        ConnectionTypes.School: [
             ConditionedPolicy(
                 activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
-                policy=Policy(0, [lambda circle: random() > 0]), message="closing all schools"),
+                policy=Policy(0, [lambda circle: random() > 0]),
+                message="closing all schools",
+            ),
             ConditionedPolicy(
                 activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
-                policy=Policy(1, [lambda circle: random() > 1]), active=True, message="opening all schools"),
+                policy=Policy(1, [lambda circle: random() > 1]),
+                active=True,
+                message="opening all schools",
+            ),
         ],
-        ConnectionTypes.Work:
-        [
+        ConnectionTypes.Work: [
             ConditionedPolicy(
                 activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
-                policy=Policy(0, [lambda circle: random() > 0]), message="closing all works"),
+                policy=Policy(0, [lambda circle: random() > 0]),
+                message="closing all works",
+            ),
             ConditionedPolicy(
                 activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
-                policy=Policy(0, [lambda circle: random() > 1]), active=True, message="opening all works"),
-        ]
-    }
+                policy=Policy(0, [lambda circle: random() > 1]),
+                active=True,
+                message="opening all works",
+            ),
+        ],
+    },
 }
 
 ConstParameters = namedtuple(
