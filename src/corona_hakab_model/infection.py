@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from agent import Agent
-from collections import defaultdict
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, List
 
 import numpy as np
 
+from agent import Agent
+
 if TYPE_CHECKING:
-    from medical_state import MedicalState
     from manager import SimulationManager
 
 

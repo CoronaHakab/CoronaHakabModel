@@ -43,23 +43,21 @@ def write_swim():
 
     swim.add_raw("%nodefaultctor ManifestMatrix;")
     swim.add_raw("%nodefaultctor SparseMatrix;")
-    swim.add_python_begin("""
+    swim.add_python_begin(
+        """
+    # flake8: noqa
     from sparse_base import SparseBase, ManifestBase
     
     import numpy as np
     size_t = np.dtype('uint64')
-    """)
+    """
+    )
 
     swim(pools.include(src))
 
-    swim(
-        pools.primitive(
-            additionals = False,
-            out_iterable_types=()
-        )
-    )
-    swim(pools.list('size_t'))
-    swim(pools.list('std::vector<size_t>'))
+    swim(pools.primitive(additionals=False, out_iterable_types=()))
+    swim(pools.list("size_t"))
+    swim(pools.list("std::vector<size_t>"))
 
     swim(Typedef.Behaviour()(src))
 
@@ -78,7 +76,7 @@ def write_swim():
         """
         nz = np.flatnonzero(v).astype(np.uint64, copy=False)
         return self.I_POA.prev(self, v, nz, op)
-        """
+        """,
     )
     mswim.extend_py_def(
         "__getitem__",
@@ -86,7 +84,7 @@ def write_swim():
         """
         i, j = item
         return self.get(i, j)
-        """
+        """,
     )
 
     pswim = ContainerSwim("SparseMatrix", src, wrapper_superclass='"SparseBase"')
@@ -99,7 +97,7 @@ def write_swim():
         if not self.has_value(i, j):
             return None
         return self.get(i, j)
-        """
+        """,
     )
     pswim.extend_py_def(
         "manifest",
@@ -108,7 +106,7 @@ def write_swim():
         if sample is None:
             sample = generator.random(self.nz_count(), dtype=np.float32)
         return self.manifest.prev(self, sample)
-        """
+        """,
     )
     pswim.extend_py_def(
         "batch_set",
@@ -118,7 +116,7 @@ def write_swim():
         probs = np.asanyarray(probs, dtype=np.float32)
         values = np.asanyarray(values, dtype=np.float32)
         return self.batch_set.prev(self, row,columns,probs,values)
-        """
+        """,
     )
 
     swim(oswim)
@@ -129,9 +127,7 @@ def write_swim():
 
 
 def run_swim():
-    subprocess.run(
-        [SWIG_PATH, "-c++", "-python", "-py3", "sparse.i"], stdout=None, check=True  # '-debug-tmsearch',
-    )
+    subprocess.run([SWIG_PATH, "-c++", "-python", "-py3", "sparse.i"], stdout=None, check=True)  # '-debug-tmsearch',
 
 
 def compile():

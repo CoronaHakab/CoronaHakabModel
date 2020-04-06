@@ -1,15 +1,16 @@
 from collections import namedtuple
-from functools import lru_cache
 from itertools import count
 from typing import Dict
 
 import numpy as np
+
 from healthcare import DetectionTest
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
 from state_machine import StochasticState, TerminalState
 from sub_matrices import CircularConnectionsMatrix, ClusteredConnectionsMatrix, NonCircularConnectionMatrix
 from util import dist, rv_discrete, upper_bound
+
 # todo make sure we only use this
 generator = np.random.default_rng()
 
@@ -106,7 +107,7 @@ default_parameters = {
     ),  # TODO: Define better API
     # dictionary of {date : percent} that controls what percentage of schools are open
     "school_openage_factors": {1: 0, 30: 0.5, 45: 1},
-    "should_change_school_openage": False
+    "should_change_school_openage": False,
 }
 
 ConstParameters = namedtuple(

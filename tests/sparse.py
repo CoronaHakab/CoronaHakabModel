@@ -2,9 +2,8 @@ from itertools import product
 from typing import Union
 
 import numpy as np
-
 from consts import generator
-from sparse_matrix import SparseMatrix, MagicOperator
+from sparse_matrix import MagicOperator, SparseMatrix
 
 
 class npSparseMatrix:
@@ -97,6 +96,7 @@ class npManifest:
 v = np.array([0.2, 0.3, 0.6, 0], dtype=np.float32)
 magic = MagicOperator()
 
+
 def check_equal(ps: SparseMatrix, mck: npSparseMatrix, msg: str):
     for i, j in product(range(mck.size), repeat=2):
         p = ps[i, j]
@@ -119,20 +119,20 @@ def check_equal(ps: SparseMatrix, mck: npSparseMatrix, msg: str):
 
 
 def operate(matrix: Union[npSparseMatrix, SparseMatrix]):
-    yield 'pre_set'
+    yield "pre_set"
     matrix.batch_set(0, [1, 2, 3], [0.2, 0.5, 1], [0.1, 0.1, 0.2])
     matrix.batch_set(1, [0, 3], [0.1, 0.1], [0.7, 1])
     matrix.batch_set(2, [0], [0.7], [0.5])
     matrix.batch_set(3, [2], [0.1], [0.9])
-    yield 'post_set'
+    yield "post_set"
     matrix.row_set_prob_coff(2, 0.5)
-    yield 'mr'
+    yield "mr"
     matrix.col_set_prob_coff(0, 0)
-    yield 'mc'
+    yield "mc"
     matrix.row_set_value_offset(2, 1)
-    yield 'or'
+    yield "or"
     matrix.col_set_value_offset(1, 1)
-    yield 'oc'
+    yield "oc"
 
 
 def test_sparse():

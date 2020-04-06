@@ -3,8 +3,7 @@ from typing import List
 
 import manager
 from agent import Agent
-from medical_state import MedicalState
-from state_machine import PendingTransfer, PendingTransfers
+from state_machine import PendingTransfers
 
 
 class MedicalStateManager:

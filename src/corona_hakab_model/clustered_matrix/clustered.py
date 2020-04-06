@@ -6,21 +6,21 @@ import numpy as np
 # todo test
 # todo benchmark
 from consts import generator
-from sparse_base import SparseBase, ManifestBase
+from sparse_base import ManifestBase, SparseBase
 
 
 class Cluster:
     __slots__ = (
-        'indices',
-        'size',
-        'probs',
-        'vals',
-        'probs_row_mul',
-        'probs_col_mul',
-        'vals_row_offs',
-        'vals_col_offs',
-        '_probs_actual',
-        '_vals_actual'
+        "indices",
+        "size",
+        "probs",
+        "vals",
+        "probs_row_mul",
+        "probs_col_mul",
+        "vals_row_offs",
+        "vals_col_offs",
+        "_probs_actual",
+        "_vals_actual",
     )
 
     def __init__(self, indices: Iterable[int]):
@@ -85,12 +85,7 @@ class Cluster:
 
 
 class ClusteredSparseMatrix(SparseBase):
-    __slots__ = (
-        'size',
-        'cluster_index',
-        'local_indices',
-        'clusters'
-    )
+    __slots__ = ("size", "cluster_index", "local_indices", "clusters")
 
     def __init__(self, clusters: Iterable[Collection[int]]):
         self.size = sum(len(c) for c in clusters)
@@ -141,9 +136,7 @@ class ClusteredSparseMatrix(SparseBase):
 
     def manifest(self, sample=None):
         if sample is None:
-            sample = generator.random(sum(
-                c.size ** 2 for c in self.clusters
-            ), dtype=np.float32)
+            sample = generator.random(sum(c.size ** 2 for c in self.clusters), dtype=np.float32)
         s_next = 0
         ret = ManifestClusters(self)
         for i, c in enumerate(self.clusters):
@@ -155,25 +148,17 @@ class ClusteredSparseMatrix(SparseBase):
 
 
 class ManifestClusters(ManifestBase):
-    __slots__ = (
-        'original',
-        'inners'
-    )
+    __slots__ = ("original", "inners")
 
     def __init__(self, original: ClusteredSparseMatrix):
         self.original = original
-        self.inners = [
-            np.zeros_like(c.vals) for c in self.original.clusters
-        ]
+        self.inners = [np.zeros_like(c.vals) for c in self.original.clusters]
 
     def I_POA(self, v: np.ndarray, magic):
         ret = np.empty(self.original.size, dtype=np.float32)
         for cluster, manifest in zip(self.original.clusters, self.inners):
             zipped_v = v[cluster.indices]
-            ret[cluster.indices] = [
-                prod(magic.operate(m, v) for (m, v) in zip(row, zipped_v))
-                for row in manifest
-            ]
+            ret[cluster.indices] = [prod(magic.operate(m, v) for (m, v) in zip(row, zipped_v)) for row in manifest]
         return ret
 
     def nz_rows(self):

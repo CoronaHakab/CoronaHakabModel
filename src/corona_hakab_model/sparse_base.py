@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Protocol, List, Tuple, Optional
+from typing import List, Optional, Protocol, Tuple
 
 import numpy as np
 
@@ -68,7 +68,7 @@ class ManifestBase(Protocol):
         """
 
     @abstractmethod
-    def __getitem__(self, item: Tuple[int, int])->float:
+    def __getitem__(self, item: Tuple[int, int]) -> float:
         """
         get the actual value of the manifest at indexes
         if the cell does not exists, or is not manifest, return 0

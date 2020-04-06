@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, Generic, List, Sequence, TypeVar, Iterable
+from typing import Dict, Generic, Iterable, List, Sequence, TypeVar
 
 from scipy.stats import binom, randint, rv_discrete
 
