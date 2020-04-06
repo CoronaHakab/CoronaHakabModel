@@ -38,7 +38,7 @@ class Supervisor:
 
     def plot(self, max_scale: bool = True, auto_show: bool = True, save: bool = True):
         output_dir = "../output/"
-        total_size = self.manager.consts.population_size
+        total_size = len(self.manager.agents)
         title = f"Infections vs. Days, size={total_size:,}"
 
         fig, ax = plt.subplots()
@@ -264,7 +264,7 @@ class ValueSupervisable(Supervisable):
         pass
 
     def snapshot(self, manager: "manager.SimulationManager"):
-        self.x.append(manager.current_date)
+        self.x.append(manager.current_step)
         self.y.append(self.get(manager))
 
 
@@ -309,7 +309,7 @@ class _DelayedSupervisable(ValueSupervisable):
         self.delay = delay
 
     def get(self, manager: "manager.SimulationManager") -> float:
-        desired_date = manager.current_date - self.delay
+        desired_date = manager.current_step - self.delay
         desired_index = bisect(self.inner.x, desired_date)
         if desired_index >= len(self.inner.x):
             return np.nan
@@ -384,6 +384,7 @@ class _SumSupervisable(ValueSupervisable):
         return "Total(" + ", ".join(n.name() for n in self.inners)
 
 
+# todo this is broken. needs adaptation to parasymbolic matrix
 class _EffectiveR0Supervisable(FloatSupervisable):
     def __init__(self):
         super().__init__()
@@ -393,9 +394,9 @@ class _EffectiveR0Supervisable(FloatSupervisable):
         suseptable_indexes = np.flatnonzero(manager.susceptible_vector)
         # todo someone who knows how this works fix it
         return (
-            np.sum(1 - np.exp(manager.matrix.matrix[suseptable_indexes].data))
-            * manager.matrix.total_contagious_probability
-            / manager.matrix.size
+            np.sum(1 - np.exp(manager.matrix[suseptable_indexes].data))
+            * manager.update_matrix_manager.total_contagious_probability
+            / len(manager.agents)
         )
 
     def name(self) -> str:

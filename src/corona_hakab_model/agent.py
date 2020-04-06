@@ -1,4 +1,10 @@
-import medical_state
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from medical_state import MedicalState
+    from manager import SimulationManager
 
 
 class Agent:
@@ -9,29 +15,44 @@ class Agent:
     __slots__ = (
         "index",
         "medical_state",
-        "is_home_isolated",
-        "is_full_isolated",
         "manager",
+        "age",
+        "geographic_circle",
+        "social_circles",
     )
 
-    def __init__(self, index, manager, initial_state: "medical_state.MedicalState"):
+    # todo note that this changed to fit generation. should update simulation manager accordingly
+    def __init__(self, index):
         self.index = index
 
-        self.manager = manager
+        self.geographic_circle = None
+        self.social_circles = []
 
-        self.medical_state: "medical_state.MedicalState" = None
+        # don't know if this is necessary
+        self.manager: SimulationManager = None
+        self.medical_state: MedicalState = None
+
+    def add_to_simulation(self, manager: SimulationManager, initial_state: MedicalState):
+        self.manager = manager
         self.set_medical_state_no_inform(initial_state)
 
-        self.is_home_isolated = False
-        self.is_full_isolated = False
+    def set_test_start(self):
+        self.manager.date_of_last_test[self.index] = self.manager.current_step
 
-    def set_medical_state_no_inform(self, new_state: "medical_state.MedicalState"):
+    def set_test_result(self, test_result):
+        # TODO: add a property here
+        self.manager.tested_positive_vector[self.index] = test_result
+        self.manager.tested_vector[self.index] = True
+
+    def set_medical_state_no_inform(self, new_state: MedicalState):
         self.medical_state = new_state
-        # count how many entered silent state
-        if new_state == self.manager.medical_machine.states_by_name["Silent"]:
-            self.manager.in_silent_state += 1
         self.manager.contagiousness_vector[self.index] = new_state.contagiousness
+
+        if new_state == self.manager.medical_machine.states_by_name["Deceased"]:
+            self.manager.living_agents_vector[self.index] = False
+
         self.manager.susceptible_vector[self.index] = new_state.susceptible
+        self.manager.test_willingness_vector[self.index] = new_state.test_willingness
 
     def __str__(self):
         return f"<Person,  index={self.index}, medical={self.medical_state}>"
@@ -68,6 +89,8 @@ class TrackingCircle(Circle):
 
     def add_agent(self, agent):
         super().add_agent(agent)
+        if agent in self.agents:
+            raise ValueError("DuplicateAgent")
         self.agents.add(agent)
         assert self.agent_count == len(self.agents)
 
@@ -78,8 +101,12 @@ class TrackingCircle(Circle):
 
     def add_many(self, agents):
         super().add_many(agents)
+        if self.agents.intersection(set(agents)):
+            raise ValueError("DuplicateAgent")
         self.agents.update(agents)
-        assert self.agent_count == len(self.agents)
+        assert self.agent_count == len(
+            self.agents
+        ), f"self.agent_count: {self.agent_count}, len(self.agents): {len(self.agents)}"
 
     def remove_many(self, agents):
         super().remove_many(agents)

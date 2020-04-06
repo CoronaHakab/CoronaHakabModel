@@ -10,6 +10,7 @@ tox = "*"
 flake8 = "*"
 isort = "*"
 black = "*"
+swimport = "*"
 
 [packages]
 numpy = "*"
@@ -17,6 +18,7 @@ scipy = "*"
 scikit-learn = "*"
 pyside2 = "*"
 matplotlib = "*"
+cached-property = "*"
 
 [requires]
 python_version = "3.8"

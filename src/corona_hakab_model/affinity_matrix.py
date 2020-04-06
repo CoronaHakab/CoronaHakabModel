@@ -1,15 +1,20 @@
 import logging
 import math
+from itertools import islice
 from random import sample, shuffle
 from typing import Iterable, List
 
 import numpy as np
 from agent import Agent, TrackingCircle
-from node import Node
 from consts import Consts
-from itertools import islice
+from node import Node
 
-import corona_matrix
+use_parasymbolic_matrix = True
+if use_parasymbolic_matrix:
+    from parasymbolic_matrix import ParasymbolicMatrix as CoronaMatrix
+else:
+    from scipy_matrix import ScipyMatrix as CoronaMatrix
+
 
 class AffinityMatrix:
     """
@@ -38,14 +43,12 @@ class AffinityMatrix:
             self.non_circular_matrix_types[ncm.name] = (j, ncm)
 
         self.clustered_matrix_types = {}
-        for k, clm in enumerate(self.consts.clustered_matrices,
-                                len(self.circular_matrix_types) + len(self.non_circular_matrix_types)):
+        for k, clm in enumerate(
+            self.consts.clustered_matrices, len(self.circular_matrix_types) + len(self.non_circular_matrix_types)
+        ):
             self.clustered_matrix_types[clm.name] = (k, clm)
 
         self.depth = k + 1
-
-        CoronaMatrix = corona_matrix.get_corona_matrix_class(self.consts.use_parasymbolic_matrix)
-        self.logger.info("Using CoronaMatrix of type {}".format(CoronaMatrix.__name__))
         self.inner = CoronaMatrix(self.size, self.depth)
 
         self.agents = agents
@@ -100,7 +103,11 @@ class AffinityMatrix:
         self.logger.info(f"changing policy. keeping all matrices of types: {types_of_connections_to_use}")
         factors = np.zeros(self.depth, dtype=np.float32)
         for t in types_of_connections_to_use:
-            ind, _ = self.circular_matrix_types.get(t) or self.non_circular_matrix_types.get(t) or self.clustered_matrix_types[t]
+            ind, _ = (
+                self.circular_matrix_types.get(t)
+                or self.non_circular_matrix_types.get(t)
+                or self.clustered_matrix_types[t]
+            )
             factors[ind] = 1
         self.inner.set_factors(factors)
         self.normalize()
@@ -166,7 +173,7 @@ class AffinityMatrix:
 
         # manually generate the first m + 1 connections
         for i in range(m + 1):
-            other_nodes = nodes[0: m + 1]
+            other_nodes = nodes[0 : m + 1]  # noqa E226
             other_nodes.pop(i)
             nodes[i].add_connections(other_nodes)
             inserted_nodes.append(nodes[i])
@@ -176,7 +183,7 @@ class AffinityMatrix:
             connections[nodes[i].index].extend([node.index for node in other_nodes])
 
         # add the rest of the nodes, one at a time
-        for node in islice(nodes, m+1, None):
+        for node in islice(nodes, m + 1, None):
             # randomly select the first node to connect. pops him so that he won't be choosen again
             rand_node = inserted_nodes.pop(math.floor(rolls.__next__() * len(inserted_nodes)))
 
@@ -210,7 +217,6 @@ class AffinityMatrix:
             conns.sort()
             v = np.full_like(conns, connection_strength, dtype=np.float32)
             self.inner[depth, agent.index, conns] = v
-
 
     def build_ncm(self, depth, ncm):
         # an iterator representing the rolled amount of connections per agent
