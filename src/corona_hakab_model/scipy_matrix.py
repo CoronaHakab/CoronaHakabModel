@@ -5,6 +5,17 @@ from scipy.sparse import lil_matrix
 
 
 class ScipyMatrix:
+    # a matrix that is composed of a few rectangular sub matrices of the same size
+    # each sub matrix has its own factor (=coefficient)
+    __slots__ = (
+        "size",  # the size (=cols=rows) for each sub matrix
+        "sub_matrices",  # sub matrices that make the large sum matrix
+        "coffs",  # a factor for each of sub matrix
+        "sum",  # sum of all the sub matrices multiplied by its coefficient
+        "lg",  # log of the sum matrix
+        "build_lock",  # lock building the aux matrices
+    )
+
     def __init__(self, size, depth):
         self.size = size
         self.sub_matrices = [lil_matrix((size, size), dtype=np.float32) for _ in range(depth)]
@@ -13,6 +24,9 @@ class ScipyMatrix:
         self.lg = None
         self.build_lock = False
         self.rebuild_all()
+
+    def get(self, arg1, arg2):
+        return self.sum[arg1, arg2]
 
     def rebuild_all(self):
         self.sum = sum(s * c for (s, c) in zip(self.sub_matrices, self.coffs))

@@ -1,13 +1,11 @@
 from time import time
 
 import numpy as np
-from parasymbolic_matrix import ParasymbolicMatrix
-from scipy_matrix import ScipyMatrix
 
 
-def benchmark(size, depth, pre_set, operation):
-    ps = ParasymbolicMatrix(size, depth)
-    sm = ScipyMatrix(size, depth)
+def benchmark(MatrixA, MatrixB, size, depth, pre_set, operation):
+    ps = MatrixA(size, depth)
+    sm = MatrixB(size, depth)
     if pre_set:
         pre_set(ps)
         print("ps set")
@@ -25,7 +23,7 @@ def benchmark(size, depth, pre_set, operation):
     return ps_duration, sm_duration
 
 
-if __name__ == "__main__":
+def test_bench_parasym_scipy():
     t = 1000
 
     v = np.random.choice([0, 0.2, 0.5, 0.3, 1], t)
@@ -47,6 +45,15 @@ if __name__ == "__main__":
         return a
 
     benchmarks = ((f"poa {t}x3", (t, 3, build_x_3, poa)), (f"build {t}x3", (t, 3, None, build_x_3)))
+
+    from parasymbolic_matrix import ParasymbolicMatrix
+    from scipy_matrix import ScipyMatrix
+    MatrixA = ParasymbolicMatrix
+    MatrixB = ScipyMatrix
     for name, args in benchmarks:
-        p, s = benchmark(*args)
-        print(f"{name}, parasymbolic: {p}, scipy: {s}")
+        p, s = benchmark(MatrixA, MatrixB, *args)
+        print(f"{name}, {MatrixA.__name__}: {p}, {MatrixB.__name__}: {s}")
+
+
+if __name__ == "__main__":
+    test_bench_parasym_scipy()
