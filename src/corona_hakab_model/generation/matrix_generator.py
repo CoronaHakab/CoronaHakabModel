@@ -38,7 +38,7 @@ class MatrixGenerator:
     EXPORT_FILE_NAME = "matrix_data.pickle"
 
     def __init__(
-        self,  population_data: PopulationData, matrix_consts: MatrixConsts = MatrixConsts(),
+        self, population_data: PopulationData, matrix_consts: MatrixConsts = MatrixConsts(),
     ):
         # initiate everything
         self.logger = logging.getLogger("MatrixGenerator")

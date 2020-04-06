@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 from collections import namedtuple
-
-import numpy as np
 from typing import TYPE_CHECKING, Callable, List
 
-from util import Queue
+import numpy as np
 from agent import Agent
+from util import Queue
 
 if TYPE_CHECKING:
     from manager import SimulationManager
@@ -41,15 +40,23 @@ class HealthcareManager:
         self.manager = sim_manager
 
     def _get_testable(self):
-        tested_pos_too_recently = self.manager.tested_vector & \
-                                  self.manager.tested_positive_vector & \
-                                  (self.manager.current_date - self.manager.date_of_last_test <
-                                   self.manager.consts.testing_gap_after_positive_test)
+        tested_pos_too_recently = (
+            self.manager.tested_vector
+            & self.manager.tested_positive_vector
+            & (
+                self.manager.current_step - self.manager.date_of_last_test
+                < self.manager.consts.testing_gap_after_positive_test
+            )
+        )
 
-        tested_neg_too_recently = self.manager.tested_vector & \
-                                  np.logical_not(self.manager.tested_positive_vector) & \
-                                  (self.manager.current_date - self.manager.date_of_last_test <
-                                   self.manager.consts.testing_gap_after_negative_test)
+        tested_neg_too_recently = (
+            self.manager.tested_vector
+            & np.logical_not(self.manager.tested_positive_vector)
+            & (
+                self.manager.current_step - self.manager.date_of_last_test
+                < self.manager.consts.testing_gap_after_negative_test
+            )
+        )
 
         return np.logical_not(tested_pos_too_recently | tested_neg_too_recently) & self.manager.living_agents_vector
 
@@ -83,17 +90,17 @@ class HealthcareManager:
             # Test the low prioritized now
             num_of_low_priority_to_test = min(num_of_tests, len(test_candidates_inds))
             low_priority_tested = [
-                test.test(self.manager.agents[ind]) for ind in
-                np.random.permutation(list(test_candidates_inds))[:num_of_low_priority_to_test]
+                test.test(self.manager.agents[ind])
+                for ind in np.random.permutation(list(test_candidates_inds))[:num_of_low_priority_to_test]
             ]
             tested += low_priority_tested
             num_of_tests -= len(low_priority_tested)
 
         # There are some tests left. Choose randomly from outside the pool
         test_leftovers_candidates_inds = np.flatnonzero(can_be_tested & np.logical_not(want_to_be_tested))
-        will_be_tested_inds = np.random.choice(test_leftovers_candidates_inds,
-                                               min(num_of_tests, len(test_leftovers_candidates_inds)),
-                                               replace=False)
+        will_be_tested_inds = np.random.choice(
+            test_leftovers_candidates_inds, min(num_of_tests, len(test_leftovers_candidates_inds)), replace=False
+        )
 
         for ind in will_be_tested_inds:
             tested.append(test.test(self.manager.agents[ind]))

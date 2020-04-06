@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -36,7 +37,7 @@ class Agent:
         self.set_medical_state_no_inform(initial_state)
 
     def set_test_start(self):
-        self.manager.date_of_last_test[self.index] = self.manager.current_date
+        self.manager.date_of_last_test[self.index] = self.manager.current_step
 
     def set_test_result(self, test_result):
         # TODO: add a property here
@@ -88,6 +89,8 @@ class TrackingCircle(Circle):
 
     def add_agent(self, agent):
         super().add_agent(agent)
+        if agent in self.agents:
+            raise ValueError("DuplicateAgent")
         self.agents.add(agent)
         assert self.agent_count == len(self.agents)
 
@@ -98,8 +101,12 @@ class TrackingCircle(Circle):
 
     def add_many(self, agents):
         super().add_many(agents)
+        if self.agents.intersection(set(agents)):
+            raise ValueError("DuplicateAgent")
         self.agents.update(agents)
-        assert self.agent_count == len(self.agents)
+        assert self.agent_count == len(
+            self.agents
+        ), f"self.agent_count: {self.agent_count}, len(self.agents): {len(self.agents)}"
 
     def remove_many(self, agents):
         super().remove_many(agents)

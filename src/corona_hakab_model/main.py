@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 from consts import Consts
 from generation.generation_manager import GenerationManger
 from manager import SimulationManager
-from supervisor import Supervisable, Supervisor, LambdaValueSupervisable
+from supervisor import LambdaValueSupervisable, Supervisable, Supervisor
 
 
 def check_args(args):
@@ -69,7 +69,7 @@ def main():
         gm.matrix_data,
         consts=consts,
     )
-
+    print(sm)
     sm.run()
     sm.plot(save=True, max_scale=False)
 
