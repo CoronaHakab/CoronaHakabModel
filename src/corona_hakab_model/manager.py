@@ -17,6 +17,7 @@ from state_machine import PendingTransfers
 from medical_state_manager import MedicalStateManager
 from supervisor import Supervisable, Supervisor
 from update_matrix import Policy
+from policies_manager import PolicyManager
 
 
 class SimulationManager:
@@ -77,6 +78,7 @@ class SimulationManager:
         self.infection_manager = infection.InfectionManager(self)
         self.healthcare_manager = healthcare.HealthcareManager(self)
         self.medical_state_manager = MedicalStateManager(self)
+        self.policy_manager = PolicyManager(self)
 
         self.current_step = 0
 
@@ -88,12 +90,8 @@ class SimulationManager:
         """
         run one step
         """
-        # todo this does nothing right now.
-        # update matrix
-        self.update_matrix_manager.update_matrix_step()
-        
-        # change school openage policies
-        self.change_school_openage()
+        # checks if there is a policy to active.
+        self.policy_manager.perform_policies()
         
         # run tests
         new_tests = self.healthcare_manager.testing_step(
@@ -130,19 +128,6 @@ class SimulationManager:
         for new_test in new_tests:
             new_test.agent.set_test_start()
             self.pending_test_results.append(new_test)
-        
-    def change_school_openage(self):
-        if not self.consts.should_change_school_openage or self.current_step not in self.consts.school_openage_factors.keys():
-            return 
-        
-        # first reset all schools
-        self.update_matrix_manager.reset_policies_by_connection_type(ConnectionTypes.School)
-        
-        # create Policy object
-        new_openage_factor = self.consts.school_openage_factors[self.current_step]
-        def should_open(*args): return random() > new_openage_factor
-        policy = Policy(0, [should_open]) # 0 - school is closed
-        self.update_matrix_manager.apply_policy_on_circles(policy, self.social_circles_by_connection_type[ConnectionTypes.School])
 
     def setup_sick(self):
         """"
@@ -169,13 +154,6 @@ class SimulationManager:
         self.setup_sick()
 
         for i in range(self.consts.total_steps):
-            if self.consts.active_isolation:
-                if i == self.consts.stop_work_days:
-                    self.update_matrix_manager.change_connections_policy(
-                        {ConnectionTypes.Family, ConnectionTypes.Other}
-                    )
-                elif i == self.consts.resume_work_days:
-                    self.update_matrix_manager.change_connections_policy(ConnectionTypes)
             self.step()
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
 

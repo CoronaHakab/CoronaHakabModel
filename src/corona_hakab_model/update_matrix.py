@@ -3,6 +3,7 @@ from generation.circles import SocialCircle
 from agent import Agent
 import numpy as np
 from typing import Iterable, Callable, Any
+from policies_manager import ConditionedPolicy
 
 class Policy:
     """
@@ -83,15 +84,12 @@ class UpdateMatrixManager:
             self.matrix.reset_mul_row(connection_type, i)
             self.matrix.reset_mul_col(connection_type, i)
 
-    def update_matrix_step(self):
-        """
-        Update the matrix step
-        """
-        pass
-    
-    def apply_policy_on_circles(self, policy: Policy, circles : Iterable[SocialCircle]):
+        # letting all conditioned policies acting upon this connection type know they are canceled
+        for conditioned_policy in self.consts.connection_type_to_conditioned_policy[connection_type]:
+            conditioned_policy.active = False
+
+    def apply_policy_on_circles(self, policy: Policy, circles: Iterable[SocialCircle]):
         # for now, we will not update the matrix at all
-    
         for circle in circles:
             # check if circle is relevent to conditions
             flag = True
@@ -106,4 +104,10 @@ class UpdateMatrixManager:
             for agent in circle.agents:
                 self.matrix.mul_sub_row(connection_type, agent.index, factor)
                 self.matrix.mul_sub_col(connection_type, agent.index, factor)
-            
+
+    def check_and_apply(self, con_type: ConnectionTypes, circles: Iterable[SocialCircle], conditioned_policy: ConditionedPolicy, **activating_condition_kwargs):
+        if (not conditioned_policy.active) and conditioned_policy.activating_condition(activating_condition_kwargs):
+            self.logger.info("activating policy on circles")
+            self.reset_policies_by_connection_type(con_type)
+            self.apply_policy_on_circles(conditioned_policy.policy, circles)
+            conditioned_policy.active = True
