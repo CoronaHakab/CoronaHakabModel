@@ -180,7 +180,7 @@ class SimulationManager:
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
 
         # clearing lru cache after run
-        self.consts.medical_state_machine.cache_clear()
+        #self.consts.medical_state_machine.cache_clear()
         Supervisable.coerce.cache_clear()
 
     def plot(self, **kwargs):

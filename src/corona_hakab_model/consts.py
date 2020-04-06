@@ -200,7 +200,6 @@ class Consts(ConstParameters):
     def icu_to_dead_probability(self) -> float:
         return 1 - self.icu_to_hospitalized_probability
 
-    @lru_cache
     def medical_state_machine(self) -> MedicalStateMachine:
         class SusceptibleTerminalState(SusceptibleState, TerminalState):
             pass
