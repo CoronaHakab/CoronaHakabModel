@@ -29,13 +29,13 @@ class PolicyManager:
 
         # check for a partial opening policy
         if self.consts.partial_opening_active:
-            self.active_partial_opening_policies()
+            self.activate_partial_opening_policies()
 
-    def active_partial_opening_policies(self):
+    def activate_partial_opening_policies(self):
         """
-        this policies refers to policies acting on a specific connection type.
-        those policies apllies a given factor for each agent in some circles, of the same connection type
-        the circles to act upon are choosen using a lambda, defined in consts
+        the following policies are performing on a specific connection type.
+        they apply a given factor for each agent in some circles, of the same connection type
+        the circles to act upon are chosen using a lambda, defined in consts
         :return:
         """
         for con_type, conditioned_policies in self.consts.connection_type_to_conditioned_policy.items():

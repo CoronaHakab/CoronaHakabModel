@@ -80,10 +80,10 @@ default_parameters = {
     "change_policies": False,
     # policies acting on a specific connection type, when a term is satisfied
     "partial_opening_active": True,
-    # each connection type gets a list of conditioned policies
-    # each conditioned policy actives a specific policy when a condition is satisfied
-    # each policy changes the multiplication factor of a specific circle
-    # each policy is activated only if a list of terms is full-filled.
+    # each connection type gets a list of conditioned policies.
+    # each conditioned policy actives a specific policy when a condition is satisfied.
+    # each policy changes the multiplication factor of a specific circle.
+    # each policy is activated only if a list of terms is fulfilled.
     "connection_type_to_conditioned_policy": {
         ConnectionTypes.School: [
             ConditionedPolicy(
@@ -102,13 +102,13 @@ default_parameters = {
             ConditionedPolicy(
                 activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
                 policy=Policy(0, [lambda circle: random() > 0]),
-                message="closing all works",
+                message="closing all workplaces",
             ),
             ConditionedPolicy(
                 activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
                 policy=Policy(0, [lambda circle: random() > 1]),
                 active=True,
-                message="opening all works",
+                message="opening all workplaces",
             ),
         ],
     },
