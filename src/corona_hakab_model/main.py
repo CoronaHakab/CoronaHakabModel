@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 from consts import Consts
 from generation.generation_manager import GenerationManger
 from manager import SimulationManager
-from supervisor import Supervisable, Supervisor
+from supervisor import LambdaValueSupervisable, Supervisable, Supervisor
 
 
 def check_args(args):
@@ -59,8 +59,9 @@ def main():
             # Supervisable.NewCasesCounter(),
             # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
-            #    Supervisable.NewCasesCounter()),
-            # LambdaValueSupervisable("Detected Daily", lambda manager: manager.detected_daily)
+            # Supervisable.NewCasesCounter(),
+            # LambdaValueSupervisable("Detected Daily", lambda manager: manager.detected_daily),
+            LambdaValueSupervisable("Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
             # Supervisable.R0(),
             # Supervisable.Delayed("Symptomatic", 3),
         ),
@@ -68,7 +69,7 @@ def main():
         gm.matrix_data,
         consts=consts,
     )
-
+    print(sm)
     sm.run()
     sm.plot(save=True, max_scale=False)
 
