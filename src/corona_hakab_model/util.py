@@ -1,7 +1,5 @@
-from itertools import islice
-
 from collections import defaultdict
-from typing import Dict, Generic, List, Sequence, TypeVar
+from typing import Dict, Generic, List, Sequence, TypeVar, Iterable
 
 from scipy.stats import binom, randint, rv_discrete
 
