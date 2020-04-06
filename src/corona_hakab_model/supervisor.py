@@ -51,15 +51,14 @@ class Supervisor:
         text_height = ax.get_ylim()[-1] / 2
 
         # policies
-        if self.manager.consts.change_policies:
-            for day, con_types in self.manager.consts.policies_changes.items():
-                ax.axvline(x=day, color="#0000cc")
-                ax.text(
-                    day + 2,
-                    text_height,
-                    con_types[1],
-                    rotation=90,
-                )
+        for day, message in self.manager.policies_messages.items():
+            ax.axvline(x=day, color="#0000cc")
+            ax.text(
+                day + 2,
+                text_height,
+                message,
+                rotation=90,
+            )
 
         # plot parameters
         ax.set_title(title)

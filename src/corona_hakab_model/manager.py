@@ -82,7 +82,10 @@ class SimulationManager:
 
         self.current_step = 0
 
+        # initializing data for supervising
         self.new_sick_counter = 0
+        # dict(day:int -> message:string) saving policies messages
+        self.policies_messages = defaultdict(str)
 
         self.logger.info("Created new simulation.")
 

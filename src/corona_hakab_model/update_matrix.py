@@ -111,3 +111,5 @@ class UpdateMatrixManager:
             self.reset_policies_by_connection_type(con_type)
             self.apply_policy_on_circles(conditioned_policy.policy, circles)
             conditioned_policy.active = True
+            # adding the message
+            self.manager.policy_manager.add_message_to_manager(conditioned_policy.message)

@@ -75,9 +75,9 @@ default_parameters = {
     # policies data
     # a dictionary of type day:List[ConnectionTypes]. on each day, keeps only the given connection types opened
     "policies_changes": {
-        40: [[ConnectionTypes.Family, ConnectionTypes.Other], "closing schools and works"],
-        70: [[ConnectionTypes.Family, ConnectionTypes.Other, ConnectionTypes.School], "opening schools"],
-        100: [ConnectionTypes, "opening works"]
+        40: ([ConnectionTypes.Family, ConnectionTypes.Other], "closing schools and works"),
+        70: ([ConnectionTypes.Family, ConnectionTypes.Other, ConnectionTypes.School], "opening schools"),
+        100: (ConnectionTypes, "opening works")
     },
     "change_policies": False,
 
@@ -92,19 +92,19 @@ default_parameters = {
         [
             ConditionedPolicy(
                 activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
-                policy=Policy(0, [lambda circle: random() > 0])),
+                policy=Policy(0, [lambda circle: random() > 0]), message="closing all schools"),
             ConditionedPolicy(
                 activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
-                policy=Policy(0, [lambda circle: random() > 1]), active=True),
+                policy=Policy(1, [lambda circle: random() > 1]), active=True, message="opening all schools"),
         ],
         ConnectionTypes.Work:
         [
             ConditionedPolicy(
                 activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
-                policy=Policy(0, [lambda circle: random() > 0])),
+                policy=Policy(0, [lambda circle: random() > 0]), message="closing all works"),
             ConditionedPolicy(
                 activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
-                policy=Policy(0, [lambda circle: random() > 1]), active=True),
+                policy=Policy(0, [lambda circle: random() > 1]), active=True, message="opening all works"),
         ]
     }
 }
