@@ -14,9 +14,12 @@ class MedicalState(State, ABC):
 
 
 class SusceptibleState(MedicalState, ABC):
+
+    def __init__(self, *args, test_willingness: float, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.test_willingness = test_willingness
+
     susceptible = True
-    contagiousness = 0
-    test_willingness = 0
     detectable = False
 
 
@@ -33,8 +36,8 @@ class ContagiousState(MedicalState, ABC):
 class ImmuneState(MedicalState, ABC):
     susceptible = False
     contagiousness = 0
-    test_willingness = 0
 
-    def __init__(self, *args, detectable, **kwargs):
+    def __init__(self, *args, detectable: bool, test_willingness: float, **kwargs):
         super().__init__(*args, **kwargs)
+        self.test_willingness = test_willingness
         self.detectable = detectable
