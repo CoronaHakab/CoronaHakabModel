@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from itertools import product
+
 import numpy as np
 
 
@@ -67,4 +68,3 @@ class MockParasymbolicMatrix:
     @contextmanager
     def lock_rebuild(self):
         yield self
-
