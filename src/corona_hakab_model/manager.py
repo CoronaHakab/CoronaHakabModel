@@ -48,7 +48,7 @@ class SimulationManager:
 
         # setting up medical things
         self.consts = consts
-        self.medical_machine = Consts.medical_state_machine(consts)
+        self.medical_machine = consts.medical_state_machine()
         initial_state = self.medical_machine.initial
 
         self.pending_transfers = PendingTransfers()
