@@ -75,9 +75,7 @@ class SimulationManager:
         self.supervisor = Supervisor([Supervisable.coerce(a, self) for a in supervisable_makers], self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self)
         self.infection_manager = infection.InfectionManager(self)
-        self.healthcare_manager = healthcare.HealthcareManager(self, self.consts.daily_num_of_tests_schedule,
-                                                               self.consts.detection_test,
-                                                               self.consts.testing_priorities)
+        self.healthcare_manager = healthcare.HealthcareManager(self)
         self.medical_state_manager = MedicalStateManager(self)
 
         self.current_step = 0

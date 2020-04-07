@@ -44,7 +44,7 @@ class HealthcareManager:
     def __init__(self, sim_manager: SimulationManager):
         self.manager = sim_manager
 
-        if 0 not in self.manager.consts.daily_num_of_test_schedule.keys():
+        if 0 not in self.manager.consts.daily_num_of_tests_schedule.keys():
             raise Exception("The initial number of tests (step=0) wasn't specified in the given schedule: "
                             f"{self.manager.consts.daily_num_of_test_schedule}")
 
@@ -70,8 +70,8 @@ class HealthcareManager:
         return np.logical_not(tested_pos_too_recently | tested_neg_too_recently) & self.manager.living_agents_vector
 
     def _get_current_num_of_tests(self, current_step):
-        closest_key = max([i for i in self.manager.consts.daily_num_of_test_schedule.keys() if i <= current_step])
-        return self.manager.consts.daily_num_of_test_schedule[closest_key]
+        closest_key = max([i for i in self.manager.consts.daily_num_of_tests_schedule.keys() if i <= current_step])
+        return self.manager.consts.daily_num_of_tests_schedule[closest_key]
 
     def testing_step(self):
         num_of_tests = self._get_current_num_of_tests(self.manager.current_step)
