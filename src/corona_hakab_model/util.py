@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Generic, List, TypeVar, Protocol
+from typing import Generic, List, Protocol, TypeVar
 
 from scipy.stats import binom, randint, rv_discrete
 
@@ -55,8 +55,8 @@ class Queue(Generic[T]):
         if new_size < len(self.queued):
             raise NotImplementedError
         new_array = []
-        new_array.extend(self.queued[self.next_ind:])
-        new_array.extend(self.queued[:self.next_ind])
+        new_array.extend(self.queued[self.next_ind :])
+        new_array.extend(self.queued[: self.next_ind])
         new_array.extend([[] for _ in range(new_size - len(self.queued))])
 
         self.queued = new_array
@@ -64,7 +64,7 @@ class Queue(Generic[T]):
 
     def append_at(self, element: T, duration: int):
         if duration >= len(self.queued):
-            self._resize(duration+1)
+            self._resize(duration + 1)
         dest_ind = duration + self.next_ind
         if dest_ind >= len(self.queued):
             dest_ind -= len(self.queued)

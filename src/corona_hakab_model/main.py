@@ -47,18 +47,19 @@ def main():
             # "Latent",
             # "Silent",
             # "Asymptomatic",
-            #"Symptomatic",
-            #"Deceased",
-            #"Hospitalized",
-            #"ICU",
+            # "Symptomatic",
+            # "Deceased",
+            # "Hospitalized",
+            # "ICU",
             # "Susceptible",
-            #"Recovered",
+            # "Recovered",
             Supervisable.Sum(
                 "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", name="currently sick"
             ),
             # LambdaValueSupervisable("ever hospitalized", lambda manager: len(manager.medical_machine["Hospitalized"].ever_visited)),
             LambdaValueSupervisable(
-                "was ever sick", lambda manager: len(manager.agents) - manager.medical_machine["Susceptible"].agent_count
+                "was ever sick",
+                lambda manager: len(manager.agents) - manager.medical_machine["Susceptible"].agent_count,
             ),
             # Supervisable.NewCasesCounter(),
             # Supervisable.GrowthFactor(

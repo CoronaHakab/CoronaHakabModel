@@ -14,7 +14,6 @@ class MedicalState(State, ABC):
 
 
 class SusceptibleState(MedicalState, ABC):
-
     def __init__(self, *args, test_willingness: float, **kwargs):
         super().__init__(*args, **kwargs)
         self.test_willingness = test_willingness

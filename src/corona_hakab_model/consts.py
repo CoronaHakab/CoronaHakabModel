@@ -57,7 +57,6 @@ default_parameters = {
     "silent_infection_ratio": 0.3,  # todo i made this up, need to get the real number
     # base r0 of the disease
     "r0": 2.4,
-  
     # --Detection tests params--
     # the probability that an infected agent is asking to be tested
     "susceptible_test_willingness": 0.01,
@@ -68,7 +67,6 @@ default_parameters = {
     "hospitalized_test_willingness": 0.9,
     "icu_test_willingness": 1.0,
     "recovered_test_willingness": 0.1,
-
     "detection_test": DetectionTest(detection_prob=0.98, false_alarm_prob=0.02, time_until_result=3),
     "daily_num_of_tests_schedule": {0: 100, 10: 1000, 20: 2000, 50: 5000},
     "testing_gap_after_positive_test": 10,
@@ -77,7 +75,6 @@ default_parameters = {
         lambda agent: agent.medical_state.name == "Symptomatic",
         lambda agent: agent.medical_state.name == "Recovered",
     ),  # TODO: Define better API
-  
     # policies data
     # a dictionary of type day:List[ConnectionTypes]. on each day, keeps only the given connection types opened
     "policies_changes": {
@@ -231,8 +228,7 @@ class Consts(ConstParameters):
         susceptible = SusceptibleTerminalState("Susceptible", test_willingness=self.susceptible_test_willingness)
         latent = ImmuneStochasticState("Latent", detectable=False, test_willingness=self.latent_test_willingness)
         silent = ContagiousStochasticState(
-            "Silent", contagiousness=self.silent_infection_ratio,
-            test_willingness=self.silent_test_willingness
+            "Silent", contagiousness=self.silent_infection_ratio, test_willingness=self.silent_test_willingness
         )
         symptomatic = ContagiousStochasticState(
             "Symptomatic",
@@ -245,11 +241,14 @@ class Consts(ConstParameters):
             test_willingness=self.asymptomatic_test_willingness,
         )
 
-        hospitalized = ImmuneStochasticState("Hospitalized", detectable=True,
-                                             test_willingness=self.hospitalized_test_willingness)
+        hospitalized = ImmuneStochasticState(
+            "Hospitalized", detectable=True, test_willingness=self.hospitalized_test_willingness
+        )
         icu = ImmuneStochasticState("ICU", detectable=True, test_willingness=self.icu_test_willingness)
 
-        deceased = ImmuneTerminalState("Deceased", detectable=False, test_willingness=0)  # Won't be tested so detectability isn't relevant
+        deceased = ImmuneTerminalState(
+            "Deceased", detectable=False, test_willingness=0
+        )  # Won't be tested so detectability isn't relevant
         recovered = ImmuneTerminalState("Recovered", detectable=False, test_willingness=self.recovered_test_willingness)
 
         ret = MedicalStateMachine(susceptible, latent)

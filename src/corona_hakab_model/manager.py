@@ -26,11 +26,11 @@ class SimulationManager:
     """
 
     def __init__(
-            self,
-            supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
-            population_data: PopulationData,
-            matrix_data: MatrixData,
-            consts: Consts = Consts(),
+        self,
+        supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
+        population_data: PopulationData,
+        matrix_data: MatrixData,
+        consts: Consts = Consts(),
     ):
         # setting logger
         self.logger = logging.getLogger("simulation")
@@ -85,7 +85,7 @@ class SimulationManager:
         # initializing data for supervising
         # dict(day:int -> message:string) saving policies messages
         self.policies_messages = defaultdict(str)
-        
+
         self.new_sick_counter = 0
         self.new_detected_daily = 0
 
