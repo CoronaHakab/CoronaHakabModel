@@ -46,10 +46,6 @@ default_parameters = {
     "symptomatic_to_asymptomatic_probability": 0.85,
     "hospitalized_to_asymptomatic_probability": 0.8,
     "icu_to_hospitalized_probability": 0.65,
-    # the probability that an infected agent is asking to be tested
-    "symptomatic_test_willingness": 0.6,
-    "asymptomatic_test_willingness": 0.05,
-    "silent_test_willingness": 0.01,
     # probability of an infected symptomatic agent infecting others
     "symptomatic_infection_ratio": 0.75,
     # probability of an infected asymptomatic agent infecting others
@@ -94,17 +90,32 @@ default_parameters = {
     "stranger_strength": 0.01,
     "school_strength": 0.1,
     "use_parasymbolic_matrix": True,
-    "detection_test": DetectionTest(detection_prob=0.98, false_alarm_prob=0.02, time_until_result=3),
-    "daily_num_of_tests": 3000,
-    "testing_gap_after_positive_test": 4,
-    "testing_gap_after_negative_test": 1,
-    "testing_policy": (
-        lambda agent: agent.medical_state.name == "Recovered",
-        lambda agent: agent.medical_state.name == "Symptomatic",
-    ),  # TODO: Define better API
+
     # dictionary of {date : percent} that controls what percentage of schools are open
     "school_openage_factors": {1: 0, 30: 0.5, 45: 1},
-    "should_change_school_openage": False
+    "should_change_school_openage": False,
+
+    # --Detection tests params--
+
+    # the probability that an infected agent is asking to be tested
+    "susceptible_test_willingness": 0.01,
+    "latent_test_willingness": 0.01,
+    "silent_test_willingness": 0.01,
+    "asymptomatic_test_willingness": 0.01,
+    "symptomatic_test_willingness": 0.6,
+    "hospitalized_test_willingness": 0.9,
+    "icu_test_willingness": 1.0,
+    "recovered_test_willingness": 0.1,
+
+    "detection_test": DetectionTest(detection_prob=0.98, false_alarm_prob=0.02, time_until_result=3),
+    "daily_num_of_tests_schedule": {0: 100, 10: 1000, 20: 2000, 50: 5000},
+    "testing_gap_after_positive_test": 10,
+    "testing_gap_after_negative_test": 5,
+    "testing_priorities": (
+        lambda agent: agent.medical_state.name == "Symptomatic",
+        lambda agent: agent.medical_state.name == "Recovered",
+    ),  # TODO: Define better API
+
 }
 
 ConstParameters = namedtuple(
@@ -213,10 +224,11 @@ class Consts(ConstParameters):
         class ImmuneTerminalState(ImmuneState, TerminalState):
             pass
 
-        susceptible = SusceptibleTerminalState("Susceptible")
-        latent = ImmuneStochasticState("Latent", detectable=False)
+        susceptible = SusceptibleTerminalState("Susceptible", test_willingness=self.susceptible_test_willingness)
+        latent = ImmuneStochasticState("Latent", detectable=False, test_willingness=self.latent_test_willingness)
         silent = ContagiousStochasticState(
-            "Silent", contagiousness=self.silent_infection_ratio, test_willingness=self.silent_test_willingness
+            "Silent", contagiousness=self.silent_infection_ratio,
+            test_willingness=self.silent_test_willingness
         )
         symptomatic = ContagiousStochasticState(
             "Symptomatic",
@@ -229,11 +241,12 @@ class Consts(ConstParameters):
             test_willingness=self.asymptomatic_test_willingness,
         )
 
-        hospitalized = ImmuneStochasticState("Hospitalized", detectable=True)
-        icu = ImmuneStochasticState("ICU", detectable=True)
+        hospitalized = ImmuneStochasticState("Hospitalized", detectable=True,
+                                             test_willingness=self.hospitalized_test_willingness)
+        icu = ImmuneStochasticState("ICU", detectable=True, test_willingness=self.icu_test_willingness)
 
-        deceased = ImmuneTerminalState("Deceased", detectable=False)  # Won't be tested so detectability isn't relevant
-        recovered = ImmuneTerminalState("Recovered", detectable=False)
+        deceased = ImmuneTerminalState("Deceased", detectable=False, test_willingness=0)  # Won't be tested so detectability isn't relevant
+        recovered = ImmuneTerminalState("Recovered", detectable=False, test_willingness=self.recovered_test_willingness)
 
         ret = MedicalStateMachine(susceptible, latent)
 

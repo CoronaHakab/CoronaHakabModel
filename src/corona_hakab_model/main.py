@@ -59,9 +59,9 @@ def main():
             # Supervisable.NewCasesCounter(),
             # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
-            # Supervisable.NewCasesCounter(),
-            # LambdaValueSupervisable("Detected Daily", lambda manager: manager.detected_daily),
-            LambdaValueSupervisable("Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
+            Supervisable.NewCasesCounter(),
+            LambdaValueSupervisable("Detected Daily", lambda manager: manager.new_detected_daily),
+            # LambdaValueSupervisable("Current Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
             # Supervisable.R0(),
             # Supervisable.Delayed("Symptomatic", 3),
         ),
