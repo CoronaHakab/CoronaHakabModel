@@ -10,7 +10,6 @@ from util import Queue
 if TYPE_CHECKING:
     from manager import SimulationManager
 
-
 PendingTestResult = namedtuple("PendingTestResult", ["agent", "test_result", "original_duration"])
 
 
@@ -36,21 +35,12 @@ class DetectionTest:
 
 
 class HealthcareManager:
-    def __init__(
-            self, sim_manager: SimulationManager,
-            daily_num_of_test_schedule: Dict,
-            detection_test: DetectionTest,
-            testing_priorities: List[Callable[[Agent], bool]]
-    ):
-        self.testing_priorities = testing_priorities
-        self.daily_num_of_test_schedule = daily_num_of_test_schedule
-        self.detection_test = detection_test
+    def __init__(self, sim_manager: SimulationManager):
         self.manager = sim_manager
 
-        if 0 not in daily_num_of_test_schedule.keys():
+        if 0 not in self.manager.consts.daily_num_of_test_schedule.keys():
             raise Exception("The initial number of tests (step=0) wasn't specified in the given schedule: "
-                            f"{daily_num_of_test_schedule}")
-
+                            f"{self.manager.consts.daily_num_of_test_schedule}")
 
     def _get_testable(self):
         tested_pos_too_recently = (
@@ -74,9 +64,9 @@ class HealthcareManager:
         return np.logical_not(tested_pos_too_recently | tested_neg_too_recently) & self.manager.living_agents_vector
 
     def _get_current_num_of_tests(self, current_step):
-        keys = list(self.daily_num_of_test_schedule.keys())
-        closest_key = max([i for i in self.daily_num_of_test_schedule.keys() if i <= current_step])
-        return self.daily_num_of_test_schedule[closest_key]
+        keys = list(self.manager.consts.daily_num_of_test_schedule.keys())
+        closest_key = max([i for i in self.manager.consts.daily_num_of_test_schedule.keys() if i <= current_step])
+        return self.manager.consts.daily_num_of_test_schedule[closest_key]
 
     def testing_step(self):
         num_of_tests = self._get_current_num_of_tests(self.manager.current_step)
@@ -92,15 +82,15 @@ class HealthcareManager:
         if len(test_candidates_inds) < num_of_tests:
             # There are more tests than candidates. Don't check the priorities
             for ind in test_candidates_inds:
-                tested.append(self.detection_test.test(self.manager.agents[ind]))
+                tested.append(self.manager.consts.detection_test.test(self.manager.agents[ind]))
                 num_of_tests -= 1
         else:
-            for priority_lambda in list(self.testing_priorities):
+            for priority_lambda in list(self.manager.consts.testing_priorities):
                 # First test the prioritized candidates
                 for ind in np.random.permutation(list(test_candidates_inds)):
                     # permute the indices so we won't always test the lower indices
                     if priority_lambda(self.manager.agents[ind]):
-                        tested.append(self.detection_test.test(self.manager.agents[ind]))
+                        tested.append(self.manager.consts.detection_test.test(self.manager.agents[ind]))
                         test_candidates_inds.remove(ind)  # Remove so it won't be tested again
                         num_of_tests -= 1
 
@@ -110,7 +100,7 @@ class HealthcareManager:
             # Test the low prioritized now
             num_of_low_priority_to_test = min(num_of_tests, len(test_candidates_inds))
             low_priority_tested = [
-                self.detection_test.test(self.manager.agents[ind])
+                self.manager.consts.detection_test.test(self.manager.agents[ind])
                 for ind in np.random.permutation(list(test_candidates_inds))[:num_of_low_priority_to_test]
             ]
             tested += low_priority_tested
@@ -123,7 +113,7 @@ class HealthcareManager:
         )
 
         for ind in will_be_tested_inds:
-            tested.append(self.detection_test.test(self.manager.agents[ind]))
+            tested.append(self.manager.consts.detection_test.test(self.manager.agents[ind]))
             num_of_tests -= 1
 
         return tested
