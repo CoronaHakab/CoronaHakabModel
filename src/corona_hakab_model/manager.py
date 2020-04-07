@@ -26,11 +26,11 @@ class SimulationManager:
     """
 
     def __init__(
-        self,
-        supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
-        population_data: PopulationData,
-        matrix_data: MatrixData,
-        consts: Consts = Consts(),
+            self,
+            supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
+            population_data: PopulationData,
+            matrix_data: MatrixData,
+            consts: Consts = Consts(),
     ):
         # setting logger
         self.logger = logging.getLogger("simulation")
@@ -53,7 +53,6 @@ class SimulationManager:
         initial_state = self.medical_machine.initial
 
         self.pending_transfers = PendingTransfers()
-        self.detected_daily = 0
 
         # the manager holds the vector, but the agents update it
         self.contagiousness_vector = np.zeros(len(self.agents), dtype=float)  # how likely to infect others
@@ -64,6 +63,7 @@ class SimulationManager:
         self.test_willingness_vector = np.zeros(len(self.agents), dtype=float)
         self.tested_vector = np.zeros(len(self.agents), dtype=bool)
         self.tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
+        self.ever_tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
         self.date_of_last_test = np.zeros(len(self.agents), dtype=int)
         self.pending_test_results = PendingTestResults()
 
@@ -83,9 +83,11 @@ class SimulationManager:
         self.current_step = 0
 
         # initializing data for supervising
-        self.new_sick_counter = 0
         # dict(day:int -> message:string) saving policies messages
         self.policies_messages = defaultdict(str)
+        
+        self.new_sick_counter = 0
+        self.new_detected_daily = 0
 
         self.logger.info("Created new simulation.")
 
@@ -97,9 +99,7 @@ class SimulationManager:
         self.policy_manager.perform_policies()
 
         # run tests
-        new_tests = self.healthcare_manager.testing_step(
-            self.consts.detection_test, self.consts.daily_num_of_tests, self.consts.testing_policy
-        )
+        new_tests = self.healthcare_manager.testing_step()
 
         # progress tests and isolate the detected agents (update the matrix)
         self.progress_tests_and_isolation(new_tests)
@@ -115,14 +115,15 @@ class SimulationManager:
         self.supervisor.snapshot(self)
 
     def progress_tests_and_isolation(self, new_tests: List[PendingTestResult]):
-        agents_detected = []
+        self.new_detected_daily = 0
         new_results = self.pending_test_results.advance()
         for agent, test_result, _ in new_results:
-            agent.set_test_result(test_result)
             if test_result:
-                agents_detected.append(agents_detected)
+                if not self.ever_tested_positive_vector[agent.index]:
+                    # TODO: awful late night implementation, improve ASAP
+                    self.new_detected_daily += 1
 
-        self.detected_daily = len(agents_detected)
+            agent.set_test_result(test_result)
 
         # TODO send the detected agents to the selected kind of isolation
         # TODO: Track isolated agents
