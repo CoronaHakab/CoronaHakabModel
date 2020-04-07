@@ -1,21 +1,27 @@
 from __future__ import annotations
 
-from collections import namedtuple
-from typing import TYPE_CHECKING, Callable, List, Dict
+from typing import TYPE_CHECKING, Callable, List, NamedTuple
 
 import numpy as np
+
 from agent import Agent
 from util import Queue
 
 if TYPE_CHECKING:
     from manager import SimulationManager
 
-PendingTestResult = namedtuple("PendingTestResult", ["agent", "test_result", "original_duration"])
+
+class PendingTestResult(NamedTuple):
+    agent: Agent
+    test_result: bool
+    original_duration: int
+
+    def duration(self):
+        return self.original_duration
 
 
 class PendingTestResults(Queue[PendingTestResult]):
-    def __init__(self):
-        super().__init__()
+    pass
 
 
 class DetectionTest:
@@ -64,7 +70,6 @@ class HealthcareManager:
         return np.logical_not(tested_pos_too_recently | tested_neg_too_recently) & self.manager.living_agents_vector
 
     def _get_current_num_of_tests(self, current_step):
-        keys = list(self.manager.consts.daily_num_of_test_schedule.keys())
         closest_key = max([i for i in self.manager.consts.daily_num_of_test_schedule.keys() if i <= current_step])
         return self.manager.consts.daily_num_of_test_schedule[closest_key]
 
