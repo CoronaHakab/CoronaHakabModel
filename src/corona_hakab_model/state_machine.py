@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import math
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from functools import cached_property
-from typing import Collection, Dict, Generic, Iterable, List, Optional, Set, Tuple, TypeVar, Union, NamedTuple
+from typing import Collection, Dict, Generic, Iterable, List, NamedTuple, Optional, Set, Tuple, TypeVar, Union
 
 import numpy as np
 from agent import Agent, TrackingCircle
@@ -74,7 +75,7 @@ class StochasticTransferGenerator:
         durations = [iter(d.rvs(c)) for (c, s, d) in zip(bin_count, self.destinations, self.durations)]
         # for each agent, create the pending transfer of the predetermined outcome.
         return [
-            PendingTransfer(agent, self.destinations[transfer_ind], origin_state, durations[transfer_ind].__next__(), )
+            PendingTransfer(agent, self.destinations[transfer_ind], origin_state, durations[transfer_ind].__next__(),)
             for transfer_ind, agent in zip(transfer_indices, agents)
         ]
 
@@ -373,7 +374,8 @@ class StateMachine(Generic[T]):
 
         # todo remove?
         for col in range(next_index):
-            assert np.sum(ret[:, col]) == 1
+            # note that 1e-04 was randomly chosen
+            assert math.isclose(np.sum(ret[:, col]), 1.0, rel_tol=1e-04)
 
         return ret, terminal_states, transfer_states, entry_columns
 

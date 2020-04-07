@@ -83,17 +83,20 @@ class Circle:
 
 
 class TrackingCircle(Circle):
-    __slots__ = ("agents",)
+    __slots__ = ("agents", "ever_visited")
 
     def __init__(self):
         super().__init__()
         self.agents = set()
+        # done to count how many different agents ever visited a given state
+        self.ever_visited = set()
 
     def add_agent(self, agent):
         super().add_agent(agent)
         if agent in self.agents:
             raise ValueError("DuplicateAgent")
         self.agents.add(agent)
+        self.ever_visited.add(agent)
         assert self.agent_count == len(self.agents)
 
     def remove_agent(self, agent):
@@ -106,6 +109,7 @@ class TrackingCircle(Circle):
         if self.agents.intersection(set(agents)):
             raise ValueError("DuplicateAgent")
         self.agents.update(agents)
+        self.ever_visited.update(agents)
         assert self.agent_count == len(
             self.agents
         ), f"self.agent_count: {self.agent_count}, len(self.agents): {len(self.agents)}"

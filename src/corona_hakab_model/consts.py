@@ -4,9 +4,12 @@ from itertools import count
 from typing import Dict
 
 import numpy as np
+from generation.connection_types import ConnectionTypes
 from healthcare import DetectionTest
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
+from numpy.random import random
+from policies_manager import ConditionedPolicy, Policy
 from state_machine import StochasticState, TerminalState
 from sub_matrices import CircularConnectionsMatrix, ClusteredConnectionsMatrix, NonCircularConnectionMatrix
 from util import dist, rv_discrete, upper_bound
@@ -54,49 +57,7 @@ default_parameters = {
     "silent_infection_ratio": 0.3,  # todo i made this up, need to get the real number
     # base r0 of the disease
     "r0": 2.4,
-    # isolation policy
-    # todo why does this exist? doesn't the policy set this? at least make this an enum
-    # note not to set both home isolation and full isolation true
-    # whether to isolation detected agents to their homes (allow familial contact)
-    "home_isolation_sicks": False,
-    # whether to isolation detected agents fully (no contact)
-    "full_isolation_sicks": False,
-    # how many of the infected agents are actually caught and isolated
-    "caught_sicks_ratio": 0.3,
-    # policy stats
-    # todo this reeeeally shouldn't be hard-coded
-    # defines whether or not to apply a isolation (work shut-down)
-    "active_isolation": True,
-    # the date to stop work at
-    "stop_work_days": 40,
-    # the date to resume work at
-    "resume_work_days": 80,
-    # social stats
-    # the average family size
-    "family_size_distribution": rv_discrete(
-        1, 7, name="family", values=([1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081])
-    ),  # the average workplace size
-    # work circles size distribution
-    "work_size_distribution": dist(30, 80),
-    # work scale factor (1/alpha)
-    "work_scale_factor": 40,
-    # scale factor for amount of connections (1/alpha)
-    "strangers_scale_factor": 150,
-    "school_scale_factor": 100,
-    # relative strengths of each connection (in terms of infection chance)
-    "family_strength_not_workers": 0.75,
-    "family_strength": 1,
-    "work_strength": 0.1,
-    "stranger_strength": 0.01,
-    "school_strength": 0.1,
-    "use_parasymbolic_matrix": True,
-
-    # dictionary of {date : percent} that controls what percentage of schools are open
-    "school_openage_factors": {1: 0, 30: 0.5, 45: 1},
-    "should_change_school_openage": False,
-
     # --Detection tests params--
-
     # the probability that an infected agent is asking to be tested
     "susceptible_test_willingness": 0.01,
     "latent_test_willingness": 0.01,
@@ -106,7 +67,6 @@ default_parameters = {
     "hospitalized_test_willingness": 0.9,
     "icu_test_willingness": 1.0,
     "recovered_test_willingness": 0.1,
-
     "detection_test": DetectionTest(detection_prob=0.98, false_alarm_prob=0.02, time_until_result=3),
     "daily_num_of_tests_schedule": {0: 100, 10: 1000, 20: 2000, 50: 5000},
     "testing_gap_after_positive_test": 10,
@@ -115,7 +75,48 @@ default_parameters = {
         lambda agent: agent.medical_state.name == "Symptomatic",
         lambda agent: agent.medical_state.name == "Recovered",
     ),  # TODO: Define better API
-
+    # policies data
+    # a dictionary of type day:List[ConnectionTypes]. on each day, keeps only the given connection types opened
+    "policies_changes": {
+        40: ([ConnectionTypes.Family, ConnectionTypes.Other], "closing schools and works"),
+        70: ([ConnectionTypes.Family, ConnectionTypes.Other, ConnectionTypes.School], "opening schools"),
+        100: (ConnectionTypes, "opening works"),
+    },
+    "change_policies": False,
+    # policies acting on a specific connection type, when a term is satisfied
+    "partial_opening_active": True,
+    # each connection type gets a list of conditioned policies.
+    # each conditioned policy actives a specific policy when a condition is satisfied.
+    # each policy changes the multiplication factor of a specific circle.
+    # each policy is activated only if a list of terms is fulfilled.
+    "connection_type_to_conditioned_policy": {
+        ConnectionTypes.School: [
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
+                policy=Policy(0, [lambda circle: random() > 0]),
+                message="closing all schools",
+            ),
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
+                policy=Policy(1, [lambda circle: random() > 1]),
+                active=True,
+                message="opening all schools",
+            ),
+        ],
+        ConnectionTypes.Work: [
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
+                policy=Policy(0, [lambda circle: random() > 0]),
+                message="closing all workplaces",
+            ),
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
+                policy=Policy(0, [lambda circle: random() > 1]),
+                active=True,
+                message="opening all workplaces",
+            ),
+        ],
+    },
 }
 
 ConstParameters = namedtuple(
@@ -227,8 +228,7 @@ class Consts(ConstParameters):
         susceptible = SusceptibleTerminalState("Susceptible", test_willingness=self.susceptible_test_willingness)
         latent = ImmuneStochasticState("Latent", detectable=False, test_willingness=self.latent_test_willingness)
         silent = ContagiousStochasticState(
-            "Silent", contagiousness=self.silent_infection_ratio,
-            test_willingness=self.silent_test_willingness
+            "Silent", contagiousness=self.silent_infection_ratio, test_willingness=self.silent_test_willingness
         )
         symptomatic = ContagiousStochasticState(
             "Symptomatic",
@@ -241,11 +241,14 @@ class Consts(ConstParameters):
             test_willingness=self.asymptomatic_test_willingness,
         )
 
-        hospitalized = ImmuneStochasticState("Hospitalized", detectable=True,
-                                             test_willingness=self.hospitalized_test_willingness)
+        hospitalized = ImmuneStochasticState(
+            "Hospitalized", detectable=True, test_willingness=self.hospitalized_test_willingness
+        )
         icu = ImmuneStochasticState("ICU", detectable=True, test_willingness=self.icu_test_willingness)
 
-        deceased = ImmuneTerminalState("Deceased", detectable=False, test_willingness=0)  # Won't be tested so detectability isn't relevant
+        deceased = ImmuneTerminalState(
+            "Deceased", detectable=False, test_willingness=0
+        )  # Won't be tested so detectability isn't relevant
         recovered = ImmuneTerminalState("Recovered", detectable=False, test_willingness=self.recovered_test_willingness)
 
         ret = MedicalStateMachine(susceptible, latent)
