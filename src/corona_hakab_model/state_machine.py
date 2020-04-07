@@ -1,24 +1,31 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from functools import cached_property
-from typing import Collection, Dict, Generic, Iterable, List, Optional, Set, Tuple, TypeVar, Union
+from typing import Collection, Dict, Generic, Iterable, List, Optional, Set, Tuple, TypeVar, Union, NamedTuple
 
 import numpy as np
 from agent import Agent, TrackingCircle
 from scipy.stats import rv_discrete
 from util import Queue, upper_bound
 
-PendingTransfer = namedtuple("PendingTransfer", ["agent", "target_state", "origin_state", "original_duration"])
+
+class PendingTransfer(NamedTuple):
+    agent: Agent
+    target_state: State
+    origin_state: State
+    original_duration: int
+
+    def duration(self) -> int:
+        return self.original_duration
+
 
 TransferCollection = Dict[int, List[PendingTransfer]]
 
 
 class PendingTransfers(Queue[PendingTransfer]):
-    def __init__(self):
-        # in x time steps execute the list of pending transfers (change between states)
-        super().__init__()
+    pass
 
 
 class StochasticTransferGenerator:
@@ -67,7 +74,7 @@ class StochasticTransferGenerator:
         durations = [iter(d.rvs(c)) for (c, s, d) in zip(bin_count, self.destinations, self.durations)]
         # for each agent, create the pending transfer of the predetermined outcome.
         return [
-            PendingTransfer(agent, self.destinations[transfer_ind], origin_state, durations[transfer_ind].__next__(),)
+            PendingTransfer(agent, self.destinations[transfer_ind], origin_state, durations[transfer_ind].__next__(), )
             for transfer_ind, agent in zip(transfer_indices, agents)
         ]
 

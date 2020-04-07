@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from collections import namedtuple
-from typing import TYPE_CHECKING, Callable, List
+from typing import TYPE_CHECKING, Callable, List, NamedTuple
 
 import numpy as np
+
 from agent import Agent
 from util import Queue
 
@@ -11,12 +11,17 @@ if TYPE_CHECKING:
     from manager import SimulationManager
 
 
-PendingTestResult = namedtuple("PendingTestResult", ["agent", "test_result", "original_duration"])
+class PendingTestResult(NamedTuple):
+    agent: Agent
+    test_result: bool
+    original_duration: int
+
+    def duration(self):
+        return self.original_duration
 
 
 class PendingTestResults(Queue[PendingTestResult]):
-    def __init__(self):
-        super().__init__()
+    pass
 
 
 class DetectionTest:
@@ -41,21 +46,21 @@ class HealthcareManager:
 
     def _get_testable(self):
         tested_pos_too_recently = (
-            self.manager.tested_vector
-            & self.manager.tested_positive_vector
-            & (
-                self.manager.current_step - self.manager.date_of_last_test
-                < self.manager.consts.testing_gap_after_positive_test
-            )
+                self.manager.tested_vector
+                & self.manager.tested_positive_vector
+                & (
+                        self.manager.current_step - self.manager.date_of_last_test
+                        < self.manager.consts.testing_gap_after_positive_test
+                )
         )
 
         tested_neg_too_recently = (
-            self.manager.tested_vector
-            & np.logical_not(self.manager.tested_positive_vector)
-            & (
-                self.manager.current_step - self.manager.date_of_last_test
-                < self.manager.consts.testing_gap_after_negative_test
-            )
+                self.manager.tested_vector
+                & np.logical_not(self.manager.tested_positive_vector)
+                & (
+                        self.manager.current_step - self.manager.date_of_last_test
+                        < self.manager.consts.testing_gap_after_negative_test
+                )
         )
 
         return np.logical_not(tested_pos_too_recently | tested_neg_too_recently) & self.manager.living_agents_vector
