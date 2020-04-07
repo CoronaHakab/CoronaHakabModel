@@ -44,9 +44,9 @@ def main():
     gm = GenerationManger()
     sm = SimulationManager(
         (
-            "Latent",
-            "Silent",
-            "Asymptomatic",
+            #"Latent",
+            #"Silent",
+            #"Asymptomatic",
             "Symptomatic",
             "Deceased",
             "Hospitalized",
@@ -56,12 +56,15 @@ def main():
             Supervisable.Sum(
                 "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", name="currently sick"
             ),
+            #LambdaValueSupervisable("ever hospitalized", lambda manager: len(manager.medical_machine["Hospitalized"].ever_visited)),
+            LambdaValueSupervisable("got sick",
+                                    lambda manager: len(manager.agents) - manager.medical_machine["Susceptible"].agent_count)
             # Supervisable.NewCasesCounter(),
             # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
             # Supervisable.NewCasesCounter(),
             # LambdaValueSupervisable("Detected Daily", lambda manager: manager.detected_daily),
-            LambdaValueSupervisable("Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
+            #LambdaValueSupervisable("Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
             # Supervisable.R0(),
             # Supervisable.Delayed("Symptomatic", 3),
         ),
