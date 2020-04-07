@@ -1,10 +1,10 @@
-from typing import NamedTuple
-
+from dataclasses import dataclass
 from generation.connection_types import ConnectionTypes
 
 
 # todo fix type and allow importing from a json
-class MatrixConsts(NamedTuple):
+@dataclass
+class MatrixConsts:
     connection_type_to_connection_strength = {
         ConnectionTypes.Family: 3,
         ConnectionTypes.Work: 0.66,
