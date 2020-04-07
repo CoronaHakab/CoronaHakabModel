@@ -9,6 +9,7 @@ import numpy as np
 from agent import Agent, TrackingCircle
 from scipy.stats import rv_discrete
 from util import Queue, upper_bound
+import math
 
 PendingTransfer = namedtuple("PendingTransfer", ["agent", "target_state", "origin_state", "original_duration"])
 
@@ -366,7 +367,8 @@ class StateMachine(Generic[T]):
 
         # todo remove?
         for col in range(next_index):
-            assert np.sum(ret[:, col]) >= 0.99
+            # note that 1e-04 was randomly chosen
+            assert math.isclose(np.sum(ret[:, col]), 1.0, rel_tol=1e-04)
 
         return ret, terminal_states, transfer_states, entry_columns
 
