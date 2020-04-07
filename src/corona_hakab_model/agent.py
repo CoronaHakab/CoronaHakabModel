@@ -94,7 +94,7 @@ class TrackingCircle(Circle):
         if agent in self.agents:
             raise ValueError("DuplicateAgent")
         self.agents.add(agent)
-        self.ever_visited.add(agent.index)
+        self.ever_visited.add(agent)
         assert self.agent_count == len(self.agents)
 
     def remove_agent(self, agent):
@@ -107,7 +107,7 @@ class TrackingCircle(Circle):
         if self.agents.intersection(set(agents)):
             raise ValueError("DuplicateAgent")
         self.agents.update(agents)
-        self.ever_visited.update([agent.index for agent in agents])
+        self.ever_visited.update(agents)
         assert self.agent_count == len(
             self.agents
         ), f"self.agent_count: {self.agent_count}, len(self.agents): {len(self.agents)}"

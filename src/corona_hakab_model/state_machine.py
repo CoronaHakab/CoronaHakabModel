@@ -366,7 +366,7 @@ class StateMachine(Generic[T]):
 
         # todo remove?
         for col in range(next_index):
-            assert np.sum(ret[:, col]) == 1
+            assert np.sum(ret[:, col]) >= 0.99
 
         return ret, terminal_states, transfer_states, entry_columns
 
