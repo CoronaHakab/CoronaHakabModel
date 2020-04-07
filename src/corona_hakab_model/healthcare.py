@@ -17,7 +17,7 @@ class PendingTestResult(NamedTuple):
     original_duration: int
 
     def duration(self):
-        return self.duration()
+        return self.original_duration
 
 
 class PendingTestResults(Queue[PendingTestResult]):
