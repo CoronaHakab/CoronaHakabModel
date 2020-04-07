@@ -50,16 +50,16 @@ def CalcBinomialInfected(num_of_days, r0, population_size, p_tau, initial_infect
 
 
 class KatrielConsts(Consts):
-
-    def __init__(self, r0, contagiousness, initial_infected_count, num_of_days, illness_duration) -> None:
-        super().__init__(
-            r0=r0,
-            total_steps=num_of_days,
-            initial_infected_count=initial_infected_count,
-            active_isolation=False
-        )
+    def __new__(cls, *args, r0, contagiousness, initial_infected_count, num_of_days, illness_duration, **kwargs):
+        self = super().__new__(cls, *args,
+                               r0=r0,
+                               total_steps=num_of_days,
+                               initial_infected_count=initial_infected_count,
+                               active_isolation=False,
+                               **kwargs)
         self.illness_duration = illness_duration
         self.contagiousness = contagiousness
+        return self
 
     def medical_state_machine(self) -> MedicalStateMachine:
         class SusceptibleTerminalState(SusceptibleState, TerminalState):
@@ -75,23 +75,29 @@ class KatrielConsts(Consts):
         sick = ContagiousStochasticState(
             "Sick",
             contagiousness=self.contagiousness,
-            test_willingness=1,
+            test_willingness=0,
         )
         recovered = ImmuneTerminalState("Recovered", detectable=False)
 
         ret = MedicalStateMachine(susceptible, sick)
-        sick.add_transfer(recovered, dist(self.illness_duration), ...)
+        sick.add_transfer(recovered, dist(self.illness_duration), 1)
         return ret
 
 
 def run_sim():
     r0 = 2.0
-    contagiousness = 0.2
     initial_infected_count = 15
-    num_of_days = 150
+    num_of_days = 50
     illness_duration = 5
+    contagiousness = 1 / illness_duration
 
-    consts = KatrielConsts(r0, contagiousness, initial_infected_count, num_of_days, illness_duration)
+    consts = KatrielConsts(
+        r0=r0,
+        num_of_days=num_of_days,
+        initial_infected_count=initial_infected_count,
+        contagiousness=contagiousness,
+        illness_duration=illness_duration
+    )
 
     gm = GenerationManger()
     population_size = len(gm.population_data.agents)
@@ -103,8 +109,23 @@ def run_sim():
         gm.matrix_data,
         consts=consts,
     )
+
+    # Run binomial model
+    p_tau = np.ones(illness_duration) * contagiousness
+    mean, std = CalcBinomialInfected(num_of_days, r0, population_size, p_tau, initial_infected_count)
+
+    # Run simulation
+
     print(sm)
     sm.run()
-    sm.plot(save=True, max_scale=False)
+
+
+
+    ax = sm.plot(save=True, max_scale=False, auto_show=False)
+    ax.plot(np.arange(num_of_days), mean, label='Binomial Model')
+    ax.plot(np.arange(num_of_days), mean + std)
+    ax.plot(np.arange(num_of_days), mean - std)
+    plt.legend()
+    plt.show()
 
 run_sim()

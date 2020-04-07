@@ -1,9 +1,9 @@
 from collections import namedtuple
-from functools import lru_cache
 from itertools import count
 from typing import Dict
 
 import numpy as np
+
 from healthcare import DetectionTest
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine

@@ -184,7 +184,7 @@ class SimulationManager:
         Supervisable.coerce.cache_clear()
 
     def plot(self, **kwargs):
-        self.supervisor.plot(**kwargs)
+        return self.supervisor.plot(**kwargs)
 
     def stackplot(self, **kwargs):
         self.supervisor.stack_plot(**kwargs)

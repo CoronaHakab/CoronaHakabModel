@@ -48,7 +48,7 @@ class Agent:
         self.medical_state = new_state
         self.manager.contagiousness_vector[self.index] = new_state.contagiousness
 
-        if new_state == self.manager.medical_machine.states_by_name["Deceased"]:
+        if new_state.name == "Deceased":
             self.manager.living_agents_vector[self.index] = False
 
         self.manager.susceptible_vector[self.index] = new_state.susceptible

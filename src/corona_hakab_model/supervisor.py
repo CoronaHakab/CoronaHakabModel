@@ -97,6 +97,7 @@ class Supervisor:
             )
         if auto_show:
             plt.show()
+        return ax
 
     @staticmethod
     def static_plot(
