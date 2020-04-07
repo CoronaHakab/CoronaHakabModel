@@ -1,6 +1,5 @@
 from abc import abstractmethod
-from collections import defaultdict
-from typing import Dict, Generic, List, Sequence, TypeVar, Protocol
+from typing import Generic, List, TypeVar, Protocol
 
 from scipy.stats import binom, randint, rv_discrete
 

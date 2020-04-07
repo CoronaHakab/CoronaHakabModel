@@ -8,6 +8,7 @@ def test_ubound():
 def test_lbound():
     assert lower_bound(dist(-10)) == lower_bound(dist(-10, 5)) == lower_bound(dist(-10, 3, 6)) == -10
 
+
 def test_queue():
     class Element(HasDuration):
         def __init__(self, v, d):
@@ -48,6 +49,7 @@ def test_queue():
     for _ in range(4):
         assert advance() == set()
     assert advance() == {'f_0'}
+
 
 if __name__ == '__main__':
     test_queue()
