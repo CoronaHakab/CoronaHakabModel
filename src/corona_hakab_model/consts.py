@@ -1,14 +1,15 @@
 from collections import namedtuple
-from functools import lru_cache
 from itertools import count
 from typing import Dict
 
 import numpy as np
+from numpy.random import random
+
+from detection_model.detection_testing_types import DetectionPriority, DetectionSettings
+from detection_model.healthcare import DetectionTest
 from generation.connection_types import ConnectionTypes
-from healthcare import DetectionTest
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
-from numpy.random import random
 from policies_manager import ConditionedPolicy, Policy
 from state_machine import StochasticState, TerminalState
 from sub_matrices import CircularConnectionsMatrix, ClusteredConnectionsMatrix, NonCircularConnectionMatrix
@@ -67,14 +68,30 @@ default_parameters = {
     "hospitalized_test_willingness": 0.9,
     "icu_test_willingness": 1.0,
     "recovered_test_willingness": 0.1,
-    "detection_test": DetectionTest(detection_prob=0.98, false_alarm_prob=0.02, time_until_result=3),
-    "daily_num_of_tests_schedule": {0: 100, 10: 1000, 20: 2000, 50: 5000},
-    "testing_gap_after_positive_test": 10,
-    "testing_gap_after_negative_test": 5,
-    "testing_priorities": (
-        lambda agent: agent.medical_state.name == "Symptomatic",
-        lambda agent: agent.medical_state.name == "Recovered",
-    ),  # TODO: Define better API
+    "detection_pool": [
+        DetectionSettings(
+            name="hospital",
+            detection_test=DetectionTest(detection_prob=0.98, false_alarm_prob=0.02, time_until_result=3),
+            daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
+            testing_gap_after_positive_test=10,
+            testing_gap_after_negative_test=5,
+            testing_priorities=[
+                DetectionPriority(lambda agent: (agent.medical_state.name == "Symptomatic" and
+                                                 agent not in agent.manager.tested_positive_vector), max_tests=100),
+                DetectionPriority(lambda agent: agent.medical_state.name == "Recovered"),
+            ]),
+        DetectionSettings(
+            name="street",
+            detection_test=DetectionTest(detection_prob=0.92, false_alarm_prob=0.03, time_until_result=5),
+            daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
+            testing_gap_after_positive_test=3,
+            testing_gap_after_negative_test=1,
+            testing_priorities=[
+                DetectionPriority(lambda agent: agent.medical_state.name == "Symptomatic"),
+                DetectionPriority(lambda agent: agent.medical_state.name == "Recovered"),
+            ]),
+    ],
+
     # policies data
     # a dictionary of type day:List[ConnectionTypes]. on each day, keeps only the given connection types opened
     "policies_changes": {
