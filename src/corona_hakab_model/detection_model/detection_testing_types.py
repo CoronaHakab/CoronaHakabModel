@@ -28,7 +28,7 @@ class DetectionPriority:
         self.max_tests = max_tests
         self.count = 0
 
-    def eval(self, agent: Agent) -> bool:
+    def is_agent_prioritized(self, agent: Agent) -> bool:
         """
         activating the function on an agent. if exceeded the allowed number of tests, return false.
         else: increase the counter and activate the function, return it's outcome.

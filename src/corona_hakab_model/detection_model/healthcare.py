@@ -95,17 +95,8 @@ class HealthcareManager:
                     tested.append(test_location.detection_test.test(self.manager.agents[ind]))
                     num_of_tests -= 1
             else:
-                for priority_lambda in list(test_location.testing_priorities):
-                    # First test the prioritized candidates
-                    for ind in np.random.permutation(list(test_candidates_inds)):
-                        # permute the indices so we won't always test the lower indices
-                        if priority_lambda.eval(self.manager.agents[ind]):
-                            tested.append(test_location.detection_test.test(self.manager.agents[ind]))
-                            test_candidates_inds.remove(ind)  # Remove so it won't be tested again
-                            num_of_tests -= 1
-
-                            if num_of_tests == 0:
-                                continue
+                num_of_tests = self._test_according_to_priority(num_of_tests, test_candidates_inds, test_location,
+                                                                tested)
 
                 # Test the low prioritized now
                 num_of_low_priority_to_test = min(num_of_tests, len(test_candidates_inds))
@@ -127,3 +118,17 @@ class HealthcareManager:
         #     num_of_tests -= 1
         #
         return tested
+
+    def _test_according_to_priority(self, num_of_tests, test_candidates_inds, test_location, tested):
+        for detection_priority in list(test_location.testing_priorities):
+            # First test the prioritized candidates
+            for ind in np.random.permutation(list(test_candidates_inds)):
+                # permute the indices so we won't always test the lower indices
+                if detection_priority.is_agent_prioritized(self.manager.agents[ind]):
+                    tested.append(test_location.detection_test.test(self.manager.agents[ind]))
+                    test_candidates_inds.remove(ind)  # Remove so it won't be tested again
+                    num_of_tests -= 1
+
+                    if num_of_tests == 0:
+                        return 0
+        return num_of_tests
