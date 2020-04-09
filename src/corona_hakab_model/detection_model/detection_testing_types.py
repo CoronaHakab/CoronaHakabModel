@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections import Callable
 from dataclasses import dataclass
 from typing import Dict, List
@@ -40,7 +42,7 @@ class DetectionPriority:
 @dataclass()
 class DetectionSettings:
     name: str
-    detection_test: "DetectionTest"
+    detection_test: DetectionTest
     daily_num_of_tests_schedule: Dict[int, int]  # day -> n_tests
     testing_gap_after_positive_test: int  # days
     testing_gap_after_negative_test: int  # days
