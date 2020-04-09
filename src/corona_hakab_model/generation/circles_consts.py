@@ -40,7 +40,7 @@ default_parameters = {
     "multi_zone_connection_type_to_geo_circle_probability": [
         {ConnectionTypes.Work: {"north": 0.7, "south": 0.3}},
         {ConnectionTypes.Work: {"north": 0.2, "south": 0.8}},
-    ]
+    ],
 }
 
 CirclesConstParameters = namedtuple(
@@ -51,7 +51,10 @@ CirclesConstParameters = namedtuple(
 
 
 class CirclesConsts(CirclesConstParameters):
-    __slots__ = ()
+    def __init__(self, **args):
+        self.age_distribution = rv_discrete(10, 70, values=(self.ages, self.age_prob))
+        self.connection_types_prob_by_age = {age: self.connection_type_prob_by_age_index[i] for i, age in
+                                             enumerate(self.ages)}
 
     @staticmethod
     def from_file(param_path):
@@ -80,14 +83,6 @@ class CirclesConsts(CirclesConstParameters):
             )
             for i in range(self.geo_circles_amount)
         ]
-
-    @property
-    def age_distribution(self):
-        return rv_discrete(10, 70, values=(self.ages, self.age_prob))
-
-    @property
-    def connection_types_prob_by_age(self):
-        return {age: self.connection_type_prob_by_age_index[i] for i, age in enumerate(self.ages)}
 
 
 class GeographicalCircleDataHolder:
