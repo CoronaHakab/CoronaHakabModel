@@ -271,11 +271,8 @@ class Consts(NamedTuple):
         return ret
 
     # overriding hash and eq to allow caching while using un-hashable attributes
-    def __hash__(self):
-        return object.__hash__(self)
-
-    def __eq__(self, other):
-        return object.__eq__(self, other)
+    __hash__ = object.__hash__
+    __eq__ = object.__eq__
 
 
 # TODO can we remove it?
