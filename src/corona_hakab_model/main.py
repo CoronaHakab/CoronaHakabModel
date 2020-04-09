@@ -28,13 +28,16 @@ def main():
     """
     )
 
-    parser.add_argument("--simulation-parameters",
+    parser.add_argument("-s",
+                        "--simulation-parameters",
                         dest="simulation_parameters_path",
                         help="Parameters for simulation engine")
-    parser.add_argument("--circles-consts",
+    parser.add_argument("-c",
+                        "--circles-consts",
                         dest="circles_consts_path",
                         help="Parameter file with consts for the circles")
-    parser.add_argument("--matrix-consts",
+    parser.add_argument("-m",
+                        "--matrix-consts",
                         dest="matrix_consts_path",
                         help="Parameter file with consts for the matrix")
     args = parser.parse_args()
