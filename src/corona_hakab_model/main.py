@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 
 from consts import Consts
+from generation.circles_consts import CirclesConsts
 from generation.generation_manager import GenerationManger
 from manager import SimulationManager
 from supervisor import LambdaValueSupervisable, Supervisable, Supervisor
@@ -21,7 +22,7 @@ def main():
         OR
         Output path for the matrix generated now
     Optional:
-        Parameters file (see Parameters/parameters_example.py)
+        Parameters file (see Parameters folder)
     CRITICAL -
         The size of the matrix is not checked when loading an existing file!
         If the size of the population changed - make sure the matrix is appropriate.
@@ -34,6 +35,10 @@ def main():
         "-o", "--output-matrix", dest="output_matrix_path", help="npz file path for the newly-generated matrix",
     )
     parser.add_argument("-p", "--parameters", dest="parameters", help="Parameter file with consts for the simulation")
+
+    subparsers = parser.add_subparsers()
+    generate_parser = subparsers.add_parser('generation')
+    generate_parser.add_argument("--circles", dest="circles_consts_path", help="Parameter file with consts for the circles")
     args = parser.parse_args()
 
     if args.parameters:
@@ -41,7 +46,12 @@ def main():
     else:
         consts = Consts()
 
-    gm = GenerationManger()
+    if 'circles_consts_path' in args:
+        circles_consts = CirclesConsts.from_file(args.circles_consts_path)
+    else:
+        circles_consts = CirclesConsts()
+
+    gm = GenerationManger(circles_consts=circles_consts)
     sm = SimulationManager(
         (
             # "Latent",

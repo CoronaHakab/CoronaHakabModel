@@ -30,9 +30,9 @@ class CirclesGenerator:
 
     # todo split consts into generation_consts, simulation_consts, and plot_consts
     def __init__(
-        self, generation_consts: CirclesConsts = CirclesConsts(),
+        self, circles_consts: CirclesConsts,
     ):
-        self.circles_consts = generation_consts
+        self.circles_consts = circles_consts
         self.population_data = PopulationData()
         self.agents = [Agent(index) for index in range(self.circles_consts.population_size)]
 
