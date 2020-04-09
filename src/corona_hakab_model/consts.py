@@ -1,6 +1,6 @@
 from functools import lru_cache
 from itertools import count
-from typing import Dict, NamedTuple, List
+from typing import Dict, List, NamedTuple
 
 import numpy as np
 from generation.connection_types import ConnectionTypes
@@ -11,6 +11,7 @@ from numpy.random import random
 from policies_manager import ConditionedPolicy, Policy
 from state_machine import StochasticState, TerminalState
 from util import dist, rv_discrete, upper_bound
+
 
 """
 Overview:
@@ -129,14 +130,17 @@ class Consts(NamedTuple):
         with open(param_path, "rt") as read_file:
             data = read_file.read()
 
-        parameters = eval(data, {
-            "__builtins__": None,
-            "dist": dist,
-            "rv_discrete": rv_discrete,
-            "DetectionTest": DetectionTest,
-            "ConditionedPolicy": ConditionedPolicy,
-            "ConnectionTypes": ConnectionTypes,
-        })
+        parameters = eval(
+            data,
+            {
+                "__builtins__": None,
+                "dist": dist,
+                "rv_discrete": rv_discrete,
+                "DetectionTest": DetectionTest,
+                "ConditionedPolicy": ConditionedPolicy,
+                "ConnectionTypes": ConnectionTypes,
+            },
+        )
 
         return Consts(**parameters)
 
