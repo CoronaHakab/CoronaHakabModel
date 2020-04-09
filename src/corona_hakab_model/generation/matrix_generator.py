@@ -311,11 +311,3 @@ class MatrixGenerator:
         floor_prob = math.ceil(x) - x
         ceil_prob = x - math.floor(x)
         return np.random.choice([math.floor(x), math.ceil(x)], size=shape, p=[floor_prob, ceil_prob])
-
-    def export_matrix_data(self):
-        self.matrix_data.matrix_type = "parasymbolic"
-        self.matrix_data.matrix = self.matrix
-        self.matrix_data.depth = self.depth
-
-        with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, "wb") as export_file:
-            pickle.dump(self.matrix_data, export_file)
