@@ -2,7 +2,7 @@
 
 # This is only as an example, duplicate this file and add the parameters you want changed
 
-default_parameters = {
+{
     "connection_type_to_connection_strength": {
         ConnectionTypes.Family: 3,
         ConnectionTypes.Work: 0.66,
