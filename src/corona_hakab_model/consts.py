@@ -119,8 +119,8 @@ class Consts(NamedTuple):
         ],
     }
 
-    @staticmethod
-    def from_file(param_path):
+    @classmethod
+    def from_file(cls, param_path):
         """
         Load parameters from file and return Consts object with those values.
 
@@ -130,21 +130,21 @@ class Consts(NamedTuple):
         with open(param_path, "rt") as read_file:
             data = read_file.read()
 
-        parameters = eval(
-            data,
-            {
-                "__builtins__": None,
-                "dist": dist,
-                "rv_discrete": rv_discrete,
-                "DetectionTest": DetectionTest,
-                "ConditionedPolicy": ConditionedPolicy,
-                "ConnectionTypes": ConnectionTypes,
-            },
-        )
+        # expressions to evaluate
+        expressions = {
+            "__builtins__": None,
+            "dist": dist,
+            "rv_discrete": rv_discrete,
+            "DetectionTest": DetectionTest,
+            "ConditionedPolicy": ConditionedPolicy,
+            "ConnectionTypes": ConnectionTypes,
+        }
 
-        return Consts(**parameters)
+        parameters = eval(data, expressions)
 
-    @lru_cache
+        return cls(**parameters)
+
+    @lru_cache(None)
     def average_time_in_each_state(self) -> Dict[MedicalState, int]:
         """
         calculate the average time an infected agent spends in any of the states.
@@ -204,7 +204,7 @@ class Consts(NamedTuple):
     def icu_to_dead_probability(self) -> float:
         return 1 - self.icu_to_hospitalized_probability
 
-    @lru_cache
+    @lru_cache(None)
     def medical_state_machine(self) -> MedicalStateMachine:
         class SusceptibleTerminalState(SusceptibleState, TerminalState):
             pass
