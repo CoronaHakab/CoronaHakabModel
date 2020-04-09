@@ -76,7 +76,7 @@ class CirclesGenerator:
         each circle gets an object of GeographicalCircleDataHolder
         :return:
         """
-        for geo_circle in self.circles_consts.geographic_circles:
+        for geo_circle in self.circles_consts.get_geographic_circles():
             self.geographic_circles.append(GeographicCircle(geo_circle))
 
     def allocate_agents(self):

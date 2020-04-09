@@ -37,7 +37,7 @@ def main():
     parser.add_argument("-p", "--parameters", dest="parameters", help="Parameter file with consts for the simulation")
 
     subparsers = parser.add_subparsers()
-    generate_parser = subparsers.add_parser('generation')
+    generate_parser = subparsers.add_parser("generation")
     generate_parser.add_argument("--circles", dest="circles_consts_path", help="Parameter file with consts for the circles")
     args = parser.parse_args()
 
@@ -46,7 +46,7 @@ def main():
     else:
         consts = Consts()
 
-    if 'circles_consts_path' in args:
+    if "circles_consts_path" in args:
         circles_consts = CirclesConsts.from_file(args.circles_consts_path)
     else:
         circles_consts = CirclesConsts()

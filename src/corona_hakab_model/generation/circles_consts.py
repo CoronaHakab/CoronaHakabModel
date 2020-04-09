@@ -51,10 +51,7 @@ CirclesConstParameters = namedtuple(
 
 
 class CirclesConsts(CirclesConstParameters):
-    def __init__(self, **args):
-        self.age_distribution = rv_discrete(10, 70, values=(self.ages, self.age_prob))
-        self.connection_types_prob_by_age = {age: self.connection_type_prob_by_age_index[i] for i, age in
-                                             enumerate(self.ages)}
+    __slots__ = ()
 
     @staticmethod
     def from_file(param_path):
@@ -69,20 +66,25 @@ class CirclesConsts(CirclesConstParameters):
 
         return CirclesConsts(**parameters)
 
-    @property
-    def geographic_circles(self):
+    def get_geographic_circles(self):
         assert self.geo_circles_amount == len(self.geo_circles_names)
         return [
             GeographicalCircleDataHolder(
                 self.geo_circles_names[i],
                 self.geo_circles_agents_share[i],
-                self.age_distribution,
+                self.get_age_distribution(),
                 self.circle_size_distribution_by_connection_type,
-                self.connection_types_prob_by_age,
+                self.get_connection_types_prob_by_age(),
                 self.multi_zone_connection_type_to_geo_circle_probability[i],
             )
             for i in range(self.geo_circles_amount)
         ]
+
+    def get_age_distribution(self):
+        return rv_discrete(10, 70, values=(self.ages, self.age_prob))
+
+    def get_connection_types_prob_by_age(self):
+        return {age: self.connection_type_prob_by_age_index[i] for i, age in enumerate(self.ages)}
 
 
 class GeographicalCircleDataHolder:
