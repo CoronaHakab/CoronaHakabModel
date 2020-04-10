@@ -5,7 +5,7 @@ from generation.circles_consts import CirclesConsts
 from generation.matrix_consts import MatrixConsts
 from generation.generation_manager import GenerationManger
 from manager import SimulationManager
-from supervisor import LambdaValueSupervisable, Supervisable, Supervisor
+from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
 
 
 def main():
@@ -62,6 +62,9 @@ def main():
     sm = SimulationManager(
         (
             # "Latent",
+            Supervisable.State.AddedPerDay("Asymptomatic"),
+            Supervisable.State.Current("Asymptomatic"),
+            Supervisable.State.TotalSoFar("Asymptomatic"),
             # "Silent",
             # "Asymptomatic",
             # "Symptomatic",
@@ -70,19 +73,19 @@ def main():
             # "ICU",
             # "Susceptible",
             # "Recovered",
-            Supervisable.Sum(
-                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", name="currently sick"
-            ),
+            # Supervisable.Sum(
+            #     "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", name="currently sick"
+            # ),
             # LambdaValueSupervisable("ever hospitalized", lambda manager: len(manager.medical_machine["Hospitalized"].ever_visited)),
-            LambdaValueSupervisable(
-                "was ever sick",
-                lambda manager: len(manager.agents) - manager.medical_machine["Susceptible"].agent_count,
-            ),
+            # LambdaValueSupervisable(
+            #     "was ever sick",
+            #     lambda manager: len(manager.agents) - manager.medical_machine["Susceptible"].agent_count,
+            # ),
             # Supervisable.NewCasesCounter(),
             # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
-            Supervisable.NewCasesCounter(),
-            LambdaValueSupervisable("Detected Daily", lambda manager: manager.new_detected_daily),
+            # Supervisable.NewCasesCounter(),
+            # LambdaValueSupervisable("Detected Daily", lambda manager: manager.new_detected_daily),
             # LambdaValueSupervisable("Current Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
             # Supervisable.R0(),
             # Supervisable.Delayed("Symptomatic", 3),
@@ -93,7 +96,7 @@ def main():
     )
     print(sm)
     sm.run()
-    sm.plot(save=True, max_scale=False)
+    sm.dump()
 
 
 def compare_simulations_example():

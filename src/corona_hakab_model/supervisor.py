@@ -76,6 +76,30 @@ class Supervisable(ABC):
             return arg(manager)
         raise TypeError
 
+    class State:
+
+        class Current:
+            def __init__(self, name) -> None:
+                self.name = name
+
+            def __call__(self, m):
+                return _StateSupervisable(m.medical_machine[self.name])
+
+        class TotalSoFar:
+            def __init__(self, name) -> None:
+                self.name = name
+
+            def __call__(self, m):
+                return _StateTotalSoFarSupervisable(m.medical_machine[self.name])
+
+        class AddedPerDay:
+            def __init__(self, name) -> None:
+                self.name = name
+
+            def __call__(self, m):
+                diff_sup = _DiffSupervisable(_StateTotalSoFarSupervisable(m.medical_machine[self.name]))
+                return _NameOverrideSupervisable(diff_sup, "New " + self.name)
+
     class Delayed(NamedTuple):
         arg: Any
         delay: int
@@ -175,14 +199,14 @@ class _StateSupervisable(ValueSupervisable):
 class _StateTotalSoFarSupervisable(ValueSupervisable):
     def __init__(self, state):
         super().__init__()
-        self.state_name = state
+        self.state = state
+        self.__name = state.name + " So Far"
 
     def get(self, manager: "manager.SimulationManager") -> float:
-        state = manager.medical_machine[self.state_name]
-        return state.added_total
+        return self.state.added_total
 
     def name(self) -> str:
-        return self.state_name + " so far"
+        return self.__name
 
 
 class _DelayedSupervisable(ValueSupervisable):
@@ -208,6 +232,26 @@ class _DelayedSupervisable(ValueSupervisable):
     def snapshot(self, manager: "manager.SimulationManager"):
         self.inner.snapshot(manager)
         super().snapshot(manager)
+
+
+class _NameOverrideSupervisable(ValueSupervisable):
+    def __init__(self, inner: ValueSupervisable, name: str):
+        super().__init__()
+        self.__name = name
+        self.inner = inner
+
+    def get(self, manager: "manager.SimulationManager"):
+        return self.inner.get(manager)
+
+    def snapshot(self, manager: "manager.SimulationManager"):
+        self.inner.snapshot(manager)
+        super().snapshot(manager)
+
+    def publish(self):
+        return super().publish()
+
+    def name(self) -> str:
+        return self.__name
 
 
 class _DiffSupervisable(ValueSupervisable):
