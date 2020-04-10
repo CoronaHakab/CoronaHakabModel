@@ -23,14 +23,14 @@ class MedicalStateManager:
         changed_state_introduced = defaultdict(list)
         # list of all the new sick agents
 
+        # all the new sick are going to get to the next state
         for agent in new_sick:
+            changed_state_leaving[agent.medical_state].append(agent)
             agent.set_medical_state_no_inform(self.manager.medical_machine.get_state_upon_infection(agent))
+            changed_state_introduced[agent.medical_state].append(agent)
 
         # saves this number for supervising
         self.manager.new_sick_counter = len(new_sick)  # TODO should be handled in SimulationManager
-        # all the new sick are going to get to the next state
-        for agent in new_sick:
-            changed_state_introduced[agent.medical_state].append(agent)
 
         moved = self.pending_transfers.advance()
         for (agent, destination, origin, _) in moved:

@@ -48,36 +48,6 @@ class Supervisor:
         if max_scale:
             ax.set_ylim((0, total_size))
 
-        text_height = ax.get_ylim()[-1] / 2
-        # policies
-        if self.manager.consts.active_isolation:
-            title += (
-                f"\napplying lockdown from day {self.manager.consts.stop_work_days} "
-                f"to day {self.manager.consts.resume_work_days}"
-            )
-            ax.axvline(x=self.manager.consts.stop_work_days, color="#0000ff")
-            ax.text(
-                self.manager.consts.stop_work_days + 2,
-                text_height,
-                f"day {self.manager.consts.stop_work_days} - pause all work",
-                rotation=90,
-            )
-            ax.axvline(x=self.manager.consts.resume_work_days, color="#0000cc")
-            ax.text(
-                self.manager.consts.resume_work_days + 2,
-                text_height,
-                f"day {self.manager.consts.resume_work_days} - resume all work",
-                rotation=90,
-            )
-        if self.manager.consts.home_isolation_sicks:
-            title += (
-                f"\napplying home isolation for confirmed cases " f"({self.manager.consts.caught_sicks_ratio} of cases)"
-            )
-        if self.manager.consts.full_isolation_sicks:
-            title += (
-                f"\napplying full isolation for confirmed cases " f"({self.manager.consts.caught_sicks_ratio} of cases)"
-            )
-
         # plot parameters
         ax.set_title(title)
         ax.set_xlabel("days", color="#1C2833")
@@ -89,12 +59,18 @@ class Supervisor:
             s.plot(ax)
         ax.legend()
 
+        text_height = ax.get_ylim()[-1] / 3
+
+        # policies
+        for day, message in self.manager.policies_messages.items():
+            ax.axvline(x=day, color="#0000cc")
+            ax.text(
+                day + 2, text_height, message, rotation=90,
+            )
+
         # showing and saving the graph
         if save:
-            fig.savefig(
-                f"{output_dir}{total_size} agents, applying isolation = {self.manager.consts.active_isolation}, "
-                f"max scale = {max_scale}"
-            )
+            fig.savefig(f"{output_dir}{total_size} agents" f"max scale = {max_scale}")
         if auto_show:
             plt.show()
 
