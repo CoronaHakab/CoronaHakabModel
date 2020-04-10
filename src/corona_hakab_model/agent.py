@@ -64,21 +64,27 @@ class Agent:
 
 
 class Circle:
-    __slots__ = "kind", "agent_count"
+    __slots__ = "kind", "agent_count", "added_total", "removed_total"
 
     def __init__(self):
         self.agent_count = 0
+        self.added_total = 0
+        self.removed_total = 0
 
     def add_many(self, agents):
+        self.added_total += len(agents)
         self.agent_count += len(agents)
 
     def remove_many(self, agents):
+        self.removed_total += len(agents)
         self.agent_count -= len(agents)
 
     def add_agent(self, agent):
+        self.added_total += 1
         self.agent_count += 1
 
     def remove_agent(self, agent):
+        self.removed_total += 1
         self.agent_count -= 1
 
 

@@ -76,12 +76,12 @@ class Supervisor:
 
     @staticmethod
     def static_plot(
-        simulations_info: Sequence[Tuple["manager.SimulationManager", str, Sequence[str]]],
-        title="comparing",
-        save_name=None,
-        max_height=-1,
-        auto_show=True,
-        save=True,
+            simulations_info: Sequence[Tuple["manager.SimulationManager", str, Sequence[str]]],
+            title="comparing",
+            save_name=None,
+            max_height=-1,
+            auto_show=True,
+            save=True,
     ):
         """
         a static plot method, allowing comparison between multiple simulation runs
@@ -174,6 +174,12 @@ class Supervisable(ABC):
 
         def __call__(self, m):
             return _DelayedSupervisable(Supervisable.coerce(self.arg, m), self.delay)
+
+    class Diff(NamedTuple):
+        arg: Any
+
+        def __call__(self, m):
+            return _DiffSupervisable(Supervisable.coerce(self.arg, m))
 
     class Stack:
         def __init__(self, *args):
@@ -278,6 +284,19 @@ class _StateSupervisable(FloatSupervisable):
         return self.state.name
 
 
+class _StateTotalSoFarSupervisable(FloatSupervisable):
+    def __init__(self, state):
+        super().__init__()
+        self.state_name = state
+
+    def get(self, manager: "manager.SimulationManager") -> float:
+        state = manager.medical_machine[self.state_name]
+        return state.added_total
+
+    def name(self) -> str:
+        return self.state_name + " so far"
+
+
 class _DelayedSupervisable(ValueSupervisable):
     def __init__(self, inner: ValueSupervisable, delay: int):
         super().__init__()
@@ -296,6 +315,35 @@ class _DelayedSupervisable(ValueSupervisable):
 
     def names(self):
         return [n + f" + {self.delay} days" for n in self.inner.names()]
+
+    def plot(self, ax):
+        return type(self.inner).plot(self, ax)
+
+    def stacked_plot(self, ax):
+        return type(self.inner).stacked_plot(self, ax)
+
+    def snapshot(self, manager: "manager.SimulationManager"):
+        self.inner.snapshot(manager)
+        super().snapshot(manager)
+
+
+
+class _DiffSupervisable(ValueSupervisable):
+    def __init__(self, inner: ValueSupervisable):
+        super().__init__()
+        self.inner = inner
+
+    def get(self, manager: "manager.SimulationManager") -> float:
+        if manager.current_step <= 1:
+            return 0
+        return self.inner.y[manager.current_step] - self.inner.y[manager.current_step]
+
+    def snapshot(self, manager: "manager.SimulationManager"):
+        self.inner.snapshot(manager)
+        super().snapshot(manager)
+
+    def name(self) -> str:
+        return self.inner.name() + " diff"
 
     def plot(self, ax):
         return type(self.inner).plot(self, ax)
@@ -370,9 +418,9 @@ class _EffectiveR0Supervisable(FloatSupervisable):
         suseptable_indexes = np.flatnonzero(manager.susceptible_vector)
         # todo someone who knows how this works fix it
         return (
-            np.sum(1 - np.exp(manager.matrix[suseptable_indexes].data))
-            * manager.update_matrix_manager.total_contagious_probability
-            / len(manager.agents)
+                np.sum(1 - np.exp(manager.matrix[suseptable_indexes].data))
+                * manager.update_matrix_manager.total_contagious_probability
+                / len(manager.agents)
         )
 
     def name(self) -> str:
