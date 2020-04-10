@@ -4,7 +4,7 @@ from consts import Consts
 from generation.circles_consts import CirclesConsts
 from generation.generation_manager import GenerationManger
 from manager import SimulationManager
-from supervisor import LambdaValueSupervisable, Supervisable, Supervisor
+from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
 
 
 def check_args(args):
@@ -86,7 +86,7 @@ def main():
     )
     print(sm)
     sm.run()
-    sm.plot(save=True, max_scale=False)
+    sm.dump()
 
 
 def compare_simulations_example():
@@ -101,6 +101,7 @@ def compare_simulations_example():
         consts=Consts(r0=1.5),
     )
     sm1.run()
+    sm1.dump()
 
     sm2 = SimulationManager(
         (
@@ -113,11 +114,7 @@ def compare_simulations_example():
         consts=Consts(r0=1.8),
     )
     sm2.run()
-
-    Supervisor.static_plot(
-        ((sm1, f"ro = {sm1.consts.r0}:", ("y-", "y--", "y:")), (sm2, f"ro = {sm2.consts.r0}:", ("c-", "c--", "c:"))),
-        f"comparing r0 = {sm1.consts.r0} to r0={sm2.consts.r0}",
-    )
+    sm2.dump()
 
 
 if __name__ == "__main__":
