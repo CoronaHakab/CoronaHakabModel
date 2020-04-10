@@ -3,8 +3,8 @@ import pickle
 import sys
 from typing import List
 
-from corona_hakab_model_data.__data__ import __version__
 from agent import Agent
+from corona_hakab_model_data.__data__ import __version__
 from generation.circles import SocialCircle
 from generation.circles_consts import CirclesConsts
 from generation.connection_types import ConnectionTypes, Multi_Zone_types, Whole_Population_types
@@ -163,7 +163,7 @@ class CirclesGenerator:
         self.population_data.social_circles_by_agent_index = self.social_circles_by_agent_index
 
         # export population data using pickle
-        with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, 'wb') as export_file:
+        with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, "wb") as export_file:
             pickle.dump(self.population_data, export_file)
 
     def import_population_data(self, import_file_path=None):

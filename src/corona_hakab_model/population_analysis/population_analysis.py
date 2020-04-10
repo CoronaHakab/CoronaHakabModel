@@ -5,7 +5,6 @@ from collections import defaultdict
 import numpy as np
 from generation.circles_generator import PopulationData
 from generation.connection_types import ConnectionTypes
-from generation.matrix_generator import MatrixData
 from matplotlib import pyplot as plt
 
 

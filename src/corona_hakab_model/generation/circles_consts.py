@@ -1,5 +1,6 @@
-from generation.connection_types import ConnectionTypes
 from typing import Dict, List, NamedTuple
+
+from generation.connection_types import ConnectionTypes
 from util import rv_discrete
 
 
@@ -110,13 +111,13 @@ class GeographicalCircleDataHolder:
 
     # todo define how social circles logics should be represented
     def __init__(
-            self,
-            name: str,
-            agents_share: float,
-            age_distribution: rv_discrete,
-            circles_size_distribution_by_connection_type,
-            connection_types_prob_by_age,
-            multi_zone_connection_type_to_geo_circle_probability,
+        self,
+        name: str,
+        agents_share: float,
+        age_distribution: rv_discrete,
+        circles_size_distribution_by_connection_type,
+        connection_types_prob_by_age,
+        multi_zone_connection_type_to_geo_circle_probability,
     ):
         self.name = name
         self.agents_share = agents_share
