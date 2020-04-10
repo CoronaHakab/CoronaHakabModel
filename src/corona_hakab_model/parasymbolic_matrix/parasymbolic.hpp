@@ -41,6 +41,8 @@ class CoffedSparseMatrix: public BareSparseMatrix{
         void reset_mul_row(size_t row);
         void reset_mul_col(size_t col);
         virtual ~CoffedSparseMatrix();
+
+        std::vector<std::vector<size_t>> non_zero_columns();
 };
 
 class FastSparseMatrix{
@@ -78,6 +80,7 @@ class ParasymbolicMatrix{
         dtype get(size_t row, size_t column);
         dtype get(size_t comp, size_t row, size_t column);
         double total();
+        size_t get_size();
         void _prob_any(dtype const* A_v, size_t v_len, size_t const * A_non_zero_indices, size_t nzi_len,
                         dtype** AF_out, size_t* o_size);
         void operator*=(dtype rhs);
@@ -90,4 +93,5 @@ class ParasymbolicMatrix{
          dtype const* A_values, size_t v_len);
         void set_calc_lock(bool value);
         virtual ~ParasymbolicMatrix();
+        std::vector<std::vector<std::vector<size_t>>> non_zero_columns();
 };

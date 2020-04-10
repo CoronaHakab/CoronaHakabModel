@@ -1,5 +1,7 @@
 # flake8: noqa
 
+# This is only as an example, duplicate this file and add the parameters you want changed
+
 {
     "population_size": 20_000,
     "ages": [10, 40, 70],

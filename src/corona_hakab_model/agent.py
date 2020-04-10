@@ -16,17 +16,12 @@ class Agent:
         "index",
         "medical_state",
         "manager",
-        "age",
-        "geographic_circle",
-        "social_circles",
+        "age"
     )
 
     # todo note that this changed to fit generation. should update simulation manager accordingly
     def __init__(self, index):
         self.index = index
-
-        self.geographic_circle = None
-        self.social_circles = []
 
         # don't know if this is necessary
         self.manager: SimulationManager = None

@@ -42,6 +42,8 @@ class SimulationManager:
         self.agents = population_data.agents
         self.geographic_circles = population_data.geographic_circles
         self.social_circles_by_connection_type = population_data.social_circles_by_connection_type
+        self.geographic_circle_by_agent_index = population_data.geographic_circle_by_agent_index
+        self.social_circles_by_agent_index = population_data.social_circles_by_agent_index
 
         self.matrix_type = matrix_data.matrix_type
         self.matrix = matrix_data.matrix
