@@ -10,16 +10,8 @@ from functools import lru_cache, reduce
 from typing import Any, Callable, List, NamedTuple, Sequence, Tuple
 
 import manager
-import matplotlib_set_backend
 import numpy as np
 import csv
-
-
-try:
-    # plt is optional
-    from matplotlib import pyplot as plt
-except ImportError:
-    pass
 
 
 class SimulationProgression:
@@ -41,19 +33,21 @@ class SimulationProgression:
     def dump(self):
         output_folder = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], "output")
 
-        with open(os.path.join(output_folder, datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"), 'w', newline="") as output_file:
+        with open(os.path.join(output_folder, datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"), 'w',
+                  newline="") as output_file:
             published_data = [v.publish() for v in self.supervisables]
             csv_writer = csv.writer(output_file)
             # write data rows
-            for i in range(self.manager.consts.total_steps+1):
+            for i in range(self.manager.consts.total_steps + 1):
                 row = [i]
-                if i == 0: # header row
+                if i == 0:  # header row
                     row = ["days"]
                 for data in published_data:
                     # first column is always the #day
                     row = row + data[i][1:]
                 csv_writer.writerow(row)
     # todo stacked_plot
+
 
 class Supervisable(ABC):
     @abstractmethod
@@ -199,10 +193,11 @@ class _DelayedSupervisable(ValueSupervisable):
 
     def get(self, manager: "manager.SimulationManager") -> float:
         desired_date = manager.current_step - self.delay
-        desired_index = bisect(self.inner.x, desired_date)
-        if desired_index >= len(self.inner.x):
+        time_values = np.sort(self.inner.snapshots.keys())  # TODO: Assume sorted somehow?
+        desired_index = bisect(time_values, desired_date)
+        if desired_index >= len(time_values):
             return np.nan
-        return self.inner.y[desired_index]
+        return self.inner.snapshots[desired_index]
 
     def name(self) -> str:
         return self.inner.name() + f" + {self.delay} days"
@@ -214,15 +209,16 @@ class _DelayedSupervisable(ValueSupervisable):
         self.inner.snapshot(manager)
         super().snapshot(manager)
 
+
 class _DiffSupervisable(ValueSupervisable):
     def __init__(self, inner: ValueSupervisable):
         super().__init__()
         self.inner = inner
 
     def get(self, manager: "manager.SimulationManager") -> float:
-        if manager.current_step <= 1:
+        if (manager.current_step - 1) not in self.inner.snapshots:
             return 0
-        return self.inner.y[manager.current_step] - self.inner.y[manager.current_step]
+        return self.inner.snapshots[manager.current_step] - self.inner.snapshots[manager.current_step - 1]
 
     def snapshot(self, manager: "manager.SimulationManager"):
         self.inner.snapshot(manager)
@@ -231,17 +227,19 @@ class _DiffSupervisable(ValueSupervisable):
     def name(self) -> str:
         return self.inner.name() + " diff"
 
+
 class VectorSupervisable(ValueSupervisable, ABC):
     @abstractmethod
     def names(self):
         pass
 
     def _to_ys(self):
+        raise NotImplementedError('Need to convert (.x and .y) notation to the new (.snapshots) notation')
         n = len(self.y[0])
         return [[v[i] for v in self.y] for i in range(n)]
 
     def publish(self):
-        return [["", self.names()]] + ([[z[0]]+z[1] for z in zip(self.snapshots.items())])
+        return [["", self.names()]] + ([[z[0]] + z[1] for z in zip(self.snapshots.items())])
 
 
 class _StackedFloatSupervisable(VectorSupervisable):
@@ -287,9 +285,9 @@ class _EffectiveR0Supervisable(ValueSupervisable):
         suseptable_indexes = np.flatnonzero(manager.susceptible_vector)
         # todo someone who knows how this works fix it
         return (
-            np.sum(1 - np.exp(manager.matrix[suseptable_indexes].data))
-            * manager.update_matrix_manager.total_contagious_probability
-            / len(manager.agents)
+                np.sum(1 - np.exp(manager.matrix[suseptable_indexes].data))
+                * manager.update_matrix_manager.total_contagious_probability
+                / len(manager.agents)
         )
 
     def name(self) -> str:
