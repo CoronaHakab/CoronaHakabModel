@@ -3,6 +3,7 @@ import pickle
 import sys
 from typing import List
 
+from corona_hakab_model_data.__data__ import __version__
 from agent import Agent
 from generation.circles import SocialCircle
 from generation.circles_consts import CirclesConsts
@@ -15,6 +16,7 @@ sys.setrecursionlimit(5000)
 
 class PopulationData:
     __slots__ = (
+        "version",
         "agents",
         "geographic_circles",
         "social_circles_by_connection_type",
@@ -23,6 +25,8 @@ class PopulationData:
     )
 
     def __init__(self):
+        self.version = __version__
+
         self.agents = []
         self.geographic_circles: List[GeographicCircle] = []
         self.social_circles_by_connection_type = {}
@@ -168,6 +172,9 @@ class CirclesGenerator:
 
         with open(import_file_path, "rb") as import_file:
             self.population_data = pickle.load(import_file)
+
+        # pickle's version should be updated per application's version
+        assert self.population_data.version == __version__
 
         # fill imported data to self
         self.agents = self.population_data.agents
