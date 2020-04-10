@@ -6,12 +6,16 @@ import os
 from datetime import datetime
 from abc import ABC, abstractmethod
 from bisect import bisect
-from functools import lru_cache, reduce
-from typing import Any, Callable, List, NamedTuple, Sequence, Tuple
+from functools import lru_cache
+from typing import Any, Callable, List, NamedTuple, Sequence
 
 import manager
 import numpy as np
 import csv
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from state_machine import State
 
 
 class SimulationProgression:
@@ -197,13 +201,13 @@ class _StateSupervisable(ValueSupervisable):
 
 
 class _StateTotalSoFarSupervisable(ValueSupervisable):
-    def __init__(self, state):
+    def __init__(self, state: State):
         super().__init__()
         self.state = state
         self.__name = state.name + " So Far"
 
     def get(self, manager: "manager.SimulationManager") -> float:
-        return self.state.added_total
+        return len(self.state.ever_visited)
 
     def name(self) -> str:
         return self.__name
