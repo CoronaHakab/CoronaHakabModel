@@ -1,5 +1,7 @@
 from argparse import ArgumentParser
 
+import numpy as np
+
 from bsa.universal import write
 from corona_hakab_model_data.__data__ import __version__
 
@@ -8,7 +10,7 @@ from generation.circles_consts import CirclesConsts
 from generation.matrix_consts import MatrixConsts
 from generation.generation_manager import GenerationManger
 from manager import SimulationManager
-from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
+from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression, _PostProcessSupervisor
 
 
 def main():
@@ -61,6 +63,7 @@ def main():
             Supervisable.State.AddedPerDay("Asymptomatic"),
             Supervisable.State.Current("Asymptomatic"),
             Supervisable.State.TotalSoFar("Asymptomatic"),
+            Supervisable.SupervisiblesLambda((Supervisable.NewCasesCounter(),), lambda time, new_cases: np.cumsum(new_cases), 'lamb'),
             # "Silent",
             # "Asymptomatic",
             # "Symptomatic",

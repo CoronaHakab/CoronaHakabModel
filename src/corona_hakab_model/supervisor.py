@@ -152,6 +152,15 @@ class Supervisable(ABC):
                 Supervisable.coerce(self.new_infected_supervisor, m), Supervisable.coerce(self.sum_supervisor, m)
             )
 
+    class SupervisiblesLambda(NamedTuple):
+        supervisiables: Sequence
+        func: Callable
+        name: str
+
+        def __call__(self, m):
+            return _PostProcessSupervisor([Supervisable.coerce(s, m) for s in self.supervisiables], self.func, self.name)
+
+
 
 SupervisableMaker = Callable[[Any], Supervisable]
 
@@ -364,3 +373,28 @@ class _GrowthFactor(ValueSupervisable):
 
     def name(self) -> str:
         return "growth factor"
+
+
+class _PostProcessSupervisor(ValueSupervisable):
+    def __init__(self, supervisables: List[Supervisable], func: Callable, name: str):
+        super().__init__()
+        self._name = name
+        self.func = func
+        self.supervisables = supervisables
+
+    def get(self, manager: "manager.SimulationManager"):
+        pass
+
+    def snapshot(self, manager: "manager.SimulationManager"):
+        [v.snapshot(manager) for v in self.supervisables]
+        # super().snapshot(manager)
+
+    def publish(self):
+        vectors = (np.array(list(v.publish().values())) for v in self.supervisables)
+        time_vector = np.array([x[1] for x in self.supervisables[0].publish()])
+        res = self.func(time_vector, *vectors)
+        self.snapshots = {t: r for t, r in zip(time_vector, res)}
+        super().publish()
+
+    def name(self) -> str:
+        return self._name
