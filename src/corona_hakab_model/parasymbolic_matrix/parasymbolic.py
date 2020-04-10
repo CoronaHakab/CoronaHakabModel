@@ -5,11 +5,14 @@
 # the SWIG interface file instead.
 
 
-from contextlib import contextmanager
-from sys import version_info as _swig_python_version_info
-
 import numpy as np
 
+
+from contextlib import contextmanager
+
+
+
+from sys import version_info as _swig_python_version_info
 if _swig_python_version_info < (2, 7, 0):
     raise RuntimeError("Python 2.7 or later required")
 
@@ -23,7 +26,6 @@ try:
     import builtins as __builtin__
 except ImportError:
     import __builtin__
-
 
 def _swig_repr(self):
     try:
@@ -43,7 +45,6 @@ def _swig_setattr_nondynamic_instance_variable(set):
             set(self, name, value)
         else:
             raise AttributeError("You cannot add instance attributes to %s" % self)
-
     return set_instance_attr
 
 
@@ -53,22 +54,18 @@ def _swig_setattr_nondynamic_class_variable(set):
             set(cls, name, value)
         else:
             raise AttributeError("You cannot add class attributes to %s" % cls)
-
     return set_class_attr
 
 
 def _swig_add_metaclass(metaclass):
     """Class decorator for adding a metaclass to a SWIG wrapped class - a slimmed down version of six.add_metaclass"""
-
     def wrapper(cls):
         return metaclass(cls.__name__, cls.__bases__, cls.__dict__.copy())
-
     return wrapper
 
 
 class _SwigNonDynamicMeta(type):
     """Meta class to enforce nondynamic attributes (no new attributes) for a class"""
-
     __setattr__ = _swig_setattr_nondynamic_class_variable(type.__setattr__)
 
 
@@ -89,7 +86,9 @@ class ParasymbolicMatrix(object):
 
         return self
 
+
         return val
+
 
     def __init__(self, size: "size_t", component_count: "size_t"):
         r"""
@@ -126,6 +125,10 @@ class ParasymbolicMatrix(object):
     def total(self) -> "double":
         r"""total(self) -> double"""
         return _parasymbolic.ParasymbolicMatrix_total(self)
+
+    def get_size(self) -> "size_t":
+        r"""get_size(self) -> size_t"""
+        return _parasymbolic.ParasymbolicMatrix_get_size(self)
 
     def _prob_any(self, A_v: "dtype const *", A_non_zero_indices: "size_t const *") -> "void":
         r"""
@@ -200,9 +203,7 @@ class ParasymbolicMatrix(object):
         """
         return _parasymbolic.ParasymbolicMatrix_reset_mul_col(self, component, col)
 
-    def batch_set(
-        self, component_num: "size_t", row: "size_t", A_columns: "size_t const *", A_values: "dtype const *"
-    ) -> "void":
+    def batch_set(self, component_num: "size_t", row: "size_t", A_columns: "size_t const *", A_values: "dtype const *") -> "void":
         r"""
         batch_set(self, component_num, row, A_columns, A_values)
 
@@ -226,72 +227,64 @@ class ParasymbolicMatrix(object):
 
         """
         return _parasymbolic.ParasymbolicMatrix_set_calc_lock(self, value)
-
     __swig_destroy__ = _parasymbolic.delete_ParasymbolicMatrix
 
-    if """prob_any""" not in locals():
+    def non_zero_columns(self) -> "std::vector< std::vector< std::vector< size_t > > >":
+        r"""non_zero_columns(self) -> std::vector< std::vector< std::vector< size_t > > >"""
+        return _parasymbolic.ParasymbolicMatrix_non_zero_columns(self)
 
-        def prob_any(self, v):
-            pass
+    if '''prob_any''' not in locals():
 
-    if """__setitem__""" not in locals():
+    	def prob_any(self, v): pass
 
-        def __setitem__(self, key, v):
-            pass
 
-    if """lock_rebuild""" not in locals():
+    if '''__setitem__''' not in locals():
 
-        @contextmanager
-        def lock_rebuild(self):
-            pass
+    	def __setitem__(self, key, v): pass
+
+
+    if '''lock_rebuild''' not in locals():
+    	@contextmanager
+    	def lock_rebuild(self): pass
 
 
 # Register ParasymbolicMatrix in _parasymbolic:
 _parasymbolic.ParasymbolicMatrix_swigregister(ParasymbolicMatrix)
 
 
-__temp_store = getattr(ParasymbolicMatrix, """prob_any""", None)
-
-
+__temp_store = getattr(ParasymbolicMatrix,"""prob_any""",None)
 def __temp_def(self, v):
-    nz = np.flatnonzero(v).astype(np.uint64, copy=False)
-    return self._prob_any(v, nz)
-
-
+	nz = np.flatnonzero(v).astype(np.uint64, copy=False)
+	return self._prob_any(v, nz)
 if isinstance(__temp_store, (classmethod, staticmethod, property)):
-    __temp_def = type(__temp_store)(__temp_def)
+	__temp_def = type(__temp_store)(__temp_def)
 __temp_def.prev = __temp_store
 ParasymbolicMatrix.prob_any = __temp_def
 del __temp_store, __temp_def
 
 
-__temp_store = getattr(ParasymbolicMatrix, """__setitem__""", None)
-
-
+__temp_store = getattr(ParasymbolicMatrix,"""__setitem__""",None)
 def __temp_def(self, key, v):
-    comp, row, indices = key
-    indices = np.asanyarray(indices, dtype=np.uint64)
-    v = np.asanyarray(v, dtype=np.float32)
-    self.batch_set(comp, row, indices, v)
-
-
+	comp, row, indices = key
+	indices = np.asanyarray(indices, dtype=np.uint64)
+	v = np.asanyarray(v, dtype=np.float32)
+	self.batch_set(comp, row, indices, v)
 if isinstance(__temp_store, (classmethod, staticmethod, property)):
-    __temp_def = type(__temp_store)(__temp_def)
+	__temp_def = type(__temp_store)(__temp_def)
 __temp_def.prev = __temp_store
 ParasymbolicMatrix.__setitem__ = __temp_def
 del __temp_store, __temp_def
 
 
-__temp_store = getattr(ParasymbolicMatrix, """lock_rebuild""", None)
-
-
+__temp_store = getattr(ParasymbolicMatrix,"""lock_rebuild""",None)
 def __temp_def(self):
-    self.set_calc_lock(True)
-    yield self
-    self.set_calc_lock(False)
-
-
+	self.set_calc_lock(True)
+	yield self
+	self.set_calc_lock(False)
 __temp_def = contextmanager(__temp_def)
 __temp_def.prev = __temp_store
 ParasymbolicMatrix.lock_rebuild = __temp_def
 del __temp_store, __temp_def
+
+
+
