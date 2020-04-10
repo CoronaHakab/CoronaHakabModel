@@ -1,4 +1,3 @@
-# for exporting with pickle (/serializing) - set a high recursion rate
 import pickle
 import sys
 from typing import List
@@ -11,6 +10,7 @@ from generation.connection_types import ConnectionTypes, Multi_Zone_types, Whole
 from generation.geographic_circle import GeographicCircle
 from util import rv_discrete
 
+# for exporting with pickle (/serializing) - set a high recursion rate
 sys.setrecursionlimit(5000)
 
 
@@ -53,6 +53,7 @@ class PopulationData:
 
 class CirclesGenerator:
 
+    # todo organize all path fields in a single file
     # import/export variables
     EXPORT_OUTPUT_DIR = "../../output/"
     EXPORT_FILE_NAME = "population_data.pickle"

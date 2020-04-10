@@ -17,13 +17,8 @@ class PopulationAnylzer:
 
     def __init__(self, population_data_path):
 
-        # todo use a static import method from population_data
         # importing population data from path
-        try:
-            with open(population_data_path, "rb") as population_data:
-                self.population_data: PopulationData = pickle.load(population_data)
-        except FileNotFoundError:
-            raise FileNotFoundError("population analyzer couldn't open population data")
+        self.population_data = PopulationData.import_population_data(population_data_path)
 
     def plot_circles_sizes(self):
         """
