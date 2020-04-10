@@ -30,9 +30,9 @@ class CirclesGenerator:
 
     # todo split consts into generation_consts, simulation_consts, and plot_consts
     def __init__(
-        self, generation_consts: CirclesConsts = CirclesConsts(),
+        self, circles_consts: CirclesConsts,
     ):
-        self.circles_consts = generation_consts
+        self.circles_consts = circles_consts
         self.population_data = PopulationData()
         self.agents = [Agent(index) for index in range(self.circles_consts.population_size)]
 
@@ -76,7 +76,7 @@ class CirclesGenerator:
         each circle gets an object of GeographicalCircleDataHolder
         :return:
         """
-        for geo_circle in self.circles_consts.geographic_circles:
+        for geo_circle in self.circles_consts.get_geographic_circles():
             self.geographic_circles.append(GeographicCircle(geo_circle))
 
     def allocate_agents(self):

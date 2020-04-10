@@ -1,47 +1,64 @@
 from argparse import ArgumentParser
 
 from consts import Consts
+from generation.circles_consts import CirclesConsts
+from generation.matrix_consts import MatrixConsts
 from generation.generation_manager import GenerationManger
 from manager import SimulationManager
 from supervisor import LambdaValueSupervisable, Supervisable, Supervisor
-
-
-def check_args(args):
-    if args.input_matrix_path and args.output_matrix_path:
-        print("ERROR: Cannot import AND export matrix in the same run!")
-        return False
 
 
 def main():
     parser = ArgumentParser(
         """
     COVID-19 Simulation
-    Optional:
-        Input path of a pre-generated matrix
-        OR
-        Output path for the matrix generated now
-    Optional:
-        Parameters file (see Parameters/parameters_example.py)
-    CRITICAL -
-        The size of the matrix is not checked when loading an existing file!
-        If the size of the population changed - make sure the matrix is appropriate.
+    
+    Two modes:
+    1. Generation:
+        python main.py generation [--circles-consts] [--matrix-consts]
+    2. Full run:
+        python main.py <Any other parameters>
+    
+    If ran in 'generation' mode, only '--matrix-consts' and '--circles-consts'
+    are relevant.
+    
+    When running the simulation itself, either import the population OR give
+    generation parameters.
+    
     """
     )
-    parser.add_argument(
-        "-i", "--input-matrix", dest="input_matrix_path", help="npz file path of a pre-generated matrix",
-    )
-    parser.add_argument(
-        "-o", "--output-matrix", dest="output_matrix_path", help="npz file path for the newly-generated matrix",
-    )
-    parser.add_argument("-p", "--parameters", dest="parameters", help="Parameter file with consts for the simulation")
+
+    parser.add_argument("-s",
+                        "--simulation-parameters",
+                        dest="simulation_parameters_path",
+                        help="Parameters for simulation engine")
+    parser.add_argument("-c",
+                        "--circles-consts",
+                        dest="circles_consts_path",
+                        help="Parameter file with consts for the circles")
+    parser.add_argument("-m",
+                        "--matrix-consts",
+                        dest="matrix_consts_path",
+                        help="Parameter file with consts for the matrix")
     args = parser.parse_args()
 
-    if args.parameters:
-        consts = Consts.from_file(args.parameters)
+    if args.circles_consts_path:
+        circles_consts = CirclesConsts.from_file(args.circles_consts_path)
+    else:
+        circles_consts = CirclesConsts()
+
+    if args.matrix_consts_path:
+        matrix_consts = MatrixConsts.from_file(args.matrix_consts_path)
+    else:
+        matrix_consts = MatrixConsts()
+
+    gm = GenerationManger(circles_consts=circles_consts, matrix_consts=matrix_consts)
+
+    if args.simulation_parameters_path:
+        consts = Consts.from_file(args.simulation_parameters_path)
     else:
         consts = Consts()
 
-    gm = GenerationManger()
     sm = SimulationManager(
         (
             # "Latent",
