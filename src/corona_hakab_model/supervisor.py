@@ -390,11 +390,18 @@ class _PostProcessSupervisor(ValueSupervisable):
         # super().snapshot(manager)
 
     def publish(self):
-        vectors = (np.array(list(v.publish().values())) for v in self.supervisables)
-        time_vector = np.array([x[1] for x in self.supervisables[0].publish()])
+        vectors = list([np.array(v.publish()[1:])[:, 1] for v in self.supervisables])
+        time_vector = np.array([x[0] for x in self.supervisables[0].publish()[1:]])
         res = self.func(time_vector, *vectors)
+
+        # If the function shortens the array length (e.g. diff()), pad with zeros
+        if len(res) < len(time_vector):
+            temp = np.zeros_like(time_vector)
+            temp[-len(res):] = res
+            res = temp
+
         self.snapshots = {t: r for t, r in zip(time_vector, res)}
-        super().publish()
+        return super().publish()
 
     def name(self) -> str:
         return self._name

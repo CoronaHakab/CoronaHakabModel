@@ -10,7 +10,7 @@ from generation.circles_consts import CirclesConsts
 from generation.matrix_consts import MatrixConsts
 from generation.generation_manager import GenerationManger
 from manager import SimulationManager
-from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression, _PostProcessSupervisor
+from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
 
 
 def main():
