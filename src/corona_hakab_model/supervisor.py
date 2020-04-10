@@ -214,22 +214,22 @@ class _DelayedSupervisable(ValueSupervisable):
         self.inner.snapshot(manager)
         super().snapshot(manager)
 
-    class _DiffSupervisable(ValueSupervisable):
-        def __init__(self, inner: ValueSupervisable):
-            super().__init__()
-            self.inner = inner
+class _DiffSupervisable(ValueSupervisable):
+    def __init__(self, inner: ValueSupervisable):
+        super().__init__()
+        self.inner = inner
 
-        def get(self, manager: "manager.SimulationManager") -> float:
-            if manager.current_step <= 1:
-                return 0
-            return self.inner.y[manager.current_step] - self.inner.y[manager.current_step]
+    def get(self, manager: "manager.SimulationManager") -> float:
+        if manager.current_step <= 1:
+            return 0
+        return self.inner.y[manager.current_step] - self.inner.y[manager.current_step]
 
-        def snapshot(self, manager: "manager.SimulationManager"):
-            self.inner.snapshot(manager)
-            super().snapshot(manager)
+    def snapshot(self, manager: "manager.SimulationManager"):
+        self.inner.snapshot(manager)
+        super().snapshot(manager)
 
-        def name(self) -> str:
-            return self.inner.name() + " diff"
+    def name(self) -> str:
+        return self.inner.name() + " diff"
 
 class VectorSupervisable(ValueSupervisable, ABC):
     @abstractmethod
