@@ -1,5 +1,6 @@
 import math
 import pickle
+from collections import defaultdict
 
 import numpy as np
 from generation.circles_generator import PopulationData
@@ -10,30 +11,20 @@ from matplotlib import pyplot as plt
 
 class PopulationAnylzer:
     """
-    this module is in charge of plotting statistics about the generation stage, and specifically the population
+    this module is in charge of plotting statistics about the population
     """
 
-    __slots__ = "population_data", "matrix_data"
+    __slots__ = "population_data"
 
-    def __init__(self, population_data_path, matrix_data_path=None):
+    def __init__(self, population_data_path):
 
+        # todo use a static import method from population_data
         # importing population data from path
         try:
             with open(population_data_path, "rb") as population_data:
                 self.population_data: PopulationData = pickle.load(population_data)
         except FileNotFoundError:
             raise FileNotFoundError("population analyzer couldn't open population data")
-
-        # todo i saw in the issue that population analysis should accept a matrix data.
-        # todo why is it necessary? it should only analyze population...
-        # importing matrix data from path.
-        # for now, allows not importing a matrix data
-        if matrix_data_path is not None:
-            try:
-                with open(matrix_data_path, "rb") as matrix_data:
-                    self.matrix_data: MatrixData = pickle.load(matrix_data)
-            except FileNotFoundError:
-                raise FileNotFoundError("population analyzer couldn't open matrix data")
 
     def plot_circles_sizes(self):
         """
@@ -48,15 +39,14 @@ class PopulationAnylzer:
             ax.set_ylabel("amount of circles")
             ax.set_xlabel("circle size")
             circles = self.population_data.social_circles_by_connection_type[con_type]
-            size_count = {}
+            size_count = defaultdict(int)
             for circle in circles:
                 size = circle.agent_count
                 if size not in size_count:
                     size_count[size] = 0
                 size_count[size] += 1
             # creating a bar graph with a bar for each circle size
-            bars = [size for size in sorted(size_count.keys())]
-            heights = [size_count[size] for size in bars]
+            bars, heights = zip(*sorted(size_count.items()))
             x = np.arange(len(bars))
             ax.bar(x, heights)
             ax.set_xticks(x)
