@@ -1,5 +1,8 @@
 from argparse import ArgumentParser
 
+from bsa.universal import write
+from corona_hakab_model_data.__data__ import __version__
+
 from consts import Consts
 from generation.circles_consts import CirclesConsts
 from generation.matrix_consts import MatrixConsts
@@ -9,24 +12,11 @@ from supervisor import LambdaValueSupervisable, Supervisable, Supervisor
 
 
 def main():
-    parser = ArgumentParser(
-        """
-    COVID-19 Simulation
-    
-    Two modes:
-    1. Generation:
-        python main.py generation [--circles-consts] [--matrix-consts]
-    2. Full run:
-        python main.py <Any other parameters>
-    
-    If ran in 'generation' mode, only '--matrix-consts' and '--circles-consts'
-    are relevant.
-    
-    When running the simulation itself, either import the population OR give
-    generation parameters.
-    
-    """
-    )
+    parser = ArgumentParser("COVID-19 Simulation")
+
+    sub_parsers = parser.add_subparsers(dest='sub_command')
+    gen = sub_parsers.add_parser('generate', help='only generate the population data without running the simulation')
+    gen.add_argument('output')
 
     parser.add_argument("-s",
                         "--simulation-parameters",
@@ -40,6 +30,7 @@ def main():
                         "--matrix-consts",
                         dest="matrix_consts_path",
                         help="Parameter file with consts for the matrix")
+    parser.add_argument('--version', action='version', version=__version__)
     args = parser.parse_args()
 
     if args.circles_consts_path:
@@ -53,6 +44,11 @@ def main():
         matrix_consts = MatrixConsts()
 
     gm = GenerationManger(circles_consts=circles_consts, matrix_consts=matrix_consts)
+
+    if args.sub_command == 'generate':
+        with open(args.output, 'wb') as w:
+            write(gm.matrix_data.matrix, w)
+        return
 
     if args.simulation_parameters_path:
         consts = Consts.from_file(args.simulation_parameters_path)
