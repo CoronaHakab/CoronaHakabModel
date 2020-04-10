@@ -1,17 +1,18 @@
-import pickle
-from matplotlib import pyplot as plt
-import numpy as np
 import math
+import pickle
 
+import numpy as np
 from generation.circles_generator import PopulationData
-from generation.matrix_generator import MatrixData
 from generation.connection_types import ConnectionTypes
+from generation.matrix_generator import MatrixData
+from matplotlib import pyplot as plt
 
 
 class PopulationAnylzer:
     """
     this module is in charge of plotting statistics about the generation stage, and specifically the population
     """
+
     __slots__ = "population_data", "matrix_data"
 
     def __init__(self, population_data_path, matrix_data_path=None):
@@ -23,6 +24,8 @@ class PopulationAnylzer:
         except FileNotFoundError:
             raise FileNotFoundError("population analyzer couldn't open population data")
 
+        # todo i saw in the issue that population analysis should accept a matrix data.
+        # todo why is it necessary? it should only analyze population...
         # importing matrix data from path.
         # for now, allows not importing a matrix data
         if matrix_data_path is not None:
@@ -63,7 +66,7 @@ class PopulationAnylzer:
     def plot_agents_ages(self):
         agents = self.population_data.agents
         ages = [agent.age for agent in agents]
-        max_age = max(ages)     # calculated for bins
+        max_age = max(ages)  # calculated for bins
         plt.hist(ages, bins=max_age, range=(0.5, max_age + 0.5))
         plt.title = "agents ages histogram"
         plt.xlabel = "age"
