@@ -92,6 +92,9 @@ class CirclesConsts(NamedTuple):
     def get_connection_types_prob_by_age(self):
         return {age: self.connection_type_prob_by_age_index[i] for i, age in enumerate(self.ages)}
 
+    __hash__ = object.__hash__
+    __eq__ = object.__eq__
+
 
 class GeographicalCircleDataHolder:
     __slots__ = (
