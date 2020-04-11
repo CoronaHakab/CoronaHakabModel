@@ -1,21 +1,23 @@
 from typing import Dict
 
+from generation.connection_types import ConnectionTypes
 from sparse_base import SparseBase
 
 
 class EncounterLayer:
-    def __init__(self, name: str, magic_op, matrix: SparseBase):
-        self.name = name
+    def __init__(self, kind: ConnectionTypes, magic_op, matrix: SparseBase):
+        self.kind = kind
         self.magic_op = magic_op
         self.matrix = matrix
 
 
 class EncounterLayerSet:
     def __init__(self):
-        self.layers: Dict[str, EncounterLayer] = {}
+        self.layers: Dict[ConnectionTypes, EncounterLayer] = {}
 
     def add_layer(self, layer: EncounterLayer):
-        self.layers[layer.name] = layer
+        if self.layers.setdefault(layer.kind, layer) is not layer:
+            raise Exception(f"layer of kind {layer.kind} already added")
 
     def POA(self, v):
         manifests = {
