@@ -33,7 +33,7 @@ class MatrixData:
 
     # todo make this work, using the parasymbolic matrix de-serialization.
     @staticmethod
-    def import_population_data(import_file_path: str) -> "PopulationData":
+    def import_matrix_data(import_file_path: str) -> "MatrixData":
         pass
 
 
