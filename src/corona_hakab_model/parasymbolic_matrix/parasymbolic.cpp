@@ -266,7 +266,7 @@ void ParasymbolicMatrix::rebuild_column(size_t col_num){
 void ParasymbolicMatrix::rebuild_factor(dtype factor){
     for (auto row_num = 0; row_num < inner.size; row_num++){
         auto& row_data = inner.data[row_num];
-        for (auto iter = row_data.begin(); iter != row_data.end(); ++iter){
+        for (auto&& iter = row_data.begin(); iter != row_data.end(); ++iter){
             *iter *= factor;
         }
     }
