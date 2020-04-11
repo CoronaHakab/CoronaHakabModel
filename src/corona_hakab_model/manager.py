@@ -16,7 +16,7 @@ from medical_state import MedicalState
 from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
-from supervisor import Supervisable, Supervisor
+from supervisor import Supervisable, SimulationProgression
 from update_matrix import Policy
 
 
@@ -75,7 +75,7 @@ class SimulationManager:
         initial_state.add_many(self.agents)
 
         # initializing simulation modules
-        self.supervisor = Supervisor([Supervisable.coerce(a, self) for a in supervisable_makers], self)
+        self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers], self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self)
         self.infection_manager = infection.InfectionManager(self)
         self.healthcare_manager = healthcare.HealthcareManager(self)
@@ -92,6 +92,7 @@ class SimulationManager:
         self.new_detected_daily = 0
 
         self.logger.info("Created new simulation.")
+        self.simulation_progression.snapshot(self)
 
     def step(self):
         """
@@ -114,7 +115,7 @@ class SimulationManager:
 
         self.current_step += 1
 
-        self.supervisor.snapshot(self)
+        self.simulation_progression.snapshot(self)
 
     def progress_tests_and_isolation(self, new_tests: List[PendingTestResult]):
         self.new_detected_daily = 0
@@ -167,11 +168,8 @@ class SimulationManager:
         # self.consts.medical_state_machine.cache_clear()
         Supervisable.coerce.cache_clear()
 
-    def plot(self, **kwargs):
-        self.supervisor.plot(**kwargs)
-
-    def stackplot(self, **kwargs):
-        self.supervisor.stack_plot(**kwargs)
+    def dump(self, **kwargs):
+        return self.simulation_progression.dump(**kwargs)
 
     def __str__(self):
         return f"<SimulationManager: SIZE_OF_POPULATION={len(self.agents)}, " f"STEPS_TO_RUN={self.consts.total_steps}>"
