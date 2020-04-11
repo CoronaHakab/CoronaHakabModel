@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from typing import Any, Callable, List, NamedTuple, Sequence
+from typing import Any, Callable, List, NamedTuple, Sequence, Union
 
 import manager
 import numpy as np
@@ -43,7 +43,6 @@ class SimulationProgression:
             s.snapshot(manager)
 
     def dump(self):
-
         output_folder = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], "output")
         file_name = os.path.join(output_folder, datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
         # TODO: Switch ^ to use pathlib
@@ -106,6 +105,43 @@ class Supervisable(ABC):
                 diff_sup = _DiffSupervisable(_StateTotalSoFarSupervisable(m.medical_machine[self.name]))
                 return _NameOverrideSupervisable(diff_sup, "New " + self.name)
 
+    class Wrappers:
+        class RunningAverage:
+            def __init__(self, supervisable, window_size) -> None:
+                self.supervisable = supervisable
+                self.window_size = window_size
+                self.func = lambda arr: np.convolve(
+                    np.concatenate([np.zeros(window_size - 1), arr]),
+                    np.ones(window_size) / window_size,
+                    'valid'
+                )
+
+            def __call__(self, m):
+                sup = Supervisable.coerce(self.supervisable, m)
+                return _PostProcessSupervisor(sup, self.func,
+                                              sup.name() + f' - {self.window_size} days running average')
+
+        class Growth:
+            def __init__(self, supervisable, num_of_days_to_group_together=1) -> None:
+                self.supervisable = supervisable
+                self.num_of_days_to_group_together = num_of_days_to_group_together
+
+                def foo(arr):
+                    cumsum = arr.cumsum()
+                    res = np.zeros_like(arr, dtype=float) + np.nan
+                    for i in range(num_of_days_to_group_together, len(arr)):
+                        res[i] = (cumsum[i] - cumsum[i - num_of_days_to_group_together]) / cumsum[
+                            i - num_of_days_to_group_together]
+
+                    return res
+
+                self.func = foo
+
+            def __call__(self, m):
+                sup = Supervisable.coerce(self.supervisable, m)
+                return _PostProcessSupervisor(sup, self.func,
+                                              sup.name() + f' - {self.num_of_days_to_group_together} days growth')
+
     class Delayed(NamedTuple):
         arg: Any
         delay: int
@@ -164,8 +200,8 @@ class Supervisable(ABC):
         name: str
 
         def __call__(self, m):
-            return _PostProcessSupervisor([Supervisable.coerce(s, m) for s in self.supervisiables], self.func, self.name)
-
+            return _PostProcessSupervisor([Supervisable.coerce(s, m) for s in self.supervisiables], self.func,
+                                          self.name)
 
 
 SupervisableMaker = Callable[[Any], Supervisable]
@@ -382,10 +418,12 @@ class _GrowthFactor(ValueSupervisable):
 
 
 class _PostProcessSupervisor(ValueSupervisable):
-    def __init__(self, supervisables: List[Supervisable], func: Callable, name: str):
+    def __init__(self, supervisables: Union[List[Supervisable], Supervisable], func: Callable, name: str):
         super().__init__()
         self._name = name
         self.func = func
+        if isinstance(supervisables, Supervisable):
+            supervisables = [supervisables]
         self.supervisables = supervisables
 
     def get(self, manager: "manager.SimulationManager"):
