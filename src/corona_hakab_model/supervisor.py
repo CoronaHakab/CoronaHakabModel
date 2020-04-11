@@ -5,13 +5,17 @@ from __future__ import annotations
 import os
 from datetime import datetime
 from abc import ABC, abstractmethod
-from bisect import bisect
-from functools import lru_cache, reduce
-from typing import Any, Callable, List, NamedTuple, Sequence, Tuple
+from functools import lru_cache
+from typing import Any, Callable, List, NamedTuple, Sequence
 
 import manager
 import numpy as np
-import csv
+import pandas as pd
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from state_machine import State
 
 
 class SimulationProgression:
@@ -26,27 +30,31 @@ class SimulationProgression:
         self.supervisables = supervisables
         self.manager = manager
 
+        self.time_vector = []
+
     def snapshot(self, manager):
+        t = self.manager.current_step
+        self.time_vector.append(t)
+
+        # Assert the first snapshot is done at t=0 & there is a single snapshot at each time step
+        assert self.time_vector[t] == t
+
         for s in self.supervisables:
             s.snapshot(manager)
 
     def dump(self):
-        output_folder = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], "output")
 
-        with open(os.path.join(output_folder, datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"), 'w',
-                  newline="") as output_file:
-            published_data = [v.publish() for v in self.supervisables]
-            csv_writer = csv.writer(output_file)
-            # write data rows
-            for i in range(self.manager.consts.total_steps + 1):
-                row = [i]
-                if i == 0:  # header row
-                    row = ["days"]
-                for data in published_data:
-                    # first column is always the #day
-                    row = row + data[i][1:]
-                csv_writer.writerow(row)
-    # todo stacked_plot
+        output_folder = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], "output")
+        file_name = os.path.join(output_folder, datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
+        # TODO: Switch ^ to use pathlib
+
+        all_data = {}
+        for s in self.supervisables:
+            all_data.update(s.publish())
+
+        df = pd.DataFrame(all_data, index=self.time_vector)
+        df.to_csv(file_name)
+        return df
 
 
 class Supervisable(ABC):
@@ -167,17 +175,17 @@ SupervisableMaker = Callable[[Any], Supervisable]
 
 class ValueSupervisable(Supervisable):
     def __init__(self):
-        self.snapshots = {}
+        self.data = []
 
     @abstractmethod
     def get(self, manager: "manager.SimulationManager"):
         pass
 
     def snapshot(self, manager: "manager.SimulationManager"):
-        self.snapshots[manager.current_step] = self.get(manager)
+        self.data.append(self.get(manager))
 
     def publish(self):
-        return [["", self.name()]] + ([list(z[0]) for z in zip(self.snapshots.items())])
+        return {self.name(): np.array(self.data)}
 
 
 class LambdaValueSupervisable(ValueSupervisable):
@@ -206,13 +214,13 @@ class _StateSupervisable(ValueSupervisable):
 
 
 class _StateTotalSoFarSupervisable(ValueSupervisable):
-    def __init__(self, state):
+    def __init__(self, state: State):
         super().__init__()
         self.state = state
         self.__name = state.name + " So Far"
 
     def get(self, manager: "manager.SimulationManager") -> float:
-        return self.state.added_total
+        return len(self.state.ever_visited)
 
     def name(self) -> str:
         return self.__name
@@ -226,11 +234,10 @@ class _DelayedSupervisable(ValueSupervisable):
 
     def get(self, manager: "manager.SimulationManager") -> float:
         desired_date = manager.current_step - self.delay
-        time_values = np.sort(self.inner.snapshots.keys())  # TODO: Assume sorted somehow?
-        desired_index = bisect(time_values, desired_date)
-        if desired_index >= len(time_values):
+        if desired_date < 0:
             return np.nan
-        return self.inner.snapshots[desired_index]
+        else:
+            return self.inner.data[desired_date]
 
     def name(self) -> str:
         return self.inner.name() + f" + {self.delay} days"
@@ -269,9 +276,9 @@ class _DiffSupervisable(ValueSupervisable):
         self.inner = inner
 
     def get(self, manager: "manager.SimulationManager") -> float:
-        if (manager.current_step - 1) not in self.inner.snapshots:
+        if manager.current_step < 1:
             return 0
-        return self.inner.snapshots[manager.current_step] - self.inner.snapshots[manager.current_step - 1]
+        return self.inner.data[manager.current_step] - self.inner.data[manager.current_step - 1]
 
     def snapshot(self, manager: "manager.SimulationManager"):
         self.inner.snapshot(manager)
@@ -287,12 +294,13 @@ class VectorSupervisable(ValueSupervisable, ABC):
         pass
 
     def _to_ys(self):
-        raise NotImplementedError('Need to convert (.x and .y) notation to the new (.snapshots) notation')
+        raise NotImplementedError('Need to convert (.x and .y) notation to the new (.data) notation')
         n = len(self.y[0])
         return [[v[i] for v in self.y] for i in range(n)]
 
     def publish(self):
-        return [["", self.names()]] + ([[z[0]] + z[1] for z in zip(self.snapshots.items())])
+        raise NotImplementedError('Need to convert (.x and .y) notation to the new (.data) notation')
+        return [["", self.names()]] + ([[z[0]] + z[1] for z in zip(self.data.items())])
 
 
 class _StackedFloatSupervisable(VectorSupervisable):

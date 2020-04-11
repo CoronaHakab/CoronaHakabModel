@@ -29,7 +29,7 @@ class Consts(NamedTuple):
 
     # attributes and default values:
 
-    total_steps: int = 40
+    total_steps: int = 350
     initial_infected_count: int = 20
     # Tsvika: Currently the distribution is selected based on the number of input parameters.
     # Think we should do something more readable later on.

@@ -92,6 +92,7 @@ class SimulationManager:
         self.new_detected_daily = 0
 
         self.logger.info("Created new simulation.")
+        self.simulation_progression.snapshot(self)
 
     def step(self):
         """
@@ -168,7 +169,7 @@ class SimulationManager:
         Supervisable.coerce.cache_clear()
 
     def dump(self, **kwargs):
-        self.simulation_progression.dump(**kwargs)
+        return self.simulation_progression.dump(**kwargs)
 
     def __str__(self):
         return f"<SimulationManager: SIZE_OF_POPULATION={len(self.agents)}, " f"STEPS_TO_RUN={self.consts.total_steps}>"

@@ -1,4 +1,8 @@
+from __future__ import annotations
+
 from argparse import ArgumentParser
+import matplotlib_set_backend
+import matplotlib.pyplot as plt
 
 import numpy as np
 
@@ -12,6 +16,11 @@ from generation.generation_manager import GenerationManger
 from manager import SimulationManager
 from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
 
+
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    import pandas as pd
 
 def main():
     parser = ArgumentParser("COVID-19 Simulation")
@@ -95,7 +104,11 @@ def main():
     )
     print(sm)
     sm.run()
-    sm.dump()
+    df: pd.DataFrame = sm.dump()
+    df.plot()
+    plt.show()
+
+
 
 
 if __name__ == "__main__":
