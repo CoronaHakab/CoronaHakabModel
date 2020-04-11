@@ -29,6 +29,3 @@ def create_comparison_files(files: list = None):
             else:
                 result_df.loc[:, file_name] = pd.nan
         result_df.to_csv(os.path.join(result_folder_name, f"{parameter}.csv"))
-
-
-create_comparison_files()
