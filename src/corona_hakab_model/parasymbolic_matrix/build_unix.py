@@ -1,19 +1,21 @@
+import platform
 import subprocess
 from pathlib import Path
-import platform
+from sysconfig import get_paths
 
 import numpy as np
 from swimport import ContainerSwim, FileSource, Function, Swim, Typedef, pools
 
-PYTHON = Path(subprocess.run(['which', 'python'], capture_output=True, text=True).stdout.strip())
-PY_ROOT = PYTHON.parents[1]  # the python environment root folder
-
 COMPILE_ADDITIONAL_INCLUDE_DIRS = [
-    str(PY_ROOT / 'include' / 'python3.8'),
+    get_paths()['include'],
+    get_paths()['platinclude'],
     np.get_include(),
 ]
 COMPILE_ADDITIONAL_INCLUDE_LIBS = [
-    str(PY_ROOT / 'lib' / 'python3.8'),
+    get_paths()['stdlib'],
+    get_paths()['platstdlib'],
+    get_paths()['platlib'],
+    get_paths()['purelib'],
 ]
 
 
@@ -81,14 +83,7 @@ def compile():
     optimization = "-O2"  # in case of fire, set to Od
 
     proc = subprocess.run(
-        [
-            'g++',
-            optimization,
-            '-fPIC',
-            '-std=c++17',
-            '-c',
-            src_path
-        ],
+        ["g++", optimization, "-fPIC", "-std=c++17", "-c", src_path],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -99,15 +94,15 @@ def compile():
 
     proc = subprocess.run(
         [
-            'g++',
+            "g++",
             optimization,
-            '-fPIC',
-            '-std=c++17',
-            '-Wno-error=narrowing',
-            '-c',
+            "-fPIC",
+            "-std=c++17",
+            "-Wno-error=narrowing",
+            "-c",
             cxx_path,
-            *[f'-I{inc}' for inc in COMPILE_ADDITIONAL_INCLUDE_DIRS],
-            *[f'-L{inc}' for inc in COMPILE_ADDITIONAL_INCLUDE_LIBS]
+            *[f"-I{inc}" for inc in COMPILE_ADDITIONAL_INCLUDE_DIRS],
+            *[f"-L{inc}" for inc in COMPILE_ADDITIONAL_INCLUDE_LIBS],
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -117,21 +112,15 @@ def compile():
         print(proc.stdout)
         raise Exception(f"cl returned {proc.returncode}")
 
-    if platform.system() == 'Darwin':  # MacOS
-        cmd = ['ld', '-bundle', '-flat_namespace', '-undefined', 'suppress']
-    elif platform.system() == 'Linux':
-        cmd = ['g++', '-shared']
+    if platform.system() == "Darwin":  # MacOS
+        cmd = ["ld", "-bundle", "-flat_namespace", "-undefined", "suppress"]
+    elif platform.system() == "Linux":
+        cmd = ["g++", "-shared"]
     else:
-        raise OSError('only support Linux and MacOS!')
+        raise OSError("only support Linux and MacOS!")
 
     proc = subprocess.run(
-        [
-            *cmd,
-            '-o',
-            '_parasymbolic.so',
-            cxx_path.split('.')[0] + '.o',
-            src_path.split('.')[0] + '.o'
-        ],
+        [*cmd, "-o", "_parasymbolic.so", cxx_path.split(".")[0] + ".o", src_path.split(".")[0] + ".o"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -142,11 +131,11 @@ def compile():
 
 
 def rm_aux_files():
-    files_to_rm_prefix = 'parasymbolic'
-    files_to_rm_extensions = ['o', 'i', 'cxx']
+    files_to_rm_prefix = "parasymbolic"
+    files_to_rm_extensions = ["o", "i", "cxx"]
 
-    cwd = Path('.')
-    for p in sum([list(cwd.glob(f'{files_to_rm_prefix}*.{ext}')) for ext in files_to_rm_extensions], []):
+    cwd = Path(".")
+    for p in sum([list(cwd.glob(f"{files_to_rm_prefix}*.{ext}")) for ext in files_to_rm_extensions], []):
         p.unlink()
 
 

@@ -17,24 +17,16 @@ class GenerationManger:
 
     __slots__ = ("matrix_data", "population_data")
 
-    def __init__(self):
+    def __init__(self, circles_consts: CirclesConsts, matrix_consts: MatrixConsts):
         # setting logger
         logger = logging.getLogger("generation")
         logging.basicConfig()
         logger.setLevel(logging.INFO)
 
         logger.info("creating population and circles")
-        circles_generation = CirclesGenerator(generation_consts=CirclesConsts())
+        circles_generation = CirclesGenerator(circles_consts=circles_consts)
         self.population_data = circles_generation.population_data
 
         logger.info("creating connections and matrix")
-        matrix_generation = MatrixGenerator(circles_generation.population_data, matrix_consts=MatrixConsts())
+        matrix_generation = MatrixGenerator(circles_generation.population_data, matrix_consts=matrix_consts)
         self.matrix_data = matrix_generation.matrix_data
-
-    # todo allow export of the entire generation
-    def export(self):
-        pass
-
-    # todo allow import of circles generation object, and creation of matrices based on it
-    def import_circles_and_create_matrices(self):
-        pass

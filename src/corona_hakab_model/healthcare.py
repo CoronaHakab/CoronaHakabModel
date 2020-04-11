@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from collections import namedtuple
-from typing import TYPE_CHECKING, Callable, List
+from typing import TYPE_CHECKING, Callable, List, NamedTuple
 
 import numpy as np
 from agent import Agent
@@ -11,12 +10,17 @@ if TYPE_CHECKING:
     from manager import SimulationManager
 
 
-PendingTestResult = namedtuple("PendingTestResult", ["agent", "test_result", "original_duration"])
+class PendingTestResult(NamedTuple):
+    agent: Agent
+    test_result: bool
+    original_duration: int
+
+    def duration(self):
+        return self.original_duration
 
 
 class PendingTestResults(Queue[PendingTestResult]):
-    def __init__(self):
-        super().__init__()
+    pass
 
 
 class DetectionTest:
@@ -39,6 +43,12 @@ class HealthcareManager:
     def __init__(self, sim_manager: SimulationManager):
         self.manager = sim_manager
 
+        if 0 not in self.manager.consts.daily_num_of_tests_schedule.keys():
+            raise Exception(
+                "The initial number of tests (step=0) wasn't specified in the given schedule: "
+                f"{self.manager.consts.daily_num_of_test_schedule}"
+            )
+
     def _get_testable(self):
         tested_pos_too_recently = (
             self.manager.tested_vector
@@ -60,7 +70,13 @@ class HealthcareManager:
 
         return np.logical_not(tested_pos_too_recently | tested_neg_too_recently) & self.manager.living_agents_vector
 
-    def testing_step(self, test: DetectionTest, num_of_tests, priorities: List[Callable[[Agent], bool]]):
+    def _get_current_num_of_tests(self, current_step):
+        closest_key = max([i for i in self.manager.consts.daily_num_of_tests_schedule.keys() if i <= current_step])
+        return self.manager.consts.daily_num_of_tests_schedule[closest_key]
+
+    def testing_step(self):
+        num_of_tests = self._get_current_num_of_tests(self.manager.current_step)
+
         # Who can to be tested
         want_to_be_tested = np.random.random(len(self.manager.agents)) < self.manager.test_willingness_vector
         can_be_tested = self._get_testable()
@@ -72,15 +88,15 @@ class HealthcareManager:
         if len(test_candidates_inds) < num_of_tests:
             # There are more tests than candidates. Don't check the priorities
             for ind in test_candidates_inds:
-                tested.append(test.test(self.manager.agents[ind]))
+                tested.append(self.manager.consts.detection_test.test(self.manager.agents[ind]))
                 num_of_tests -= 1
         else:
-            for priority_lambda in list(priorities):
+            for priority_lambda in list(self.manager.consts.testing_priorities):
                 # First test the prioritized candidates
                 for ind in np.random.permutation(list(test_candidates_inds)):
                     # permute the indices so we won't always test the lower indices
                     if priority_lambda(self.manager.agents[ind]):
-                        tested.append(test.test(self.manager.agents[ind]))
+                        tested.append(self.manager.consts.detection_test.test(self.manager.agents[ind]))
                         test_candidates_inds.remove(ind)  # Remove so it won't be tested again
                         num_of_tests -= 1
 
@@ -90,7 +106,7 @@ class HealthcareManager:
             # Test the low prioritized now
             num_of_low_priority_to_test = min(num_of_tests, len(test_candidates_inds))
             low_priority_tested = [
-                test.test(self.manager.agents[ind])
+                self.manager.consts.detection_test.test(self.manager.agents[ind])
                 for ind in np.random.permutation(list(test_candidates_inds))[:num_of_low_priority_to_test]
             ]
             tested += low_priority_tested
@@ -103,7 +119,7 @@ class HealthcareManager:
         )
 
         for ind in will_be_tested_inds:
-            tested.append(test.test(self.manager.agents[ind]))
+            tested.append(self.manager.consts.detection_test.test(self.manager.agents[ind]))
             num_of_tests -= 1
 
         return tested

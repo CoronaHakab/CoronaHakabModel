@@ -1,14 +1,14 @@
-from collections import namedtuple
 from itertools import count
-from typing import Dict
+from typing import Dict, List, NamedTuple
 
 import numpy as np
-
+from generation.connection_types import ConnectionTypes
 from healthcare import DetectionTest
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
+from numpy.random import random
+from policies_manager import ConditionedPolicy, Policy
 from state_machine import StochasticState, TerminalState
-from sub_matrices import CircularConnectionsMatrix, ClusteredConnectionsMatrix, NonCircularConnectionMatrix
 from util import dist, rv_discrete, upper_bound
 
 # todo make sure we only use this
@@ -17,111 +17,111 @@ generator = np.random.default_rng()
 """
 Overview:
 
-We have default_parameters - it is our template ans as the name suggests, holds the default values
-Using that template, we create ConstsParams, a named tuple.
-the Consts class inherits from ConstsParams the fields, and adds the methods.
-This is how we preserve the efficiency on a NamedTuple but also get dynamic values
+Consts class is a named tuple holding all important consts for the simulation stage.
+it may either be made using default params, or by loading parameters from a file.
 Usage:
 1. Create a default consts object - consts = Consts()
 2. Load a parameters file - consts = Consts.from_file(path)
 """
-# todo why is this two classes and so weirdly made? fix
-default_parameters = {
-    "total_steps": 350,
-    "initial_infected_count": 20,
+
+
+# TODO split into a couple of files. one for each aspect of the simulation
+class Consts(NamedTuple):
+
+    # attributes and default values:
+
+    total_steps: int = 350
+    initial_infected_count: int = 20
     # Tsvika: Currently the distribution is selected based on the number of input parameters.
     # Think we should do something more readable later on.
     # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
-    "latent_to_silent_days": dist(1, 3),
-    "silent_to_asymptomatic_days": dist(0, 3, 10),
-    "silent_to_symptomatic_days": dist(0, 3, 10),
-    "asymptomatic_to_recovered_days": dist(3, 5, 7),
-    "symptomatic_to_asymptomatic_days": dist(7, 10, 14),
-    "symptomatic_to_hospitalized_days": dist(0, 1.5, 10),  # todo range not specified in sources
-    "hospitalized_to_asymptomatic_days": dist(18),
-    "hospitalized_to_icu_days": dist(5),  # todo probably has a range
-    "icu_to_deceased_days": dist(7),  # todo probably has a range
-    "icu_to_hospitalized_days": dist(
-        7
-    ),  # todo maybe the program should juts print a question mark,  we'll see how the researchers like that!
+    # disease states transition lengths distributions
+    latent_to_silent_days: rv_discrete = dist(1, 3)
+    silent_to_asymptomatic_days: rv_discrete = dist(0, 3, 10)
+    silent_to_symptomatic_days: rv_discrete = dist(0, 3, 10)
+    asymptomatic_to_recovered_days: rv_discrete = dist(3, 5, 7)
+    symptomatic_to_asymptomatic_days: rv_discrete = dist(7, 10, 14)
+    symptomatic_to_hospitalized_days: rv_discrete = dist(0, 1.5, 10)
+    hospitalized_to_asymptomatic_days: rv_discrete = dist(18)
+    hospitalized_to_icu_days: rv_discrete = dist(5)
+    icu_to_deceased_days: rv_discrete = dist(7)
+    icu_to_hospitalized_days: rv_discrete = dist(7)
     # average probability for transitions:
-    "silent_to_asymptomatic_probability": 0.2,
-    "symptomatic_to_asymptomatic_probability": 0.85,
-    "hospitalized_to_asymptomatic_probability": 0.8,
-    "icu_to_hospitalized_probability": 0.65,
-    # the probability that an infected agent is asking to be tested
-    "symptomatic_test_willingness": 0.6,
-    "asymptomatic_test_willingness": 0.05,
-    "silent_test_willingness": 0.01,
-    # probability of an infected symptomatic agent infecting others
-    "symptomatic_infection_ratio": 0.75,
-    # probability of an infected asymptomatic agent infecting others
-    "asymptomatic_infection_ratio": 0.25,
-    # probability of an infected silent agent infecting others
-    "silent_infection_ratio": 0.3,  # todo i made this up, need to get the real number
+    silent_to_asymptomatic_probability: float = 0.2
+    symptomatic_to_asymptomatic_probability: float = 0.85
+    hospitalized_to_asymptomatic_probability: float = 0.8
+    icu_to_hospitalized_probability: float = 0.65
+    # infections ratios
+    symptomatic_infection_ratio: float = 0.75
+    asymptomatic_infection_ratio: float = 0.25
+    silent_infection_ratio: float = 0.3
     # base r0 of the disease
-    "r0": 2.4,
-    # isolation policy
-    # todo why does this exist? doesn't the policy set this? at least make this an enum
-    # note not to set both home isolation and full isolation true
-    # whether to isolation detected agents to their homes (allow familial contact)
-    "home_isolation_sicks": False,
-    # whether to isolation detected agents fully (no contact)
-    "full_isolation_sicks": False,
-    # how many of the infected agents are actually caught and isolated
-    "caught_sicks_ratio": 0.3,
-    # policy stats
-    # todo this reeeeally shouldn't be hard-coded
-    # defines whether or not to apply a isolation (work shut-down)
-    "active_isolation": True,
-    # the date to stop work at
-    "stop_work_days": 40,
-    # the date to resume work at
-    "resume_work_days": 80,
-    # social stats
-    # the average family size
-    "family_size_distribution": rv_discrete(
-        1, 7, name="family", values=([1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081])
-    ),  # the average workplace size
-    # work circles size distribution
-    "work_size_distribution": dist(30, 80),
-    # work scale factor (1/alpha)
-    "work_scale_factor": 40,
-    # scale factor for amount of connections (1/alpha)
-    "strangers_scale_factor": 150,
-    "school_scale_factor": 100,
-    # relative strengths of each connection (in terms of infection chance)
-    "family_strength_not_workers": 0.75,
-    "family_strength": 1,
-    "work_strength": 0.1,
-    "stranger_strength": 0.01,
-    "school_strength": 0.1,
-    "use_parasymbolic_matrix": True,
-    "detection_test": DetectionTest(detection_prob=0.98, false_alarm_prob=0.02, time_until_result=3),
-    "daily_num_of_tests": 3000,
-    "testing_gap_after_positive_test": 4,
-    "testing_gap_after_negative_test": 1,
-    "testing_policy": (
-        lambda agent: agent.medical_state.name == "Recovered",
+    r0: float = 2.4
+
+    # --Detection tests params--
+    # the probability that an infected agent is asking to be tested
+    susceptible_test_willingness: float = 0.01
+    latent_test_willingness: float = 0.01
+    silent_test_willingness: float = 0.01
+    asymptomatic_test_willingness: float = 0.01
+    symptomatic_test_willingness: float = 0.6
+    hospitalized_test_willingness: float = 0.9
+    icu_test_willingness: float = 1.0
+    recovered_test_willingness: float = 0.1
+    detection_test: DetectionTest = DetectionTest(detection_prob=0.98, false_alarm_prob=0.02, time_until_result=3)
+    daily_num_of_tests_schedule: Dict = {0: 100, 10: 1000, 20: 2000, 50: 5000}
+    testing_gap_after_positive_test: int = 10
+    testing_gap_after_negative_test: int = 5
+    testing_priorities: tuple = (
         lambda agent: agent.medical_state.name == "Symptomatic",
-    ),  # TODO: Define better API
-    # dictionary of {date : percent} that controls what percentage of schools are open
-    "school_openage_factors": {1: 0, 30: 0.5, 45: 1},
-    "should_change_school_openage": False,
-}
+        lambda agent: agent.medical_state.name == "Recovered",
+    )  # TODO: Define better API
 
-ConstParameters = namedtuple(
-    "ConstParameters",
-    sorted(default_parameters),
-    defaults=[default_parameters[key] for key in sorted(default_parameters)],
-)
+    # --policies params--
+    change_policies: bool = False
+    # a dictionary of day:([ConnectionTypes], message). on each day, keeps only the given connection types opened
+    policies_changes: Dict[int, tuple] = {
+        40: ([ConnectionTypes.Family, ConnectionTypes.Other], "closing schools and works"),
+        70: ([ConnectionTypes.Family, ConnectionTypes.Other, ConnectionTypes.School], "opening schools"),
+        100: (ConnectionTypes, "opening works"),
+    }
+    # policies acting on a specific connection type, when a term is satisfied
+    partial_opening_active: bool = True
+    # each connection type gets a list of conditioned policies.
+    # each conditioned policy actives a specific policy when a condition is satisfied.
+    # each policy changes the multiplication factor of a specific circle.
+    # each policy is activated only if a list of terms is fulfilled.
+    connection_type_to_conditioned_policy: Dict[ConnectionTypes, List[ConditionedPolicy]] = {
+        ConnectionTypes.School: [
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
+                policy=Policy(0, [lambda circle: random() > 0]),
+                message="closing all schools",
+            ),
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
+                policy=Policy(1, [lambda circle: random() > 1]),
+                active=True,
+                message="opening all schools",
+            ),
+        ],
+        ConnectionTypes.Work: [
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
+                policy=Policy(0, [lambda circle: random() > 0]),
+                message="closing all workplaces",
+            ),
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
+                policy=Policy(0, [lambda circle: random() > 1]),
+                active=True,
+                message="opening all workplaces",
+            ),
+        ],
+    }
 
-
-class Consts(ConstParameters):
-    __slots__ = ()
-
-    @staticmethod
-    def from_file(param_path):
+    @classmethod
+    def from_file(cls, param_path):
         """
         Load parameters from file and return Consts object with those values.
 
@@ -131,19 +131,21 @@ class Consts(ConstParameters):
         with open(param_path, "rt") as read_file:
             data = read_file.read()
 
-        parameters = eval(data, {"__builtins__": None, "dist": dist, "rv_discrete": rv_discrete})
-        Consts.sanitize_parameters(parameters)
+        # expressions to evaluate
+        expressions = {
+            "__builtins__": None,
+            "dist": dist,
+            "rv_discrete": rv_discrete,
+            "DetectionTest": DetectionTest,
+            "ConditionedPolicy": ConditionedPolicy,
+            "ConnectionTypes": ConnectionTypes,
+        }
 
-        return Consts(**parameters)
+        parameters = eval(data, expressions)
 
-    @staticmethod
-    def sanitize_parameters(parameters):
-        consts = Consts(**parameters)
-        try:
-            hash(consts)
-        except TypeError as e:
-            raise TypeError("Unhashable value in parameters") from e
+        return cls(**parameters)
 
+    @lru_cache(None)
     def average_time_in_each_state(self) -> Dict[MedicalState, int]:
         """
         calculate the average time an infected agent spends in any of the states.
@@ -203,6 +205,7 @@ class Consts(ConstParameters):
     def icu_to_dead_probability(self) -> float:
         return 1 - self.icu_to_hospitalized_probability
 
+    @lru_cache(None)
     def medical_state_machine(self) -> MedicalStateMachine:
         class SusceptibleTerminalState(SusceptibleState, TerminalState):
             pass
@@ -216,8 +219,8 @@ class Consts(ConstParameters):
         class ImmuneTerminalState(ImmuneState, TerminalState):
             pass
 
-        susceptible = SusceptibleTerminalState("Susceptible")
-        latent = ImmuneStochasticState("Latent", detectable=False)
+        susceptible = SusceptibleTerminalState("Susceptible", test_willingness=self.susceptible_test_willingness)
+        latent = ImmuneStochasticState("Latent", detectable=False, test_willingness=self.latent_test_willingness)
         silent = ContagiousStochasticState(
             "Silent", contagiousness=self.silent_infection_ratio, test_willingness=self.silent_test_willingness
         )
@@ -232,11 +235,15 @@ class Consts(ConstParameters):
             test_willingness=self.asymptomatic_test_willingness,
         )
 
-        hospitalized = ImmuneStochasticState("Hospitalized", detectable=True)
-        icu = ImmuneStochasticState("ICU", detectable=True)
+        hospitalized = ImmuneStochasticState(
+            "Hospitalized", detectable=True, test_willingness=self.hospitalized_test_willingness
+        )
+        icu = ImmuneStochasticState("ICU", detectable=True, test_willingness=self.icu_test_willingness)
 
-        deceased = ImmuneTerminalState("Deceased", detectable=False)  # Won't be tested so detectability isn't relevant
-        recovered = ImmuneTerminalState("Recovered", detectable=False)
+        deceased = ImmuneTerminalState(
+            "Deceased", detectable=False, test_willingness=0
+        )  # Won't be tested so detectability isn't relevant
+        recovered = ImmuneTerminalState("Recovered", detectable=False, test_willingness=self.recovered_test_willingness)
 
         ret = MedicalStateMachine(susceptible, latent)
 
@@ -264,28 +271,12 @@ class Consts(ConstParameters):
 
         return ret
 
-    @property
-    # todo this should be a consts
-    def circular_matrices(self):
-        return [
-            CircularConnectionsMatrix("home", None, self.family_size_distribution, self.family_strength),
-        ]
-
-    @property
-    # todo this should be a consts
-    def non_circular_matrices(self):
-        return [
-            NonCircularConnectionMatrix("strangers", None, self.strangers_scale_factor, self.stranger_strength),
-        ]
-
-    @property
-    def clustered_matrices(self):
-        return [
-            ClusteredConnectionsMatrix("work", None, self.work_scale_factor, self.work_strength),
-            ClusteredConnectionsMatrix("school", None, self.school_scale_factor, self.school_strength),
-        ]
+    # overriding hash and eq to allow caching while using un-hashable attributes
+    __hash__ = object.__hash__
+    __eq__ = object.__eq__
 
 
+# TODO can we remove it?
 if __name__ == "__main__":
     c = Consts()
     print(c.average_time_in_each_state())

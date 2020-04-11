@@ -1,20 +1,22 @@
 import logging
+from collections import defaultdict
 from random import random
-from typing import Callable, Iterable, List, Union
-
-import numpy as np
+from typing import Callable, Dict, Iterable, List, Union
 
 import healthcare
 import infection
+import numpy as np
 import update_matrix
 from consts import Consts
 from generation.circles_generator import PopulationData
 from generation.connection_types import ConnectionTypes
 from generation.matrix_generator import MatrixData
 from healthcare import PendingTestResult, PendingTestResults
+from medical_state import MedicalState
 from medical_state_manager import MedicalStateManager
+from policies_manager import PolicyManager
 from state_machine import PendingTransfers
-from supervisor import Supervisable, Supervisor
+from supervisor import Supervisable, SimulationProgression
 from update_matrix import Policy
 
 
@@ -40,6 +42,8 @@ class SimulationManager:
         self.agents = population_data.agents
         self.geographic_circles = population_data.geographic_circles
         self.social_circles_by_connection_type = population_data.social_circles_by_connection_type
+        self.geographic_circle_by_agent_index = population_data.geographic_circle_by_agent_index
+        self.social_circles_by_agent_index = population_data.social_circles_by_agent_index
 
         self.matrix_type = matrix_data.matrix_type
         self.matrix = matrix_data.matrix
@@ -51,7 +55,6 @@ class SimulationManager:
         initial_state = self.medical_machine.initial
 
         self.pending_transfers = PendingTransfers()
-        self.detected_daily = 0
 
         # the manager holds the vector, but the agents update it
         self.contagiousness_vector = np.zeros(len(self.agents), dtype=float)  # how likely to infect others
@@ -62,6 +65,7 @@ class SimulationManager:
         self.test_willingness_vector = np.zeros(len(self.agents), dtype=float)
         self.tested_vector = np.zeros(len(self.agents), dtype=bool)
         self.tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
+        self.ever_tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
         self.date_of_last_test = np.zeros(len(self.agents), dtype=int)
         self.pending_test_results = PendingTestResults()
 
@@ -71,33 +75,34 @@ class SimulationManager:
         initial_state.add_many(self.agents)
 
         # initializing simulation modules
-        self.supervisor = Supervisor([Supervisable.coerce(a, self) for a in supervisable_makers], self)
+        self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers], self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self)
         self.infection_manager = infection.InfectionManager(self)
         self.healthcare_manager = healthcare.HealthcareManager(self)
         self.medical_state_manager = MedicalStateManager(self)
+        self.policy_manager = PolicyManager(self)
 
         self.current_step = 0
 
+        # initializing data for supervising
+        # dict(day:int -> message:string) saving policies messages
+        self.policies_messages = defaultdict(str)
+
         self.new_sick_counter = 0
+        self.new_detected_daily = 0
 
         self.logger.info("Created new simulation.")
+        self.simulation_progression.snapshot(self)
 
     def step(self):
         """
         run one step
         """
-        # todo this does nothing right now.
-        # update matrix
-        self.update_matrix_manager.update_matrix_step()
-
-        # change school openage policies
-        self.change_school_openage()
+        # checks if there is a policy to active.
+        self.policy_manager.perform_policies()
 
         # run tests
-        new_tests = self.healthcare_manager.testing_step(
-            self.consts.detection_test, self.consts.daily_num_of_tests, self.consts.testing_policy
-        )
+        new_tests = self.healthcare_manager.testing_step()
 
         # progress tests and isolate the detected agents (update the matrix)
         self.progress_tests_and_isolation(new_tests)
@@ -110,17 +115,18 @@ class SimulationManager:
 
         self.current_step += 1
 
-        self.supervisor.snapshot(self)
+        self.simulation_progression.snapshot(self)
 
     def progress_tests_and_isolation(self, new_tests: List[PendingTestResult]):
-        agents_detected = []
+        self.new_detected_daily = 0
         new_results = self.pending_test_results.advance()
         for agent, test_result, _ in new_results:
-            agent.set_test_result(test_result)
             if test_result:
-                agents_detected.append(agents_detected)
+                if not self.ever_tested_positive_vector[agent.index]:
+                    # TODO: awful late night implementation, improve ASAP
+                    self.new_detected_daily += 1
 
-        self.detected_daily = len(agents_detected)
+            agent.set_test_result(test_result)
 
         # TODO send the detected agents to the selected kind of isolation
         # TODO: Track isolated agents
@@ -129,27 +135,6 @@ class SimulationManager:
         for new_test in new_tests:
             new_test.agent.set_test_start()
             self.pending_test_results.append(new_test)
-
-    def change_school_openage(self):
-        if (
-            not self.consts.should_change_school_openage
-            or self.current_step not in self.consts.school_openage_factors.keys()
-        ):
-            return
-
-        # first reset all schools
-        self.update_matrix_manager.reset_policies_by_connection_type(ConnectionTypes.School)
-
-        # create Policy object
-        new_openage_factor = self.consts.school_openage_factors[self.current_step]
-
-        def should_open(*args):
-            return random() > new_openage_factor
-
-        policy = Policy(0, [should_open])  # 0 - school is closed
-        self.update_matrix_manager.apply_policy_on_circles(
-            policy, self.social_circles_by_connection_type[ConnectionTypes.School]
-        )
 
     def setup_sick(self):
         """"
@@ -176,13 +161,6 @@ class SimulationManager:
         self.setup_sick()
 
         for i in range(self.consts.total_steps):
-            if self.consts.active_isolation:
-                if i == self.consts.stop_work_days:
-                    self.update_matrix_manager.change_connections_policy(
-                        {ConnectionTypes.Family, ConnectionTypes.Other}
-                    )
-                elif i == self.consts.resume_work_days:
-                    self.update_matrix_manager.change_connections_policy(ConnectionTypes)
             self.step()
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
 
@@ -190,11 +168,8 @@ class SimulationManager:
         # self.consts.medical_state_machine.cache_clear()
         Supervisable.coerce.cache_clear()
 
-    def plot(self, **kwargs):
-        self.supervisor.plot(**kwargs)
-
-    def stackplot(self, **kwargs):
-        self.supervisor.stack_plot(**kwargs)
+    def dump(self, **kwargs):
+        return self.simulation_progression.dump(**kwargs)
 
     def __str__(self):
         return f"<SimulationManager: SIZE_OF_POPULATION={len(self.agents)}, " f"STEPS_TO_RUN={self.consts.total_steps}>"
