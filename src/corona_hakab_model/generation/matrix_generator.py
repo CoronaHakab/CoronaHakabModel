@@ -1,6 +1,5 @@
 import logging
 import math
-import pickle
 from itertools import islice
 from random import random, sample
 from typing import List
@@ -21,6 +20,7 @@ from generation.connection_types import (
 )
 from generation.matrix_consts import MatrixConsts
 from generation.node import Node
+from bsa.parasym import write_parasym
 
 
 class MatrixData:
@@ -97,6 +97,14 @@ class MatrixGenerator:
         self.matrix_data.matrix_type = "parasymbolic"
         self.matrix_data.matrix = self.matrix
         self.matrix_data.depth = self.depth
+
+    def export(self):
+        """
+        This method exports the MatrixData object to a file.
+        Because of the matrix's sparsity, it is coded using the write_parasym() function.
+        """
+        with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, 'wb') as export_file:
+            write_parasym(self.matrix_data.matrix, export_file)
 
     def _unpack_population_data(self, population_data):
         self.agents = population_data.agents
