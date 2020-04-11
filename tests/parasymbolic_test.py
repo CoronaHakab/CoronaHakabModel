@@ -3,8 +3,7 @@ from io import BytesIO
 from itertools import product
 
 import numpy as np
-
-from bsa.parasym import write_parasym, read_parasym
+from bsa.parasym import read_parasym, write_parasym
 from parasymbolic_matrix import ParasymbolicMatrix
 
 

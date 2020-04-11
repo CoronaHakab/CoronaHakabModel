@@ -38,5 +38,5 @@
     "multi_zone_connection_type_to_geo_circle_probability": [
         {ConnectionTypes.Work: {"north": 0.7, "south": 0.3}},
         {ConnectionTypes.Work: {"north": 0.2, "south": 0.8}},
-    ]
+    ],
 }
