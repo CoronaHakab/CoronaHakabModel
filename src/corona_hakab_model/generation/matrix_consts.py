@@ -1,5 +1,7 @@
-from generation.connection_types import ConnectionTypes
 from typing import Dict, NamedTuple, Tuple
+
+from generation.connection_types import ConnectionTypes
+
 
 """
 Overview:
