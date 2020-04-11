@@ -35,10 +35,7 @@ class PopulationAnylzer:
             circles = self.population_data.social_circles_by_connection_type[con_type]
             size_count = defaultdict(int)
             for circle in circles:
-                size = circle.agent_count
-                if size not in size_count:
-                    size_count[size] = 0
-                size_count[size] += 1
+                size_count[circle.agent_count] += 1
             # creating a bar graph with a bar for each circle size
             bars, heights = zip(*sorted(size_count.items()))
             x = np.arange(len(bars))
