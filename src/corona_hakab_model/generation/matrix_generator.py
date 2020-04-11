@@ -7,6 +7,7 @@ from typing import List
 
 import corona_matrix
 import numpy as np
+from corona_hakab_model_data.__data__ import __version__
 from generation.circles import SocialCircle
 from generation.circles_generator import PopulationData
 from generation.connection_types import (
@@ -26,16 +27,21 @@ class MatrixData:
         self.matrix_type = None
         self.matrix = None
 
+    # todo make this work, using the parasymbolic matrix serialization.
+    def export(self, export_path, file_name: str):
+        pass
+
+    # todo make this work, using the parasymbolic matrix de-serialization.
+    @staticmethod
+    def import_matrix_data(import_file_path: str) -> "MatrixData":
+        pass
+
 
 # todo right now only supports parasymbolic matrix. need to merge with corona matrix class import selector
 class MatrixGenerator:
     """
     this module gets the circles and agents created in circles generator and creates a matrix and sub matrices with them.
     """
-
-    # import/export variables
-    EXPORT_OUTPUT_DIR = "../../output/"
-    EXPORT_FILE_NAME = "matrix_data.pickle"
 
     def __init__(
         self, population_data: PopulationData, matrix_consts: MatrixConsts = MatrixConsts(),

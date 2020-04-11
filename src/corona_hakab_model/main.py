@@ -7,12 +7,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from bsa.universal import write
-from corona_hakab_model_data.__data__ import __version__
-
 from consts import Consts
+from corona_hakab_model_data.__data__ import __version__
 from generation.circles_consts import CirclesConsts
-from generation.matrix_consts import MatrixConsts
 from generation.generation_manager import GenerationManger
+from generation.matrix_consts import MatrixConsts
 from manager import SimulationManager
 from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
 
@@ -25,23 +24,20 @@ if TYPE_CHECKING:
 def main():
     parser = ArgumentParser("COVID-19 Simulation")
 
-    sub_parsers = parser.add_subparsers(dest='sub_command')
-    gen = sub_parsers.add_parser('generate', help='only generate the population data without running the simulation')
-    gen.add_argument('output')
+    sub_parsers = parser.add_subparsers(dest="sub_command")
+    gen = sub_parsers.add_parser("generate", help="only generate the population data without running the simulation")
+    gen.add_argument("output")
 
-    parser.add_argument("-s",
-                        "--simulation-parameters",
-                        dest="simulation_parameters_path",
-                        help="Parameters for simulation engine")
-    parser.add_argument("-c",
-                        "--circles-consts",
-                        dest="circles_consts_path",
-                        help="Parameter file with consts for the circles")
-    parser.add_argument("-m",
-                        "--matrix-consts",
-                        dest="matrix_consts_path",
-                        help="Parameter file with consts for the matrix")
-    parser.add_argument('--version', action='version', version=__version__)
+    parser.add_argument(
+        "-s", "--simulation-parameters", dest="simulation_parameters_path", help="Parameters for simulation engine"
+    )
+    parser.add_argument(
+        "-c", "--circles-consts", dest="circles_consts_path", help="Parameter file with consts for the circles"
+    )
+    parser.add_argument(
+        "-m", "--matrix-consts", dest="matrix_consts_path", help="Parameter file with consts for the matrix"
+    )
+    parser.add_argument("--version", action="version", version=__version__)
     args = parser.parse_args()
 
     if args.circles_consts_path:
@@ -56,8 +52,8 @@ def main():
 
     gm = GenerationManger(circles_consts=circles_consts, matrix_consts=matrix_consts)
 
-    if args.sub_command == 'generate':
-        with open(args.output, 'wb') as w:
+    if args.sub_command == "generate":
+        with open(args.output, "wb") as w:
             write(gm.matrix_data.matrix, w)
         return
 
