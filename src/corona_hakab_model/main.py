@@ -1,4 +1,8 @@
+from __future__ import annotations
+
 from argparse import ArgumentParser
+import matplotlib_set_backend
+import matplotlib.pyplot as plt
 
 from bsa.universal import write
 from corona_hakab_model_data.__data__ import __version__
@@ -8,8 +12,13 @@ from generation.circles_consts import CirclesConsts
 from generation.matrix_consts import MatrixConsts
 from generation.generation_manager import GenerationManger
 from manager import SimulationManager
-from supervisor import LambdaValueSupervisable, Supervisable, Supervisor
+from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
 
+
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    import pandas as pd
 
 def main():
     parser = ArgumentParser("COVID-19 Simulation")
@@ -58,6 +67,9 @@ def main():
     sm = SimulationManager(
         (
             # "Latent",
+            Supervisable.State.AddedPerDay("Asymptomatic"),
+            Supervisable.State.Current("Asymptomatic"),
+            Supervisable.State.TotalSoFar("Asymptomatic"),
             # "Silent",
             # "Asymptomatic",
             # "Symptomatic",
@@ -89,38 +101,11 @@ def main():
     )
     print(sm)
     sm.run()
-    sm.plot(save=True, max_scale=False)
+    df: pd.DataFrame = sm.dump()
+    df.plot()
+    plt.show()
 
 
-def compare_simulations_example():
-    sm1 = SimulationManager(
-        (
-            Supervisable.Sum(
-                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", "Recovered", "Deceased"
-            ),
-            "Symptomatic",
-            "Recovered",
-        ),
-        consts=Consts(r0=1.5),
-    )
-    sm1.run()
-
-    sm2 = SimulationManager(
-        (
-            Supervisable.Sum(
-                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", "Recovered", "Deceased"
-            ),
-            "Symptomatic",
-            "Recovered",
-        ),
-        consts=Consts(r0=1.8),
-    )
-    sm2.run()
-
-    Supervisor.static_plot(
-        ((sm1, f"ro = {sm1.consts.r0}:", ("y-", "y--", "y:")), (sm2, f"ro = {sm2.consts.r0}:", ("c-", "c--", "c:"))),
-        f"comparing r0 = {sm1.consts.r0} to r0={sm2.consts.r0}",
-    )
 
 
 if __name__ == "__main__":
