@@ -4,7 +4,10 @@ import pickle
 from itertools import islice
 from random import random, sample
 from typing import List
+import os.path
 
+import bsa.universal
+import bsa.parasym
 import corona_matrix
 import numpy as np
 from corona_hakab_model_data.__data__ import __version__
@@ -28,13 +31,23 @@ class MatrixData:
         self.matrix = None
 
     # todo make this work, using the parasymbolic matrix serialization.
-    def export(self, export_path, file_name: str):
-        pass
+    def export(self, export_path: str):
+        with open(export_path+'.'+self.matrix_type, 'wb') as f:
+            bsa.universal.write(self.matrix, f)
 
-    # todo make this work, using the parasymbolic matrix de-serialization.
+
+    # todo Add support for other matrix types
     @staticmethod
     def import_matrix_data(import_file_path: str) -> "MatrixData":
-        pass
+        matrix_type = os.path.splitext(import_file_path)[1][1:]
+        if matrix_type == 'parasymbolic':
+            with open(import_file_path, 'rb') as f:
+                matrix = bsa.parasym.read_parasym(f)
+        matrix_data = MatrixData()
+        matrix_data.matrix = matrix
+        matrix_data.matrix_type = matrix_type
+        matrix_data.depth = len(ConnectionTypes) # This seems to essentialy be a constant.
+        return matrix_data
 
 
 # todo right now only supports parasymbolic matrix. need to merge with corona matrix class import selector
@@ -83,7 +96,7 @@ class MatrixGenerator:
         self.matrix_data.matrix = self.matrix
         self.matrix_data.depth = self.depth
         # export the matrix data
-        # self.export_matrix_data()
+        self.export_matrix_data()
 
     def _unpack_population_data(self, population_data):
         self.agents = population_data.agents
@@ -307,6 +320,9 @@ class MatrixGenerator:
             assert to_remove <= agent_id_pool
 
             agent_id_pool.difference_update(to_remove)
+
+    def export_matrix_data(self,export_dir='..\..\output',export_filename='matrix.bsa'):
+        self.matrix_data.export(os.path.join(export_dir,export_filename))
 
     @staticmethod
     def random_round(x: float, shape: int = 1):

@@ -3,13 +3,19 @@ from __future__ import annotations
 from argparse import ArgumentParser
 import matplotlib_set_backend
 import matplotlib.pyplot as plt
+import random
+import numpy as np
+import pickle
+import os.path
 
 from bsa.universal import write
 from consts import Consts
 from corona_hakab_model_data.__data__ import __version__
 from generation.circles_consts import CirclesConsts
+from generation.circles_generator import PopulationData
 from generation.generation_manager import GenerationManger
 from generation.matrix_consts import MatrixConsts
+from generation.matrix_generator import MatrixData
 from manager import SimulationManager
 from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
 
@@ -35,9 +41,24 @@ def main():
     parser.add_argument(
         "-m", "--matrix-consts", dest="matrix_consts_path", help="Parameter file with consts for the matrix"
     )
+    parser.add_argument('--population-data',
+                        dest='population_data',
+                        help='Previously exported population data file to use in the simulation')
+    parser.add_argument('--matrix-data',
+                        dest='matrix_data',
+                        help='Previously exported matrix data file to use in the simulation')
+    parser.add_argument('--output',
+                        dest='output',
+                        default='',
+                        help='Filepath to resulting csv. Defaults to ../../output/(timestamp).csv')
+    parser.add_argument('--seed',
+                        dest='seed',
+                        type=int,
+                        default=None,
+                        help='Set the random seed. Use only for exact reproducibility. By default, generate new seed.')
     parser.add_argument("--version", action="version", version=__version__)
     args = parser.parse_args()
-
+    set_seeds(args.seed)
     if args.circles_consts_path:
         circles_consts = CirclesConsts.from_file(args.circles_consts_path)
     else:
@@ -48,18 +69,24 @@ def main():
     else:
         matrix_consts = MatrixConsts()
 
-    gm = GenerationManger(circles_consts=circles_consts, matrix_consts=matrix_consts)
+    if args.matrix_data and args.population_data:
+        matrix_data = MatrixData.import_matrix_data(args.matrix_data)
+        population_data = PopulationData.import_population_data(args.population_data)
 
-    if args.sub_command == "generate":
-        with open(args.output, "wb") as w:
-            write(gm.matrix_data.matrix, w)
-        return
+    else:
+        gm = GenerationManger(circles_consts=circles_consts, matrix_consts=matrix_consts)
+        if args.sub_command == 'generate':
+            gm.matrix_data.export('matrix')
+            return
+        population_data = gm.population_data
+        matrix_data = gm.matrix_data
 
     if args.simulation_parameters_path:
         consts = Consts.from_file(args.simulation_parameters_path)
     else:
         consts = Consts()
 
+    set_seeds(args.seed)
     sm = SimulationManager(
         (
             # "Latent",
@@ -91,17 +118,21 @@ def main():
             # Supervisable.R0(),
             # Supervisable.Delayed("Symptomatic", 3),
         ),
-        gm.population_data,
-        gm.matrix_data,
+        population_data,
+        matrix_data,
         consts=consts,
     )
     print(sm)
     sm.run()
-    df: pd.DataFrame = sm.dump()
+    df: pd.DataFrame = sm.dump(args.output)
     df.plot()
     plt.show()
 
 
+def set_seeds(seed=0):
+    seed = seed or None
+    np.random.seed(seed)
+    random.seed(seed)
 
 
 if __name__ == "__main__":
