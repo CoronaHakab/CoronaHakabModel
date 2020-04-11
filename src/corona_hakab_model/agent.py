@@ -12,12 +12,7 @@ class Agent:
     This class represents a person in our doomed world.
     """
 
-    __slots__ = (
-        "index",
-        "medical_state",
-        "manager",
-        "age"
-    )
+    __slots__ = ("index", "medical_state", "manager", "age")
 
     # todo note that this changed to fit generation. should update simulation manager accordingly
     def __init__(self, index):

@@ -1,20 +1,21 @@
-# for exporting with pickle (/serializing) - set a high recursion rate
 import pickle
 import sys
 from typing import List
 
-from corona_hakab_model_data.__data__ import __version__
 from agent import Agent
+from corona_hakab_model_data.__data__ import __version__
 from generation.circles import SocialCircle
 from generation.circles_consts import CirclesConsts
 from generation.connection_types import ConnectionTypes, Multi_Zone_types, Whole_Population_types
 from generation.geographic_circle import GeographicCircle
 from util import rv_discrete
 
+# for exporting with pickle (/serializing) - set a high recursion rate
 sys.setrecursionlimit(5000)
 
 
 class PopulationData:
+
     __slots__ = (
         "version",
         "agents",
@@ -33,9 +34,26 @@ class PopulationData:
         self.geographic_circle_by_agent_index = {}
         self.social_circles_by_agent_index = {}
 
+    def export(self, export_path, file_name: str):
+        if not file_name.endswith(".pickle"):
+            file_name += ".pickle"
+
+        with open(export_path + file_name, "wb") as export_file:
+            pickle.dump(self, export_file)
+
+    @staticmethod
+    def import_population_data(import_file_path: str) -> "PopulationData":
+        with open(import_file_path, "rb") as import_file:
+            population_data = pickle.load(import_file)
+
+        # pickle's version should be updated per application's version
+        assert population_data.version == __version__
+        return population_data
+
 
 class CirclesGenerator:
 
+    # todo organize all path fields in a single file
     # import/export variables
     EXPORT_OUTPUT_DIR = "../../output/"
     EXPORT_FILE_NAME = "population_data.pickle"
@@ -163,15 +181,13 @@ class CirclesGenerator:
         self.population_data.social_circles_by_agent_index = self.social_circles_by_agent_index
 
         # export population data using pickle
-        with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, 'wb') as export_file:
-            pickle.dump(self.population_data, export_file)
+        self.population_data.export(self.EXPORT_OUTPUT_DIR, self.EXPORT_FILE_NAME)
 
     def import_population_data(self, import_file_path=None):
         if import_file_path is None:
             import_file_path = self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME
 
-        with open(import_file_path, "rb") as import_file:
-            self.population_data = pickle.load(import_file)
+        self.population_data = PopulationData.import_population_data(import_file_path)
 
         # pickle's version should be updated per application's version
         assert self.population_data.version == __version__
