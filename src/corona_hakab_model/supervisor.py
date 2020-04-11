@@ -48,9 +48,7 @@ class SimulationProgression:
         file_name = os.path.join(output_folder, datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
         # TODO: Switch ^ to use pathlib
 
-        all_data = {}
-        for s in self.supervisables:
-            all_data.update(s.publish())
+        all_data = dict([s.publish() for s in self.supervisables])
 
         df = pd.DataFrame(all_data, index=self.time_vector)
         df.to_csv(file_name)
@@ -185,7 +183,7 @@ class ValueSupervisable(Supervisable):
         self.data.append(self.get(manager))
 
     def publish(self):
-        return {self.name(): np.array(self.data)}
+        return self.name(), np.array(self.data)
 
 
 class LambdaValueSupervisable(ValueSupervisable):
@@ -398,17 +396,18 @@ class _PostProcessSupervisor(ValueSupervisable):
         # super().snapshot(manager)
 
     def publish(self):
-        vectors = list([np.array(v.publish()[1:])[:, 1] for v in self.supervisables])
-        time_vector = np.array([x[0] for x in self.supervisables[0].publish()[1:]])
-        res = self.func(time_vector, *vectors)
+        vectors = [s.publish()[1] for s in self.supervisables]
+        expected_length_of_result = len(vectors[0])
+
+        res = self.func(*vectors)
 
         # If the function shortens the array length (e.g. diff()), pad with zeros
-        if len(res) < len(time_vector):
-            temp = np.zeros_like(time_vector)
+        if len(res) < expected_length_of_result:
+            temp = np.zeros_like(vectors[0])
             temp[-len(res):] = res
             res = temp
 
-        self.snapshots = {t: r for t, r in zip(time_vector, res)}
+        self.data = res
         return super().publish()
 
     def name(self) -> str:

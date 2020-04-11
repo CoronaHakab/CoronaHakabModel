@@ -72,7 +72,7 @@ def main():
             Supervisable.State.AddedPerDay("Asymptomatic"),
             Supervisable.State.Current("Asymptomatic"),
             Supervisable.State.TotalSoFar("Asymptomatic"),
-            Supervisable.SupervisiblesLambda((Supervisable.NewCasesCounter(),), lambda time, new_cases: np.cumsum(new_cases), 'lamb'),
+            Supervisable.SupervisiblesLambda((Supervisable.NewCasesCounter(),), lambda new_cases: np.cumsum(new_cases), 'lamb'),
             # "Silent",
             # "Asymptomatic",
             # "Symptomatic",
