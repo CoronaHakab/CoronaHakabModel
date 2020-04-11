@@ -1,8 +1,9 @@
 from collections import namedtuple
-import pathlib
 from typing import List
+import pathlib
+import os
 
-MovingParameter = namedtuple("MovingParameter", "param_name start_range end_range step_size")
+MovingParameter = namedtuple("MovingParameter", ["param_name", "start_range", "end_range", "step_size"])
 
 
 class MovingParametersGenerator:
@@ -44,10 +45,10 @@ class MovingParametersGenerator:
         Create directories of file path if not exists.
         """
 
-        write_folder_path = f"{output_folder_path}/{moving_param_name}"
+        write_folder_path = os.path.join(output_folder_path, moving_param_name)
 
         pathlib.Path(write_folder_path).mkdir(parents=True, exist_ok=True)
-        with open(f"{write_folder_path}/{moving_param_value}.py", "wt") as write_file:
+        with open(os.path.join(write_folder_path, f"{moving_param_value}.py"), "wt") as write_file:
             write_file.write(generated_params)
 
 
