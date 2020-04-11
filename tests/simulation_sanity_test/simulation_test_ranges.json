@@ -1,0 +1,10202 @@
+[
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -2.8,
+      "max": 30.900000000000002
+    },
+    "Silent": {
+      "min": -9.1,
+      "max": 23.200000000000003
+    },
+    "Recovered": {
+      "min": -10.0,
+      "max": 10.0
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -8.2,
+      "max": 25.400000000000002
+    },
+    "Silent": {
+      "min": -4.6,
+      "max": 29.8
+    },
+    "Recovered": {
+      "min": -10.0,
+      "max": 10.0
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Silent": {
+      "min": -0.09999999999999964,
+      "max": 33.1
+    },
+    "Recovered": {
+      "min": -10.0,
+      "max": 10.0
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -9.1,
+      "max": 24.3
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 24.3
+    },
+    "Silent": {
+      "min": -5.5,
+      "max": 33.1
+    },
+    "Recovered": {
+      "min": -10.0,
+      "max": 10.0
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -7.3,
+      "max": 27.6
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 25.400000000000002
+    },
+    "Silent": {
+      "min": -8.2,
+      "max": 29.8
+    },
+    "Recovered": {
+      "min": -10.0,
+      "max": 11.1
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -5.5,
+      "max": 29.8
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Silent": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Recovered": {
+      "min": -10.0,
+      "max": 12.2
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -2.8,
+      "max": 33.1
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -9.1,
+      "max": 29.8
+    },
+    "Silent": {
+      "min": -9.1,
+      "max": 29.8
+    },
+    "Recovered": {
+      "min": -10.0,
+      "max": 13.3
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -4.6,
+      "max": 38.6
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -9.1,
+      "max": 34.2
+    },
+    "Silent": {
+      "min": -9.1,
+      "max": 30.900000000000002
+    },
+    "Recovered": {
+      "min": -10.0,
+      "max": 15.5
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -2.8,
+      "max": 39.7
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -9.1,
+      "max": 33.1
+    },
+    "Silent": {
+      "min": -9.1,
+      "max": 35.3
+    },
+    "Recovered": {
+      "min": -10.0,
+      "max": 16.6
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -1.9000000000000004,
+      "max": 43.0
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 23.200000000000003
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -9.1,
+      "max": 36.400000000000006
+    },
+    "Silent": {
+      "min": -9.1,
+      "max": 37.5
+    },
+    "Recovered": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -1.9000000000000004,
+      "max": 49.6
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Latent": {
+      "min": -9.1,
+      "max": 37.5
+    },
+    "Silent": {
+      "min": -6.4,
+      "max": 43.0
+    },
+    "Recovered": {
+      "min": -10.0,
+      "max": 18.8
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -1.0,
+      "max": 51.800000000000004
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Latent": {
+      "min": -8.2,
+      "max": 45.2
+    },
+    "Silent": {
+      "min": -7.3,
+      "max": 45.2
+    },
+    "Recovered": {
+      "min": -10.0,
+      "max": 19.9
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -1.9000000000000004,
+      "max": 57.300000000000004
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Asymptomatic": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -9.1,
+      "max": 47.400000000000006
+    },
+    "Silent": {
+      "min": -6.4,
+      "max": 43.0
+    },
+    "Recovered": {
+      "min": -10.0,
+      "max": 22.1
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -2.8,
+      "max": 63.900000000000006
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Asymptomatic": {
+      "min": -9.1,
+      "max": 30.900000000000002
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -8.2,
+      "max": 45.2
+    },
+    "Silent": {
+      "min": -7.3,
+      "max": 50.7
+    },
+    "Recovered": {
+      "min": -9.1,
+      "max": 23.200000000000003
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -2.8,
+      "max": 69.4
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Asymptomatic": {
+      "min": -7.3,
+      "max": 36.400000000000006
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 24.3
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -7.3,
+      "max": 49.6
+    },
+    "Silent": {
+      "min": -7.3,
+      "max": 54.0
+    },
+    "Recovered": {
+      "min": -9.1,
+      "max": 25.400000000000002
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -1.9000000000000004,
+      "max": 73.80000000000001
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Asymptomatic": {
+      "min": -6.4,
+      "max": 37.5
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 24.3
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -6.4,
+      "max": 51.800000000000004
+    },
+    "Silent": {
+      "min": -3.7,
+      "max": 55.1
+    },
+    "Recovered": {
+      "min": -9.1,
+      "max": 26.5
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -1.0,
+      "max": 81.5
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Asymptomatic": {
+      "min": -6.4,
+      "max": 41.900000000000006
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 25.400000000000002
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -6.4,
+      "max": 48.5
+    },
+    "Silent": {
+      "min": -5.5,
+      "max": 59.50000000000001
+    },
+    "Recovered": {
+      "min": -8.2,
+      "max": 32.0
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -0.09999999999999964,
+      "max": 88.10000000000001
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Asymptomatic": {
+      "min": -5.5,
+      "max": 44.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Latent": {
+      "min": -5.5,
+      "max": 55.1
+    },
+    "Silent": {
+      "min": -1.9000000000000004,
+      "max": 66.1
+    },
+    "Recovered": {
+      "min": -6.4,
+      "max": 34.2
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 2.5999999999999996,
+      "max": 94.7
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Asymptomatic": {
+      "min": -5.5,
+      "max": 47.400000000000006
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 29.8
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -4.6,
+      "max": 58.400000000000006
+    },
+    "Silent": {
+      "min": -4.6,
+      "max": 65.0
+    },
+    "Recovered": {
+      "min": -4.6,
+      "max": 39.7
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 5.300000000000001,
+      "max": 93.60000000000001
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Asymptomatic": {
+      "min": -4.6,
+      "max": 49.6
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 30.900000000000002
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -5.5,
+      "max": 65.0
+    },
+    "Silent": {
+      "min": -1.9000000000000004,
+      "max": 67.2
+    },
+    "Recovered": {
+      "min": -3.7,
+      "max": 44.1
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 7.100000000000001,
+      "max": 102.4
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Asymptomatic": {
+      "min": -6.4,
+      "max": 52.900000000000006
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 33.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -7.3,
+      "max": 67.2
+    },
+    "Silent": {
+      "min": -1.9000000000000004,
+      "max": 76.0
+    },
+    "Recovered": {
+      "min": -1.0,
+      "max": 48.5
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 8.0,
+      "max": 115.60000000000001
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Asymptomatic": {
+      "min": -6.4,
+      "max": 54.0
+    },
+    "Hospitalized": {
+      "min": -9.1,
+      "max": 33.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -2.8,
+      "max": 62.800000000000004
+    },
+    "Silent": {
+      "min": -1.9000000000000004,
+      "max": 84.80000000000001
+    },
+    "Recovered": {
+      "min": 0.8000000000000007,
+      "max": 51.800000000000004
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 8.900000000000002,
+      "max": 122.2
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Asymptomatic": {
+      "min": -4.6,
+      "max": 58.400000000000006
+    },
+    "Hospitalized": {
+      "min": -9.1,
+      "max": 36.400000000000006
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -1.0,
+      "max": 73.80000000000001
+    },
+    "Silent": {
+      "min": 0.8000000000000007,
+      "max": 84.80000000000001
+    },
+    "Recovered": {
+      "min": 2.5999999999999996,
+      "max": 60.6
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 8.900000000000002,
+      "max": 123.30000000000001
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Asymptomatic": {
+      "min": -1.9000000000000004,
+      "max": 63.900000000000006
+    },
+    "Hospitalized": {
+      "min": -8.2,
+      "max": 36.400000000000006
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -0.09999999999999964,
+      "max": 73.80000000000001
+    },
+    "Silent": {
+      "min": 3.5,
+      "max": 94.7
+    },
+    "Recovered": {
+      "min": 4.4,
+      "max": 65.0
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 13.400000000000002,
+      "max": 132.10000000000002
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Asymptomatic": {
+      "min": -3.7,
+      "max": 65.0
+    },
+    "Hospitalized": {
+      "min": -8.2,
+      "max": 39.7
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Latent": {
+      "min": -2.8,
+      "max": 76.0
+    },
+    "Silent": {
+      "min": 3.5,
+      "max": 90.30000000000001
+    },
+    "Recovered": {
+      "min": 8.900000000000002,
+      "max": 74.9
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 13.400000000000002,
+      "max": 140.9
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Asymptomatic": {
+      "min": -3.7,
+      "max": 71.60000000000001
+    },
+    "Hospitalized": {
+      "min": -8.2,
+      "max": 41.900000000000006
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Latent": {
+      "min": -1.0,
+      "max": 74.9
+    },
+    "Silent": {
+      "min": 1.700000000000001,
+      "max": 95.80000000000001
+    },
+    "Recovered": {
+      "min": 10.7,
+      "max": 79.30000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 14.3,
+      "max": 150.8
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Asymptomatic": {
+      "min": -1.9000000000000004,
+      "max": 84.80000000000001
+    },
+    "Hospitalized": {
+      "min": -8.2,
+      "max": 43.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Latent": {
+      "min": -0.09999999999999964,
+      "max": 85.9
+    },
+    "Silent": {
+      "min": 6.199999999999999,
+      "max": 100.2
+    },
+    "Recovered": {
+      "min": 11.600000000000001,
+      "max": 89.2
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 19.7,
+      "max": 169.5
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Asymptomatic": {
+      "min": -0.09999999999999964,
+      "max": 84.80000000000001
+    },
+    "Hospitalized": {
+      "min": -7.3,
+      "max": 44.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Latent": {
+      "min": 1.700000000000001,
+      "max": 89.2
+    },
+    "Silent": {
+      "min": 8.0,
+      "max": 103.50000000000001
+    },
+    "Recovered": {
+      "min": 14.3,
+      "max": 101.30000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 20.6,
+      "max": 172.8
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Asymptomatic": {
+      "min": 3.5,
+      "max": 88.10000000000001
+    },
+    "Hospitalized": {
+      "min": -7.3,
+      "max": 50.7
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Latent": {
+      "min": 6.199999999999999,
+      "max": 87.0
+    },
+    "Silent": {
+      "min": 8.0,
+      "max": 105.7
+    },
+    "Recovered": {
+      "min": 17.0,
+      "max": 116.7
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 22.4,
+      "max": 183.8
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Asymptomatic": {
+      "min": 3.5,
+      "max": 90.30000000000001
+    },
+    "Hospitalized": {
+      "min": -7.3,
+      "max": 55.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Latent": {
+      "min": 2.5999999999999996,
+      "max": 81.5
+    },
+    "Silent": {
+      "min": 12.5,
+      "max": 105.7
+    },
+    "Recovered": {
+      "min": 19.7,
+      "max": 128.8
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 23.300000000000004,
+      "max": 197.00000000000003
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Asymptomatic": {
+      "min": 6.199999999999999,
+      "max": 95.80000000000001
+    },
+    "Hospitalized": {
+      "min": -6.4,
+      "max": 52.900000000000006
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Latent": {
+      "min": 5.300000000000001,
+      "max": 80.4
+    },
+    "Silent": {
+      "min": 12.5,
+      "max": 109.00000000000001
+    },
+    "Recovered": {
+      "min": 24.200000000000003,
+      "max": 136.5
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 28.700000000000003,
+      "max": 200.3
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Asymptomatic": {
+      "min": 6.199999999999999,
+      "max": 105.7
+    },
+    "Hospitalized": {
+      "min": -6.4,
+      "max": 52.900000000000006
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Latent": {
+      "min": 7.100000000000001,
+      "max": 82.60000000000001
+    },
+    "Silent": {
+      "min": 15.2,
+      "max": 106.80000000000001
+    },
+    "Recovered": {
+      "min": 24.200000000000003,
+      "max": 159.60000000000002
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 31.4,
+      "max": 202.50000000000003
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Asymptomatic": {
+      "min": 7.100000000000001,
+      "max": 115.60000000000001
+    },
+    "Hospitalized": {
+      "min": -6.4,
+      "max": 54.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Latent": {
+      "min": 8.0,
+      "max": 81.5
+    },
+    "Silent": {
+      "min": 11.600000000000001,
+      "max": 110.10000000000001
+    },
+    "Recovered": {
+      "min": 28.700000000000003,
+      "max": 171.70000000000002
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 31.4,
+      "max": 204.70000000000002
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Asymptomatic": {
+      "min": 7.100000000000001,
+      "max": 116.7
+    },
+    "Hospitalized": {
+      "min": -4.6,
+      "max": 57.300000000000004
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Latent": {
+      "min": 11.600000000000001,
+      "max": 88.10000000000001
+    },
+    "Silent": {
+      "min": 17.900000000000002,
+      "max": 117.80000000000001
+    },
+    "Recovered": {
+      "min": 32.300000000000004,
+      "max": 183.8
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 39.5,
+      "max": 213.50000000000003
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Asymptomatic": {
+      "min": 10.7,
+      "max": 115.60000000000001
+    },
+    "Hospitalized": {
+      "min": -3.7,
+      "max": 60.6
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Latent": {
+      "min": 7.100000000000001,
+      "max": 89.2
+    },
+    "Silent": {
+      "min": 20.6,
+      "max": 116.7
+    },
+    "Recovered": {
+      "min": 35.0,
+      "max": 202.50000000000003
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 38.6,
+      "max": 219.00000000000003
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Asymptomatic": {
+      "min": 9.8,
+      "max": 117.80000000000001
+    },
+    "Hospitalized": {
+      "min": -2.8,
+      "max": 59.50000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Latent": {
+      "min": 8.900000000000002,
+      "max": 85.9
+    },
+    "Silent": {
+      "min": 19.7,
+      "max": 114.50000000000001
+    },
+    "Recovered": {
+      "min": 42.2,
+      "max": 221.20000000000002
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 40.4,
+      "max": 216.8
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Asymptomatic": {
+      "min": 12.5,
+      "max": 125.50000000000001
+    },
+    "Hospitalized": {
+      "min": -1.0,
+      "max": 61.7
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Latent": {
+      "min": 8.900000000000002,
+      "max": 82.60000000000001
+    },
+    "Silent": {
+      "min": 21.5,
+      "max": 123.30000000000001
+    },
+    "Recovered": {
+      "min": 45.800000000000004,
+      "max": 238.8
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 45.800000000000004,
+      "max": 220.10000000000002
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Asymptomatic": {
+      "min": 13.400000000000002,
+      "max": 128.8
+    },
+    "Hospitalized": {
+      "min": -1.0,
+      "max": 63.900000000000006
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Latent": {
+      "min": 6.199999999999999,
+      "max": 79.30000000000001
+    },
+    "Silent": {
+      "min": 18.8,
+      "max": 116.7
+    },
+    "Recovered": {
+      "min": 52.1,
+      "max": 265.20000000000005
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 53.9,
+      "max": 226.70000000000002
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Asymptomatic": {
+      "min": 18.8,
+      "max": 138.70000000000002
+    },
+    "Hospitalized": {
+      "min": -0.09999999999999964,
+      "max": 68.30000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "Latent": {
+      "min": 12.5,
+      "max": 84.80000000000001
+    },
+    "Silent": {
+      "min": 15.2,
+      "max": 115.60000000000001
+    },
+    "Recovered": {
+      "min": 54.8,
+      "max": 287.20000000000005
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 55.7,
+      "max": 230.00000000000003
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Asymptomatic": {
+      "min": 19.7,
+      "max": 140.9
+    },
+    "Hospitalized": {
+      "min": 0.8000000000000007,
+      "max": 70.5
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "Latent": {
+      "min": 10.7,
+      "max": 84.80000000000001
+    },
+    "Silent": {
+      "min": 23.300000000000004,
+      "max": 116.7
+    },
+    "Recovered": {
+      "min": 59.3,
+      "max": 308.1
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 57.5,
+      "max": 233.3
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Asymptomatic": {
+      "min": 21.5,
+      "max": 148.60000000000002
+    },
+    "Hospitalized": {
+      "min": -0.09999999999999964,
+      "max": 72.7
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Latent": {
+      "min": 8.0,
+      "max": 78.2
+    },
+    "Silent": {
+      "min": 24.200000000000003,
+      "max": 110.10000000000001
+    },
+    "Recovered": {
+      "min": 66.5,
+      "max": 333.40000000000003
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 58.400000000000006,
+      "max": 226.70000000000002
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Asymptomatic": {
+      "min": 25.1,
+      "max": 154.10000000000002
+    },
+    "Hospitalized": {
+      "min": -0.09999999999999964,
+      "max": 73.80000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Latent": {
+      "min": 8.0,
+      "max": 80.4
+    },
+    "Silent": {
+      "min": 26.0,
+      "max": 115.60000000000001
+    },
+    "Recovered": {
+      "min": 71.0,
+      "max": 359.8
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 62.0,
+      "max": 230.00000000000003
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Asymptomatic": {
+      "min": 26.0,
+      "max": 151.9
+    },
+    "Hospitalized": {
+      "min": 4.4,
+      "max": 77.10000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Latent": {
+      "min": 7.100000000000001,
+      "max": 80.4
+    },
+    "Silent": {
+      "min": 24.200000000000003,
+      "max": 106.80000000000001
+    },
+    "Recovered": {
+      "min": 76.4,
+      "max": 382.90000000000003
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 70.10000000000001,
+      "max": 228.9
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Asymptomatic": {
+      "min": 28.700000000000003,
+      "max": 151.9
+    },
+    "Hospitalized": {
+      "min": 6.199999999999999,
+      "max": 79.30000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 23.200000000000003
+    },
+    "Latent": {
+      "min": 4.4,
+      "max": 74.9
+    },
+    "Silent": {
+      "min": 21.5,
+      "max": 111.2
+    },
+    "Recovered": {
+      "min": 87.2,
+      "max": 401.6
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 68.3,
+      "max": 228.9
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Asymptomatic": {
+      "min": 28.700000000000003,
+      "max": 157.4
+    },
+    "Hospitalized": {
+      "min": 6.199999999999999,
+      "max": 82.60000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 23.200000000000003
+    },
+    "Latent": {
+      "min": 6.199999999999999,
+      "max": 74.9
+    },
+    "Silent": {
+      "min": 21.5,
+      "max": 112.30000000000001
+    },
+    "Recovered": {
+      "min": 95.3,
+      "max": 434.6
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 83.60000000000001,
+      "max": 244.3
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Asymptomatic": {
+      "min": 35.9,
+      "max": 156.3
+    },
+    "Hospitalized": {
+      "min": 7.100000000000001,
+      "max": 91.4
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 24.3
+    },
+    "Latent": {
+      "min": 4.4,
+      "max": 73.80000000000001
+    },
+    "Silent": {
+      "min": 19.7,
+      "max": 103.50000000000001
+    },
+    "Recovered": {
+      "min": 100.7,
+      "max": 455.50000000000006
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 90.8,
+      "max": 235.50000000000003
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Asymptomatic": {
+      "min": 37.7,
+      "max": 159.60000000000002
+    },
+    "Hospitalized": {
+      "min": 9.8,
+      "max": 89.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 24.3
+    },
+    "Latent": {
+      "min": -0.09999999999999964,
+      "max": 67.2
+    },
+    "Silent": {
+      "min": 17.0,
+      "max": 105.7
+    },
+    "Recovered": {
+      "min": 107.9,
+      "max": 485.20000000000005
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 82.7,
+      "max": 227.8
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Asymptomatic": {
+      "min": 41.300000000000004,
+      "max": 162.9
+    },
+    "Hospitalized": {
+      "min": 9.8,
+      "max": 90.30000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 23.200000000000003
+    },
+    "Latent": {
+      "min": -1.9000000000000004,
+      "max": 63.900000000000006
+    },
+    "Silent": {
+      "min": 17.0,
+      "max": 102.4
+    },
+    "Recovered": {
+      "min": 115.10000000000001,
+      "max": 506.1
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 85.4,
+      "max": 226.70000000000002
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "Asymptomatic": {
+      "min": 44.9,
+      "max": 165.10000000000002
+    },
+    "Hospitalized": {
+      "min": 9.8,
+      "max": 87.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Latent": {
+      "min": 1.700000000000001,
+      "max": 70.5
+    },
+    "Silent": {
+      "min": 16.1,
+      "max": 100.2
+    },
+    "Recovered": {
+      "min": 128.6,
+      "max": 532.5
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 84.5,
+      "max": 221.20000000000002
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Asymptomatic": {
+      "min": 44.9,
+      "max": 156.3
+    },
+    "Hospitalized": {
+      "min": 8.900000000000002,
+      "max": 88.10000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 23.200000000000003
+    },
+    "Latent": {
+      "min": -1.0,
+      "max": 68.30000000000001
+    },
+    "Silent": {
+      "min": 10.7,
+      "max": 99.10000000000001
+    },
+    "Recovered": {
+      "min": 139.4,
+      "max": 556.7
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 75.5,
+      "max": 212.4
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Asymptomatic": {
+      "min": 41.300000000000004,
+      "max": 161.8
+    },
+    "Hospitalized": {
+      "min": 10.7,
+      "max": 82.60000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Latent": {
+      "min": -3.7,
+      "max": 65.0
+    },
+    "Silent": {
+      "min": 9.8,
+      "max": 94.7
+    },
+    "Recovered": {
+      "min": 150.20000000000002,
+      "max": 580.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 71.0,
+      "max": 212.4
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Asymptomatic": {
+      "min": 40.4,
+      "max": 158.5
+    },
+    "Hospitalized": {
+      "min": 9.8,
+      "max": 77.10000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Latent": {
+      "min": -2.8,
+      "max": 63.900000000000006
+    },
+    "Silent": {
+      "min": 3.5,
+      "max": 101.30000000000001
+    },
+    "Recovered": {
+      "min": 163.70000000000002,
+      "max": 599.6
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 67.4,
+      "max": 203.60000000000002
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Asymptomatic": {
+      "min": 35.9,
+      "max": 160.70000000000002
+    },
+    "Hospitalized": {
+      "min": 10.7,
+      "max": 78.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Latent": {
+      "min": -4.6,
+      "max": 69.4
+    },
+    "Silent": {
+      "min": 4.4,
+      "max": 94.7
+    },
+    "Recovered": {
+      "min": 177.20000000000002,
+      "max": 619.4000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 59.3,
+      "max": 197.00000000000003
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Asymptomatic": {
+      "min": 47.6,
+      "max": 155.20000000000002
+    },
+    "Hospitalized": {
+      "min": 11.600000000000001,
+      "max": 76.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Latent": {
+      "min": -4.6,
+      "max": 60.6
+    },
+    "Silent": {
+      "min": 0.8000000000000007,
+      "max": 90.30000000000001
+    },
+    "Recovered": {
+      "min": 185.3,
+      "max": 639.2
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 55.7,
+      "max": 198.10000000000002
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Asymptomatic": {
+      "min": 45.800000000000004,
+      "max": 160.70000000000002
+    },
+    "Hospitalized": {
+      "min": 12.5,
+      "max": 78.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Latent": {
+      "min": -6.4,
+      "max": 56.2
+    },
+    "Silent": {
+      "min": 2.5999999999999996,
+      "max": 96.9
+    },
+    "Recovered": {
+      "min": 197.9,
+      "max": 664.5
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 50.300000000000004,
+      "max": 195.9
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 23.200000000000003
+    },
+    "Asymptomatic": {
+      "min": 48.5,
+      "max": 147.5
+    },
+    "Hospitalized": {
+      "min": 10.7,
+      "max": 77.10000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Latent": {
+      "min": -6.4,
+      "max": 59.50000000000001
+    },
+    "Silent": {
+      "min": 0.8000000000000007,
+      "max": 82.60000000000001
+    },
+    "Recovered": {
+      "min": 206.0,
+      "max": 689.8000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 43.1,
+      "max": 186.0
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 23.200000000000003
+    },
+    "Asymptomatic": {
+      "min": 49.4,
+      "max": 147.5
+    },
+    "Hospitalized": {
+      "min": 9.8,
+      "max": 77.10000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Latent": {
+      "min": -8.2,
+      "max": 57.300000000000004
+    },
+    "Silent": {
+      "min": -1.0,
+      "max": 82.60000000000001
+    },
+    "Recovered": {
+      "min": 218.6,
+      "max": 709.6
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 35.0,
+      "max": 184.9
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 23.200000000000003
+    },
+    "Asymptomatic": {
+      "min": 44.0,
+      "max": 142.0
+    },
+    "Hospitalized": {
+      "min": 6.199999999999999,
+      "max": 74.9
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Latent": {
+      "min": -8.2,
+      "max": 61.7
+    },
+    "Silent": {
+      "min": -1.9000000000000004,
+      "max": 73.80000000000001
+    },
+    "Recovered": {
+      "min": 232.1,
+      "max": 728.3000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 31.4,
+      "max": 179.4
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 24.3
+    },
+    "Asymptomatic": {
+      "min": 40.4,
+      "max": 138.70000000000002
+    },
+    "Hospitalized": {
+      "min": 7.100000000000001,
+      "max": 71.60000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Latent": {
+      "min": -7.3,
+      "max": 62.800000000000004
+    },
+    "Silent": {
+      "min": -1.9000000000000004,
+      "max": 77.10000000000001
+    },
+    "Recovered": {
+      "min": 244.70000000000002,
+      "max": 742.6
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 28.700000000000003,
+      "max": 179.4
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 25.400000000000002
+    },
+    "Asymptomatic": {
+      "min": 40.4,
+      "max": 138.70000000000002
+    },
+    "Hospitalized": {
+      "min": 4.4,
+      "max": 69.4
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Latent": {
+      "min": -7.3,
+      "max": 47.400000000000006
+    },
+    "Silent": {
+      "min": -5.5,
+      "max": 85.9
+    },
+    "Recovered": {
+      "min": 258.2,
+      "max": 762.4000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 24.200000000000003,
+      "max": 173.9
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 25.400000000000002
+    },
+    "Asymptomatic": {
+      "min": 35.9,
+      "max": 134.3
+    },
+    "Hospitalized": {
+      "min": 4.4,
+      "max": 68.30000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Latent": {
+      "min": -8.2,
+      "max": 45.2
+    },
+    "Silent": {
+      "min": -6.4,
+      "max": 77.10000000000001
+    },
+    "Recovered": {
+      "min": 275.3,
+      "max": 782.2
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 19.7,
+      "max": 170.60000000000002
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 33.2,
+      "max": 137.60000000000002
+    },
+    "Hospitalized": {
+      "min": 2.5999999999999996,
+      "max": 69.4
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Latent": {
+      "min": -9.1,
+      "max": 38.6
+    },
+    "Silent": {
+      "min": -6.4,
+      "max": 67.2
+    },
+    "Recovered": {
+      "min": 286.1,
+      "max": 796.5000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 15.2,
+      "max": 170.60000000000002
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 31.4,
+      "max": 134.3
+    },
+    "Hospitalized": {
+      "min": 2.5999999999999996,
+      "max": 68.30000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Latent": {
+      "min": -9.1,
+      "max": 39.7
+    },
+    "Silent": {
+      "min": -6.4,
+      "max": 62.800000000000004
+    },
+    "Recovered": {
+      "min": 302.3,
+      "max": 810.8000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 13.400000000000002,
+      "max": 166.20000000000002
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 26.0,
+      "max": 137.60000000000002
+    },
+    "Hospitalized": {
+      "min": 1.700000000000001,
+      "max": 67.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 39.7
+    },
+    "Silent": {
+      "min": -6.4,
+      "max": 56.2
+    },
+    "Recovered": {
+      "min": 323.0,
+      "max": 818.5000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 11.600000000000001,
+      "max": 164.0
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 22.4,
+      "max": 133.20000000000002
+    },
+    "Hospitalized": {
+      "min": 1.700000000000001,
+      "max": 68.30000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Latent": {
+      "min": -9.1,
+      "max": 35.3
+    },
+    "Silent": {
+      "min": -9.1,
+      "max": 55.1
+    },
+    "Recovered": {
+      "min": 339.2,
+      "max": 828.4000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 8.900000000000002,
+      "max": 156.3
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 19.7,
+      "max": 126.60000000000001
+    },
+    "Hospitalized": {
+      "min": 0.8000000000000007,
+      "max": 65.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 38.6
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 50.7
+    },
+    "Recovered": {
+      "min": 361.7,
+      "max": 841.6
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 10.7,
+      "max": 148.60000000000002
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 16.1,
+      "max": 126.60000000000001
+    },
+    "Hospitalized": {
+      "min": -0.09999999999999964,
+      "max": 60.6
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 30.900000000000002
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 50.7
+    },
+    "Recovered": {
+      "min": 380.6,
+      "max": 857.0000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 7.100000000000001,
+      "max": 143.10000000000002
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 14.3,
+      "max": 123.30000000000001
+    },
+    "Hospitalized": {
+      "min": -1.0,
+      "max": 59.50000000000001
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 30.900000000000002
+    },
+    "Silent": {
+      "min": -9.1,
+      "max": 50.7
+    },
+    "Recovered": {
+      "min": 400.40000000000003,
+      "max": 865.8000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 4.4,
+      "max": 139.8
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 10.7,
+      "max": 116.7
+    },
+    "Hospitalized": {
+      "min": -3.7,
+      "max": 57.300000000000004
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 28.700000000000003
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 43.0
+    },
+    "Recovered": {
+      "min": 413.90000000000003,
+      "max": 880.1
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": 1.700000000000001,
+      "max": 134.3
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 8.900000000000002,
+      "max": 112.30000000000001
+    },
+    "Hospitalized": {
+      "min": -4.6,
+      "max": 54.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Silent": {
+      "min": -9.1,
+      "max": 38.6
+    },
+    "Recovered": {
+      "min": 431.0,
+      "max": 888.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -0.09999999999999964,
+      "max": 124.4
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 8.0,
+      "max": 105.7
+    },
+    "Hospitalized": {
+      "min": -4.6,
+      "max": 55.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 29.8
+    },
+    "Silent": {
+      "min": -9.1,
+      "max": 35.3
+    },
+    "Recovered": {
+      "min": 453.5,
+      "max": 895.5000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -3.7,
+      "max": 116.7
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 4.4,
+      "max": 109.00000000000001
+    },
+    "Hospitalized": {
+      "min": -5.5,
+      "max": 54.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 25.400000000000002
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 34.2
+    },
+    "Recovered": {
+      "min": 469.7,
+      "max": 901.0000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -4.6,
+      "max": 101.30000000000001
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 5.300000000000001,
+      "max": 110.10000000000001
+    },
+    "Hospitalized": {
+      "min": -5.5,
+      "max": 52.900000000000006
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 23.200000000000003
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 34.2
+    },
+    "Recovered": {
+      "min": 484.1,
+      "max": 904.3000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -3.7,
+      "max": 96.9
+    },
+    "Deceased": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 3.5,
+      "max": 115.60000000000001
+    },
+    "Hospitalized": {
+      "min": -5.5,
+      "max": 48.5
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 24.3
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 32.0
+    },
+    "Recovered": {
+      "min": 495.8,
+      "max": 908.7
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -4.6,
+      "max": 84.80000000000001
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 2.5999999999999996,
+      "max": 114.50000000000001
+    },
+    "Hospitalized": {
+      "min": -7.3,
+      "max": 45.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 30.900000000000002
+    },
+    "Recovered": {
+      "min": 509.30000000000007,
+      "max": 913.1
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -4.6,
+      "max": 81.5
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 2.5999999999999996,
+      "max": 98.0
+    },
+    "Hospitalized": {
+      "min": -7.3,
+      "max": 44.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 23.200000000000003
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 30.900000000000002
+    },
+    "Recovered": {
+      "min": 532.7,
+      "max": 915.3000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -7.3,
+      "max": 78.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": 0.8000000000000007,
+      "max": 100.2
+    },
+    "Hospitalized": {
+      "min": -8.2,
+      "max": 43.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 30.900000000000002
+    },
+    "Recovered": {
+      "min": 544.4,
+      "max": 918.6
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -7.3,
+      "max": 74.9
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": -1.0,
+      "max": 88.10000000000001
+    },
+    "Hospitalized": {
+      "min": -9.1,
+      "max": 41.900000000000006
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 27.6
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Recovered": {
+      "min": 553.4,
+      "max": 921.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -8.2,
+      "max": 71.60000000000001
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": -2.8,
+      "max": 85.9
+    },
+    "Hospitalized": {
+      "min": -9.1,
+      "max": 41.900000000000006
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 28.700000000000003
+    },
+    "Recovered": {
+      "min": 564.2,
+      "max": 928.5000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -8.2,
+      "max": 60.6
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 26.5
+    },
+    "Asymptomatic": {
+      "min": -7.3,
+      "max": 77.10000000000001
+    },
+    "Hospitalized": {
+      "min": -9.1,
+      "max": 40.800000000000004
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 34.2
+    },
+    "Recovered": {
+      "min": 572.3000000000001,
+      "max": 932.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -8.2,
+      "max": 58.400000000000006
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -6.4,
+      "max": 69.4
+    },
+    "Hospitalized": {
+      "min": -9.1,
+      "max": 39.7
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 28.700000000000003
+    },
+    "Recovered": {
+      "min": 581.3000000000001,
+      "max": 934.0000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -9.1,
+      "max": 54.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -5.5,
+      "max": 74.9
+    },
+    "Hospitalized": {
+      "min": -9.1,
+      "max": 37.5
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 23.200000000000003
+    },
+    "Recovered": {
+      "min": 589.4,
+      "max": 937.3000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -9.1,
+      "max": 48.5
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -5.5,
+      "max": 73.80000000000001
+    },
+    "Hospitalized": {
+      "min": -9.1,
+      "max": 36.400000000000006
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 25.400000000000002
+    },
+    "Recovered": {
+      "min": 593.0,
+      "max": 940.6
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -9.1,
+      "max": 45.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -6.4,
+      "max": 69.4
+    },
+    "Hospitalized": {
+      "min": -9.1,
+      "max": 36.400000000000006
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 27.6
+    },
+    "Recovered": {
+      "min": 600.2,
+      "max": 941.7
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 46.300000000000004
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -8.2,
+      "max": 60.6
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 35.3
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "Recovered": {
+      "min": 603.8000000000001,
+      "max": 943.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -9.1,
+      "max": 44.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -9.1,
+      "max": 51.800000000000004
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 35.3
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Recovered": {
+      "min": 608.3000000000001,
+      "max": 948.3000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 41.900000000000006
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -9.1,
+      "max": 50.7
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 34.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Recovered": {
+      "min": 610.1,
+      "max": 952.7
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 37.5
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -9.1,
+      "max": 43.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 32.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Recovered": {
+      "min": 619.1,
+      "max": 952.7
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 37.5
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -9.1,
+      "max": 46.300000000000004
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 30.900000000000002
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Recovered": {
+      "min": 622.7,
+      "max": 956.0000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 35.3
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -9.1,
+      "max": 45.2
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 30.900000000000002
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Recovered": {
+      "min": 627.2,
+      "max": 956.0000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 32.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 45.2
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 28.700000000000003
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Recovered": {
+      "min": 631.7,
+      "max": 960.4000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 29.8
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 39.7
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 28.700000000000003
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Recovered": {
+      "min": 634.4,
+      "max": 963.7
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 30.900000000000002
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 40.800000000000004
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 26.5
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Recovered": {
+      "min": 636.2,
+      "max": 965.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 28.700000000000003
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 40.800000000000004
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 24.3
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Recovered": {
+      "min": 637.1,
+      "max": 965.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 29.8
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 37.5
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Recovered": {
+      "min": 638.0,
+      "max": 967.0000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 32.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 35.3
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Recovered": {
+      "min": 643.4,
+      "max": 968.1
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 29.8
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 30.900000000000002
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Recovered": {
+      "min": 647.0,
+      "max": 969.2
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 27.6
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 28.700000000000003
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Recovered": {
+      "min": 650.6,
+      "max": 969.2
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 27.6
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 27.6
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Recovered": {
+      "min": 651.5,
+      "max": 969.2
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 24.3
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 27.6
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Recovered": {
+      "min": 653.3000000000001,
+      "max": 970.3000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 25.400000000000002
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 25.400000000000002
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Recovered": {
+      "min": 654.2,
+      "max": 971.4000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 25.400000000000002
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 24.3
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Recovered": {
+      "min": 656.0,
+      "max": 971.4000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 24.3
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 25.400000000000002
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Recovered": {
+      "min": 658.7,
+      "max": 971.4000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 23.200000000000003
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Recovered": {
+      "min": 659.6,
+      "max": 972.5000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Recovered": {
+      "min": 661.4,
+      "max": 973.6
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 22.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Recovered": {
+      "min": 665.0,
+      "max": 973.6
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 23.200000000000003
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Recovered": {
+      "min": 666.8000000000001,
+      "max": 973.6
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Recovered": {
+      "min": 666.8000000000001,
+      "max": 973.6
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Recovered": {
+      "min": 668.6,
+      "max": 975.8000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Recovered": {
+      "min": 669.5,
+      "max": 975.8000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Recovered": {
+      "min": 670.4,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 19.9
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 670.4,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 671.3000000000001,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 672.2,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 21.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 673.1,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 18.8
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 673.1,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 17.700000000000003
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 674.0,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 16.6
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 674.0,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 675.8000000000001,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 675.8000000000001,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 676.7,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 676.7,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 676.7,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 15.5
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 676.7,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 14.4
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 676.7,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 13.3
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 12.2
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 11.1
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  },
+  {
+    "Symptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Deceased": {
+      "min": -9.1,
+      "max": 27.6
+    },
+    "Asymptomatic": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Hospitalized": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "ICU": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Latent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Silent": {
+      "min": -10.0,
+      "max": 10.0
+    },
+    "Recovered": {
+      "min": 677.6,
+      "max": 976.9000000000001
+    }
+  }
+]

@@ -1,3 +1,6 @@
+from abc import abstractmethod
+from typing import Generic, List, Protocol, TypeVar
+
 from scipy.stats import binom, randint, rv_discrete
 
 
@@ -29,3 +32,57 @@ def upper_bound(d):
 
 def lower_bound(d):
     return d.a + d.kwds.get("loc", 0)
+
+
+class HasDuration(Protocol):
+    @abstractmethod
+    def duration(self) -> int:
+        pass
+
+
+T = TypeVar("T", bound=HasDuration)
+
+
+class Queue(Generic[T]):
+    def __init__(self):
+        self.queued: List[List[T]] = [[]]
+        self.next_ind = 0
+
+    def _resize(self, new_size):
+        """
+        resize the queue's internal list to support new_size-length durations
+        """
+        if new_size < len(self.queued):
+            raise NotImplementedError
+        new_array = []
+        new_array.extend(self.queued[self.next_ind :])
+        new_array.extend(self.queued[: self.next_ind])
+        new_array.extend([[] for _ in range(new_size - len(self.queued))])
+
+        self.queued = new_array
+        self.next_ind = 0
+
+    def append_at(self, element: T, duration: int):
+        if duration >= len(self.queued):
+            self._resize(duration + 1)
+        dest_ind = duration + self.next_ind
+        if dest_ind >= len(self.queued):
+            dest_ind -= len(self.queued)
+
+        self.queued[dest_ind].append(element)
+
+    def append(self, element: T):
+        key = max(element.duration() - 1, 0)
+        self.append_at(element, key)
+
+    def extend(self, elements):
+        for t in elements:
+            self.append(t)
+
+    def advance(self):
+        ret = self.queued[self.next_ind]
+        self.queued[self.next_ind] = []
+        self.next_ind += 1
+        if self.next_ind == len(self.queued):
+            self.next_ind = 0
+        return ret

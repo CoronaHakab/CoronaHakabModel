@@ -1,13 +1,45 @@
-from util import dist, lower_bound, upper_bound
+from util import HasDuration, Queue, dist, lower_bound, upper_bound
 
 
-def basic_test():
-    pass
-
-
-def ubound_test():
+def test_ubound():
     assert upper_bound(dist(10)) == upper_bound(dist(5, 10)) == upper_bound(dist(2, 3, 10)) == 10
 
 
-def lbound_test():
+def test_lbound():
     assert lower_bound(dist(-10)) == lower_bound(dist(-10, 5)) == lower_bound(dist(-10, 3, 6)) == -10
+
+
+def test_queue():
+    class Element(HasDuration):
+        def __init__(self, v, d):
+            self.val = v
+            self.dur = d
+
+        def duration(self) -> int:
+            return self.dur
+
+        def __repr__(self):
+            return f"Element({self.val})"
+
+    def advance():
+        return frozenset(e.val for e in queue.advance())
+
+    queue = Queue()
+    queue.extend([Element("a_0", 1), Element("b_0", 2), Element("d_0", 4), Element("c_0", 3)])
+    queue.append(Element("a_1", 1))
+
+    assert advance() == {"a_0", "a_1"}
+    queue.extend([Element("b_1", 1), Element("e_0", 4)])
+    assert advance() == {"b_0", "b_1"}
+    assert advance() == {"c_0"}
+    assert advance() == {"d_0"}
+    assert advance() == {"e_0"}
+    assert advance() == set()
+    queue.append(Element("f_0", 5))
+    for _ in range(4):
+        assert advance() == set()
+    assert advance() == {"f_0"}
+
+
+if __name__ == "__main__":
+    test_queue()
