@@ -1,7 +1,7 @@
 from typing import Any, Callable, Iterable
 
 import numpy as np
-from agent import Agent
+
 from generation.circles import SocialCircle
 from generation.connection_types import ConnectionTypes
 from policies_manager import ConditionedPolicy
@@ -106,11 +106,11 @@ class UpdateMatrixManager:
                 self.matrix.mul_sub_col(connection_type, agent.index, factor)
 
     def check_and_apply(
-        self,
-        con_type: ConnectionTypes,
-        circles: Iterable[SocialCircle],
-        conditioned_policy: ConditionedPolicy,
-        **activating_condition_kwargs,
+            self,
+            con_type: ConnectionTypes,
+            circles: Iterable[SocialCircle],
+            conditioned_policy: ConditionedPolicy,
+            **activating_condition_kwargs,
     ):
         if (not conditioned_policy.active) and conditioned_policy.activating_condition(activating_condition_kwargs):
             self.logger.info("activating policy on circles")
