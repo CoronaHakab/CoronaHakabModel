@@ -34,8 +34,8 @@ class CirclesConsts(NamedTuple):
             ConnectionTypes.Other: 1.0,
         },
         {
-            ConnectionTypes.Work: 0.25,
-            ConnectionTypes.School: 0,
+            ConnectionTypes.Work: 0.25 * (1 - teachers_ratio),
+            ConnectionTypes.School: 0.25 * teachers_ratio,
             ConnectionTypes.Family: 1.0,
             ConnectionTypes.Other: 1.0,
         },
