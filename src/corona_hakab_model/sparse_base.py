@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Collection, Final, Iterable, List, Optional, Protocol, Tuple, runtime_checkable
+from typing import Collection, List, Optional, Protocol, Tuple, runtime_checkable
 
 import numpy as np
 

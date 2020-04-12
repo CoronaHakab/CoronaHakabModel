@@ -67,7 +67,7 @@ class Queue(Generic[T]):
         if new_size < len(self.queued):
             raise NotImplementedError
         new_array = []
-        new_array.extend(self.queued[self.next_ind :])
+        new_array.extend(self.queued[self.next_ind:])
         new_array.extend(self.queued[: self.next_ind])
         new_array.extend([[] for _ in range(new_size - len(self.queued))])
 

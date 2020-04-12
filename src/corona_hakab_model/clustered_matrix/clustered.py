@@ -141,7 +141,7 @@ class ClusteredSparseMatrix(SparseBase):
         ret = ManifestClusters(self)
         for i, c in enumerate(self.clusters):
             bunch_size = c.size ** 2
-            is_manifest = sample[s_next : s_next + bunch_size].reshape(c.size, -1) < c.actual_probs()
+            is_manifest = sample[s_next:s_next + bunch_size].reshape(c.size, -1) < c.actual_probs()
             s_next += bunch_size
             ret.inners[i][is_manifest] = c.actual_vals()[is_manifest]
         return ret

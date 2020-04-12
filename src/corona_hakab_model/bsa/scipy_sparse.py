@@ -42,8 +42,8 @@ def read_scipy_sparse(source: BinaryIO, matrix_cls=lil_matrix):
 
 if __name__ == "__main__":
     m0 = [
-        np.array([[3, 0, 5, 2], [0, 0, 1, 0], [2, 4, 0, 1], [3, 0, 0, 0],]),
-        np.array([[2, 4, 0, 1], [0, 0, 1, 0], [3, 0, 0, 0], [3, 0, 5, 2],]),
+        np.array([[3, 0, 5, 2], [0, 0, 1, 0], [2, 4, 0, 1], [3, 0, 0, 0], ]),
+        np.array([[2, 4, 0, 1], [0, 0, 1, 0], [3, 0, 0, 0], [3, 0, 5, 2], ]),
     ]
 
     m0 = [lil_matrix(m) for m in m0]

@@ -1,10 +1,13 @@
-from typing import Any, Callable, Iterable
+from typing import Any, Callable, Iterable, TYPE_CHECKING
 
 from generation.circles import SocialCircle
 
+if TYPE_CHECKING:
+    from manager import SimulationManager
+
 
 class PolicyManager:
-    def __init__(self, manager: "SimulationManager"):
+    def __init__(self, manager: SimulationManager):
         self.manager = manager
         self.update_matrix_manager = manager.update_matrix_manager
         self.consts = manager.consts

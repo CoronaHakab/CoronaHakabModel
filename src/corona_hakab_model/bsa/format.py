@@ -120,7 +120,7 @@ class DecoderV0:
             self.values = []
             i = 0
             for row in owner.rows:
-                self.values.append(arr[i : i + len(row)])
+                self.values.append(arr[i:i + len(row)])
                 i += len(row)
 
     def __init__(self, source: BinaryIO, read_magic: bool):
@@ -142,7 +142,7 @@ class DecoderV0:
         i = 0
         self.rows = []
         for row_len in row_lengths:
-            self.rows.append(cols_flat[i : i + row_len])
+            self.rows.append(cols_flat[i:i + row_len])
             i += row_len
         assert i == self.layer_size
 

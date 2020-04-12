@@ -8,7 +8,7 @@ from policies_manager import ConditionedPolicy
 
 class Policy:
     """
-    This represents a policy. 
+    This represents a policy.
     """
 
     def __init__(self, connection_change_factor: float, conditions: Iterable[Callable[[Any], bool]]):
