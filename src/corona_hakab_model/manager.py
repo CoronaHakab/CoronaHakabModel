@@ -2,10 +2,9 @@ import logging
 from collections import defaultdict
 from typing import Callable, Iterable, List, Union
 
-import numpy as np
-
 import healthcare
 import infection
+import numpy as np
 import update_matrix
 from consts import Consts
 from generation.circles_generator import PopulationData
@@ -14,7 +13,7 @@ from healthcare import PendingTestResult, PendingTestResults
 from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
-from supervisor import Supervisable, SimulationProgression
+from supervisor import SimulationProgression, Supervisable
 
 
 class SimulationManager:
@@ -72,7 +71,9 @@ class SimulationManager:
         initial_state.add_many(self.agents)
 
         # initializing simulation modules
-        self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers], self)
+        self.simulation_progression = SimulationProgression(
+            [Supervisable.coerce(a, self) for a in supervisable_makers], self
+        )
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self)
         self.infection_manager = infection.InfectionManager(self)
         self.healthcare_manager = healthcare.HealthcareManager(self)

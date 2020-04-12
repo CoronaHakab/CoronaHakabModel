@@ -5,15 +5,15 @@
 # the SWIG interface file instead.
 
 
-	# flake8: noqa
-from sparse_base import SparseBase, ManifestBase
+# flake8: noqa
+from sys import version_info as _swig_python_version_info
 
 import numpy as np
-size_t = np.dtype('uint64')
+from sparse_base import ManifestBase, SparseBase
+
+size_t = np.dtype("uint64")
 
 
-
-from sys import version_info as _swig_python_version_info
 if _swig_python_version_info < (2, 7, 0):
     raise RuntimeError("Python 2.7 or later required")
 
@@ -27,6 +27,7 @@ try:
     import builtins as __builtin__
 except ImportError:
     import __builtin__
+
 
 def _swig_repr(self):
     try:
@@ -46,6 +47,7 @@ def _swig_setattr_nondynamic_instance_variable(set):
             set(self, name, value)
         else:
             raise AttributeError("You cannot add instance attributes to %s" % self)
+
     return set_instance_attr
 
 
@@ -55,18 +57,22 @@ def _swig_setattr_nondynamic_class_variable(set):
             set(cls, name, value)
         else:
             raise AttributeError("You cannot add class attributes to %s" % cls)
+
     return set_class_attr
 
 
 def _swig_add_metaclass(metaclass):
     """Class decorator for adding a metaclass to a SWIG wrapped class - a slimmed down version of six.add_metaclass"""
+
     def wrapper(cls):
         return metaclass(cls.__name__, cls.__bases__, cls.__dict__.copy())
+
     return wrapper
 
 
 class _SwigNonDynamicMeta(type):
     """Meta class to enforce nondynamic attributes (no new attributes) for a class"""
+
     __setattr__ = _swig_setattr_nondynamic_class_variable(type.__setattr__)
 
 
@@ -79,16 +85,20 @@ class MagicOperator(object):
 
     def __init__(self):
         _sparse.MagicOperator_swiginit(self, _sparse.new_MagicOperator())
+
     __swig_destroy__ = _sparse.delete_MagicOperator
+
 
 # Register MagicOperator in _sparse:
 _sparse.MagicOperator_swigregister(MagicOperator)
+
 
 class ManifestMatrix(ManifestBase):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
 
     def __init__(self, *args, **kwargs):
         raise AttributeError("No constructor defined")
+
     __repr__ = _swig_repr
 
     def get(self, row: "size_t", column: "size_t") -> "dtype":
@@ -119,42 +129,53 @@ class ManifestMatrix(ManifestBase):
     def nz_rows(self) -> "std::vector< std::vector< size_t > >":
         r"""nz_rows(self) -> std::vector< std::vector< size_t > >"""
         return _sparse.ManifestMatrix_nz_rows(self)
+
     __swig_destroy__ = _sparse.delete_ManifestMatrix
 
-    if '''I_POA''' not in locals():
+    if """I_POA""" not in locals():
 
-    	def I_POA(self, v, op): pass
+        def I_POA(self, v, op):
+            pass
 
+    if """__getitem__""" not in locals():
 
-    if '''__getitem__''' not in locals():
-
-    	def __getitem__(self,item): pass
+        def __getitem__(self, item):
+            pass
 
 
 # Register ManifestMatrix in _sparse:
 _sparse.ManifestMatrix_swigregister(ManifestMatrix)
 
 
-__temp_store = getattr(ManifestMatrix,"""I_POA""",None)
+__temp_store = getattr(ManifestMatrix, """I_POA""", None)
+
+
 def __temp_def(self, v, op):
-	nz = np.flatnonzero(v).astype(np.uint64, copy=False)
-	return self.I_POA.prev(self, v, nz, op)
+    nz = np.flatnonzero(v).astype(np.uint64, copy=False)
+    return self.I_POA.prev(self, v, nz, op)
+
+
 if isinstance(__temp_store, (classmethod, staticmethod, property)):
-	__temp_def = type(__temp_store)(__temp_def)
+    __temp_def = type(__temp_store)(__temp_def)
 __temp_def.prev = __temp_store
 ManifestMatrix.I_POA = __temp_def
 del __temp_store, __temp_def
 
 
-__temp_store = getattr(ManifestMatrix,"""__getitem__""",None)
-def __temp_def(self,item):
-	i, j = item
-	return self.get(i, j)
+__temp_store = getattr(ManifestMatrix, """__getitem__""", None)
+
+
+def __temp_def(self, item):
+    i, j = item
+    return self.get(i, j)
+
+
 if isinstance(__temp_store, (classmethod, staticmethod, property)):
-	__temp_def = type(__temp_store)(__temp_def)
+    __temp_def = type(__temp_store)(__temp_def)
 __temp_def.prev = __temp_store
 ManifestMatrix.__getitem__ = __temp_def
 del __temp_store, __temp_def
+
 
 class SparseMatrix(SparseBase):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
@@ -172,7 +193,9 @@ class SparseMatrix(SparseBase):
         """
         _sparse.SparseMatrix_swiginit(self, _sparse.new_SparseMatrix(size))
 
-    def batch_set(self, row: "size_t", A_columns: "size_t const *", A_probs: "dtype const *", A_values: "dtype const *") -> "void":
+    def batch_set(
+        self, row: "size_t", A_columns: "size_t const *", A_probs: "dtype const *", A_values: "dtype const *"
+    ) -> "void":
         r"""
         batch_set(self, row, A_columns, A_probs, A_values)
 
@@ -258,63 +281,74 @@ class SparseMatrix(SparseBase):
     def non_zero_columns(self) -> "std::vector< std::vector< size_t > >":
         r"""non_zero_columns(self) -> std::vector< std::vector< size_t > >"""
         return _sparse.SparseMatrix_non_zero_columns(self)
+
     __swig_destroy__ = _sparse.delete_SparseMatrix
 
-    if '''__getitem__''' not in locals():
+    if """__getitem__""" not in locals():
 
-    	def __getitem__(self,item): pass
+        def __getitem__(self, item):
+            pass
 
+    if """manifest""" not in locals():
 
-    if '''manifest''' not in locals():
+        def manifest(self, sample=None):
+            pass
 
-    	def manifest(self, sample=None): pass
+    if """batch_set""" not in locals():
 
-
-    if '''batch_set''' not in locals():
-
-    	def batch_set(self,row,columns,probs,values): pass
+        def batch_set(self, row, columns, probs, values):
+            pass
 
 
 # Register SparseMatrix in _sparse:
 _sparse.SparseMatrix_swigregister(SparseMatrix)
 
 
-__temp_store = getattr(SparseMatrix,"""__getitem__""",None)
-def __temp_def(self,item):
-	i, j = item
-	if not self.has_value(i, j):
-	    return None
-	return self.get(i, j)
+__temp_store = getattr(SparseMatrix, """__getitem__""", None)
+
+
+def __temp_def(self, item):
+    i, j = item
+    if not self.has_value(i, j):
+        return None
+    return self.get(i, j)
+
+
 if isinstance(__temp_store, (classmethod, staticmethod, property)):
-	__temp_def = type(__temp_store)(__temp_def)
+    __temp_def = type(__temp_store)(__temp_def)
 __temp_def.prev = __temp_store
 SparseMatrix.__getitem__ = __temp_def
 del __temp_store, __temp_def
 
 
-__temp_store = getattr(SparseMatrix,"""manifest""",None)
+__temp_store = getattr(SparseMatrix, """manifest""", None)
+
+
 def __temp_def(self, sample=None):
-	if sample is None:
-	    sample = generator.random(self.nz_count(), dtype=np.float32)
-	return self.manifest.prev(self, sample)
+    if sample is None:
+        sample = generator.random(self.nz_count(), dtype=np.float32)
+    return self.manifest.prev(self, sample)
+
+
 if isinstance(__temp_store, (classmethod, staticmethod, property)):
-	__temp_def = type(__temp_store)(__temp_def)
+    __temp_def = type(__temp_store)(__temp_def)
 __temp_def.prev = __temp_store
 SparseMatrix.manifest = __temp_def
 del __temp_store, __temp_def
 
 
-__temp_store = getattr(SparseMatrix,"""batch_set""",None)
-def __temp_def(self,row,columns,probs,values):
-	columns = np.asanyarray(columns, dtype=size_t)
-	probs = np.asanyarray(probs, dtype=np.float32)
-	values = np.asanyarray(values, dtype=np.float32)
-	return self.batch_set.prev(self, row,columns,probs,values)
+__temp_store = getattr(SparseMatrix, """batch_set""", None)
+
+
+def __temp_def(self, row, columns, probs, values):
+    columns = np.asanyarray(columns, dtype=size_t)
+    probs = np.asanyarray(probs, dtype=np.float32)
+    values = np.asanyarray(values, dtype=np.float32)
+    return self.batch_set.prev(self, row, columns, probs, values)
+
+
 if isinstance(__temp_store, (classmethod, staticmethod, property)):
-	__temp_def = type(__temp_store)(__temp_def)
+    __temp_def = type(__temp_store)(__temp_def)
 __temp_def.prev = __temp_store
 SparseMatrix.batch_set = __temp_def
 del __temp_store, __temp_def
-
-
-

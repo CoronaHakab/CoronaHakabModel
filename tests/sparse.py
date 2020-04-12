@@ -3,8 +3,7 @@ from itertools import product
 from typing import Union
 
 import numpy as np
-
-from bsa.sparse_base import write_sparse, read_sparse
+from bsa.sparse_base import read_sparse, write_sparse
 from consts import generator
 from sparse_matrix import MagicOperator, SparseMatrix
 
@@ -75,9 +74,7 @@ class npSparseMatrix:
         return npManifest(self, inner)
 
     def non_zero_columns(self):
-        return [
-            list(np.flatnonzero(self.probs[i])) for i in range(self.size)
-        ]
+        return [list(np.flatnonzero(self.probs[i])) for i in range(self.size)]
 
 
 class npManifest:
@@ -172,7 +169,7 @@ def test_read_write():
     dec = read_sparse(sink)
 
     for i, j in product(range(3), repeat=2):
-        assert matrix[i, j] == dec[i, j], f'[{i}, {j}], {matrix.get(i, j)} vs {dec.get(i, j)}'
+        assert matrix[i, j] == dec[i, j], f"[{i}, {j}], {matrix.get(i, j)} vs {dec.get(i, j)}"
 
 
 if __name__ == "__main__":

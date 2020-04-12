@@ -1,6 +1,5 @@
 from abc import abstractmethod
-from typing import Generic, List, Protocol, TypeVar
-from typing import Iterable
+from typing import Generic, Iterable, List, Protocol, TypeVar
 
 from scipy.stats import binom, randint, rv_discrete
 
@@ -68,7 +67,7 @@ class Queue(Generic[T]):
         if new_size < len(self.queued):
             raise NotImplementedError
         new_array = []
-        new_array.extend(self.queued[self.next_ind:])
+        new_array.extend(self.queued[self.next_ind :])
         new_array.extend(self.queued[: self.next_ind])
         new_array.extend([[] for _ in range(new_size - len(self.queued))])
 

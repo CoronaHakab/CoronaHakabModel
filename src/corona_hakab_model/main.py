@@ -4,7 +4,6 @@ from argparse import ArgumentParser
 from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
-
 from bsa.universal import write
 from consts import Consts
 from corona_hakab_model_data.__data__ import __version__

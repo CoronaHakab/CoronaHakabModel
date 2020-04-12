@@ -3,16 +3,14 @@
 from __future__ import annotations
 
 import os
-from datetime import datetime
 from abc import ABC, abstractmethod
+from datetime import datetime
 from functools import lru_cache
-from typing import Any, Callable, List, NamedTuple, Sequence
+from typing import TYPE_CHECKING, Any, Callable, List, NamedTuple, Sequence
 
 import manager
 import numpy as np
 import pandas as pd
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from state_machine import State
@@ -85,7 +83,6 @@ class Supervisable(ABC):
         raise TypeError
 
     class State:
-
         class Current:
             def __init__(self, name) -> None:
                 self.name = name
@@ -285,12 +282,12 @@ class VectorSupervisable(ValueSupervisable, ABC):
         pass
 
     def _to_ys(self):
-        raise NotImplementedError('Need to convert (.x and .y) notation to the new (.data) notation')
+        raise NotImplementedError("Need to convert (.x and .y) notation to the new (.data) notation")
         n = len(self.y[0])
         return [[v[i] for v in self.y] for i in range(n)]
 
     def publish(self):
-        raise NotImplementedError('Need to convert (.x and .y) notation to the new (.data) notation')
+        raise NotImplementedError("Need to convert (.x and .y) notation to the new (.data) notation")
         return [["", self.names()]] + ([[z[0]] + z[1] for z in zip(self.data.items())])
 
 
@@ -337,9 +334,9 @@ class _EffectiveR0Supervisable(ValueSupervisable):
         suseptable_indexes = np.flatnonzero(manager.susceptible_vector)
         # todo someone who knows how this works fix it
         return (
-                np.sum(1 - np.exp(manager.matrix[suseptable_indexes].data))
-                * manager.update_matrix_manager.total_contagious_probability
-                / len(manager.agents)
+            np.sum(1 - np.exp(manager.matrix[suseptable_indexes].data))
+            * manager.update_matrix_manager.total_contagious_probability
+            / len(manager.agents)
         )
 
     def name(self) -> str:

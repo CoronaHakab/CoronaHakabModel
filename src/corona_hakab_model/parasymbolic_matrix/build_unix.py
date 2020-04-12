@@ -7,15 +7,15 @@ import numpy as np
 from swimport import ContainerSwim, FileSource, Function, Swim, Typedef, pools
 
 COMPILE_ADDITIONAL_INCLUDE_DIRS = [
-    get_paths()['include'],
-    get_paths()['platinclude'],
+    get_paths()["include"],
+    get_paths()["platinclude"],
     np.get_include(),
 ]
 COMPILE_ADDITIONAL_INCLUDE_LIBS = [
-    get_paths()['stdlib'],
-    get_paths()['platstdlib'],
-    get_paths()['platlib'],
-    get_paths()['purelib'],
+    get_paths()["stdlib"],
+    get_paths()["platstdlib"],
+    get_paths()["platlib"],
+    get_paths()["purelib"],
 ]
 
 

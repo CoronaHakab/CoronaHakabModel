@@ -20,9 +20,7 @@ class EncounterLayerSet:
             raise Exception(f"layer of kind {layer.kind} already added")
 
     def POA(self, v):
-        manifests = {
-            n: m.matrix.manifest() for (n, m) in self.layers.items()
-        }
+        manifests = {n: m.matrix.manifest() for (n, m) in self.layers.items()}
         m_iter = iter(manifests.items())
         first_label, first_manifest = next(m_iter)
         c = first_manifest.I_POA(v, self.layers[first_label].magic_op)
