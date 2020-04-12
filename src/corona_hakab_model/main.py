@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-
+from matplotlib import pyplot as plt
 from bsa.universal import write
 from corona_hakab_model_data.__data__ import __version__
 
@@ -9,6 +9,7 @@ from generation.matrix_consts import MatrixConsts
 from generation.generation_manager import GenerationManger
 from manager import SimulationManager
 from supervisor import LambdaValueSupervisable, Supervisable, Supervisor
+from matrix_analysis.MatrixAnalysis import MatrixAnalyzer
 
 
 def main():
@@ -17,6 +18,15 @@ def main():
     sub_parsers = parser.add_subparsers(dest='sub_command')
     gen = sub_parsers.add_parser('generate', help='only generate the population data without running the simulation')
     gen.add_argument('output')
+
+    matrix = sub_parsers.add_parser('analyze-matrix', help="analyze matrix histograms and export csv's")
+    matrix.add_argument("--matrix",
+                        dest="matrix_path",
+                        help="Matrix file to analyze")
+    matrix.add_argument("--show",
+                        dest="show",
+                        action="store_true",
+                        help="Show histograms")
 
     parser.add_argument("-s",
                         "--simulation-parameters",
@@ -32,6 +42,14 @@ def main():
                         help="Parameter file with consts for the matrix")
     parser.add_argument('--version', action='version', version=__version__)
     args = parser.parse_args()
+
+    if args.sub_command == 'analyze-matrix':
+        matrix_analyzer = MatrixAnalyzer(args.matrix_path)
+        matrix_analyzer.export_raw_matrices_to_csv()
+        matrix_analyzer.analyze_histograms()
+        if args.show:
+            plt.show()
+        return
 
     if args.circles_consts_path:
         circles_consts = CirclesConsts.from_file(args.circles_consts_path)

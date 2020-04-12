@@ -16,15 +16,62 @@ from generation.connection_types import (
 )
 from generation.matrix_consts import MatrixConsts
 from generation.node import Node
-from bsa.parasym import write_parasym
+from bsa.parasym import write_parasym, read_parasym
+from bsa.scipy_sparse import read_scipy_sparse
 
 
 class MatrixData:
     __slots__ = ("matrix_type", "matrix", "depth")
 
+    # import/export variables
+    IMPORT_MATRIX_PATH = "../../output/matrix_data"
+    EXPORT_OUTPUT_DIR = "../../output/"
+    EXPORT_FILE_NAME = "matrix_data"
+
     def __init__(self):
         self.matrix_type = None
         self.matrix = None
+        self.depth = 0
+
+    def import_matrix_data_as_scipy_sparse(self, matrix_data_path):
+        """
+        Import a MatrixData object from file.
+        The matrix is imported as scipy_sparse.
+        """
+        if matrix_data_path is None:
+            matrix_data_path = self.IMPORT_MATRIX_PATH
+        try:
+            with open(matrix_data_path, "rb") as import_file:
+                self.matrix = read_scipy_sparse(import_file)
+            self.matrix_type = "scipy_sparse"
+            self.depth = len(self.matrix)
+        except FileNotFoundError:
+            raise FileNotFoundError("Couldn't open matrix data")
+
+    def import_matrix_data_as_parasym(self, matrix_data_path=None):
+        """
+        Import a MatrixData object from file.
+        The matrix is imported as parasymbolic.
+        """
+        if matrix_data_path is None:
+            matrix_data_path = self.IMPORT_MATRIX_PATH
+        try:
+            with open(matrix_data_path, "rb") as import_file:
+                self.matrix = read_parasym(import_file)
+            self.matrix_type = "parasymbolic"
+            self.depth = len(self.matrix)
+        except FileNotFoundError:
+            raise FileNotFoundError("Couldn't open matrix data")
+
+    def export(self, output_path=None):
+        """
+        This method exports the MatrixData object to a file.
+        The matrix is exported as parasymbolic using the write_parasym() function.
+        """
+        if output_path is None:
+            output_path = self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME
+        with open(output_path, 'wb') as export_file:
+            write_parasym(self.matrix, export_file)
 
 
 # todo right now only supports parasymbolic matrix. need to merge with corona matrix class import selector
@@ -32,10 +79,6 @@ class MatrixGenerator:
     """
     this module gets the circles and agents created in circles generator and creates a matrix and sub matrices with them.
     """
-
-    # import/export variables
-    EXPORT_OUTPUT_DIR = "../../output/"
-    EXPORT_FILE_NAME = "matrix_data.bin"
 
     def __init__(
         self, population_data: PopulationData, matrix_consts: MatrixConsts = MatrixConsts(),
@@ -77,15 +120,8 @@ class MatrixGenerator:
         self.matrix_data.matrix = self.matrix
         self.matrix_data.depth = self.depth
         # export the matrix data
-        # self.export_matrix_data()
-
-    def export(self):
-        """
-        This method exports the MatrixData object to a file.
-        Because of the matrix's sparsity, it is coded using the write_parasym() function.
-        """
-        with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, 'wb') as export_file:
-            write_parasym(self.matrix_data.matrix, export_file)
+        self.matrix_data.export()
+        self.logger.info("Exported matrix")
 
     def _unpack_population_data(self, population_data):
         self.agents = population_data.agents
