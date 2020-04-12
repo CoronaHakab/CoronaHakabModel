@@ -15,6 +15,8 @@ from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
 from supervisor import Supervisable, SimulationProgression
+from agent import InitialSickAgents
+from update_matrix import Policy
 
 
 class SimulationManager:
@@ -23,11 +25,11 @@ class SimulationManager:
     """
 
     def __init__(
-            self,
-            supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
-            population_data: PopulationData,
-            matrix_data: MatrixData,
-            consts: Consts = Consts(),
+        self,
+        supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
+        population_data: PopulationData,
+        matrix_data: MatrixData,
+        consts: Consts = Consts(),
     ):
         # setting logger
         self.logger = logging.getLogger("simulation")
@@ -85,6 +87,7 @@ class SimulationManager:
         # initializing data for supervising
         # dict(day:int -> message:string) saving policies messages
         self.policies_messages = defaultdict(str)
+        self.initial_sick_agents = InitialSickAgents()
 
         self.new_sick_counter = 0
         self.new_detected_daily = 0
@@ -143,6 +146,7 @@ class SimulationManager:
 
         for agent in agents_to_infect:
             agent.set_medical_state_no_inform(self.medical_machine.default_state_upon_infection)
+            self.initial_sick_agents.add_agent(agent.get_snapshot())
 
         self.medical_machine.initial.remove_many(agents_to_infect)
         self.medical_machine.default_state_upon_infection.add_many(agents_to_infect)
@@ -157,7 +161,7 @@ class SimulationManager:
         runs full simulation
         """
         self.setup_sick()
-
+        self.initial_sick_agents.export()
         for i in range(self.consts.total_steps):
             self.step()
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
