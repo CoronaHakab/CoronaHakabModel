@@ -123,7 +123,8 @@ class SimulationManager:
                 if not self.ever_tested_positive_vector[agent.index]:
                     # TODO: awful late night implementation, improve ASAP
                     self.new_detected_daily += 1
-
+                # if tested positive then isolate agent
+                self.update_matrix_manager.apply_full_isolation_on_agent(agent)
             agent.set_test_result(test_result)
 
         # TODO send the detected agents to the selected kind of isolation
