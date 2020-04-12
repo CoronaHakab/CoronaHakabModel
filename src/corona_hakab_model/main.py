@@ -5,6 +5,7 @@ import matplotlib_set_backend
 import matplotlib.pyplot as plt
 
 from bsa.universal import write
+from application_utils import generate_from_folder, generate_from_master_folder
 from consts import Consts
 from corona_hakab_model_data.__data__ import __version__
 from generation.circles_consts import CirclesConsts
@@ -14,29 +15,50 @@ from manager import SimulationManager
 from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
 
 
-
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import pandas as pd
 
+
 def main():
     parser = ArgumentParser("COVID-19 Simulation")
 
-    sub_parsers = parser.add_subparsers(dest="sub_command")
-    gen = sub_parsers.add_parser("generate", help="only generate the population data without running the simulation")
-    gen.add_argument("output")
+    # Generation parameters:
+    subparser = parser.add_subparsers(dest="sub_command")
+    gen = subparser.add_parser('generate', help='only generate the population data without running the simulation')
+    gen.add_argument("-c",
+                     "--circles-consts",
+                     dest="circles_consts_path",
+                     help="Parameter file with consts for the circles")
+    gen.add_argument("-m",
+                     "--matrix-consts",
+                     dest="matrix_consts_path",
+                     help="Parameter file with consts for the matrix")
+    gen.add_argument("--input-folder",
+                     dest="generation_folder",
+                     help="Folder to take matrix_consts.json and circles_consts.json from."
+                     "Also output folder for generation")
+    gen.add_argument("--master-folder",
+                     dest="master_folder",
+                     help="Master folder - find all immediate sub-folders containing parameter files and generate"
+                     "population data and matrix files in them.")
+    # Simulation parameters
+    parser.add_argument("-s",
+                        "--simulation-parameters",
+                        dest="simulation_parameters_path",
+                        help="Parameters for simulation engine.")
 
-    parser.add_argument(
-        "-s", "--simulation-parameters", dest="simulation_parameters_path", help="Parameters for simulation engine"
-    )
-    parser.add_argument(
-        "-c", "--circles-consts", dest="circles_consts_path", help="Parameter file with consts for the circles"
-    )
-    parser.add_argument(
-        "-m", "--matrix-consts", dest="matrix_consts_path", help="Parameter file with consts for the matrix"
-    )
-    parser.add_argument("--version", action="version", version=__version__)
+    parser.add_argument("--matrix",
+                        dest="matrix_file_path",
+                        help="pre-generated matrix file path.")
+    parser.add_argument("--population-data",
+                        dest="population_data_file_path",
+                        help="pre-generated matrix file path.")
     args = parser.parse_args()
+
+    if args.sub_command == 'generate':
+        generate_command(args)
+        return
 
     if args.circles_consts_path:
         circles_consts = CirclesConsts.from_file(args.circles_consts_path)
@@ -101,6 +123,53 @@ def main():
     df.plot()
     plt.show()
 
+
+def generate_command(args):
+    if args.generation_folder:
+        generate_from_folder(args.generation_folder)
+        return
+    elif args.master_folder:
+        generate_from_master_folder(args.master_folder)
+        return
+
+    if args.circles_consts_path:
+        circles_consts = CirclesConsts.from_file(args.circles_consts_path)
+    else:
+        circles_consts = CirclesConsts()
+
+    if args.matrix_consts_path:
+        matrix_consts = MatrixConsts.from_file(args.matrix_consts_path)
+    else:
+        matrix_consts = MatrixConsts()
+
+    gm = GenerationManger(circles_consts=circles_consts, matrix_consts=matrix_consts)
+    gm.export()
+
+
+def compare_simulations_example():
+    sm1 = SimulationManager(
+        (
+            Supervisable.Sum(
+                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", "Recovered", "Deceased"
+            ),
+            "Symptomatic",
+            "Recovered",
+        ),
+        consts=Consts(r0=1.5),
+    )
+    sm1.run()
+
+    sm2 = SimulationManager(
+        (
+            Supervisable.Sum(
+                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", "Recovered", "Deceased"
+            ),
+            "Symptomatic",
+            "Recovered",
+        ),
+        consts=Consts(r0=1.8),
+    )
+    sm2.run()
 
 
 
