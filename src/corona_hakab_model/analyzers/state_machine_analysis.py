@@ -1,3 +1,6 @@
+from datetime import datetime
+import json
+import os
 from collections import Counter
 from agent import Agent
 from consts import Consts
@@ -36,8 +39,18 @@ def run_monte_carlo(configuration):
     agents_list = generate_agents_randomly(population_size=population_size)
     _infect_all_agents(agents_list, medical_machine_manager, medical_state_machine)
 
-    days_passed = 0
+    days_passed = 1
     state_counter = Counter()
+    state_visitors = dict()
+    for agent in agents_list:
+        state_name = agent.medical_state.name
+        agent_id = agent.index
+        if state_name in state_visitors:
+            state_visitors[state_name].add(agent_id)
+        else:
+            state_visitors[state_name] = set([agent_id])
+        state_counter[state_name] += 1
+
     done = False
     while not done:
         # Calculate the new states
@@ -50,16 +63,31 @@ def run_monte_carlo(configuration):
                               agents_list)
         not_terminal = list(not_terminal)
 
-        for agent in not_terminal:
-            state_counter[agent.medical_state.name] += 1
+        for sick_agent in not_terminal:
+            current_state_name = sick_agent.medical_state.name
+            state_counter[current_state_name] += 1
+            if current_state_name in state_visitors:
+                state_visitors[current_state_name].add(sick_agent.index)
+            else:
+                state_visitors[current_state_name] = set([sick_agent.index])
 
         days_passed += 1
         done = len(not_terminal) == 0
-
-    print(f"{state_counter=}")
-    print(f"Simulation ended after {days_passed} days")
+    state_visitors_count = dict([(state, len(visitors))  for state, visitors in state_visitors.items()])
+    average_state_time_duration = dict([(k, state_counter[k]/state_visitors_count[k])
+                                        for k in state_counter])
+    return dict(population_size=population_size,
+                days_passed=days_passed,
+                time_in_each_state=dict(state_counter),
+                visitors_in_each_state=dict(state_visitors_count),
+                average_duration_in_state=average_state_time_duration)
 
 
 if __name__ == "__main__":
-    monte_carlo_config = dict(monte_carlo_size=10_000)
-    run_monte_carlo(monte_carlo_config)
+    monte_carlo_config = dict(monte_carlo_size=1_000_000)
+    result = run_monte_carlo(monte_carlo_config)
+    output_folder = "../../output" # There is a constant, but come on...
+    file_name = os.path.join(output_folder,
+                             f"simulation_statistics_{datetime.now().strftime('%Y%m%d-%H%M%S')}.json")
+    with open(file_name, 'w') as fp:
+        json.dump(result, fp, sort_keys=True, indent=4)
