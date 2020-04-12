@@ -49,7 +49,8 @@ class GeographicCircle(Circle):
     def create_social_circles_by_type(self, connection_type: ConnectionTypes, agents_for_type: List["Agent"]):
         """
         creates social circles of a given connection type, with a given list of agents.
-        uses self data holder circle size distribution of the given connection type
+        uses self data holder circle size distribution of the given connection type.
+        NOTE: last circle might run out of adults if the given agents weren't created with enough adults
         :param connection_type: the connection type currently created
         :param agents_for_type: the agents that will be inserted to the social circles
         :return:
