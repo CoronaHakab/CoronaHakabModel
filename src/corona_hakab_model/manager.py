@@ -1,18 +1,16 @@
 import logging
 from collections import defaultdict
-from random import random
-from typing import Callable, Dict, Iterable, List, Union
+from typing import Callable, Iterable, List, Union
 
-import healthcare
-import infection
 import numpy as np
+
+import infection
 import update_matrix
 from consts import Consts
+from detection_model import healthcare
+from detection_model.healthcare import PendingTestResult, PendingTestResults
 from generation.circles_generator import PopulationData
-from generation.connection_types import ConnectionTypes
 from generation.matrix_generator import MatrixData
-from healthcare import PendingTestResult, PendingTestResults
-from medical_state import MedicalState
 from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
@@ -76,7 +74,8 @@ class SimulationManager:
         initial_state.add_many(self.agents)
 
         # initializing simulation modules
-        self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers], self)
+        self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers],
+                                                            self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self)
         self.infection_manager = infection.InfectionManager(self)
         self.healthcare_manager = healthcare.HealthcareManager(self)
