@@ -11,10 +11,10 @@ from state_machine import TerminalState
 
 def _generate_agents_randomly(population_size, circle_consts):
     list_of_agents = []
-    age_dist = circle_consts.get_age_distribution()
+    random_ages = circle_consts.get_age_distribution().rvs(size=population_size)
     for i in range(population_size):
         new_agent = Agent(index=i)
-        new_agent.age = age_dist.rvs()
+        new_agent.age = random_ages[i]
         list_of_agents.append(new_agent)
     return list_of_agents
 
@@ -96,7 +96,7 @@ def run_monte_carlo(configuration):
 if __name__ == "__main__":
     monte_carlo_config = dict(monte_carlo_size=1_000_000)
     result = run_monte_carlo(monte_carlo_config)
-    output_folder = "../../output" # There is a constant, but come on...
+    output_folder = "../../output"  # There is a constant, but come on...
     file_name = os.path.join(output_folder,
                              f"simulation_statistics_{datetime.now().strftime('%Y%m%d-%H%M%S')}.json")
     with open(file_name, 'w') as fp:
