@@ -34,7 +34,10 @@
     - minimal dependencies (for researches): **pipenv install**
 - go to src/corona_hakab_model folder
     - run **set_pythonpath.bat** to add entire src directory to python_path, allowing importing of corona_hakab_model_data.
-    - run: **python main.py**
+    - run: **python main.py generate** to generate the population and matrix data.
+    - run: **python main.py simulate** to run the simulation with the previously generated population and circles.
+    - run: **python main.py [simulate|generate] --help** for more help about each option.
+    
 
 ## Optional - Export/Import matrices!
 - Export: **python main.py -o <PATH>**
