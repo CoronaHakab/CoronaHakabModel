@@ -29,7 +29,10 @@ def write_swim():
 
     swim(pools.include(src))
 
-    swim(pools.primitive())
+    swim(pools.primitive(additionals=False, out_iterable_types=()))
+    swim(pools.list("size_t"))
+    swim(pools.list("std::vector<size_t>"))
+    swim(pools.list("std::vector<std::vector<size_t>>"))
 
     swim(Typedef.Behaviour()(src))
 
