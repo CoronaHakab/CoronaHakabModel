@@ -153,3 +153,6 @@ static
 
 # serialized objects
 *.pickle
+
+# Output directory
+output/

@@ -72,7 +72,6 @@ class GeographicCircle(Circle):
                 agent = agents.pop()
                 circle = circles[index % len(circles)]
                 circle.add_agent(agent)
-                agent.social_circles.append(circle)
                 index += 1
             self.connection_type_to_social_circles[connection_type].extend(circles)
             self.all_social_circles.extend(circles)

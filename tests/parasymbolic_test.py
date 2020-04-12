@@ -1,7 +1,9 @@
 from contextlib import contextmanager
+from io import BytesIO
 from itertools import product
 
 import numpy as np
+from bsa.parasym import read_parasym, write_parasym
 from parasymbolic_matrix import ParasymbolicMatrix
 
 
@@ -132,6 +134,27 @@ def test_parasym():
         print(i)
         assert i == j
         check_equal(main, mock, i)
+
+
+def test_read_write():
+    arr = ParasymbolicMatrix(3, 2)
+    with arr.lock_rebuild():
+        arr[0, 0, [1]] = [0.2]
+        arr[0, 1, [0]] = [0.2]
+        arr[0, 2, [1]] = [0.6]
+
+        arr[1, 0, [2]] = [0.1]
+        arr[1, 2, [0, 2]] = [0.5, 0.5]
+
+    sink = BytesIO()
+    write_parasym(arr, sink)
+    sink.seek(0)
+    dec = read_parasym(sink)
+
+    for i, j in product(range(3), repeat=2):
+        for layer in range(2):
+            assert arr.get(layer, i, j) == dec.get(layer, i, j)
+        assert arr.get(i, j) == dec.get(i, j)
 
 
 if __name__ == "__main__":

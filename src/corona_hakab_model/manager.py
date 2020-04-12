@@ -1,19 +1,23 @@
 import logging
 from collections import defaultdict
-from typing import Callable, Iterable, List, Union
+from random import random
+from typing import Callable, Dict, Iterable, List, Union
 
-from detection_model import healthcare
+import healthcare
 import infection
 import numpy as np
 import update_matrix
 from consts import Consts
 from generation.circles_generator import PopulationData
+from generation.connection_types import ConnectionTypes
 from generation.matrix_generator import MatrixData
-from detection_model.healthcare import PendingTestResult, PendingTestResults
+from healthcare import PendingTestResult, PendingTestResults
+from medical_state import MedicalState
 from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
-from supervisor import Supervisable, Supervisor
+from supervisor import Supervisable, SimulationProgression
+from update_matrix import Policy
 
 
 class SimulationManager:
@@ -38,6 +42,8 @@ class SimulationManager:
         self.agents = population_data.agents
         self.geographic_circles = population_data.geographic_circles
         self.social_circles_by_connection_type = population_data.social_circles_by_connection_type
+        self.geographic_circle_by_agent_index = population_data.geographic_circle_by_agent_index
+        self.social_circles_by_agent_index = population_data.social_circles_by_agent_index
 
         self.matrix_type = matrix_data.matrix_type
         self.matrix = matrix_data.matrix
@@ -69,7 +75,7 @@ class SimulationManager:
         initial_state.add_many(self.agents)
 
         # initializing simulation modules
-        self.supervisor = Supervisor([Supervisable.coerce(a, self) for a in supervisable_makers], self)
+        self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers], self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self)
         self.infection_manager = infection.InfectionManager(self)
         self.healthcare_manager = healthcare.HealthcareManager(self)
@@ -86,6 +92,7 @@ class SimulationManager:
         self.new_detected_daily = 0
 
         self.logger.info("Created new simulation.")
+        self.simulation_progression.snapshot(self)
 
     def step(self):
         """
@@ -108,7 +115,7 @@ class SimulationManager:
 
         self.current_step += 1
 
-        self.supervisor.snapshot(self)
+        self.simulation_progression.snapshot(self)
 
     def progress_tests_and_isolation(self, new_tests: List[PendingTestResult]):
         self.new_detected_daily = 0
@@ -161,11 +168,8 @@ class SimulationManager:
         # self.consts.medical_state_machine.cache_clear()
         Supervisable.coerce.cache_clear()
 
-    def plot(self, **kwargs):
-        self.supervisor.plot(**kwargs)
-
-    def stackplot(self, **kwargs):
-        self.supervisor.stack_plot(**kwargs)
+    def dump(self, **kwargs):
+        return self.simulation_progression.dump(**kwargs)
 
     def __str__(self):
         return f"<SimulationManager: SIZE_OF_POPULATION={len(self.agents)}, " f"STEPS_TO_RUN={self.consts.total_steps}>"

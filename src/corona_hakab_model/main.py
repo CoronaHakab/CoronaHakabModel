@@ -1,50 +1,90 @@
+from __future__ import annotations
+
+import logging
 from argparse import ArgumentParser
+import matplotlib_set_backend
+import matplotlib.pyplot as plt
 
+from bsa.universal import write
+from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
 from consts import Consts
+from corona_hakab_model_data.__data__ import __version__
+from generation.circles_consts import CirclesConsts
 from generation.generation_manager import GenerationManger
+from generation.matrix_consts import MatrixConsts
 from manager import SimulationManager
-from supervisor import LambdaValueSupervisable, Supervisable, Supervisor
+from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
 
 
-def check_args(args):
-    if args.input_matrix_path and args.output_matrix_path:
-        print("ERROR: Cannot import AND export matrix in the same run!")
-        return False
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    import pandas as pd
+
+logger = logging.getLogger('application')
+logger.setLevel(logging.INFO)
 
 
 def main():
-    parser = ArgumentParser(
-        """
-    COVID-19 Simulation
-    Optional:
-        Input path of a pre-generated matrix
-        OR
-        Output path for the matrix generated now
-    Optional:
-        Parameters file (see Parameters/parameters_example.py)
-    CRITICAL -
-        The size of the matrix is not checked when loading an existing file!
-        If the size of the population changed - make sure the matrix is appropriate.
-    """
-    )
-    parser.add_argument(
-        "-i", "--input-matrix", dest="input_matrix_path", help="npz file path of a pre-generated matrix",
-    )
-    parser.add_argument(
-        "-o", "--output-matrix", dest="output_matrix_path", help="npz file path for the newly-generated matrix",
-    )
-    parser.add_argument("-p", "--parameters", dest="parameters", help="Parameter file with consts for the simulation")
+    parser = ArgumentParser("COVID-19 Simulation")
+
+    # Generation parameters:
+    subparser = parser.add_subparsers(dest="sub_command")
+    gen = subparser.add_parser('generate', help='only generate the population data without running the simulation')
+    gen.add_argument("-c",
+                     "--circles-consts",
+                     dest="circles_consts_path",
+                     help="Parameter file with consts for the circles")
+    gen.add_argument("-m",
+                     "--matrix-consts",
+                     dest="matrix_consts_path",
+                     help="Parameter file with consts for the matrix")
+    gen.add_argument("-o",
+                     "--output-folder",
+                     dest="output_folder",
+                     help="output folder if not using --consts-folder or --master-folder")
+    gen.add_argument("--consts-folder",
+                     dest="consts_folder",
+                     help="Folder to take matrix_consts.json and circles_consts.json from."
+                     "Also output folder for generation")
+    gen.add_argument("--master-folder",
+                     dest="master_folder",
+                     help="Master folder - find all immediate sub-folders containing parameter files and generate"
+                     "population data and matrix files in them.")
+    # Simulation parameters
+    parser.add_argument("-s",
+                        "--simulation-parameters",
+                        dest="simulation_parameters_path",
+                        help="Parameters for simulation engine.")
+
+    parser.add_argument("--matrix",
+                        dest="matrix_file_path",
+                        help="pre-generated matrix file path.")
+    parser.add_argument("--population-data",
+                        dest="population_data_file_path",
+                        help="pre-generated matrix file path.")
     args = parser.parse_args()
 
-    if args.parameters:
-        consts = Consts.from_file(args.parameters)
+    if args.sub_command == 'generate':
+        generate_command(args)
+        return
+
+    circles_consts = make_circles_consts(args.circles_consts_path)
+
+    matrix_consts = make_matrix_consts(args.matrix_consts_path)
+
+    gm = GenerationManger(circles_consts=circles_consts, matrix_consts=matrix_consts)
+
+    if args.simulation_parameters_path:
+        consts = Consts.from_file(args.simulation_parameters_path)
     else:
         consts = Consts()
 
-    gm = GenerationManger()
     sm = SimulationManager(
         (
             # "Latent",
+            Supervisable.State.AddedPerDay("Asymptomatic"),
+            Supervisable.State.Current("Asymptomatic"),
+            Supervisable.State.TotalSoFar("Asymptomatic"),
             # "Silent",
             # "Asymptomatic",
             # "Symptomatic",
@@ -76,7 +116,28 @@ def main():
     )
     print(sm)
     sm.run()
-    sm.plot(save=True, max_scale=False)
+    df: pd.DataFrame = sm.dump()
+    df.plot()
+    plt.show()
+
+
+def generate_command(args):
+    if args.consts_folder:
+        generate_from_folder(args.consts_folder)
+        return
+    elif args.master_folder:
+        generate_from_master_folder(args.master_folder)
+        return
+
+    if not args.output_folder:
+        logger.error("No output folder given! use --output-folder")
+
+    circles_consts = make_circles_consts(args.circles_consts_path)
+
+    matrix_consts = make_matrix_consts(args.matrix_consts_path)
+
+    gm = GenerationManger(circles_consts=circles_consts, matrix_consts=matrix_consts)
+    gm.save_to_folder(args.output_folder)
 
 
 def compare_simulations_example():
@@ -104,10 +165,6 @@ def compare_simulations_example():
     )
     sm2.run()
 
-    Supervisor.static_plot(
-        ((sm1, f"ro = {sm1.consts.r0}:", ("y-", "y--", "y:")), (sm2, f"ro = {sm2.consts.r0}:", ("c-", "c--", "c:"))),
-        f"comparing r0 = {sm1.consts.r0} to r0={sm2.consts.r0}",
-    )
 
 
 if __name__ == "__main__":

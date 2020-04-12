@@ -7,6 +7,7 @@ from typing import List
 
 import corona_matrix
 import numpy as np
+from corona_hakab_model_data.__data__ import __version__
 from generation.circles import SocialCircle
 from generation.circles_generator import PopulationData
 from generation.connection_types import (
@@ -26,16 +27,21 @@ class MatrixData:
         self.matrix_type = None
         self.matrix = None
 
+    # todo make this work, using the parasymbolic matrix serialization.
+    def export(self, export_path, file_name: str):
+        pass
+
+    # todo make this work, using the parasymbolic matrix de-serialization.
+    @staticmethod
+    def import_matrix_data(import_file_path: str) -> "MatrixData":
+        pass
+
 
 # todo right now only supports parasymbolic matrix. need to merge with corona matrix class import selector
 class MatrixGenerator:
     """
     this module gets the circles and agents created in circles generator and creates a matrix and sub matrices with them.
     """
-
-    # import/export variables
-    EXPORT_OUTPUT_DIR = "../../output/"
-    EXPORT_FILE_NAME = "matrix_data.pickle"
 
     def __init__(
         self, population_data: PopulationData, matrix_consts: MatrixConsts = MatrixConsts(),
@@ -83,6 +89,8 @@ class MatrixGenerator:
         self.agents = population_data.agents
         self.social_circles_by_connection_type = population_data.social_circles_by_connection_type
         self.geographic_circles = population_data.geographic_circles
+        self.geographic_circle_by_agent_index = population_data.geographic_circle_by_agent_index
+        self.social_circles_by_agent_index = population_data.social_circles_by_agent_index
 
     def _create_fully_connected_circles_matrix(self, con_type: ConnectionTypes, circles: List[SocialCircle], depth):
         connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
@@ -311,11 +319,3 @@ class MatrixGenerator:
         floor_prob = math.ceil(x) - x
         ceil_prob = x - math.floor(x)
         return np.random.choice([math.floor(x), math.ceil(x)], size=shape, p=[floor_prob, ceil_prob])
-
-    def export_matrix_data(self):
-        self.matrix_data.matrix_type = "parasymbolic"
-        self.matrix_data.matrix = self.matrix
-        self.matrix_data.depth = self.depth
-
-        with open(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, "wb") as export_file:
-            pickle.dump(self.matrix_data, export_file)

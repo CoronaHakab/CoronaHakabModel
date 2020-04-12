@@ -129,6 +129,20 @@ void CoffedSparseMatrix::reset_mul_col(size_t col){
     total = NAN;
 }
 
+std::vector<std::vector<size_t>> CoffedSparseMatrix::non_zero_columns(){
+    std::vector<std::vector<size_t>> ret;
+    for (auto row_num = 0; row_num < size; row_num++){
+        auto& row = rows[row_num];
+        std::vector<size_t> el;
+        el.reserve(row.size());
+        for (auto it = row.cbegin(); it != row.cend(); it++){
+            el.push_back(it->first);
+        }
+        ret.push_back(el);
+    }
+    return ret;
+}
+
 CoffedSparseMatrix::~CoffedSparseMatrix(){
     delete[] row_coefficients;
     delete[] col_coefficients;
@@ -252,7 +266,7 @@ void ParasymbolicMatrix::rebuild_column(size_t col_num){
 void ParasymbolicMatrix::rebuild_factor(dtype factor){
     for (auto row_num = 0; row_num < inner.size; row_num++){
         auto& row_data = inner.data[row_num];
-        for (auto iter = row_data.begin(); iter != row_data.end(); ++iter){
+        for (auto&& iter = row_data.begin(); iter != row_data.end(); ++iter){
             *iter *= factor;
         }
     }
@@ -283,6 +297,10 @@ double ParasymbolicMatrix::total(){
             ret += *j;
     }
     return ret;
+}
+
+size_t ParasymbolicMatrix::get_size(){
+    return inner.size;
 }
 
 void ParasymbolicMatrix::_prob_any_row(size_t row_num, dtype const* A_v, size_t v_len, size_t const * A_non_zero_indices, size_t nzi_len,
@@ -375,6 +393,16 @@ void ParasymbolicMatrix::batch_set(size_t component_num, size_t row, size_t cons
 void ParasymbolicMatrix::set_calc_lock(bool value){
     calc_lock = value;
     if (!calc_lock) rebuild_all();
+}
+
+std::vector<std::vector<std::vector<size_t>>> ParasymbolicMatrix::non_zero_columns(){
+    std::vector<std::vector<std::vector<size_t>>> ret;
+    for (auto c = 0; c < component_count; c++){
+        ret.push_back(
+            components[c]->non_zero_columns()
+        );
+    }
+    return ret;
 }
 
 ParasymbolicMatrix::~ParasymbolicMatrix(){

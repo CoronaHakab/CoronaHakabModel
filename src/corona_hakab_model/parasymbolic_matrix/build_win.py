@@ -47,7 +47,10 @@ def write_swim():
 
     swim(pools.include(src))
 
-    swim(pools.primitive())
+    swim(pools.primitive(additionals=False, out_iterable_types=()))
+    swim(pools.list("size_t"))
+    swim(pools.list("std::vector<size_t>"))
+    swim(pools.list("std::vector<std::vector<size_t>>"))
 
     swim(Typedef.Behaviour()(src))
 
@@ -60,28 +63,28 @@ def write_swim():
         "prob_any",
         "self, v",
         """
-                        nz = np.flatnonzero(v).astype(np.uint64, copy=False)
-                        return self._prob_any(v, nz)
-                        """,
+        nz = np.flatnonzero(v).astype(np.uint64, copy=False)
+        return self._prob_any(v, nz)
+        """,
     )
     pswim.extend_py_def(
         "__setitem__",
         "self, key, v",
         """
-                        comp, row, indices = key
-                        indices = np.asanyarray(indices, dtype=np.uint64)
-                        v = np.asanyarray(v, dtype=np.float32)
-                        self.batch_set(comp, row, indices, v)
-                        """,
+        comp, row, indices = key
+        indices = np.asanyarray(indices, dtype=np.uint64)
+        v = np.asanyarray(v, dtype=np.float32)
+        self.batch_set(comp, row, indices, v)
+        """,
     )
     pswim.extend_py_def(
         "lock_rebuild",
         "self",
         """
-                        self.set_calc_lock(True)
-                        yield self
-                        self.set_calc_lock(False)
-                        """,
+        self.set_calc_lock(True)
+        yield self
+        self.set_calc_lock(False)
+        """,
         wrapper="contextmanager",
     )
     swim(pswim)
