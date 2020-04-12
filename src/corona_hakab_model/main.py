@@ -4,10 +4,10 @@ from argparse import ArgumentParser
 from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
+from corona_hakab_model_data.__data__ import __version__
 
 from bsa.universal import write
 from consts import Consts
-from corona_hakab_model_data.__data__ import __version__
 from generation.circles_consts import CirclesConsts
 from generation.generation_manager import GenerationManger
 from generation.matrix_consts import MatrixConsts
@@ -62,9 +62,9 @@ def main():
     sm = SimulationManager(
         (
             # "Latent",
-            Supervisable.State.AddedPerDay("Asymptomatic"),
-            Supervisable.State.Current("Asymptomatic"),
-            Supervisable.State.TotalSoFar("Asymptomatic"),
+            # Supervisable.State.AddedPerDay("Asymptomatic"),
+            # Supervisable.State.Current("Asymptomatic"),
+            # Supervisable.State.TotalSoFar("Asymptomatic"),
             # "Silent",
             # "Asymptomatic",
             # "Symptomatic",
@@ -73,14 +73,14 @@ def main():
             # "ICU",
             # "Susceptible",
             # "Recovered",
-            Supervisable.Sum(
-                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", name="currently sick"
-            ),
+            # Supervisable.Sum(
+            #     "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", name="currently sick"
+            # ),
             # LambdaValueSupervisable("ever hospitalized", lambda manager: len(manager.medical_machine["Hospitalized"].ever_visited)),
-            LambdaValueSupervisable(
-                "was ever sick",
-                lambda manager: len(manager.agents) - manager.medical_machine["Susceptible"].agent_count,
-            ),
+            # LambdaValueSupervisable(
+            #     "was ever sick",
+            #     lambda manager: len(manager.agents) - manager.medical_machine["Susceptible"].agent_count,
+            # ),
             # Supervisable.NewCasesCounter(),
             # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),

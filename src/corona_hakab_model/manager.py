@@ -4,13 +4,13 @@ from typing import Callable, Iterable, List, Union
 
 import numpy as np
 
-import healthcare
 import infection
 import update_matrix
 from consts import Consts
+from detection_model import healthcare
+from detection_model.healthcare import PendingTestResult, PendingTestResults
 from generation.circles_generator import PopulationData
 from generation.matrix_generator import MatrixData
-from healthcare import PendingTestResult, PendingTestResults
 from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
@@ -23,11 +23,11 @@ class SimulationManager:
     """
 
     def __init__(
-        self,
-        supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
-        population_data: PopulationData,
-        matrix_data: MatrixData,
-        consts: Consts = Consts(),
+            self,
+            supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
+            population_data: PopulationData,
+            matrix_data: MatrixData,
+            consts: Consts = Consts(),
     ):
         # setting logger
         self.logger = logging.getLogger("simulation")
@@ -72,7 +72,8 @@ class SimulationManager:
         initial_state.add_many(self.agents)
 
         # initializing simulation modules
-        self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers], self)
+        self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers],
+                                                            self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self)
         self.infection_manager = infection.InfectionManager(self)
         self.healthcare_manager = healthcare.HealthcareManager(self)
