@@ -72,6 +72,7 @@ class AgentSnapshot:
 class InitialSickAgents:
     EXPORT_OUTPUT_DIR = "../../output/"
     EXPORT_FILE_NAME = "initial_sick.csv"
+    ID_SUFFIX = " id"
     def __init__(self):
         self.agent_snapshots = []
 
@@ -80,14 +81,18 @@ class InitialSickAgents:
 
     def export(self):
         num_sick = len(self.agent_snapshots)
-        export_dict = {"agent indexes":[0]*num_sick,"geographic_circles":[0]*num_sick,"age":[0]*num_sick}
-        social_circles = {connection_type.name:[0]*num_sick for connection_type in ConnectionTypes}
+        export_dict = {"agent indexes":[""]*num_sick,"geographic_circles":[""]*num_sick,"age":[""]*num_sick}
+        social_circles = {connection_type.name:[""]*num_sick for connection_type in ConnectionTypes}
+        social_circles_ids = {connection_type.name + self.ID_SUFFIX:[""]*num_sick for connection_type in ConnectionTypes}
+        social_circles = {**social_circles,**social_circles_ids}
+
         for index, agent_snapshot in enumerate(self.agent_snapshots):
             export_dict["agent indexes"][index] = agent_snapshot.index
             export_dict["geographic_circles"][index] = agent_snapshot.geographic_circle
             export_dict["age"][index] = agent_snapshot.age
             for social_circle_snapshot in agent_snapshot.social_circles:
                 social_circles[social_circle_snapshot.type][index] = social_circle_snapshot.num_members
+                social_circles[social_circle_snapshot.type + self.ID_SUFFIX][index] = social_circle_snapshot.id
         export_dict = {**export_dict,**social_circles}
         df_export_sick = pd.DataFrame(export_dict)
         df_export_sick.to_csv(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME,index=False)

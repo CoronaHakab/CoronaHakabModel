@@ -2,10 +2,11 @@ from generation.connection_types import ConnectionTypes
 from dataclasses import dataclass
 
 class Circle:
-    __slots__ = "kind", "agent_count"
+    __slots__ = "kind", "agent_count", "circle_id"
 
-    def __init__(self):
+    def __init__(self,circle_id=-1):
         self.agent_count = 0
+        self.circle_id = circle_id
 
     def add_many(self, agents):
         self.agent_count += len(agents)
@@ -19,12 +20,11 @@ class Circle:
     def remove_agent(self, agent):
         self.agent_count -= 1
 
-
 class SocialCircle(Circle):
     __slots__ = ("agents", "connection_type")
 
-    def __init__(self, connection_type: ConnectionTypes):
-        super().__init__()
+    def __init__(self, connection_type: ConnectionTypes,**kwargs):
+        super().__init__(**kwargs)
         self.kind = "social circle"
         self.agents = set()
         self.connection_type = connection_type
@@ -55,10 +55,11 @@ class SocialCircle(Circle):
         return rest_of_circle
 
     def get_snapshot(self):
-        return SocialCircleSnapshot(self.connection_type.name,len(self.agents))
+        return SocialCircleSnapshot(self.connection_type.name,len(self.agents),self.circle_id)
 
 
 @dataclass
 class SocialCircleSnapshot:
     type: str
     num_members: int
+    id: int

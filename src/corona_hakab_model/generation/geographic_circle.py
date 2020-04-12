@@ -12,12 +12,15 @@ class GeographicCircle(Circle):
         "agents",
         "all_social_circles",
         "data_holder",
+        "circle_count",
         "connection_type_to_agents",
         "connection_type_to_social_circles",
+
     )
 
-    def __init__(self, data_holder: GeographicalCircleDataHolder):
-        super().__init__()
+    def __init__(self, data_holder: GeographicalCircleDataHolder,**kwargs):
+        super().__init__(**kwargs)
+        self.circle_count = 0
         self.kind = "geographic circle"
         self.agents = []
         self.data_holder = data_holder
@@ -65,7 +68,8 @@ class GeographicCircle(Circle):
 
         for size, agents in size_to_agents.items():
             amount_of_circles = max(1, round(len(agents) / size))
-            circles = [SocialCircle(connection_type) for _ in range(amount_of_circles)]
+            circles = [SocialCircle(connection_type,circle_id=self.circle_count) for _ in range(amount_of_circles)]
+            self.circle_count += 1
             # doing it this way so that all circles will be the same size
             index = 0
             while len(agents) > 0:

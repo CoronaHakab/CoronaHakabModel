@@ -58,7 +58,6 @@ class CirclesGenerator:
     # import/export variables
     EXPORT_OUTPUT_DIR = "../../output/"
     EXPORT_FILE_NAME = "population_data.pickle"
-
     # todo split consts into generation_consts, simulation_consts, and plot_consts
     def __init__(
         self, circles_consts: CirclesConsts,
@@ -66,7 +65,6 @@ class CirclesGenerator:
         self.circles_consts = circles_consts
         self.population_data = PopulationData()
         self.agents = [Agent(index) for index in range(self.circles_consts.population_size)]
-
         # create geographic circles, and allocate each with agents
         self.geographic_circles: List[GeographicCircle] = []
         self.create_geographic_circles()
