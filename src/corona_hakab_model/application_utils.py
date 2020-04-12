@@ -42,9 +42,12 @@ def get_viable_subfolders_for_generation(master_folder_path: str):
     Find all immediate sub-folders that have both const files present
     """
     # get all sub-directories and ignore files
-    subfolders = [path for path in os.listdir(master_folder_path) if os.path.isdir(path)]
+    sub_folders = [os.path.join(master_folder_path, path)
+                   for path
+                   in os.listdir(master_folder_path)
+                   if os.path.isdir(os.path.join(master_folder_path, path))]
     # Filter only folders containing consts files
-    viable_subfolders = [folder for folder in subfolders if check_folder_for_generation_consts_files(folder)]
+    viable_subfolders = [folder for folder in sub_folders if check_folder_for_generation_consts_files(folder)]
     return viable_subfolders
 
 
