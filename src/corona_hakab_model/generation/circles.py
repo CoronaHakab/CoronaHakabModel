@@ -1,5 +1,5 @@
 from generation.connection_types import ConnectionTypes
-
+from dataclasses import dataclass
 
 class Circle:
     __slots__ = "kind", "agent_count"
@@ -53,3 +53,12 @@ class SocialCircle(Circle):
         rest_of_circle = {o.index for o in self.agents}
         rest_of_circle.remove(my_index)
         return rest_of_circle
+
+    def get_snapshot(self):
+        return SocialCircleSnapshot(self.connection_type.name,len(self.agents))
+
+
+@dataclass
+class SocialCircleSnapshot:
+    type: str
+    num_members: int
