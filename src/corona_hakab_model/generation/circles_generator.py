@@ -180,7 +180,6 @@ class CirclesGenerator:
         self.population_data.social_circles_by_agent_index = self.social_circles_by_agent_index
 
     def export(self):
-        self._fill_population_data()
         # export population data using pickle
         self.population_data.export(self.EXPORT_OUTPUT_DIR, self.EXPORT_FILE_NAME)
 
