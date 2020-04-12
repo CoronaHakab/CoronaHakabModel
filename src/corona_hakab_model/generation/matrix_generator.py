@@ -95,8 +95,6 @@ class MatrixGenerator:
         self.matrix_data.matrix_type = "parasymbolic"
         self.matrix_data.matrix = self.matrix
         self.matrix_data.depth = self.depth
-        # export the matrix data
-        self.export_matrix_data()
 
     def _unpack_population_data(self, population_data):
         self.agents = population_data.agents

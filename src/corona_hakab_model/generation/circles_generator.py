@@ -105,8 +105,7 @@ class CirclesGenerator:
         self.social_circles_by_agent_index = {}
         self.fill_social_circles_by_agent_index()
 
-        # export the population data
-        self.export()
+        self._fill_population_data()
 
     def create_geographic_circles(self):
         """
@@ -172,7 +171,7 @@ class CirclesGenerator:
                 for agent in social_circle.agents:
                     self.social_circles_by_agent_index.setdefault(agent.index, []).append(social_circle)
 
-    def export(self):
+    def _fill_population_data(self):
         # fill population data with my data
         self.population_data.agents = self.agents
         self.population_data.social_circles_by_connection_type = self.social_circles_by_connection_type
@@ -180,6 +179,8 @@ class CirclesGenerator:
         self.population_data.geographic_circle_by_agent_index = self.geographic_circle_by_agent_index
         self.population_data.social_circles_by_agent_index = self.social_circles_by_agent_index
 
+    def export(self):
+        self._fill_population_data()
         # export population data using pickle
         self.population_data.export(self.EXPORT_OUTPUT_DIR, self.EXPORT_FILE_NAME)
 

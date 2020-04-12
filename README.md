@@ -33,6 +33,7 @@
     - full dependencies (for developers): **pipenv install --dev**
     - minimal dependencies (for researches): **pipenv install**
 - go to src/corona_hakab_model folder
+    - run **set_pythonpath.bat** to add entire src directory to python_path, allowing importing of corona_hakab_model_data.
     - run: **python main.py**
 
 ## Optional - Export/Import matrices!
