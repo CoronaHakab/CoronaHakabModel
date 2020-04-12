@@ -74,11 +74,6 @@ def main():
 
     gm = GenerationManger(circles_consts=circles_consts, matrix_consts=matrix_consts)
 
-    if args.sub_command == "generate":
-        with open(args.output, "wb") as w:
-            write(gm.matrix_data.matrix, w)
-        return
-
     if args.simulation_parameters_path:
         consts = Consts.from_file(args.simulation_parameters_path)
     else:
