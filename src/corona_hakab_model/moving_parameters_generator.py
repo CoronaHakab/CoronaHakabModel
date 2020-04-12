@@ -53,8 +53,8 @@ class MovingParametersGenerator:
 
 
 if __name__ == "__main__":
-    circles_file_path = "Parameters/circles_parameters_example.py"
-    circles_output_folder_path = "../../output/generated_parameters/circles_parameters"
+    example_input_file_path = "Parameters/circles_parameters_example.py"
+    example_output_folder_path = "../../output/generated_parameters/circles_parameters"
 
     population_size_param = MovingParameter(param_name="population_size",
                                             start_range=20_000,
@@ -64,7 +64,7 @@ if __name__ == "__main__":
                                                start_range=2,
                                                end_range=5,
                                                step_size=1)
-    input_moving_params = [population_size_param, geo_circles_amount_param]
+    example_moving_params = [population_size_param, geo_circles_amount_param]
 
-    MovingParametersGenerator.generate_moving_parameters(circles_file_path, input_moving_params,
-                                                         circles_output_folder_path)
+    MovingParametersGenerator.generate_moving_parameters(example_input_file_path, example_moving_params,
+                                                         example_output_folder_path)

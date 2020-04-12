@@ -62,7 +62,7 @@
         - Each "moving" parameter will have a separate folder
         - The name of the file is set to be the parameter's value
 - Running the module (for now)
-    - Manually insert the parameters in code
+    - Manually insert the parameters in code (look at the bottom of the file for example)
     - Go to src/corona_hakab_model folder
     - Run: python moving_parameters_generator.py
 
