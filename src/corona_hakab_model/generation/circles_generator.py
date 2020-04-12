@@ -1,6 +1,7 @@
 import pickle
 import sys
 from typing import List
+import os.path
 
 from agent import Agent
 from corona_hakab_model_data.__data__ import __version__
@@ -38,7 +39,7 @@ class PopulationData:
         if not file_name.endswith(".pickle"):
             file_name += ".pickle"
 
-        with open(export_path + file_name, "wb") as export_file:
+        with open(os.path.join(export_path,file_name), "wb") as export_file:
             pickle.dump(self, export_file)
 
     @staticmethod
