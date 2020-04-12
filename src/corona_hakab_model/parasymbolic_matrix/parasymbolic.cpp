@@ -135,7 +135,7 @@ std::vector<std::vector<size_t>> CoffedSparseMatrix::non_zero_columns(){
         auto& row = rows[row_num];
         std::vector<size_t> el;
         el.reserve(row.size());
-        for (auto& it = row.cbegin(); it != row.cend(); it++){
+        for (auto it = row.cbegin(); it != row.cend(); it++){
             el.push_back(it->first);
         }
         ret.push_back(el);
@@ -266,7 +266,7 @@ void ParasymbolicMatrix::rebuild_column(size_t col_num){
 void ParasymbolicMatrix::rebuild_factor(dtype factor){
     for (auto row_num = 0; row_num < inner.size; row_num++){
         auto& row_data = inner.data[row_num];
-        for (auto iter = row_data.begin(); iter != row_data.end(); ++iter){
+        for (auto&& iter = row_data.begin(); iter != row_data.end(); ++iter){
             *iter *= factor;
         }
     }
