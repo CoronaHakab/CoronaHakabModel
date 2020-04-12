@@ -19,6 +19,7 @@ class CirclesConsts(NamedTuple):
     population_size: int = 20_000
     ages: List[int] = [10, 40, 70]
     age_prob: List[int] = [0.30, 0.45, 0.25]
+    teachers_ratio = 0.015 # ratio of teachers out of workforce
     connection_type_prob_by_age_index: List = [
         {
             ConnectionTypes.Work: 0,
@@ -27,8 +28,8 @@ class CirclesConsts(NamedTuple):
             ConnectionTypes.Other: 1.0,
         },
         {
-            ConnectionTypes.Work: 0.9,
-            ConnectionTypes.School: 0,
+            ConnectionTypes.Work: 0.9 * (1 - teachers_ratio),
+            ConnectionTypes.School: 0.9 * teachers_ratio,
             ConnectionTypes.Family: 1.0,
             ConnectionTypes.Other: 1.0,
         },
