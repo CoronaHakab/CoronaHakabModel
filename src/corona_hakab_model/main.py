@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-import matplotlib_set_backend
+
 import matplotlib.pyplot as plt
 
 from bsa.universal import write
@@ -11,8 +11,7 @@ from generation.circles_consts import CirclesConsts
 from generation.generation_manager import GenerationManger
 from generation.matrix_consts import MatrixConsts
 from manager import SimulationManager
-from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
-
+from supervisor import LambdaValueSupervisable, Supervisable
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -100,8 +99,6 @@ def main():
     df: pd.DataFrame = sm.dump()
     df.plot()
     plt.show()
-
-
 
 
 if __name__ == "__main__":

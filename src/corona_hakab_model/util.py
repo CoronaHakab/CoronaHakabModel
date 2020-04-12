@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from typing import Generic, List, Protocol, TypeVar
+from typing import Iterable
 
 from scipy.stats import binom, randint, rv_discrete
 
@@ -34,6 +35,18 @@ def lower_bound(d):
     return d.a + d.kwds.get("loc", 0)
 
 
+def is_strict_sorted(s: Iterable):
+    i = iter(s)
+    try:
+        prev = next(i)
+    except StopIteration:
+        return True
+    for x in i:
+        if x <= prev:
+            return False
+    return True
+
+
 class HasDuration(Protocol):
     @abstractmethod
     def duration(self) -> int:
@@ -55,7 +68,7 @@ class Queue(Generic[T]):
         if new_size < len(self.queued):
             raise NotImplementedError
         new_array = []
-        new_array.extend(self.queued[self.next_ind :])
+        new_array.extend(self.queued[self.next_ind:])
         new_array.extend(self.queued[: self.next_ind])
         new_array.extend([[] for _ in range(new_size - len(self.queued))])
 
