@@ -58,3 +58,19 @@ def check_folder_for_generation_consts_files(folder_path: str):
     """
     files_list = os.listdir(folder_path)
     return MATRIX_CONSTS_FILE_NAME in files_list and CIRCLES_CONSTS_FILE_NAME in files_list
+
+
+def make_matrix_consts(matrix_consts_path):
+    if matrix_consts_path:
+        matrix_consts = MatrixConsts.from_file(matrix_consts_path)
+    else:
+        matrix_consts = MatrixConsts()
+    return matrix_consts
+
+
+def make_circles_consts(circles_consts_path):
+    if circles_consts_path:
+        circles_consts = CirclesConsts.from_file(circles_consts_path)
+    else:
+        circles_consts = CirclesConsts()
+    return circles_consts

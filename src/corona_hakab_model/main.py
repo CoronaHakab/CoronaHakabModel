@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     import pandas as pd
 
 logger = logging.getLogger('application')
-logger.setLevel("Info")
+logger.setLevel(logging.INFO)
 
 
 def main():
