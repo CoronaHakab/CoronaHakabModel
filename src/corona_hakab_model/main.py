@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from argparse import ArgumentParser
 import matplotlib_set_backend
 import matplotlib.pyplot as plt
@@ -19,6 +20,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import pandas as pd
 
+logger = logging.getLogger('application')
+logger.setLevel("Info")
+
 
 def main():
     parser = ArgumentParser("COVID-19 Simulation")
@@ -34,8 +38,12 @@ def main():
                      "--matrix-consts",
                      dest="matrix_consts_path",
                      help="Parameter file with consts for the matrix")
-    gen.add_argument("--input-folder",
-                     dest="generation_folder",
+    gen.add_argument("-o",
+                     "--output-folder",
+                     dest="output_folder",
+                     help="output folder if not using --consts-folder or --master-folder")
+    gen.add_argument("--consts-folder",
+                     dest="consts_folder",
                      help="Folder to take matrix_consts.json and circles_consts.json from."
                      "Also output folder for generation")
     gen.add_argument("--master-folder",
@@ -125,12 +133,15 @@ def main():
 
 
 def generate_command(args):
-    if args.generation_folder:
-        generate_from_folder(args.generation_folder)
+    if args.consts_folder:
+        generate_from_folder(args.consts_folder)
         return
     elif args.master_folder:
         generate_from_master_folder(args.master_folder)
         return
+
+    if not args.output_folder:
+        logger.error("No output folder given! use --output-folder")
 
     if args.circles_consts_path:
         circles_consts = CirclesConsts.from_file(args.circles_consts_path)
@@ -143,7 +154,7 @@ def generate_command(args):
         matrix_consts = MatrixConsts()
 
     gm = GenerationManger(circles_consts=circles_consts, matrix_consts=matrix_consts)
-    gm.export()
+    gm.export(args.output_folder)
 
 
 def compare_simulations_example():

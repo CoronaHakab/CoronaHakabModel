@@ -12,7 +12,6 @@ MATRIX_CONSTS_FILE_NAME = "matrix_consts.json"
 CIRCLES_CONSTS_FILE_NAME = "circles_consts.json"
 
 logger = logging.getLogger("application")
-logger.setLevel("Info")
 
 
 def generate_from_folder(folder_path: str):
