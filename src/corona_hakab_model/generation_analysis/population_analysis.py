@@ -70,7 +70,7 @@ class PopulationAnalyzer:
                                                       columns=["connection_type", "circle_size", "number_of_circles"])
         connection_type_circle_size_df.to_csv(OUTPUT_DIR / "connection_type_circle_size_histogram_data.csv")
 
-        agent_age_bins: np.array = np.bincount([agent.age for agent in self.population_data.agents])
+        agent_age_bins: np.ndarray = np.bincount([agent.age for agent in self.population_data.agents])
         agent_age_histogram_data = list(zip(np.flatnonzero(agent_age_bins), agent_age_bins[np.nonzero(agent_age_bins)]))
 
         agent_age_histogram_df = pd.DataFrame(agent_age_histogram_data, columns=["age", "count"])
