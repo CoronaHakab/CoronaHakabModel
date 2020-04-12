@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 import logging
@@ -6,6 +7,11 @@ import matplotlib.pyplot as plt
 import random
 import os.path
 import sys
+from argparse import ArgumentParser
+from matplotlib import pyplot as plt
+from bsa.universal import write
+from corona_hakab_model_data.__data__ import __version__
+
 
 import numpy as np
 
@@ -22,6 +28,53 @@ from supervisor import LambdaValueSupervisable, Supervisable
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import pandas as pd
+
+from matrix_analysis.MatrixAnalysis import MatrixAnalyzer
+
+
+def main():
+    parser = ArgumentParser("COVID-19 Simulation")
+
+    sub_parsers = parser.add_subparsers(dest='sub_command')
+    gen = sub_parsers.add_parser('generate', help='only generate the population data without running the simulation')
+    gen.add_argument('output')
+
+    matrix = sub_parsers.add_parser('analyze-matrix', help="analyze matrix histograms and export csv's")
+    matrix.add_argument("--matrix",
+                        dest="matrix_path",
+                        help="Matrix file to analyze")
+    matrix.add_argument("--show",
+                        dest="show",
+                        action="store_true",
+                        help="Show histograms")
+
+    parser.add_argument("-s",
+                        "--simulation-parameters",
+                        dest="simulation_parameters_path",
+                        help="Parameters for simulation engine")
+    parser.add_argument("-c",
+                        "--circles-consts",
+                        dest="circles_consts_path",
+                        help="Parameter file with consts for the circles")
+    parser.add_argument("-m",
+                        "--matrix-consts",
+                        dest="matrix_consts_path",
+                        help="Parameter file with consts for the matrix")
+    parser.add_argument('--version', action='version', version=__version__)
+    args = parser.parse_args()
+
+    if args.sub_command == 'analyze-matrix':
+        matrix_analyzer = MatrixAnalyzer(args.matrix_path)
+        matrix_analyzer.export_raw_matrices_to_csv()
+        matrix_analyzer.analyze_histograms()
+        if args.show:
+            plt.show()
+        return
+
+    if args.circles_consts_path:
+        circles_consts = CirclesConsts.from_file(args.circles_consts_path)
+    else:
+        circles_consts = CirclesConsts()
 
 
 def main():
