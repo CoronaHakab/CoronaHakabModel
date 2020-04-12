@@ -1,22 +1,21 @@
 import logging
 from collections import defaultdict
-from random import random
-from typing import Callable, Dict, Iterable, List, Union
+from typing import Callable, Iterable, List, Union
 
-import healthcare
-import infection
 import numpy as np
+
+import infection
 import update_matrix
 from consts import Consts
+from detection_model import healthcare
+from detection_model.healthcare import PendingTestResult, PendingTestResults
 from generation.circles_generator import PopulationData
-from generation.connection_types import ConnectionTypes
 from generation.matrix_generator import MatrixData
-from healthcare import PendingTestResult, PendingTestResults
-from medical_state import MedicalState
 from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
 from supervisor import Supervisable, SimulationProgression
+from agent import InitialSickAgents
 from update_matrix import Policy
 
 
@@ -75,7 +74,8 @@ class SimulationManager:
         initial_state.add_many(self.agents)
 
         # initializing simulation modules
-        self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers], self)
+        self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers],
+                                                            self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self)
         self.infection_manager = infection.InfectionManager(self)
         self.healthcare_manager = healthcare.HealthcareManager(self)
@@ -87,6 +87,7 @@ class SimulationManager:
         # initializing data for supervising
         # dict(day:int -> message:string) saving policies messages
         self.policies_messages = defaultdict(str)
+        self.initial_sick_agents = InitialSickAgents()
 
         self.new_sick_counter = 0
         self.new_detected_daily = 0
@@ -145,6 +146,7 @@ class SimulationManager:
 
         for agent in agents_to_infect:
             agent.set_medical_state_no_inform(self.medical_machine.default_state_upon_infection)
+            self.initial_sick_agents.add_agent(agent.get_snapshot())
 
         self.medical_machine.initial.remove_many(agents_to_infect)
         self.medical_machine.default_state_upon_infection.add_many(agents_to_infect)
@@ -159,7 +161,7 @@ class SimulationManager:
         runs full simulation
         """
         self.setup_sick()
-
+        self.initial_sick_agents.export()
         for i in range(self.consts.total_steps):
             self.step()
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")

@@ -1,4 +1,5 @@
 import logging
+import os.path
 
 from generation.circles_consts import CirclesConsts
 from generation.circles_generator import CirclesGenerator
@@ -30,3 +31,15 @@ class GenerationManger:
         logger.info("creating connections and matrix")
         matrix_generation = MatrixGenerator(circles_generation.population_data, matrix_consts=matrix_consts)
         self.matrix_data = matrix_generation.matrix_data
+
+    # todo allow export of the population + connections
+    def export(self):
+        pass
+
+    # todo allow import of circles generation object, and creation of matrices based on it
+    def import_circles_and_create_matrices(self):
+        pass
+
+    def save_to_folder(self,folder):
+        self.matrix_data.export(os.path.join(folder,'matrix_data'))
+        self.population_data.export(folder,'population_data')

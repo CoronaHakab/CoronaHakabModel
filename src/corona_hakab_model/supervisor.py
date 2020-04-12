@@ -42,10 +42,10 @@ class SimulationProgression:
         for s in self.supervisables:
             s.snapshot(manager)
 
-    def dump(self):
+    def dump(self, filename=None):
 
         output_folder = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], "output")
-        file_name = os.path.join(output_folder, datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
+        file_name = filename or os.path.join(output_folder, datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
         # TODO: Switch ^ to use pathlib
 
         all_data = {}
