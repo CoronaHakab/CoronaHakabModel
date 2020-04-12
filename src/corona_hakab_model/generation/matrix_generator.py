@@ -3,7 +3,7 @@ import math
 import pickle
 from itertools import islice
 from random import random, sample
-from typing import List
+from typing import List, Iterable
 
 import corona_matrix
 import numpy as np
@@ -18,6 +18,9 @@ from generation.connection_types import (
 )
 from generation.matrix_consts import MatrixConsts
 from generation.node import Node
+from sparse_base import SparseBase
+from encounter_layer import EncounterLayerSet, EncounterLayer
+from clustered_matrix.clustered import Cluster, ClusteredSparseMatrix
 
 
 class MatrixData:
@@ -54,9 +57,13 @@ class MatrixGenerator:
         self.size = len(self.agents)
         self.depth = len(ConnectionTypes)
 
-        CoronaMatrix = corona_matrix.get_corona_matrix_class(matrix_consts.use_parasymbolic_matrix)
-        self.logger.info("Using CoronaMatrix of type {}".format(CoronaMatrix.__name__))
-        self.matrix = CoronaMatrix(self.size, self.depth)
+        # todo get matrix type from consts
+        #CoronaMatrix = corona_matrix.get_corona_matrix_class(matrix_consts.use_parasymbolic_matrix)
+        #self.logger.info("Using CoronaMatrix of type {}".format(CoronaMatrix.__name__))
+        #self.matrix = CoronaMatrix(self.size, self.depth)
+
+        self.matrix = EncounterLayerSet()
+        self.matrix_type = "EncounterLayerSet"
 
         # create all sub matrices
         with self.matrix.lock_rebuild():
@@ -91,6 +98,11 @@ class MatrixGenerator:
         self.geographic_circles = population_data.geographic_circles
         self.geographic_circle_by_agent_index = population_data.geographic_circle_by_agent_index
         self.social_circles_by_agent_index = population_data.social_circles_by_agent_index
+
+    def _add_layer(self, con_type: ConnectionTypes, connections: List[List[int]], circles: Iterable[SocialCircle]):
+        """ adds a new layer to the matrix. gets a list of connections, for each agent """
+        assert len(connections) == len(self.agents)
+        sparce_matrix = SparseBase()
 
     def _create_fully_connected_circles_matrix(self, con_type: ConnectionTypes, circles: List[SocialCircle], depth):
         connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
