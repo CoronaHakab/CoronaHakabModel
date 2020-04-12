@@ -32,7 +32,9 @@ class MatrixData:
 
     # todo make this work, using the parasymbolic matrix serialization.
     def export(self, export_path: str):
-        with open(export_path+'.'+self.matrix_type, 'wb') as f:
+        if not export_path.endswith(self.matrix_type):
+            export_path = export_path+ '.' + self.matrix_type
+        with open(export_path, 'wb') as f:
             bsa.universal.write(self.matrix, f)
 
 

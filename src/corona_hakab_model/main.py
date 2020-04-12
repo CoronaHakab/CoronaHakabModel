@@ -7,6 +7,7 @@ import random
 import numpy as np
 import pickle
 import os.path
+import sys
 
 from bsa.universal import write
 from consts import Consts
@@ -28,9 +29,10 @@ def main():
     parser = ArgumentParser("COVID-19 Simulation")
 
     sub_parsers = parser.add_subparsers(dest="sub_command")
+    all_parse = sub_parsers.add_parser("all", help="Run both data generation and simulation.")
     gen = sub_parsers.add_parser("generate", help="Generate the population data without running the simulation")
     gen.add_argument("--matrix-data", dest='matrix_data',default='../../output/matrix_data', help='Filepath to export matrix data')
-    gen.add_argument('--population-data', dest='population_data',default='../../output/population_data', help='Filepath to export population data')
+    gen.add_argument('--population-data', dest='population_data',default='../../output/population_data.pickle', help='Filepath to export population data')
     gen.add_argument(
         "-c", "--circles-consts", dest="circles_consts_path", help="Parameter file with consts for the circles"
     )
@@ -64,14 +66,24 @@ def main():
                         default=None,
                         help='Set the random seed. Use only for exact reproducibility. By default, generate new seed.')
     parser.add_argument("--version", action="version", version=__version__)
-
-    args = parser.parse_args()
+    args, _ = parser.parse_known_args()
     set_seeds(args.seed)
+
     if args.sub_command == 'generate':
         generate_data(args)
 
     if args.sub_command == 'simulate':
         run_simulation(args)
+
+    if args.sub_command == 'all':
+        argv_list = sys.argv[1:]
+        command_index = argv_list.index('all')
+        argv_list[command_index] = 'generate'
+        gen_args, _ = parser.parse_known_args(argv_list)
+        argv_list[command_index] = 'simulate'
+        sim_args, _ = parser.parse_known_args(argv_list)
+        generate_data(gen_args)
+        run_simulation(sim_args)
 
 
 def generate_data(args):
