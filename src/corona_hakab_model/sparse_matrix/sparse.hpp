@@ -48,6 +48,8 @@ class SparseMatrix{
         void row_set_value_offset(size_t row, dtype offset);
         void col_set_value_offset(size_t column, dtype offset);
 
+        std::vector<std::vector<size_t>> non_zero_columns();
+
         virtual ~SparseMatrix();
 };
 

@@ -107,6 +107,15 @@ void SparseMatrix::col_set_value_offset(size_t column, dtype offset){
     value_column_offsets[column] = offset;
 }
 
+std::vector<std::vector<size_t>> SparseMatrix::non_zero_columns(){
+    std::vector<std::vector<size_t>> ret(size);
+    for (auto i = 0; i < size; i++){
+        auto& ri = row_indices[i];
+        ret[i].assign(ri, ri + row_lens[i]);
+    }
+    return ret;
+}
+
 SparseMatrix::~SparseMatrix(){
     for (size_t i = 0; i < size; i++){
         if (row_indices[i]){

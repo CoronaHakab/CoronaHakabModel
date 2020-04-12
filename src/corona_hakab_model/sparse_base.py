@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import List, Optional, Protocol, Tuple
+from typing import List, Optional, Protocol, Tuple, Iterable, Collection, Final, runtime_checkable
 
 import numpy as np
 
 
+@runtime_checkable
 class SparseBase(Protocol):
     @abstractmethod
     def batch_set(self, row, columns: np.ndarray, probs: np.ndarray, vals: np.ndarray):
@@ -51,6 +52,19 @@ class SparseBase(Protocol):
         """
         Create a manifested sparse matrix from sample rolls.
         if sample is None, a new rolls array is created
+        """
+
+    @property
+    @abstractmethod
+    def size(self) -> int:
+        """
+        get the size of the matrix. This is the number of rows/columns
+        """
+
+    @abstractmethod
+    def non_zero_columns(self) -> List[Collection[int]]:
+        """
+        get the columns that have non-zero probs per roe
         """
 
 

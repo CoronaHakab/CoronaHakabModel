@@ -1,10 +1,11 @@
 import logging
 from collections import defaultdict
-from typing import Callable, Dict, Iterable, List, Union
+from typing import Callable, Iterable, List, Union
+
+import numpy as np
 
 import healthcare
 import infection
-import numpy as np
 import update_matrix
 from consts import Consts
 from generation.circles_generator import PopulationData
