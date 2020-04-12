@@ -4,14 +4,18 @@ import os
 from collections import Counter
 from agent import Agent
 from consts import Consts
+from generation.circles_consts import CirclesConsts
 from medical_state_manager import MedicalStateManager
 from state_machine import TerminalState
 
 
-def generate_agents_randomly(population_size):
+def _generate_agents_randomly(population_size, circle_consts):
     list_of_agents = []
+    age_dist = circle_consts.get_age_distribution()
     for i in range(population_size):
-        list_of_agents.append(Agent(index=i))
+        new_agent = Agent(index=i)
+        new_agent.age = age_dist.rvs()
+        list_of_agents.append(new_agent)
     return list_of_agents
 
 
@@ -27,16 +31,22 @@ def _infect_all_agents(list_of_agents, medical_machine_manager, medical_state_ma
 
 
 def run_monte_carlo(configuration):
+
     if 'consts_file' in configuration:
         consts = Consts.from_file(configuration['consts_file'])
     else:
         consts = Consts()
 
+    if "circle_consts_file" in configuration:
+        consts = CirclesConsts.from_file(configuration['circle_consts_file'])
+    else:
+        circle_const = CirclesConsts()
+
     population_size = configuration["monte_carlo_size"]
 
     medical_state_machine = consts.medical_state_machine()
     medical_machine_manager = MedicalStateManager(medical_state_machine)
-    agents_list = generate_agents_randomly(population_size=population_size)
+    agents_list = _generate_agents_randomly(population_size=population_size, circle_consts=circle_const)
     _infect_all_agents(agents_list, medical_machine_manager, medical_state_machine)
 
     days_passed = 1
