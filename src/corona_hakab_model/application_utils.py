@@ -19,10 +19,10 @@ def generate_from_folder(folder_path: str):
     circles_consts_path = os.path.join(folder_path, CIRCLES_CONSTS_FILE_NAME)
 
     matrix_consts = MatrixConsts.from_file(matrix_consts_path)
-    circles_consts = MatrixConsts.from_file(circles_consts_path)
+    circles_consts = CirclesConsts.from_file(circles_consts_path)
 
     gm = GenerationManger(circles_consts=circles_consts, matrix_consts=matrix_consts)
-    gm.save_to_folder(folder_path)  # TODO placeholder - update interface when export/import implemented
+    gm.save_to_folder(folder_path)
     logger.info(f"Generation output files were saved in {folder_path}")
 
 
@@ -31,6 +31,7 @@ def generate_from_master_folder(master_folder_path: str):
     Generate simulation data for each viable sub-folder
     """
     viable_subfolders = get_viable_subfolders_for_generation(master_folder_path)
+    print(viable_subfolders)
     logger.info(f"Found {len(viable_subfolders)} viable sub-folders.")
     for folder in viable_subfolders:
         # TODO multi-threading
