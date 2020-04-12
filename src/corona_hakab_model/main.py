@@ -6,7 +6,7 @@ import matplotlib_set_backend
 import matplotlib.pyplot as plt
 
 from bsa.universal import write
-from application_utils import generate_from_folder, generate_from_master_folder
+from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
 from consts import Consts
 from corona_hakab_model_data.__data__ import __version__
 from generation.circles_consts import CirclesConsts
@@ -68,15 +68,9 @@ def main():
         generate_command(args)
         return
 
-    if args.circles_consts_path:
-        circles_consts = CirclesConsts.from_file(args.circles_consts_path)
-    else:
-        circles_consts = CirclesConsts()
+    circles_consts = make_circles_consts(args.circles_consts_path)
 
-    if args.matrix_consts_path:
-        matrix_consts = MatrixConsts.from_file(args.matrix_consts_path)
-    else:
-        matrix_consts = MatrixConsts()
+    matrix_consts = make_matrix_consts(args.matrix_consts_path)
 
     gm = GenerationManger(circles_consts=circles_consts, matrix_consts=matrix_consts)
 
@@ -143,15 +137,9 @@ def generate_command(args):
     if not args.output_folder:
         logger.error("No output folder given! use --output-folder")
 
-    if args.circles_consts_path:
-        circles_consts = CirclesConsts.from_file(args.circles_consts_path)
-    else:
-        circles_consts = CirclesConsts()
+    circles_consts = make_circles_consts(args.circles_consts_path)
 
-    if args.matrix_consts_path:
-        matrix_consts = MatrixConsts.from_file(args.matrix_consts_path)
-    else:
-        matrix_consts = MatrixConsts()
+    matrix_consts = make_matrix_consts(args.matrix_consts_path)
 
     gm = GenerationManger(circles_consts=circles_consts, matrix_consts=matrix_consts)
     gm.save_to_folder(args.output_folder)
