@@ -18,6 +18,14 @@ The module runs from the main API using 'analyze-matrix' command.
   The created folder is divided to 2 subfolders:  
   **histogram_analysis** - This folder is where the histogram plots and .csv files are saved.  
   **raw_matrices** - This folder is where the matrix's raw data is saved.  
+    
+The file names indicate what connection they are related to, based on the ConnectionTypes Enum which is (currently):  
+  
+  0 = Work  
+  1 = School  
+  2 = Family  
+  3 = Other  
+  all = all of the connections combined  
   
   ## **EXAMPLES**  
   1. Run the analysis on defualt matrix file and don't show plots:  
