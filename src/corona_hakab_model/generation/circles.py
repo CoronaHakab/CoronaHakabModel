@@ -52,4 +52,4 @@ class SocialCircle(Circle):
     def get_indexes_of_my_circle(self, my_index):
         rest_of_circle = {o.index for o in self.agents}
         rest_of_circle.remove(my_index)
-        return rest_of_circle
+        return list(rest_of_circle)
