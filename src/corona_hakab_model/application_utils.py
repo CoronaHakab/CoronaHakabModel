@@ -22,7 +22,7 @@ def generate_from_folder(folder_path: str):
     circles_consts = MatrixConsts.from_file(circles_consts_path)
 
     gm = GenerationManger(circles_consts=circles_consts, matrix_consts=matrix_consts)
-    gm.export(folder_path)  # TODO placeholder - update interface when export/import implemented
+    gm.save_to_folder(folder_path)  # TODO placeholder - update interface when export/import implemented
     logger.info(f"Generation output files were saved in {folder_path}")
 
 
@@ -55,20 +55,3 @@ def check_folder_for_generation_consts_files(folder_path: str):
     """
     files_list = os.listdir(folder_path)
     return MATRIX_CONSTS_FILE_NAME in files_list and CIRCLES_CONSTS_FILE_NAME in files_list
-
-
-def pack_simulation_files_to_zip(file_paths: List, output_file_path: str):
-    """
-    Pack files in zip, which can be given to unpack_simulation_files_from_zip
-    """
-    with ZipFile(output_file_path, 'w') as zip_file:
-        for file in file_paths:
-            zip_file.write(file)
-
-
-def unpack_simulation_files_from_zip(zip_file_path: str, output_folder: str):
-    """
-    Extract all files from zip into destination folder.
-    """
-    with ZipFile(zip_file_path, 'r') as zip_file:
-        zip_file.extractall(output_folder)

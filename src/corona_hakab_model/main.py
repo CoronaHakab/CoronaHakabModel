@@ -154,7 +154,7 @@ def generate_command(args):
         matrix_consts = MatrixConsts()
 
     gm = GenerationManger(circles_consts=circles_consts, matrix_consts=matrix_consts)
-    gm.export(args.output_folder)
+    gm.save_to_folder(args.output_folder)
 
 
 def compare_simulations_example():
