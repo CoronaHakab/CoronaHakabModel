@@ -23,7 +23,7 @@
 - In order to make PyCharm recognize the project modules:
     - right click src folder -> Mark directory as -> Source Root
     - right click src/corona_hakab_model folder -> Mark directory as -> Source Root
-- double click src/corona_hakab_model folder/main.py and run it (Run -> Run)
+- Double click src/corona_hakab_model folder/main.py and run it (Run -> Run)
 
 ## Install and run the simulator from cmd (also possible):
 - Install Python 3.8
@@ -39,6 +39,15 @@
     - run: **python main.py all** to run both the generation and simulation.
     - run: **python main.py [simulate|generate] --help** for more help about each option.
     
+    
+## Installing and running under Linux (tested on Debian 10):
+- sudo apt install swig liblzma-dev libbz2-dev
+    - swig - building parasymoblic matrix needs swig
+    - liblzma-dev libbz2-dev - since we use Pandas, we need Python with support for bz2 and lzma support
+        - (https://stackoverflow.com/questions/22346269/bz2-is-module-not-available-when-installing-pandas-with-pip-in-python-virtual) 
+- Building Python 3.8 (currently not on the official repos...)
+    - https://linuxize.com/post/how-to-install-python-3-8-on-debian-10/
+
 
 ## Optional - Export/Import matrices!
 - Export: **python main.py -o <PATH>**

@@ -19,6 +19,7 @@ scikit-learn = "*"
 pyside2 = "*"
 matplotlib = "*"
 cached-property = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.8"
