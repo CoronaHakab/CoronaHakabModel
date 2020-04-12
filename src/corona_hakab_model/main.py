@@ -14,10 +14,10 @@ from manager import SimulationManager
 from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
 
 
-
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import pandas as pd
+
 
 def main():
     parser = ArgumentParser("COVID-19 Simulation")
@@ -56,7 +56,7 @@ def main():
         return
 
     if args.simulation_parameters_path:
-        consts = Consts.from_file(args.simulation_parameters_path)
+        consts = Consts.from_json(args.simulation_parameters_path)
     else:
         consts = Consts()
 

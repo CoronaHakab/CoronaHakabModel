@@ -1,0 +1,83 @@
+{
+    "total_steps": 300,
+    "initial_infected_count": 20,
+    "infection_ratios": {
+        "symptomatic": 0.75,
+        "asymptomatic": 0.25,
+        "silent": 0.3
+    },
+    "r0": 2.4,
+    "medical_state_transition": {
+        "day_distributions": {
+            "latent_to_silent": {
+                "dist": [1, 3]
+            },
+            "silent_to_asymptomatic": {
+                "dist": [0, 3, 10]
+            },
+            "silent_to_symptomatic": {
+                "dist": [0, 3, 10]
+            },
+            "asymptomatic_to_recovered": {
+                "dist": [3, 5, 7]
+            },
+            "symptomatic_to_asymptomatic": {
+                "dist": [7, 10, 14]
+            },
+            "symptomatic_to_hospitalized": {
+                "dist": [0, 1.5, 10]
+            },
+            "hospitalized_to_asymptomatic": {
+                "dist": [18]
+            },
+            "hospitalized_to_icu": {
+                "dist": [5]
+            },
+            "icu_to_deceased": {
+                "dist": [7]
+            },
+            "icu_to_hospitalized": {
+                "dist": [7]
+            }
+        },
+        "transition_probabilities": {
+            "silent_to_asymptomatic": 0.2,
+            "symptomatic_to_asymptomatic": 0.85,
+            "hospitalized_to_asymptomatic": 0.8,
+            "icu_to_hospitalized": 0.65
+        }
+    },
+    "detection_test_consts": {
+        "test_willingness": {
+            "susceptible": 0.01,
+            "latent": 0.01,
+            "silent": 0.01,
+            "asymptomatic": 0.01,
+            "symptomatic": 0.6,
+            "hospitalized": 0.9,
+            "icu": 1.0,
+            "recovered": 0.1
+        },
+        "detection_test": {
+            "detection_prob": 0.7,
+            "false_alarm_prob": 0.05,
+            "time_until_result": 3
+        },
+        "daily_num_of_tests_schedule": {
+            "0": 100,
+            "10": 1000,
+            "20": 2000,
+            "50": 5000
+        },
+        "testing_gap_after_positive_test": 10,
+        "testing_gap_after_negative_test": 5,
+        "testing_priorities": ["Symptomatic", "Recovered"]
+    },
+    "policy_changes": {
+        "40": [["Family", "Other"],
+            "closing schools and work sites"],
+        "80": [["Work", "School", "Family", "Other"],
+            "open schools and work sites"]
+    },
+    "partial_opening_active": true
+}
