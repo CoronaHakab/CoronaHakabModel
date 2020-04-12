@@ -14,7 +14,6 @@ def write_sparse(matrix: SparseBase, sink: BinaryIO = None, encoder_cls=EncoderV
     encoder = encoder_cls(sink, size, 2, nzc, **kwargs)
     encoder.add_layer(BSA_Dtype.f32, lambda x, y: matrix[x, y][0])
     encoder.add_layer(BSA_Dtype.f32, lambda x, y: matrix[x, y][1])
-
     return sink
 
 

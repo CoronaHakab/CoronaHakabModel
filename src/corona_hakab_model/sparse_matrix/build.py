@@ -34,7 +34,7 @@ COMPILE_ADDITIONAL_LIBS = [
     windows_kit_lib + r"um\x64\Uuid.lib",
 ]
 
-optimization = "/O2"  # in case of fire, set to Od
+optimization = "/Od"  # in case of fire, set to Od
 
 
 def write_swim():
@@ -87,7 +87,7 @@ def write_swim():
         """,
     )
 
-    pswim = ContainerSwim("SparseMatrix", src, wrapper_superclass='"SparseBase"')
+    pswim = ContainerSwim("SparseMatrix", src, )
     pswim(Function.Behaviour())
     pswim.extend_py_def(
         "__getitem__",

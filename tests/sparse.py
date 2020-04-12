@@ -160,7 +160,7 @@ def test_sparse():
 
 
 def test_read_write():
-    matrix = SparseMatrix(3)
+    matrix = SparseMatrix(4)
     matrix.batch_set(0, [1, 2, 3], [0.2, 0.5, 1], [0.1, 0.1, 0.2])
     matrix.batch_set(1, [0, 3], [0.1, 0.1], [0.7, 1])
     matrix.batch_set(2, [0], [0.7], [0.5])
@@ -171,8 +171,8 @@ def test_read_write():
     sink.seek(0)
     dec = read_sparse(sink)
 
-    for i, j in product(range(3), repeat=2):
-        assert matrix[i, j] == dec[i, j], f'[{i}, {j}], {matrix.get(i, j)} vs {dec.get(i, j)}'
+    for i, j in product(range(4), repeat=2):
+        assert matrix[i, j] == dec[i, j], f'[{i}, {j}], {matrix[i, j]} vs {dec[i, j]}'
 
 
 if __name__ == "__main__":
