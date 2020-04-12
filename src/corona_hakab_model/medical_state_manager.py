@@ -1,8 +1,8 @@
 from collections import defaultdict
 from typing import List
 
-import manager
 from agent import Agent
+from medical_state_machine import MedicalStateMachine
 from state_machine import PendingTransfers
 
 
@@ -11,8 +11,8 @@ class MedicalStateManager:
     Manages the medical state
     """
 
-    def __init__(self, sim_manager: "manager.SimulationManager"):
-        self.manager = sim_manager
+    def __init__(self, medical_state_machine: MedicalStateMachine):
+        self.medical_state_machine = medical_state_machine
         self.pending_transfers = PendingTransfers()
 
     def step(self, new_sick: List[Agent]):
@@ -25,11 +25,11 @@ class MedicalStateManager:
         # all the new sick are going to get to the next state
         for agent in new_sick:
             changed_state_leaving[agent.medical_state].append(agent)
-            agent.set_medical_state_no_inform(self.manager.medical_machine.get_state_upon_infection(agent))
+            agent.set_medical_state_no_inform(self.medical_state_machine.get_state_upon_infection(agent))
             changed_state_introduced[agent.medical_state].append(agent)
 
         # saves this number for supervising
-        self.manager.new_sick_counter = len(new_sick)  # TODO should be handled in SimulationManager
+        new_sick_counter = len(new_sick)  # TODO should be handled in SimulationManager
 
         moved = self.pending_transfers.advance()
         for (agent, destination, origin, _) in moved:
@@ -44,3 +44,5 @@ class MedicalStateManager:
 
         for state, agents in changed_state_leaving.items():
             state.remove_many(agents)
+
+        return dict(new_sick=new_sick_counter)

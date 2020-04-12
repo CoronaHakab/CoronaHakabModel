@@ -10,6 +10,7 @@ from numpy.random import random
 from policies_manager import ConditionedPolicy, Policy
 from state_machine import StochasticState, TerminalState
 from util import dist, rv_discrete, upper_bound
+from functools import lru_cache
 
 # todo make sure we only use this
 generator = np.random.default_rng()
