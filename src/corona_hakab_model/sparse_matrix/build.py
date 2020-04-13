@@ -34,7 +34,7 @@ COMPILE_ADDITIONAL_LIBS = [
     windows_kit_lib + r"um\x64\Uuid.lib",
 ]
 
-optimization = "/Od"  # in case of fire, set to Od
+optimization = "/O2"  # in case of fire, set to Od
 
 
 def write_swim():
@@ -101,10 +101,12 @@ def write_swim():
     )
     pswim.extend_py_def(
         "manifest",
-        "self, sample=None",
+        "self, sample=None, global_prob_factor=1",
         """
         if sample is None:
             sample = generator.random(self.nz_count(), dtype=np.float32)
+        if global_prob_factor != 1:
+            sample /= global_prob_factor
         return self.manifest.prev(self, sample)
         """,
     )

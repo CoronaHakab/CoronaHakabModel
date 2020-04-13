@@ -270,7 +270,7 @@ class SparseMatrix(object):
 
     if '''manifest''' not in locals():
 
-    	def manifest(self, sample=None): pass
+    	def manifest(self, sample=None, global_prob_factor=1): pass
 
 
     if '''batch_set''' not in locals():
@@ -296,9 +296,11 @@ del __temp_store, __temp_def
 
 
 __temp_store = getattr(SparseMatrix,"""manifest""",None)
-def __temp_def(self, sample=None):
+def __temp_def(self, sample=None, global_prob_factor=1):
 	if sample is None:
 	    sample = generator.random(self.nz_count(), dtype=np.float32)
+	if global_prob_factor != 1:
+	    sample /= global_prob_factor
 	return self.manifest.prev(self, sample)
 if isinstance(__temp_store, (classmethod, staticmethod, property)):
 	__temp_def = type(__temp_store)(__temp_def)
