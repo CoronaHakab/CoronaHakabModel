@@ -86,7 +86,7 @@ def monte_carlo_state_machine_analysis(configuration):
 
         days_passed += 1
         done = len(not_terminal) == 0
-        sum_days_to_terminal += (len(not_terminal) - number_of_sick)
+        sum_days_to_terminal += days_passed * (number_of_sick - len(not_terminal))
 
     state_visitors_count = dict([(state, len(visitors)) for state, visitors in state_visitors.items()])
     average_state_time_duration = dict([(k, state_counter[k] / state_visitors_count[k])
