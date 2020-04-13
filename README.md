@@ -48,6 +48,10 @@
 - Building Python 3.8 (currently not on the official repos...)
     - https://linuxize.com/post/how-to-install-python-3-8-on-debian-10/
 
+## Installing on Ubuntu VM
+- If running on a remote Ubuntu machine (such as created by Microsoft Azure), run the commands listed in vm_install.txt
+- When connecting (with the same user) to the machine, it will automatically setup the environment variables and start the pipenv for CoronaHakabModel.
+- Note that when connecting to a machine via SSH, the graphs cannot be displayed, only saved for later viewing. Run **main.py --figure-path image_location** to save the image.
 
 ## Optional - Export/Import matrices!
 - Export: **python main.py -o <PATH>**
@@ -79,7 +83,7 @@
     - Manually insert the parameters in code (look at the bottom of the file for example)
     - Go to src/corona_hakab_model folder
     - Run: python moving_parameters_generator.py
-
+	
 ## New to git/github?
 See the **"How to set up a git environment"** guide in the docs folder.
 
