@@ -100,11 +100,15 @@ class CirclesConsts(NamedTuple):
 
 
     def get_required_adult_distributions(self):
-        #TODO might be other ages
-        teacher_student_ratio = ((self.age_prob[1]*self.connection_type_prob_by_age_index[1][ConnectionTypes.School] + 
-                                              self.age_prob[2]*self.connection_type_prob_by_age_index[2][ConnectionTypes.School])/
-                                             (self.age_prob[0]*self.connection_type_prob_by_age_index[0][ConnectionTypes.School]))
-        
+        students = 0
+        teachers = 0
+        for i in range(self.ages):
+            if self.ages[i] <= 18:
+                students += self.age_prob[i]*self.connection_type_prob_by_age_index[i][ConnectionTypes.School]
+            else:
+                teachers += self.age_prob[i]*self.connection_type_prob_by_age_index[i][ConnectionTypes.School]
+                
+        teacher_student_ratio = teachers * 1.0 / students
         school_sizes = self.circle_size_distribution_by_connection_type[ConnectionTypes.School][0]
         
         family_sizes = self.circle_size_distribution_by_connection_type[ConnectionTypes.Family][0]
