@@ -5,16 +5,25 @@ from collections import Counter
 from agent import Agent
 from consts import Consts
 from generation.circles_consts import CirclesConsts
+from medical_state import ImmuneState
+from medical_state_machine import MedicalStateMachine
 from medical_state_manager import MedicalStateManager
 from state_machine import TerminalState
 
 
-def _generate_agents_randomly(population_size, circle_consts):
+def _generate_agents_randomly(population_size, circle_consts) -> List:
+    """
+    Helper function for generating agents with ages for the state machine simulation
+    :param population_size: Number of agents to produce
+    :param circle_consts: CircleConsts - Used to generate agents ages
+                                         according to circles configuration
+    :return: List of agents
+    """
     list_of_agents = []
     random_ages = circle_consts.get_age_distribution().rvs(size=population_size)
-    for i in range(population_size):
-        new_agent = Agent(index=i)
-        new_agent.age = random_ages[i]
+    for _ in range(population_size):
+        new_agent = Agent(index=_)
+        new_agent.age = random_ages[_]
         list_of_agents.append(new_agent)
     return list_of_agents
 
@@ -30,7 +39,63 @@ def _infect_all_agents(list_of_agents, medical_machine_manager, medical_state_ma
     )
 
 
-def monte_carlo_state_machine_analysis(configuration):
+def _get_empirical_state_times(medical_state_machine: MedicalStateMachine,
+                               population_size: int,
+                               state_counter: Counter) -> Tuple[List]:
+    """
+
+    :param medical_state_machine: State machine representing the medical state
+    :param population_size: The number of agents
+    :param state_counter: Counter that represents total number of days
+                          all the agents spent in the state overall
+    :return: Two dictionaries:
+             * The first one represents the empirical mean time spent in state,
+               conditioned that we visit it
+             * The second one represents the empirical mean time spent in state,
+               taking in consideration the total population
+    """
+    average_state_time_duration = dict()
+    state_duration_expected_time = dict()
+    for m in medical_state_machine.states:
+        if len(m.ever_visited) == 0:
+            average_state_time_duration[m.name] = 0
+            state_duration_expected_time[m.name] = 0
+        else:
+            average_state_time_duration[m.name] = state_counter[m.name] / len(m.ever_visited)
+            state_duration_expected_time[m.name] = state_counter[m.name] / population_size
+    return average_state_time_duration, state_duration_expected_time
+
+
+def _is_terminal_state(state):
+    """
+
+    :param state: A state of the medical state machine
+    :return: Whether this agent reached a state from which he will not infect anymore.
+             In our scenario it means he died or recovered.
+    """
+    return isinstance(state, TerminalState) and isinstance(state, ImmuneState)
+
+
+def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
+    """
+
+    :param configuration: Dictionary with configuration for the mc run
+           configuration must contain:
+           * population_size for the mc
+           configuration might contain:
+           * consts_file - For loading Consts()
+           * circle_consts file - for loading CircleConsts
+    :return: Dictionary with statistics of the run:
+                * population_size
+                * days_passed - time it took to all the agents to recover/die
+                * time_in_each_state - for each state, total number of days all agents were in it
+                * visitors_in_each_state - Number of agents that visited each state
+                * average_duration_in_state - Empirical mean time to stay
+                                              at state conditioned that we enter it
+                * state_duration_expected_time - Empirical mean to stay in state, not conditioned
+                * average_time_to_terminal -Empirical mean time until death/recovery
+
+    """
     if 'consts_file' in configuration:
         consts = Consts.from_file(configuration['consts_file'])
     else:
@@ -47,57 +112,35 @@ def monte_carlo_state_machine_analysis(configuration):
     medical_machine_manager = MedicalStateManager(medical_state_machine)
     agents_list = _generate_agents_randomly(population_size=population_size, circle_consts=circle_const)
     _infect_all_agents(agents_list, medical_machine_manager, medical_state_machine)
+    medical_states = medical_state_machine.states
+    terminal_states = list(filter(_is_terminal_state,
+                                  medical_states))
 
-    days_passed = 1
-    state_counter = Counter()
-    state_visitors = dict()
-    for agent in agents_list:
-        state_name = agent.medical_state.name
-        agent_id = agent.index
-        if state_name in state_visitors:
-            state_visitors[state_name].add(agent_id)
-        else:
-            state_visitors[state_name] = set([agent_id])
-        state_counter[state_name] += 1
-
-    done = False
-    not_terminal = agents_list.copy()
+    state_counter = Counter({m.name: m.agent_count for m in medical_states})
     sum_days_to_terminal = 0
-    while not done:
-        number_of_sick = len(not_terminal)
-        # Calculate the new states
-        # Everybody is infected so no new infected
+    days_passed = 1
+    number_terminals_agents = 0
+
+    while number_terminals_agents != population_size:
         # No manager so we don't update it
+        previous_terminal_agents = sum([m.agent_count for m in terminal_states])
         medical_machine_manager.step(list(), update_only_medical_state=True)
-
-        # Since they all start with infected, non are susceptible
-
-        not_terminal = filter(lambda current_agent: not isinstance(current_agent.medical_state, TerminalState),
-                              not_terminal)
-        not_terminal = list(not_terminal)
-
-        for sick_agent in not_terminal:
-            current_state_name = sick_agent.medical_state.name
-            state_counter[current_state_name] += 1
-            if current_state_name in state_visitors:
-                state_visitors[current_state_name].add(sick_agent.index)
-            else:
-                state_visitors[current_state_name] = set([sick_agent.index])
-
+        number_terminals_agents = sum([m.agent_count for m in terminal_states])
+        new_terminals = number_terminals_agents - previous_terminal_agents
+        for m in medical_states:
+            state_counter[m.name] += m.agent_count
         days_passed += 1
-        done = len(not_terminal) == 0
-        sum_days_to_terminal += days_passed * (number_of_sick - len(not_terminal))
+        sum_days_to_terminal += days_passed * new_terminals
 
-    state_visitors_count = dict([(state, len(visitors)) for state, visitors in state_visitors.items()])
-    average_state_time_duration = dict([(k, state_counter[k] / state_visitors_count[k])
-                                        for k in state_counter])
-    state_duration_expected_time = dict([(k, state_counter[k] / population_size)
-                                         for k in state_counter])
+    average_state_time_duration, state_duration_expected_time = _get_empirical_state_times(medical_state_machine,
+                                                                                           population_size,
+                                                                                           state_counter)
 
     return dict(population_size=population_size,
                 days_passed=days_passed,
                 time_in_each_state=dict(state_counter),
-                visitors_in_each_state=dict(state_visitors_count),
+                visitors_in_each_state={m.name: len(m.ever_visited)
+                                        for m in medical_state_machine.states},
                 average_duration_in_state=average_state_time_duration,
                 state_duration_expected_time=state_duration_expected_time,
                 average_time_to_terminal=sum_days_to_terminal/population_size)
