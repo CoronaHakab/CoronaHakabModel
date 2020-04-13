@@ -88,7 +88,7 @@ class ClusteredSparseMatrix(SparseBase):
     __slots__ = ("size", "cluster_index", "local_indices", "clusters")
 
     def __init__(self, clusters: Iterable[Collection[int]]):
-        self.size = sum(len(c) for c in clusters)
+        self.size: int = sum(len(c) for c in clusters)
         self.cluster_index = np.empty(self.size, dtype=int)
         self.local_indices = np.empty(self.size, dtype=int)
         self.clusters = []
@@ -134,9 +134,11 @@ class ClusteredSparseMatrix(SparseBase):
         l_j = self.local_indices[j]
         return self.clusters[c_i][l_i, l_j]
 
-    def manifest(self, sample=None):
+    def manifest(self, sample=None, global_prob_factor: float = 1):
         if sample is None:
             sample = generator.random(sum(c.size ** 2 for c in self.clusters), dtype=np.float32)
+        if global_prob_factor != 1:
+            sample /= global_prob_factor
         s_next = 0
         ret = ManifestClusters(self)
         for i, c in enumerate(self.clusters):
