@@ -53,23 +53,26 @@
 - **Always run the simulator after making changes and before merging**, to make sure you didn't break anything.
 - Especially if not sure, **try to get at least 1 person's review before merging**.
 
-## Multiple Jsons generator
+## Multiple jsons generator
 - In some cases, we would like to run the simulation/generation multiple times, when all parameters are the same, except 1 or 2 parameters that move across a certain range, in certain steps.
 - The module is found in src/corona_hakab_model/moving_parameters_generator.py
 - The module parameters
     - Input file path - file path of the json containing the parameters
-    - List of "moving" parameters - a "moving" parameter contains
-        - Parameter name (has to be the same name as in the json file)
-        - Start range
-        - End range
-        - Step size
+    - "Moving" parameters file path
+        - The file should contain a List of "moving" parameters
+        - A "moving" parameter contains
+            - Parameter name (has to be the same name as in the json file)
+            - Start range
+            - End range
+            - Step size
     - Output folder path - folder path for the json output files
         - Each "moving" parameter will have a separate folder
         - The name of the file is set to be the parameter's value
-- Running the module (for now)
-    - Manually insert the parameters in code (look at the bottom of the file for example)
+- Running the module
     - Go to src/corona_hakab_model folder
-    - Run: python moving_parameters_generator.py
+    - Run: **python moving_parameters_generator.py --help** for parameters syntax.
+    - Run: **python moving_parameters_generator.py** with parameters
+    - Run example: **python moving_parameters_generator.py --input-params Parameters/circles_parameters_example.py --moving-params Parameters/moving_parameters_exaple.json --output-folder ../../output/generated_parameters/circles_parameters**
 
 ## New to git/github?
 See the **"How to set up a git environment"** guide in the docs folder.
