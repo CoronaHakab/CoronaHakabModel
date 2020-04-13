@@ -30,8 +30,7 @@ def _infect_all_agents(list_of_agents, medical_machine_manager, medical_state_ma
     )
 
 
-def run_monte_carlo(configuration):
-
+def monte_carlo_state_machine_analysis(configuration):
     if 'consts_file' in configuration:
         consts = Consts.from_file(configuration['consts_file'])
     else:
@@ -62,15 +61,19 @@ def run_monte_carlo(configuration):
         state_counter[state_name] += 1
 
     done = False
+    not_terminal = agents_list.copy()
+    sum_days_to_terminal = 0
     while not done:
+        number_of_sick = len(not_terminal)
         # Calculate the new states
         # Everybody is infected so no new infected
         # No manager so we don't update it
         medical_machine_manager.step(list(), update_only_medical_state=True)
 
         # Since they all start with infected, non are susceptible
+
         not_terminal = filter(lambda current_agent: not isinstance(current_agent.medical_state, TerminalState),
-                              agents_list)
+                              not_terminal)
         not_terminal = list(not_terminal)
 
         for sick_agent in not_terminal:
@@ -83,19 +86,26 @@ def run_monte_carlo(configuration):
 
         days_passed += 1
         done = len(not_terminal) == 0
-    state_visitors_count = dict([(state, len(visitors))  for state, visitors in state_visitors.items()])
-    average_state_time_duration = dict([(k, state_counter[k]/state_visitors_count[k])
+        sum_days_to_terminal += (len(not_terminal) - number_of_sick)
+
+    state_visitors_count = dict([(state, len(visitors)) for state, visitors in state_visitors.items()])
+    average_state_time_duration = dict([(k, state_counter[k] / state_visitors_count[k])
                                         for k in state_counter])
+    state_duration_expected_time = dict([(k, state_counter[k] / population_size)
+                                         for k in state_counter])
+
     return dict(population_size=population_size,
                 days_passed=days_passed,
                 time_in_each_state=dict(state_counter),
                 visitors_in_each_state=dict(state_visitors_count),
-                average_duration_in_state=average_state_time_duration)
+                average_duration_in_state=average_state_time_duration,
+                state_duration_expected_time=state_duration_expected_time,
+                average_time_to_terminal=sum_days_to_terminal/population_size)
 
 
 if __name__ == "__main__":
-    monte_carlo_config = dict(monte_carlo_size=1_000_000)
-    result = run_monte_carlo(monte_carlo_config)
+    monte_carlo_config = dict(monte_carlo_size=50_000)
+    result = monte_carlo_state_machine_analysis(monte_carlo_config)
     output_folder = "../../output"  # There is a constant, but come on...
     file_name = os.path.join(output_folder,
                              f"simulation_statistics_{datetime.now().strftime('%Y%m%d-%H%M%S')}.json")
