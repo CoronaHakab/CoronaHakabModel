@@ -11,6 +11,17 @@ class MagicOperator{
     public:
         //invariant: if w_val = 0 or v_val = 0, operate(w_val, v_val) = 1
         virtual dtype operate(dtype w_val, dtype v_val) const;
+        virtual MagicOperator* mul(dtype factor) const;
+};
+
+class FactoredMagicOperator: public MagicOperator{
+    private:
+        MagicOperator const * inner;
+        dtype factor;
+    public:
+        FactoredMagicOperator(MagicOperator const* inner, dtype factor);
+        dtype operate(dtype w_val, dtype v_val) const;
+        MagicOperator* mul(dtype factor) const;
 };
 
 class ManifestMatrix;

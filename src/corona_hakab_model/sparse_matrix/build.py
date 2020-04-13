@@ -87,7 +87,7 @@ def write_swim():
         """,
     )
 
-    pswim = ContainerSwim("SparseMatrix", src, wrapper_superclass='"SparseBase"')
+    pswim = ContainerSwim("SparseMatrix", src, )
     pswim(Function.Behaviour())
     pswim.extend_py_def(
         "__getitem__",
@@ -101,10 +101,12 @@ def write_swim():
     )
     pswim.extend_py_def(
         "manifest",
-        "self, sample=None",
+        "self, sample=None, global_prob_factor=1",
         """
         if sample is None:
             sample = generator.random(self.nz_count(), dtype=np.float32)
+        if global_prob_factor != 1:
+            sample /= global_prob_factor
         return self.manifest.prev(self, sample)
         """,
     )

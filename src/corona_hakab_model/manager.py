@@ -47,7 +47,7 @@ class SimulationManager:
         self.depth = matrix_data.depth
 
         # setting up medical things
-        self.consts = consts
+        self.consts: Consts = consts
         self.medical_machine = consts.medical_state_machine()
         initial_state = self.medical_machine.initial
 

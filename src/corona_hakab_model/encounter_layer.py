@@ -2,13 +2,18 @@ from typing import Dict
 
 from generation.connection_types import ConnectionTypes
 from sparse_base import SparseBase
+from sparse_matrix import MagicOperator
 
 
 class EncounterLayer:
-    def __init__(self, kind: ConnectionTypes, magic_op, matrix: SparseBase):
+    def __init__(self, kind: ConnectionTypes, magic_op: MagicOperator, matrix: SparseBase):
         self.kind = kind
         self.magic_op = magic_op
         self.matrix = matrix
+        self.global_prob_factor: float = 1.0
+
+    def manifest(self):
+        return self.matrix.manifest(global_prob_factor=self.global_prob_factor)
 
 
 class EncounterLayerSet:
@@ -21,7 +26,7 @@ class EncounterLayerSet:
 
     def POA(self, v):
         manifests = {
-            n: m.matrix.manifest() for (n, m) in self.layers.items()
+            n: m.manifest() for (n, m) in self.layers.items() if m.global_prob_factor
         }
         m_iter = iter(manifests.items())
         first_label, first_manifest = next(m_iter)

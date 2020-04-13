@@ -77,6 +77,9 @@ class MagicOperator(object):
     def operate(self, w_val: "dtype", v_val: "dtype") -> "dtype":
         return _sparse.MagicOperator_operate(self, w_val, v_val)
 
+    def mul(self, factor: "dtype") -> "MagicOperator *":
+        return _sparse.MagicOperator_mul(self, factor)
+
     def __init__(self):
         _sparse.MagicOperator_swiginit(self, _sparse.new_MagicOperator())
     __swig_destroy__ = _sparse.delete_MagicOperator
@@ -156,7 +159,7 @@ __temp_def.prev = __temp_store
 ManifestMatrix.__getitem__ = __temp_def
 del __temp_store, __temp_def
 
-class SparseMatrix(SparseBase):
+class SparseMatrix(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
     size = property(_sparse.SparseMatrix_size_get)
@@ -267,7 +270,7 @@ class SparseMatrix(SparseBase):
 
     if '''manifest''' not in locals():
 
-    	def manifest(self, sample=None): pass
+    	def manifest(self, sample=None, global_prob_factor=1): pass
 
 
     if '''batch_set''' not in locals():
@@ -293,9 +296,11 @@ del __temp_store, __temp_def
 
 
 __temp_store = getattr(SparseMatrix,"""manifest""",None)
-def __temp_def(self, sample=None):
+def __temp_def(self, sample=None, global_prob_factor=1):
 	if sample is None:
 	    sample = generator.random(self.nz_count(), dtype=np.float32)
+	if global_prob_factor != 1:
+	    sample /= global_prob_factor
 	return self.manifest.prev(self, sample)
 if isinstance(__temp_store, (classmethod, staticmethod, property)):
 	__temp_def = type(__temp_store)(__temp_def)
