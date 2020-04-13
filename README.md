@@ -72,7 +72,7 @@
     - Go to src/corona_hakab_model folder
     - Run: **python moving_parameters_generator.py --help** for parameters syntax.
     - Run: **python moving_parameters_generator.py** with parameters
-    - Run example: **python moving_parameters_generator.py --input-params Parameters/circles_parameters_example.py --moving-params Parameters/moving_parameters_exaple.json --output-folder ../../output/generated_parameters/circles_parameters**
+    - Run example: **python moving_parameters_generator.py --input-params Parameters/circles_parameters_example.py --moving-params Parameters/moving_parameters_example.json --output-folder ../../output/generated_parameters/circles_parameters**
 
 ## New to git/github?
 See the **"How to set up a git environment"** guide in the docs folder.
