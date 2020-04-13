@@ -2,25 +2,25 @@
 
 from __future__ import annotations
 
+import os
+from datetime import datetime
 from abc import ABC, abstractmethod
-from bisect import bisect
 from functools import lru_cache
-from typing import Any, Callable, List, NamedTuple, Sequence, Tuple
+from typing import Any, Callable, List, NamedTuple, Sequence
 
 import manager
-import matplotlib_set_backend
 import numpy as np
+import pandas as pd
 
-try:
-    # plt is optional
-    from matplotlib import pyplot as plt
-except ImportError:
-    pass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from state_machine import State
 
 
-class Supervisor:
+class SimulationProgression:
     """
-    records and plots statistics about the simulation.
+    records statistics about the simulation.
     """
 
     # todo I want the supervisor to decide when the simulation ends
@@ -30,110 +30,31 @@ class Supervisor:
         self.supervisables = supervisables
         self.manager = manager
 
+        self.time_vector = []
+
     def snapshot(self, manager):
+        t = self.manager.current_step
+        self.time_vector.append(t)
+
+        # Assert the first snapshot is done at t=0 & there is a single snapshot at each time step
+        assert self.time_vector[t] == t
+
         for s in self.supervisables:
             s.snapshot(manager)
 
-    # todo stacked_plot
+    def dump(self, filename=None):
 
-    def plot(self, max_scale: bool = True, auto_show: bool = True, save: bool = True):
-        output_dir = "../output/"
-        total_size = len(self.manager.agents)
-        title = f"Infections vs. Days, size={total_size:,}"
+        output_folder = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], "output")
+        file_name = filename or os.path.join(output_folder, datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
+        # TODO: Switch ^ to use pathlib
 
-        fig, ax = plt.subplots()
-
-        # visualization
-        # TODO: should be better
-        if max_scale:
-            ax.set_ylim((0, total_size))
-
-        # plot parameters
-        ax.set_title(title)
-        ax.set_xlabel("days", color="#1C2833")
-        ax.set_ylabel("people", color="#1C2833")
-
-        ax.grid()
-
+        all_data = {}
         for s in self.supervisables:
-            s.plot(ax)
-        ax.legend()
+            all_data.update(s.publish())
 
-        text_height = ax.get_ylim()[-1] / 3
-
-        # policies
-        for day, message in self.manager.policies_messages.items():
-            ax.axvline(x=day, color="#0000cc")
-            ax.text(
-                day + 2, text_height, message, rotation=90,
-            )
-
-        # showing and saving the graph
-        if save:
-            fig.savefig(f"{output_dir}{total_size} agents" f"max scale = {max_scale}")
-        if auto_show:
-            plt.show()
-
-    @staticmethod
-    def static_plot(
-        simulations_info: Sequence[Tuple["manager.SimulationManager", str, Sequence[str]]],
-        title="comparing",
-        save_name=None,
-        max_height=-1,
-        auto_show=True,
-        save=True,
-    ):
-        """
-        a static plot method, allowing comparison between multiple simulation runs
-        :param simulations_info: a sequence of tuples, each representing a simulation. each simulation contains the manager, a pre-fix string and a sequence of syling strings. \
-         note that the len of styling strings tuple must be the same as len of the simulation manager supervisables
-        :param title: the title of the output graph
-        :param save_name: how the simulation will be saved. if not entered, will be same as the title
-        :param max_height: max hight to allow a ylim
-        :param auto_show:
-        :param save:
-        :return:
-        """
-
-        output_dir = "../output/"
-        if save_name is None:
-            save_name = title
-        fig, ax = plt.subplots()
-
-        ax.set_title(title)
-        ax.set_xlabel("days", color="#1C2833")
-        ax.set_ylabel("people", color="#1C2833")
-
-        for manager, prefix, styling in simulations_info:
-            for supervisable, style in zip(manager.supervisor.supervisables, styling):
-                supervisable.plot(ax, prefix, style)
-        ax.legend()
-
-        if max_height != -1:
-            ax.set_ylim((0, max_height))
-
-        if save:
-            fig.savefig(output_dir + save_name + ".png")
-        if auto_show:
-            plt.show()
-
-    def stack_plot(self, auto_show: bool = True):
-        # todo plot and stack_plot share a lot of of components, they need to be unified
-        fig, ax = plt.subplots()
-
-        # plot parameters
-        ax.set_xlabel("days", color="#1C2833")
-        ax.set_ylabel("people", color="#1C2833")
-
-        ax.grid()
-
-        for s in self.supervisables:
-            s.stacked_plot(ax)
-        ax.legend()
-
-        # showing and saving the graph
-        if auto_show:
-            plt.show()
+        df = pd.DataFrame(all_data, index=self.time_vector)
+        df.to_csv(file_name)
+        return df
 
 
 class Supervisable(ABC):
@@ -142,20 +63,15 @@ class Supervisable(ABC):
         pass
 
     @abstractmethod
-    def plot(self, ax):
-        pass
-
-    @abstractmethod
-    def plot(self, ax, prefix="", style=""):
-        pass
-
-    @abstractmethod
-    def stacked_plot(self, ax):
+    def publish(self):
         pass
 
     # todo is_finished
-
     # todo supervisables should be able to keep the manager running if they want
+
+    @abstractmethod
+    def name(self) -> str:
+        pass
 
     @classmethod
     @lru_cache
@@ -168,12 +84,42 @@ class Supervisable(ABC):
             return arg(manager)
         raise TypeError
 
+    class State:
+
+        class Current:
+            def __init__(self, name) -> None:
+                self.name = name
+
+            def __call__(self, m):
+                return _StateSupervisable(m.medical_machine[self.name])
+
+        class TotalSoFar:
+            def __init__(self, name) -> None:
+                self.name = name
+
+            def __call__(self, m):
+                return _StateTotalSoFarSupervisable(m.medical_machine[self.name])
+
+        class AddedPerDay:
+            def __init__(self, name) -> None:
+                self.name = name
+
+            def __call__(self, m):
+                diff_sup = _DiffSupervisable(_StateTotalSoFarSupervisable(m.medical_machine[self.name]))
+                return _NameOverrideSupervisable(diff_sup, "New " + self.name)
+
     class Delayed(NamedTuple):
         arg: Any
         delay: int
 
         def __call__(self, m):
             return _DelayedSupervisable(Supervisable.coerce(self.arg, m), self.delay)
+
+    class Diff(NamedTuple):
+        arg: Any
+
+        def __call__(self, m):
+            return _DiffSupervisable(Supervisable.coerce(self.arg, m))
 
     class Stack:
         def __init__(self, *args):
@@ -220,40 +166,20 @@ SupervisableMaker = Callable[[Any], Supervisable]
 
 class ValueSupervisable(Supervisable):
     def __init__(self):
-        self.x = []
-        self.y = []
-
-    @abstractmethod
-    def name(self) -> str:
-        pass
+        self.data = []
 
     @abstractmethod
     def get(self, manager: "manager.SimulationManager"):
         pass
 
-    @abstractmethod
-    def stacked_plot(self, ax):
-        pass
-
-    @abstractmethod
-    def plot(self, ax):
-        pass
-
     def snapshot(self, manager: "manager.SimulationManager"):
-        self.x.append(manager.current_step)
-        self.y.append(self.get(manager))
+        self.data.append(self.get(manager))
+
+    def publish(self):
+        return {self.name(): np.array(self.data)}
 
 
-class FloatSupervisable(ValueSupervisable):
-    def plot(self, ax, prefix="", style=""):
-        # todo preferred color/style?
-        ax.plot(self.x, self.y, style, label=prefix + self.name())
-
-    def stacked_plot(self, ax):
-        return ax.stackplot(self.x, self.y, label=self.name())
-
-
-class LambdaValueSupervisable(FloatSupervisable):
+class LambdaValueSupervisable(ValueSupervisable):
     def __init__(self, name: str, lam: Callable):
         super().__init__()
         self._name = name
@@ -266,7 +192,7 @@ class LambdaValueSupervisable(FloatSupervisable):
         return self.lam(manager)
 
 
-class _StateSupervisable(FloatSupervisable):
+class _StateSupervisable(ValueSupervisable):
     def __init__(self, state):
         super().__init__()
         self.state = state
@@ -278,6 +204,19 @@ class _StateSupervisable(FloatSupervisable):
         return self.state.name
 
 
+class _StateTotalSoFarSupervisable(ValueSupervisable):
+    def __init__(self, state: State):
+        super().__init__()
+        self.state = state
+        self.__name = state.name + " So Far"
+
+    def get(self, manager: "manager.SimulationManager") -> float:
+        return len(self.state.ever_visited)
+
+    def name(self) -> str:
+        return self.__name
+
+
 class _DelayedSupervisable(ValueSupervisable):
     def __init__(self, inner: ValueSupervisable, delay: int):
         super().__init__()
@@ -286,10 +225,10 @@ class _DelayedSupervisable(ValueSupervisable):
 
     def get(self, manager: "manager.SimulationManager") -> float:
         desired_date = manager.current_step - self.delay
-        desired_index = bisect(self.inner.x, desired_date)
-        if desired_index >= len(self.inner.x):
+        if desired_date < 0:
             return np.nan
-        return self.inner.y[desired_index]
+        else:
+            return self.inner.data[desired_date]
 
     def name(self) -> str:
         return self.inner.name() + f" + {self.delay} days"
@@ -297,11 +236,47 @@ class _DelayedSupervisable(ValueSupervisable):
     def names(self):
         return [n + f" + {self.delay} days" for n in self.inner.names()]
 
-    def plot(self, ax):
-        return type(self.inner).plot(self, ax)
+    def snapshot(self, manager: "manager.SimulationManager"):
+        self.inner.snapshot(manager)
+        super().snapshot(manager)
 
-    def stacked_plot(self, ax):
-        return type(self.inner).stacked_plot(self, ax)
+
+class _NameOverrideSupervisable(ValueSupervisable):
+    def __init__(self, inner: ValueSupervisable, name: str):
+        super().__init__()
+        self.__name = name
+        self.inner = inner
+
+    def get(self, manager: "manager.SimulationManager"):
+        return self.inner.get(manager)
+
+    def snapshot(self, manager: "manager.SimulationManager"):
+        self.inner.snapshot(manager)
+        super().snapshot(manager)
+
+    def publish(self):
+        return super().publish()
+
+    def name(self) -> str:
+        return self.__name
+
+
+class _DiffSupervisable(ValueSupervisable):
+    def __init__(self, inner: ValueSupervisable):
+        super().__init__()
+        self.inner = inner
+
+    def get(self, manager: "manager.SimulationManager") -> float:
+        if manager.current_step < 1:
+            return 0
+        return self.inner.data[manager.current_step] - self.inner.data[manager.current_step - 1]
+
+    def snapshot(self, manager: "manager.SimulationManager"):
+        self.inner.snapshot(manager)
+        super().snapshot(manager)
+
+    def name(self) -> str:
+        return self.inner.name() + " diff"
 
 
 class VectorSupervisable(ValueSupervisable, ABC):
@@ -310,19 +285,17 @@ class VectorSupervisable(ValueSupervisable, ABC):
         pass
 
     def _to_ys(self):
+        raise NotImplementedError('Need to convert (.x and .y) notation to the new (.data) notation')
         n = len(self.y[0])
         return [[v[i] for v in self.y] for i in range(n)]
 
-    def plot(self, ax):
-        for n, y in zip(self.names(), self._to_ys()):
-            return ax.plot(self.x, y, label=n)
-
-    def stacked_plot(self, ax):
-        ax.stackplot(self.x, *self._to_ys(), labels=list(self.names()))
+    def publish(self):
+        raise NotImplementedError('Need to convert (.x and .y) notation to the new (.data) notation')
+        return [["", self.names()]] + ([[z[0]] + z[1] for z in zip(self.data.items())])
 
 
 class _StackedFloatSupervisable(VectorSupervisable):
-    def __init__(self, inners: List[FloatSupervisable]):
+    def __init__(self, inners: List[ValueSupervisable]):
         super().__init__()
         self.inners = inners
 
@@ -348,12 +321,6 @@ class _SumSupervisable(ValueSupervisable):
     def names(self):
         return ["Total(" + ", ".join(names) + ")" for names in zip(*(i.names() for i in self.inners))]
 
-    def plot(self, ax):
-        return type(self.inners[0]).plot(self, ax)
-
-    def stacked_plot(self, ax):
-        return type(self.inners[0]).stacked_plot(self, ax)
-
     def name(self) -> str:
         if "name" in self.kwargs:
             return self.kwargs["name"]
@@ -361,7 +328,7 @@ class _SumSupervisable(ValueSupervisable):
 
 
 # todo this is broken. needs adaptation to parasymbolic matrix
-class _EffectiveR0Supervisable(FloatSupervisable):
+class _EffectiveR0Supervisable(ValueSupervisable):
     def __init__(self):
         super().__init__()
 
@@ -370,16 +337,16 @@ class _EffectiveR0Supervisable(FloatSupervisable):
         suseptable_indexes = np.flatnonzero(manager.susceptible_vector)
         # todo someone who knows how this works fix it
         return (
-            np.sum(1 - np.exp(manager.matrix[suseptable_indexes].data))
-            * manager.update_matrix_manager.total_contagious_probability
-            / len(manager.agents)
+                np.sum(1 - np.exp(manager.matrix[suseptable_indexes].data))
+                * manager.update_matrix_manager.total_contagious_probability
+                / len(manager.agents)
         )
 
     def name(self) -> str:
         return "effective R"
 
 
-class _NewInfectedCount(FloatSupervisable):
+class _NewInfectedCount(ValueSupervisable):
     def __init__(self):
         super().__init__()
 
@@ -390,7 +357,7 @@ class _NewInfectedCount(FloatSupervisable):
         return "new infected"
 
 
-class _GrowthFactor(FloatSupervisable):
+class _GrowthFactor(ValueSupervisable):
     def __init__(self, new_infected_supervisor, sum_supervisor):
         super().__init__()
         self.new_infected_supervisor = new_infected_supervisor

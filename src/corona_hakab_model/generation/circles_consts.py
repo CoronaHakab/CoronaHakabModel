@@ -1,5 +1,6 @@
-from generation.connection_types import ConnectionTypes
 from typing import Dict, List, NamedTuple
+
+from generation.connection_types import ConnectionTypes
 from util import rv_discrete
 
 
@@ -18,6 +19,7 @@ class CirclesConsts(NamedTuple):
     population_size: int = 20_000
     ages: List[int] = [10, 40, 70]
     age_prob: List[int] = [0.30, 0.45, 0.25]
+    teachers_ratio = 0.015 # ratio of teachers out of workforce
     connection_type_prob_by_age_index: List = [
         {
             ConnectionTypes.Work: 0,
@@ -26,14 +28,14 @@ class CirclesConsts(NamedTuple):
             ConnectionTypes.Other: 1.0,
         },
         {
-            ConnectionTypes.Work: 0.9,
-            ConnectionTypes.School: 0,
+            ConnectionTypes.Work: 0.9 * (1 - teachers_ratio),
+            ConnectionTypes.School: 0.9 * teachers_ratio,
             ConnectionTypes.Family: 1.0,
             ConnectionTypes.Other: 1.0,
         },
         {
-            ConnectionTypes.Work: 0.25,
-            ConnectionTypes.School: 0,
+            ConnectionTypes.Work: 0.25 * (1 - teachers_ratio),
+            ConnectionTypes.School: 0.25 * teachers_ratio,
             ConnectionTypes.Family: 1.0,
             ConnectionTypes.Other: 1.0,
         },
@@ -110,13 +112,13 @@ class GeographicalCircleDataHolder:
 
     # todo define how social circles logics should be represented
     def __init__(
-            self,
-            name: str,
-            agents_share: float,
-            age_distribution: rv_discrete,
-            circles_size_distribution_by_connection_type,
-            connection_types_prob_by_age,
-            multi_zone_connection_type_to_geo_circle_probability,
+        self,
+        name: str,
+        agents_share: float,
+        age_distribution: rv_discrete,
+        circles_size_distribution_by_connection_type,
+        connection_types_prob_by_age,
+        multi_zone_connection_type_to_geo_circle_probability,
     ):
         self.name = name
         self.agents_share = agents_share

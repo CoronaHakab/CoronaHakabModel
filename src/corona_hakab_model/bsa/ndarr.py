@@ -1,9 +1,8 @@
 from io import BytesIO
-from typing import Sequence, BinaryIO
+from typing import BinaryIO, Sequence
 
 import numpy as np
-
-from bsa.format import EncoderV0, BSA_Dtype, decode
+from bsa.format import BSA_Dtype, EncoderV0, decode
 
 
 def write_ndarr(matrices: Sequence[np.ndarray], sink: BinaryIO = None, encoder_cls=EncoderV0, **kwargs):
@@ -14,17 +13,13 @@ def write_ndarr(matrices: Sequence[np.ndarray], sink: BinaryIO = None, encoder_c
     nz_indices = [set() for _ in range(size)]
     for m in matrices:
         if m.shape != (size, size):
-            raise Exception('all matrices must be squares of the same size')
+            raise Exception("all matrices must be squares of the same size")
         for row_set, row_m in zip(nz_indices, m):
-            row_set.update(
-                np.flatnonzero(row_m).tolist()
-            )
+            row_set.update(np.flatnonzero(row_m).tolist())
     nz_indices = [sorted(s) for s in nz_indices]
     encoder = encoder_cls(sink, size, len(matrices), nz_indices, **kwargs)
     for m in matrices:
-        dtype = next(
-            t for t in BSA_Dtype if t.np_dtype == m.dtype
-        )
+        dtype = next(t for t in BSA_Dtype if t.np_dtype == m.dtype)
         encoder.add_layer(dtype, m.item)
     return sink
 
@@ -41,20 +36,10 @@ def read_ndarr(source: BinaryIO):
     return ret
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     m0 = [
-        np.array([
-            [3, 0, 5, 2],
-            [0, 0, 1, 0],
-            [2, 4, 0, 1],
-            [3, 0, 0, 0],
-        ]),
-        np.array([
-            [2, 4, 0, 1],
-            [0, 0, 1, 0],
-            [3, 0, 0, 0],
-            [3, 0, 5, 2],
-        ])
+        np.array([[3, 0, 5, 2], [0, 0, 1, 0], [2, 4, 0, 1], [3, 0, 0, 0],]),
+        np.array([[2, 4, 0, 1], [0, 0, 1, 0], [3, 0, 0, 0], [3, 0, 5, 2],]),
     ]
 
     b = write_ndarr(m0)

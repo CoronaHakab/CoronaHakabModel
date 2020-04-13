@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-
+from dataclasses import dataclass
+from generation.connection_types import ConnectionTypes
+import pandas as pd
 if TYPE_CHECKING:
     from medical_state import MedicalState
     from manager import SimulationManager
@@ -12,12 +14,7 @@ class Agent:
     This class represents a person in our doomed world.
     """
 
-    __slots__ = (
-        "index",
-        "medical_state",
-        "manager",
-        "age"
-    )
+    __slots__ = ("index", "medical_state", "manager", "age")
 
     # todo note that this changed to fit generation. should update simulation manager accordingly
     def __init__(self, index):
@@ -57,6 +54,43 @@ class Agent:
     def get_infection_ratio(self):
         return self.medical_state.contagiousness
 
+    def get_snapshot(self):
+        geographic_circle_name = self.manager.geographic_circle_by_agent_index[self.index].name
+        social_circle_snapshots = []
+        for social_circle in self.manager.social_circles_by_agent_index[self.index]:
+            social_circle_snapshots.append(social_circle.get_snapshot())
+        return AgentSnapshot(self.index, self.age, geographic_circle_name, social_circle_snapshots)
+
+@dataclass
+class AgentSnapshot:
+    index: int
+    age: int
+    geographic_circle: str
+    social_circles: list
+
+
+class InitialSickAgents:
+    EXPORT_OUTPUT_DIR = "../../output/"
+    EXPORT_FILE_NAME = "initial_sick.csv"
+    def __init__(self):
+        self.agent_snapshots = []
+
+    def add_agent(self,agent_snapshot):
+        self.agent_snapshots.append(agent_snapshot)
+
+    def export(self):
+        num_sick = len(self.agent_snapshots)
+        export_dict = {"agent indexes":[0]*num_sick,"geographic_circles":[0]*num_sick,"age":[0]*num_sick}
+        social_circles = {connection_type.name:[0]*num_sick for connection_type in ConnectionTypes}
+        for index, agent_snapshot in enumerate(self.agent_snapshots):
+            export_dict["agent indexes"][index] = agent_snapshot.index
+            export_dict["geographic_circles"][index] = agent_snapshot.geographic_circle
+            export_dict["age"][index] = agent_snapshot.age
+            for social_circle_snapshot in agent_snapshot.social_circles:
+                social_circles[social_circle_snapshot.type][index] = social_circle_snapshot.num_members
+        export_dict = {**export_dict,**social_circles}
+        df_export_sick = pd.DataFrame(export_dict)
+        df_export_sick.to_csv(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME,index=False)
 
 class Circle:
     __slots__ = "kind", "agent_count"
@@ -118,3 +152,5 @@ class TrackingCircle(Circle):
         rest_of_circle = {o.index for o in self.agents}
         rest_of_circle.remove(my_index)
         return rest_of_circle
+
+
