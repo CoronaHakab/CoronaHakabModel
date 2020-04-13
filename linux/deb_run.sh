@@ -1,8 +1,7 @@
-cd ~
 # install Python3.8.2
 #https://linuxize.com/post/how-to-install-python-3-8-on-debian-10/
-sudo apt update && \
-sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libsqlite3-dev libreadline-dev libffi-dev curl liblzma-dev libbz2-dev -y && \
+sudo apt update -y && \
+sudo apt install -y build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libsqlite3-dev libreadline-dev libffi-dev curl liblzma-dev libbz2-dev && \
 curl -O https://www.python.org/ftp/python/3.8.2/Python-3.8.2.tar.xz && \
 tar -xf Python-3.8.2.tar.xz && \
 cd Python-3.8.2 && \
@@ -13,9 +12,9 @@ python3.8 --version
 
 # git clone
 cd ~
-sudo apt-get install git -y
+sudo apt install -y git
 git clone https://github.com/CoronaHakab/CoronaHakabModel.git
-cd ~/CoronaHakabModel/
+cd ./CoronaHakabModel/
 
 # we'll work with docker branch
 git checkout docker
