@@ -34,6 +34,23 @@
     - minimal dependencies (for researches): **pipenv install**
 - go to src/corona_hakab_model folder
     - run: **python main.py**
+    
+## Creating a Constants JSON
+You can modify the constants for the models including the total execution steps, infection rates, medical state machine,
+detection test parameters and policy changes via a JSON file. An example can be found at 
+`tests/simulation_sanity_test/default_consts.json`.
+
+You can test your JSON file against the JSON schema for the
+constants, this file is found at `src/corona_hakab_model/consts-schema.json`.
+
+To do so, for those without PyCharm:
+1. Open `https://www.jsonschemavalidator.net` in your web browser.
+2. Copy the contents of `src/corona_hakab_model/consts-schema.json` to the left-hand side panel where it says select
+schema.
+3. Copy the contents of your JSON file to the right-hand side panel.
+4. See the "Found x error(s)" messages, the messages are also shown with a notice beside the lines that are invalid.
+5. Once you see " No errors found. JSON validates against the schema", you are good to go!
+ 
 
 ## Optional - Export/Import matrices!
 - Export: **python main.py -o <PATH>**
