@@ -22,6 +22,8 @@ if __package__ or "." in __name__:
     from . import _sparse
 else:
     import _sparse
+
+# todo remove this and add generator to cpp build
 from consts import generator
 
 try:
