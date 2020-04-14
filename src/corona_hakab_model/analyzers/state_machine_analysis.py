@@ -1,5 +1,4 @@
 from datetime import datetime
-import json
 import os
 from collections import Counter
 from agent import Agent
@@ -8,6 +7,7 @@ from generation.circles_consts import CirclesConsts
 from medical_state import ImmuneState
 from medical_state_machine import MedicalStateMachine
 from medical_state_manager import MedicalStateManager
+from project_structure import OUTPUT_FOLDER
 from state_machine import TerminalState
 
 
@@ -147,10 +147,21 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
 
 
 if __name__ == "__main__":
-    monte_carlo_config = dict(monte_carlo_size=50_000)
-    result = monte_carlo_state_machine_analysis(monte_carlo_config)
-    output_folder = "../../output"  # There is a constant, but come on...
-    file_name = os.path.join(output_folder,
-                             f"simulation_statistics_{datetime.now().strftime('%Y%m%d-%H%M%S')}.json")
-    with open(file_name, 'w') as fp:
-        json.dump(result, fp, sort_keys=True, indent=4)
+    import pandas as pd
+    df = pd.DataFrame()
+    for i in [1000, 5000, 10000, 25_000, 50_000, 100_000]:
+        monte_carlo_config = dict(monte_carlo_size=i)
+        result = monte_carlo_state_machine_analysis(monte_carlo_config)
+        dataframe_dict = dict()
+        for k, v in result.items():
+            if isinstance(v, dict):
+                for k2, v2 in v.items():
+                    dataframe_dict[k+"_"+k2] = v2
+            else:
+                dataframe_dict[k] = v
+        df = df.append(dataframe_dict, ignore_index=True)
+        print(f"Finished population of size {i}")
+    file_name = os.path.join(OUTPUT_FOLDER,
+                             f"simulation_statistics_{datetime.now().strftime('%Y%m%d-%H%M%S')}.csv")
+    df = df.set_index("population_size")
+    df.to_csv(file_name)
