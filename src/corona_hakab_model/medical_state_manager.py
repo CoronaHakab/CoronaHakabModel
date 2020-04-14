@@ -3,8 +3,7 @@ from typing import List
 
 import manager
 from agent import Agent
-from medical_state import MedicalState
-from state_machine import PendingTransfer, PendingTransfers
+from state_machine import PendingTransfers
 
 
 class MedicalStateManager:
@@ -24,20 +23,20 @@ class MedicalStateManager:
         # list of all the new sick agents
 
         # all the new sick are going to get to the next state
-        for agent in new_sick:
-            changed_state_leaving[agent.medical_state].append(agent)
-            agent.set_medical_state_no_inform(self.manager.medical_machine.get_state_upon_infection(agent))
-            changed_state_introduced[agent.medical_state].append(agent)
+        for agent_ind in new_sick:
+            changed_state_leaving[agent_ind.medical_state].append(agent_ind)
+            agent_ind.set_medical_state_no_inform(self.manager.medical_machine.get_state_upon_infection(agent_ind))
+            changed_state_introduced[agent_ind.medical_state].append(agent_ind)
 
         # saves this number for supervising
         self.manager.new_sick_counter = len(new_sick)  # TODO should be handled in SimulationManager
 
         moved = self.pending_transfers.advance()
-        for (agent, destination, origin, _) in moved:
-            agent.set_medical_state_no_inform(destination)
+        for (agent_ind, destination, origin, _) in moved:
+            self.manager.agents_df.change_agents_state([agent_ind], destination)
 
-            changed_state_introduced[destination].append(agent)
-            changed_state_leaving[origin].append(agent)
+            changed_state_introduced[destination].append(agent_ind)
+            changed_state_leaving[origin].append(agent_ind)
 
         for state, agents in changed_state_introduced.items():
             state.add_many(agents)

@@ -10,11 +10,9 @@ from detection_model.healthcare import DetectionTest
 from generation.connection_types import ConnectionTypes
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
-from numpy.random import random
 from policies_manager import ConditionedPolicy, Policy
 from state_machine import StochasticState, TerminalState
 from util import dist, rv_discrete, upper_bound
-
 
 """
 Overview:
@@ -70,38 +68,38 @@ class Consts(NamedTuple):
     icu_test_willingness: float = 1.0
     recovered_test_willingness: float = 0.1
     detection_pool: List[DetectionTest] = [
-                                              DetectionSettings(
-                                                  name="hospital",
-                                                  detection_test=DetectionTest(detection_prob=0.98,
-                                                                               false_alarm_prob=0.02,
-                                                                               time_until_result=3),
-                                                  daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
-                                                  testing_gap_after_positive_test=10,
-                                                  testing_gap_after_negative_test=5,
-                                                  testing_priorities=[
-                                                      DetectionPriority(
-                                                          lambda agent: (agent.medical_state.name == "Symptomatic" and
-                                                                         agent not in agent.manager.tested_positive_vector),
-                                                          max_tests=100),
-                                                      DetectionPriority(
-                                                          lambda agent: agent.medical_state.name == "Recovered"),
-                                                  ]),
+        DetectionSettings(
+            name="hospital",
+            detection_test=DetectionTest(detection_prob=0.98,
+                                         false_alarm_prob=0.02,
+                                         time_until_result=3),
+            daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
+            testing_gap_after_positive_test=10,
+            testing_gap_after_negative_test=5,
+            testing_priorities=[
+                DetectionPriority(
+                    lambda agent: (agent.medical_state.name == "Symptomatic" and
+                                   agent not in agent.manager.tested_positive_vector),
+                    max_tests=100),
+                DetectionPriority(
+                    lambda agent: agent.medical_state.name == "Recovered"),
+            ]),
 
-                                              DetectionSettings(
-                                                  name="street",
-                                                  detection_test=DetectionTest(detection_prob=0.92,
-                                                                               false_alarm_prob=0.03,
-                                                                               time_until_result=5),
-                                                  daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
-                                                  testing_gap_after_positive_test=3,
-                                                  testing_gap_after_negative_test=1,
-                                                  testing_priorities=[
-                                                      DetectionPriority(
-                                                          lambda agent: agent.medical_state.name == "Symptomatic"),
-                                                      DetectionPriority(
-                                                          lambda agent: agent.medical_state.name == "Recovered"),
-                                                  ]),
-                                          ]
+        DetectionSettings(
+            name="street",
+            detection_test=DetectionTest(detection_prob=0.92,
+                                         false_alarm_prob=0.03,
+                                         time_until_result=5),
+            daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
+            testing_gap_after_positive_test=3,
+            testing_gap_after_negative_test=1,
+            testing_priorities=[
+                DetectionPriority(
+                    lambda agent: agent.medical_state.name == "Symptomatic"),
+                DetectionPriority(
+                    lambda agent: agent.medical_state.name == "Recovered"),
+            ]),
+    ]
 
     # --policies params--
     change_policies: bool = False
@@ -120,12 +118,14 @@ class Consts(NamedTuple):
     connection_type_to_conditioned_policy: Dict[ConnectionTypes, List[ConditionedPolicy]] = {
         ConnectionTypes.School: [
             ConditionedPolicy(
-                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
+                activating_condition=lambda kwargs: len(
+                    np.flatnonzero(kwargs["manager"].agents_df.contagious_vec())) > 1000,
                 policy=Policy(0, [lambda circle: random() > 0]),
                 message="closing all schools",
             ),
             ConditionedPolicy(
-                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
+                activating_condition=lambda kwargs: len(
+                    np.flatnonzero(kwargs["manager"].agents_df.contagious_vec())) < 500,
                 policy=Policy(1, [lambda circle: random() > 1]),
                 active=True,
                 message="opening all schools",
@@ -133,12 +133,14 @@ class Consts(NamedTuple):
         ],
         ConnectionTypes.Work: [
             ConditionedPolicy(
-                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
+                activating_condition=lambda kwargs: len(
+                    np.flatnonzero(kwargs["manager"].agents_df.contagious_vec())) > 1000,
                 policy=Policy(0, [lambda circle: random() > 0]),
                 message="closing all workplaces",
             ),
             ConditionedPolicy(
-                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
+                activating_condition=lambda kwargs: len(
+                    np.flatnonzero(kwargs["manager"].agents_df.contagious_vec())) < 500,
                 policy=Policy(0, [lambda circle: random() > 1]),
                 active=True,
                 message="opening all workplaces",

@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from collections import defaultdict
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, List
 
 import numpy as np
+
 from agent import Agent
 
 if TYPE_CHECKING:
-    from medical_state import MedicalState
     from manager import SimulationManager
 
 
@@ -35,21 +34,16 @@ class InfectionManager:
         """
 
         # v = [True if an agent can infect other agents in this time step]
-        v = np.random.random(len(self.manager.agents)) < self.manager.contagiousness_vector
+        v = np.random.random(self.manager.agents_df.n_agents()) < self.manager.agents_df.contagious_vec()
 
         # u = mat dot_product v (log of the probability that an agent will get infected)
         u = self.manager.matrix.prob_any(v)
         # calculate the infections boolean vector
 
-        infections = self.manager.susceptible_vector & (np.random.random(u.shape) < u)
+        infections = self.manager.agents_df.susceptible_vec() & (np.random.random(u.shape) < u)
         infected_indices = np.flatnonzero(infections)
 
         # new_infected: dict -
         # key = medical state (currently only susceptible state which an agent can be infected)
         # value = list of agents
-        new_infected = list()
-        for index in infected_indices:
-            agent = self.manager.agents[index]
-            new_infected.append(agent)
-
-        return new_infected
+        return infected_indices

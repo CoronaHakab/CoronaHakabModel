@@ -42,7 +42,7 @@ class UpdateMatrixManager:
         self.depth = manager.depth
         self.logger = manager.logger
         self.consts = manager.consts
-        self.size = len(manager.agents)
+        self.size = manager.agents_df.n_agents()
         # todo unpack more important information
         self.normalize_factor = None
         self.total_contagious_probability = None

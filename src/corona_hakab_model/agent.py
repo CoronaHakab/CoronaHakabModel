@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from dataclasses import dataclass
-from generation.connection_types import ConnectionTypes
+from typing import TYPE_CHECKING
+
 import pandas as pd
+
+from generation.connection_types import ConnectionTypes
+
 if TYPE_CHECKING:
     from medical_state import MedicalState
     from manager import SimulationManager
@@ -24,35 +27,19 @@ class Agent:
         self.manager: SimulationManager = None
         self.medical_state: MedicalState = None
 
-    def add_to_simulation(self, manager: SimulationManager, initial_state: MedicalState):
-        self.manager = manager
-        self.set_medical_state_no_inform(initial_state)
 
-    def set_test_start(self):
-        self.manager.date_of_last_test[self.index] = self.manager.current_step
-
-    def set_test_result(self, test_result):
-        # TODO: add a property here
-        self.manager.tested_positive_vector[self.index] = test_result
-        self.manager.tested_vector[self.index] = True
-        if test_result:
-            self.manager.ever_tested_positive_vector[self.index] = True
-
-    def set_medical_state_no_inform(self, new_state: MedicalState):
-        self.medical_state = new_state
-        self.manager.contagiousness_vector[self.index] = new_state.contagiousness
-
-        if new_state == self.manager.medical_machine.states_by_name["Deceased"]:
-            self.manager.living_agents_vector[self.index] = False
-
-        self.manager.susceptible_vector[self.index] = new_state.susceptible
-        self.manager.test_willingness_vector[self.index] = new_state.test_willingness
+    # def set_medical_state_no_inform(self, new_state: MedicalState):
+    #     self.medical_state = new_state
+    #     self.manager.contagiousness_vector[self.index] = new_state.contagiousness
+    #
+    #     if new_state == self.manager.medical_machine.states_by_name["Deceased"]:
+    #         self.manager.living_agents_vector[self.index] = False
+    #
+    #     self.manager.susceptible_vector[self.index] = new_state.susceptible
+    #     self.manager.test_willingness_vector[self.index] = new_state.test_willingness
 
     def __str__(self):
         return f"<Person,  index={self.index}, medical={self.medical_state}>"
-
-    def get_infection_ratio(self):
-        return self.medical_state.contagiousness
 
     def get_snapshot(self):
         geographic_circle_name = self.manager.geographic_circle_by_agent_index[self.index].name
@@ -60,6 +47,7 @@ class Agent:
         for social_circle in self.manager.social_circles_by_agent_index[self.index]:
             social_circle_snapshots.append(social_circle.get_snapshot())
         return AgentSnapshot(self.index, self.age, geographic_circle_name, social_circle_snapshots)
+
 
 @dataclass
 class AgentSnapshot:
@@ -72,25 +60,31 @@ class AgentSnapshot:
 class InitialSickAgents:
     EXPORT_OUTPUT_DIR = "../../output/"
     EXPORT_FILE_NAME = "initial_sick.csv"
+
     def __init__(self):
         self.agent_snapshots = []
 
-    def add_agent(self,agent_snapshot):
+    def add_agent(self, agent_snapshot):
         self.agent_snapshots.append(agent_snapshot)
 
+    def add_many_agents(self, agents: pd.DataFrame):
+        self.agent_snapshots.append(agents)
+
     def export(self):
+        return  # FIXME later
         num_sick = len(self.agent_snapshots)
-        export_dict = {"agent indexes":[0]*num_sick,"geographic_circles":[0]*num_sick,"age":[0]*num_sick}
-        social_circles = {connection_type.name:[0]*num_sick for connection_type in ConnectionTypes}
+        export_dict = {"agent indexes": [0] * num_sick, "geographic_circles": [0] * num_sick, "age": [0] * num_sick}
+        social_circles = {connection_type.name: [0] * num_sick for connection_type in ConnectionTypes}
         for index, agent_snapshot in enumerate(self.agent_snapshots):
             export_dict["agent indexes"][index] = agent_snapshot.index
             export_dict["geographic_circles"][index] = agent_snapshot.geographic_circle
             export_dict["age"][index] = agent_snapshot.age
             for social_circle_snapshot in agent_snapshot.social_circles:
                 social_circles[social_circle_snapshot.type][index] = social_circle_snapshot.num_members
-        export_dict = {**export_dict,**social_circles}
+        export_dict = {**export_dict, **social_circles}
         df_export_sick = pd.DataFrame(export_dict)
-        df_export_sick.to_csv(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME,index=False)
+        df_export_sick.to_csv(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME, index=False)
+
 
 class Circle:
     __slots__ = "kind", "agent_count"
@@ -152,5 +146,3 @@ class TrackingCircle(Circle):
         rest_of_circle = {o.index for o in self.agents}
         rest_of_circle.remove(my_index)
         return rest_of_circle
-
-

@@ -1,35 +1,30 @@
 from __future__ import annotations
 
 import logging
-from argparse import ArgumentParser
-import matplotlib_set_backend
-import matplotlib.pyplot as plt
-import random
-import numpy as np
-import pickle
 import os.path
+import random
 import sys
+from argparse import ArgumentParser
+from typing import TYPE_CHECKING
 
-from bsa.universal import write
+import matplotlib.pyplot as plt
+import numpy as np
+from corona_hakab_model_data.__data__ import __version__
+
 from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
 from consts import Consts
-from corona_hakab_model_data.__data__ import __version__
-from generation.circles_consts import CirclesConsts
 from generation.circles_generator import PopulationData
 from generation.generation_manager import GenerationManger
-from generation.matrix_consts import MatrixConsts
 from generation.matrix_generator import MatrixData
 from manager import SimulationManager
-from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
+from supervisor import LambdaValueSupervisable, Supervisable
 
-
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import pandas as pd
 
-
 logger = logging.getLogger('application')
 logger.setLevel(logging.INFO)
+
 
 def main():
     parser = ArgumentParser("COVID-19 Simulation")
@@ -150,7 +145,7 @@ def run_simulation(args):
             # LambdaValueSupervisable("ever hospitalized", lambda manager: len(manager.medical_machine["Hospitalized"].ever_visited)),
             LambdaValueSupervisable(
                 "was ever sick",
-                lambda manager: len(manager.agents) - manager.medical_machine["Susceptible"].agent_count,
+                lambda manager: manager.agents_df.n_agents() - manager.medical_machine["Susceptible"].agent_count,
             ),
             # Supervisable.NewCasesCounter(),
             # Supervisable.GrowthFactor(
@@ -171,7 +166,7 @@ def run_simulation(args):
     df.plot()
     if args.figure_path:
         if not os.path.splitext(args.figure_path)[1]:
-            args.figure_path = args.figure_path+'.png'
+            args.figure_path = args.figure_path + '.png'
         plt.savefig(args.figure_path)
     else:
         plt.show()
@@ -181,6 +176,7 @@ def set_seeds(seed=0):
     seed = seed or None
     np.random.seed(seed)
     random.seed(seed)
+
 
 def compare_simulations_example():
     sm1 = SimulationManager(

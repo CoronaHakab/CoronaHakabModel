@@ -2,10 +2,10 @@ import logging
 from collections import defaultdict
 from typing import Callable, Iterable, List, Union
 
-import numpy as np
-
 import infection
 import update_matrix
+from agent import InitialSickAgents
+from agents_df import AgentsDf
 from consts import Consts
 from detection_model import healthcare
 from detection_model.healthcare import PendingTestResult, PendingTestResults
@@ -15,8 +15,6 @@ from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
 from supervisor import Supervisable, SimulationProgression
-from agent import InitialSickAgents
-from update_matrix import Policy
 
 
 class SimulationManager:
@@ -25,11 +23,11 @@ class SimulationManager:
     """
 
     def __init__(
-        self,
-        supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
-        population_data: PopulationData,
-        matrix_data: MatrixData,
-        consts: Consts = Consts(),
+            self,
+            supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
+            population_data: PopulationData,
+            matrix_data: MatrixData,
+            consts: Consts = Consts(),
     ):
         # setting logger
         self.logger = logging.getLogger("simulation")
@@ -38,7 +36,7 @@ class SimulationManager:
         self.logger.info("Creating a new simulation.")
 
         # unpacking data from generation
-        self.agents = population_data.agents
+        agents = population_data.agents
         self.geographic_circles = population_data.geographic_circles
         self.social_circles_by_connection_type = population_data.social_circles_by_connection_type
         self.geographic_circle_by_agent_index = population_data.geographic_circle_by_agent_index
@@ -52,26 +50,17 @@ class SimulationManager:
         self.consts = consts
         self.medical_machine = consts.medical_state_machine()
         initial_state = self.medical_machine.initial
+        self.agents_df = AgentsDf(agents, self.medical_machine)
 
         self.pending_transfers = PendingTransfers()
 
-        # the manager holds the vector, but the agents update it
-        self.contagiousness_vector = np.zeros(len(self.agents), dtype=float)  # how likely to infect others
-        self.susceptible_vector = np.zeros(len(self.agents), dtype=bool)  # can get infected
-
         # healthcare related data
-        self.living_agents_vector = np.ones(len(self.agents), dtype=bool)
-        self.test_willingness_vector = np.zeros(len(self.agents), dtype=float)
-        self.tested_vector = np.zeros(len(self.agents), dtype=bool)
-        self.tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
-        self.ever_tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
-        self.date_of_last_test = np.zeros(len(self.agents), dtype=int)
         self.pending_test_results = PendingTestResults()
 
-        # initializing agents to current simulation
-        for agent in self.agents:
-            agent.add_to_simulation(self, initial_state)
-        initial_state.add_many(self.agents)
+        # # initializing agents to current simulation
+        # for agent in self.agents:
+        #     agent.add_to_simulation(self, initial_state)
+        initial_state.add_many(self.agents_df.agents_ind())
 
         # initializing simulation modules
         self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers],
@@ -121,20 +110,19 @@ class SimulationManager:
     def progress_tests_and_isolation(self, new_tests: List[PendingTestResult]):
         self.new_detected_daily = 0
         new_results = self.pending_test_results.advance()
-        for agent, test_result, _ in new_results:
+        for agent_ind, test_result, _ in new_results:
             if test_result:
-                if not self.ever_tested_positive_vector[agent.index]:
+                if not self.agents_df.ever_tested_positive(agent_ind):
                     # TODO: awful late night implementation, improve ASAP
                     self.new_detected_daily += 1
-
-            agent.set_test_result(test_result)
+            self.agents_df.set_test_result(agent_ind, test_result)
 
         # TODO send the detected agents to the selected kind of isolation
         # TODO: Track isolated agents
         # TODO: Remove healthy agents from isolation?
 
         for new_test in new_tests:
-            new_test.agent.set_test_start()
+            self.agents_df.set_test_start(new_test.agent_index, self.current_step)
             self.pending_test_results.append(new_test)
 
     def setup_sick(self):
@@ -142,11 +130,11 @@ class SimulationManager:
         setting up the simulation with a given amount of infected people
         """
         # todo we only do this once so it's fine but we should really do something better
-        agents_to_infect = self.agents[: self.consts.initial_infected_count]
+        agents_to_infect = list(range(self.consts.initial_infected_count))
+        infected_state = self.medical_machine.default_state_upon_infection
+        self.agents_df.change_agents_state(agents_to_infect, infected_state)
 
-        for agent in agents_to_infect:
-            agent.set_medical_state_no_inform(self.medical_machine.default_state_upon_infection)
-            self.initial_sick_agents.add_agent(agent.get_snapshot())
+        self.initial_sick_agents.add_many_agents(self.agents_df.at(agents_to_infect))
 
         self.medical_machine.initial.remove_many(agents_to_infect)
         self.medical_machine.default_state_upon_infection.add_many(agents_to_infect)
@@ -174,4 +162,4 @@ class SimulationManager:
         return self.simulation_progression.dump(**kwargs)
 
     def __str__(self):
-        return f"<SimulationManager: SIZE_OF_POPULATION={len(self.agents)}, " f"STEPS_TO_RUN={self.consts.total_steps}>"
+        return f"<SimulationManager: SIZE_OF_POPULATION={self.agents_df.n_agents()}, " f"STEPS_TO_RUN={self.consts.total_steps}>"
