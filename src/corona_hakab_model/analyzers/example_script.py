@@ -19,6 +19,7 @@ csv_path = os.path.join(comparison_dir_path, parameter_name + ".csv")
 
 # plot aggregation of the time ,across different runs
 plot_minmax_barchart_single_param(csv_path)
+# plot different aggregations
 plot_aggregations_from_csv(csv_path, aggregation_funcs={"mean": np.mean, "max": np.max})
 
 # plot aggregations of the different runs, across time
