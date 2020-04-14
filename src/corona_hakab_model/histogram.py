@@ -20,18 +20,20 @@ class Histogram:
     def __init__(self, connections_distribution: List = None):
         self.weighted_connections = {}
         self.histogram = {}
-        self.min_connection = None
-        self.max_connection = None
+        self.min_connection = 0
+        self.max_connection = 0
         if connections_distribution is not None:
             self.update(connections_distribution)
+
+    def __repr__(self):
+        return str(self.histogram)
 
     def update(self, connections_distribution: List):
         # weighted_connections is a dictionary where the keys are the number of connections for an agent,
         # and the values are the weight of that number, i.e. the total number of agents with that number if connections
         self.weighted_connections = dict(Counter(self.weighted_connections)+Counter(connections_distribution))
-        self.min_connection = np.min(self.weighted_connections.keys())
-        self.max_connection = np.max(self.weighted_connections.keys())
-
+        self.min_connection = np.min(list(self.weighted_connections.keys()))
+        self.max_connection = np.max(list(self.weighted_connections.keys()))
         probability_density, bins_edges = np.histogram(list(self.weighted_connections.keys()),
                                                        bins=(self.max_connection - self.min_connection + 1),
                                                        range=(self.min_connection - 0.5, self.max_connection + 0.5),
@@ -41,7 +43,7 @@ class Histogram:
         self.histogram['number_of_connections'] = bins_centers
         self.histogram['probability_density'] = probability_density.tolist()
         self.histogram['average'] = np.average(list(self.weighted_connections.keys()),
-                                               weigths=list(self.weighted_connections.values()))
+                                               weights=list(self.weighted_connections.values()))
         # The median is where the cumulative probability is 50%
         self.histogram['median'] = bins_centers[np.argmax(probability_density.cumsum() >= 0.5)]
 
@@ -51,7 +53,7 @@ class TimeHistograms:
     This class implements time-dependent histograms, by separating the connections is the matrix to daily and weekly
     connections. The histograms are calculated for each connection-type separately and for all types together.
     The histograms are being saved to the time_histograms dict in the following way:
-    - key=<histogram name>, e.g. 'daily_hist_conn_type_work'
+    - key=<histogram name>, e.g. 'daily_hist_conn_type_Work'
     - value=<Histogram object>
     """
     TIME_HISTOGRAM_NAME = '{}_hist_conn_type_{}'

@@ -58,9 +58,9 @@ class MatrixData:
         It doesn't change the current matrix, but creates a different one.
         :return: List[scipy.spars.lil_matrix] of #<depth> elements
         """
-        b_io = bsa.parasym.write_parasym(self.matrix)
-        b_io.seek(0)
-        return bsa.scipy_sparse.read_scipy_sparse(b_io)
+        b = bsa.parasym.write_parasym(self.matrix)
+        b.seek(0)
+        return bsa.scipy_sparse.read_scipy_sparse(b)
 
 # todo right now only supports parasymbolic matrix. need to merge with corona matrix class import selector
 class MatrixGenerator:
