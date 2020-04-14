@@ -24,6 +24,9 @@ from manager import SimulationManager
 from subconsts.modules_argpasers import get_simulation_args_parser
 from supervisor import LambdaValueSupervisable, Supervisable
 
+from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
+from matrix_analysis.MatrixAnalysis import MatrixAnalyzer
+
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
