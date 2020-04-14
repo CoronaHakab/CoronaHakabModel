@@ -39,7 +39,7 @@ class MedicalStateManager:
             changed_state_introduced[agent.medical_state].append(agent)
 
         # saves this number for supervising
-        new_sick_counter = len(new_sick)  # TODO should be handled in SimulationManager
+        new_sick_counter = len(new_sick)
 
         moved = self.pending_transfers.advance()
         for (agent, destination, origin, _) in moved:

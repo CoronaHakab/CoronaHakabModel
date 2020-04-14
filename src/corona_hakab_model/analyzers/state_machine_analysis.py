@@ -104,7 +104,7 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
         consts = Consts()
 
     if "circle_consts_file" in configuration:
-        consts = CirclesConsts.from_file(configuration['circle_consts_file'])
+        circle_const = CirclesConsts.from_file(configuration['circle_consts_file'])
     else:
         circle_const = CirclesConsts()
 
