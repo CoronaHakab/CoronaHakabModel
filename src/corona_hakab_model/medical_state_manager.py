@@ -11,16 +11,26 @@ class MedicalStateManager:
     Manages the medical state
     """
 
-    def __init__(self, medical_state_machine: MedicalStateMachine):
-        self.medical_state_machine = medical_state_machine
+    def __init__(self,
+                 sim_manager: "manager.SimulationManager" = None,
+                 medical_state_machine: MedicalStateMachine = None):
+        """
+        TODO: Find more effective way to give medical_state_machine when sim_manager is not needed
+        :param sim_manager:  Defaults to None. The manager that we update.
+                             If None, we dont update the manager and we use medical_state_machine
+        :param medical_state_machine:
+        """
+        assert medical_state_machine or sim_manager,\
+            "Manager and medical state machine cannot both be None"
+
+        self.manager = sim_manager
+        self.medical_state_machine = self.manager.medical_machine if self.manager \
+            else medical_state_machine
         self.pending_transfers = PendingTransfers()
 
-    def step(self, new_sick: List[Agent], update_only_medical_state: bool = False):
+    def step(self, new_sick: List[Agent]):
         """
-
         :param new_sick: List of new agents that got sick
-        :param update_only_medical_state: Defaults to False. If True, update agent.medical_state directly.
-                                          If False it also updates agent.manager.
         :return:
         """
         # all the new sick agents are leaving their previous step
@@ -32,10 +42,11 @@ class MedicalStateManager:
         # all the new sick are going to get to the next state
         for agent in new_sick:
             changed_state_leaving[agent.medical_state].append(agent)
-            if update_only_medical_state:
-                agent.medical_state = self.medical_state_machine.get_state_upon_infection(agent)
-            else:
+            if self.manager:
                 agent.set_medical_state_no_inform(self.medical_state_machine.get_state_upon_infection(agent))
+            else:  # TODO: Find a more elegant way to do this
+                agent.medical_state = self.medical_state_machine.get_state_upon_infection(agent)
+
             changed_state_introduced[agent.medical_state].append(agent)
 
         # saves this number for supervising
@@ -43,10 +54,10 @@ class MedicalStateManager:
 
         moved = self.pending_transfers.advance()
         for (agent, destination, origin, _) in moved:
-            if update_only_medical_state:
-                agent.medical_state = destination
-            else:
+            if self.manager:
                 agent.set_medical_state_no_inform(destination)
+            else:  # TODO: Find a more elegant way to do this
+                agent.medical_state = destination
             changed_state_introduced[destination].append(agent)
             changed_state_leaving[origin].append(agent)
 

@@ -111,7 +111,7 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
     population_size = configuration["monte_carlo_size"]
 
     medical_state_machine = consts.medical_state_machine()
-    medical_machine_manager = MedicalStateManager(medical_state_machine)
+    medical_machine_manager = MedicalStateManager(medical_state_machine=medical_state_machine)
     agents_list = _generate_agents_randomly(population_size=population_size, circle_consts=circle_const)
     _infect_all_agents(agents_list, medical_machine_manager, medical_state_machine)
     medical_states = medical_state_machine.states
@@ -126,7 +126,7 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
     while number_terminals_agents != population_size:
         # No manager so we don't update it
         previous_terminal_agents = sum([m.agent_count for m in terminal_states])
-        medical_machine_manager.step(list(), update_only_medical_state=True)
+        medical_machine_manager.step(list())
         number_terminals_agents = sum([m.agent_count for m in terminal_states])
         new_terminals = number_terminals_agents - previous_terminal_agents
         for m in medical_states:
