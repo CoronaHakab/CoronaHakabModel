@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import project_structure
 from matplotlib import pyplot as plt
 import argparse
 
@@ -89,7 +90,7 @@ if __name__ == "__main__":
     parser.add_argument("--no-view",dest='view',default=True,action='store_false',help="Skip viewing the generated histograms.")
     parser.add_argument("--no-save",dest='save',default=True,action='store_false',help="Skip saving the resulting CSV")
     args = parser.parse_args()
-    directory = Path(args.directory or "../../../output/")
+    directory = Path(args.directory or project_structure.OUTPUT_FOLDER)
     pop_file_path = args.population or directory / "population_data.pickle"
     age_file_path = args.age or directory / "agent_age_histogram.csv"
     circle_file_path = args.circle or directory / "connection_type_circle_size_histogram_data.csv"
