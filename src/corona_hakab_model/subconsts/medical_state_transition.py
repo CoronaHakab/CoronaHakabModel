@@ -14,16 +14,16 @@ class MedicalStateTransition:
         # Think we should do something more readable later on.
         # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
         # disease states transition lengths distributions
-        latent_to_silent: rv_discrete = dist(a=1, b=3)  # Uniform
-        silent_to_asymptomatic: rv_discrete = dist(a=0, c=3, b=10)  # Offset Binomial
-        silent_to_symptomatic: rv_discrete = dist(a=0, c=3, b=10)  # Offset Binomial
-        asymptomatic_to_recovered: rv_discrete = dist(a=3, c=5, b=7)  # Offset Binomial
-        symptomatic_to_asymptomatic: rv_discrete = dist(a=7, c=10, b=14)  # Offset Binomial
-        symptomatic_to_hospitalized: rv_discrete = dist(a=0, c=1.5, b=10)  # Offset Binomial
-        hospitalized_to_asymptomatic: rv_discrete = dist(a=18)  # Discrete
-        hospitalized_to_icu: rv_discrete = dist(a=5)  # Discrete
-        icu_to_deceased: rv_discrete = dist(a=7)  # Discrete
-        icu_to_hospitalized: rv_discrete = dist(a=7)  # Discrete
+        latent_to_silent: rv_discrete = dist(1, 3)
+        silent_to_asymptomatic: rv_discrete = dist(0, 3, 10)
+        silent_to_symptomatic: rv_discrete = dist(0, 3, 10)
+        asymptomatic_to_recovered: rv_discrete = dist(3, 5, 7)
+        symptomatic_to_asymptomatic: rv_discrete = dist(7, 10, 14)
+        symptomatic_to_hospitalized: rv_discrete = dist(0, 1.5, 10)
+        hospitalized_to_asymptomatic: rv_discrete = dist(18)
+        hospitalized_to_icu: rv_discrete = dist(5)
+        icu_to_deceased: rv_discrete = dist(7)
+        icu_to_hospitalized: rv_discrete = dist(7)
 
         @classmethod
         def json_dict_to_instance(cls, **kwargs):
