@@ -5,11 +5,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+import argparse
 
 from generation.circles_generator import PopulationData
 from generation.connection_types import ConnectionTypes
-
-OUTPUT_DIR = Path("../../../output/")
 
 
 class PopulationAnalyzer:
@@ -61,25 +60,42 @@ class PopulationAnalyzer:
         plt.gca().set_ylabel("count")
         plt.show()
 
-    def export_csv(self):
+    def export_csv(self, circle_file_path: str, age_file_path: str):
         connection_type_circle_size_data = [(conn_type.name, circle_agent_count, number_of_circles)
                                             for conn_type in ConnectionTypes
                                             for (circle_agent_count,
                                                  number_of_circles) in self.circle_size_data[conn_type].items()]
         connection_type_circle_size_df = pd.DataFrame(connection_type_circle_size_data,
                                                       columns=["connection_type", "circle_size", "number_of_circles"])
-        connection_type_circle_size_df.to_csv(OUTPUT_DIR / "connection_type_circle_size_histogram_data.csv")
+        connection_type_circle_size_df.to_csv(circle_file_path)
 
         agent_age_bins: np.ndarray = np.bincount([agent.age for agent in self.population_data.agents])
         agent_age_histogram_data = list(zip(np.flatnonzero(agent_age_bins), agent_age_bins[np.nonzero(agent_age_bins)]))
 
         agent_age_histogram_df = pd.DataFrame(agent_age_histogram_data, columns=["age", "count"])
-        agent_age_histogram_df.to_csv(OUTPUT_DIR / "agent_age_histogram.csv")
+        agent_age_histogram_df.to_csv(age_file_path)
 
 
 if __name__ == "__main__":
-    file_path = OUTPUT_DIR / "population_data.pickle"
-    population_analyzer = PopulationAnalyzer(file_path)
-    population_analyzer.plot_circles_sizes()
-    population_analyzer.plot_agents_ages()
-    population_analyzer.export_csv()
+    parser = argparse.ArgumentParser(prog="Population Analyser")
+    parser.add_argument("-d", "--dir", dest='directory', type=str, default='',
+                        help='Directory containing population data to analyse, and in which to save results.')
+    parser.add_argument("-p", "--population", dest="population", type=str, default='',
+                        help='Path to population data pickle. Prioritized over directory if both given.')
+    parser.add_argument("-a", "--age", dest="age", type=str, default='',
+                        help="Path to resulting age histogram. Prioritized over directory if both given")
+    parser.add_argument("-c", "--circle", dest="circle", type=str, default='',
+                        help="Path to resulting circle histogram. Prioritized over directory if both given")
+    parser.add_argument("--no-view",dest='view',default=True,action='store_false',help="Skip viewing the generated histograms.")
+    parser.add_argument("--no-save",dest='save',default=True,action='store_false',help="Skip saving the resulting CSV")
+    args = parser.parse_args()
+    directory = Path(args.directory or "../../../output/")
+    pop_file_path = args.population or directory / "population_data.pickle"
+    age_file_path = args.age or directory / "agent_age_histogram.csv"
+    circle_file_path = args.circle or directory / "connection_type_circle_size_histogram_data.csv"
+    population_analyzer = PopulationAnalyzer(pop_file_path)
+    if args.view:
+        population_analyzer.plot_circles_sizes()
+        population_analyzer.plot_agents_ages()
+    if args.save:
+        population_analyzer.export_csv(circle_file_path, age_file_path)
