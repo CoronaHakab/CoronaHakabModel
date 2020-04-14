@@ -72,6 +72,14 @@ def main():
                      dest='matrix_data',
                      default='../../output/matrix_data.parasymbolic',
                      help='Previously exported matrix data file to use in the simulation')
+    sim.add_argument('--initial_sick',
+                     dest='initial_sick_agents_path',
+                     default='../../output/initial_sick.csv',
+                     help='Output csv file for initial sick agents - after setup of simulation')
+    sim.add_argument('--all_sick',
+                     dest='all_sick_agents_path',
+                     default='../../output/all_sick.csv',
+                     help='Output csv file for all sick agents - at the end of the simulation run')
     sim.add_argument('--output',
                      dest='output',
                      default='',
@@ -167,6 +175,7 @@ def run_simulation(args):
         ),
         population_data,
         matrix_data,
+        run_args=args,
         consts=consts,
     )
     print(sm)
