@@ -29,6 +29,7 @@ class SimulationManager:
         supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
         population_data: PopulationData,
         matrix_data: MatrixData,
+        run_args,
         consts: Consts = Consts(),
     ):
         # setting logger
@@ -47,6 +48,8 @@ class SimulationManager:
         self.matrix_type = matrix_data.matrix_type
         self.matrix = matrix_data.matrix
         self.depth = matrix_data.depth
+
+        self.run_args = run_args
 
         # setting up medical things
         self.consts = consts
@@ -158,16 +161,18 @@ class SimulationManager:
             self.medical_machine.default_state_upon_infection.transfer(agents_to_infect)
         )
 
-    def run(self, **kwargs):
+    def run(self):
         """
         runs full simulation
         """
         self.setup_sick()
-        self.sick_agents.export('../../output/initial_sick.csv')
+        if self.run_args.initial_sick_agents_path:
+            self.sick_agents.export(self.run_args.initial_sick_agents_path)
         for i in range(self.consts.total_steps):
             self.step()
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
-        self.sick_agents.export('../../output/all_sick.csv')
+        if self.run_args.all_sick_agents_path:
+            self.sick_agents.export(self.run_args.all_sick_agents_path)
 
         # clearing lru cache after run
         # self.consts.medical_state_machine.cache_clear()

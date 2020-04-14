@@ -77,7 +77,7 @@ class SickAgents:
     def add_agent(self,agent_snapshot):
         self.agent_snapshots.append(agent_snapshot)
 
-    def export(self, file_name):
+    def export(self, file_path):
         num_sick = len(self.agent_snapshots)
         export_dict = {"agent indexes":[0]*num_sick,"geographic_circles":[0]*num_sick,"age":[0]*num_sick}
         social_circles_num_agents = {f'{connection_type.name}_num_agents': [0]*num_sick for connection_type in ConnectionTypes}
@@ -92,7 +92,8 @@ class SickAgents:
                 social_circles_index[f'{social_circle_snapshot.type}_index'][index] = social_circle_snapshot.index
         export_dict = {**export_dict, **social_circles_num_agents, **social_circles_index}
         df_export_sick = pd.DataFrame(export_dict)
-        df_export_sick.to_csv(file_name, index=False)
+
+        df_export_sick.to_csv(file_path, index=False)
 
 
 class Circle:
