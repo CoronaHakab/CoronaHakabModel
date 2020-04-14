@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, DefaultDict
+from typing import TYPE_CHECKING, List
 
 import numpy as np
 
