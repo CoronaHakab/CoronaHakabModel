@@ -30,7 +30,7 @@ class AgentsDf:
     def n_agents(self) -> int:
         return self._df.shape[0]
 
-    def agents_ind(self) -> List[int]:
+    def agents_indexes(self) -> List[int]:
         return self._df.index.values.tolist()
 
     def change_agents_state(self, index_list: List[int], state: MedicalState) -> None:
@@ -39,7 +39,7 @@ class AgentsDf:
         self._df.loc[index_list, col_names] = col_vals
 
     def at(self, index_list):
-        return self._df.loc[index_list].copy()
+        return self._df.loc[index_list]
 
     def test_candidates(self, test_location: DetectionSettings, curr_date: int) -> Set[int]:
         def want_to_be_tested():

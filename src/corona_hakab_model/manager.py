@@ -60,7 +60,7 @@ class SimulationManager:
         # # initializing agents to current simulation
         # for agent in self.agents:
         #     agent.add_to_simulation(self, initial_state)
-        initial_state.add_many(self.agents_df.agents_ind())
+        initial_state.add_many(self.agents_df.agents_indexes())
 
         # initializing simulation modules
         self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers],
