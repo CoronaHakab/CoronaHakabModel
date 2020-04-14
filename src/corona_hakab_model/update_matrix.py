@@ -41,6 +41,7 @@ class UpdateMatrixManager:
         self.matrix_type = manager.matrix_type
         self.depth = manager.depth
         self.logger = manager.logger
+        self.medical_machine = manager.medical_machine
         self.consts = manager.consts
         self.size = len(manager.agents)
         # todo unpack more important information
@@ -56,7 +57,7 @@ class UpdateMatrixManager:
         self.logger.info(f"normalizing matrix")
         if self.normalize_factor is None:
             # updates r0 to fit the contagious length and ratio.
-            states_time = self.consts.average_time_in_each_state()
+            states_time = self.medical_machine.average_time_in_each_state()
             total_contagious_probability = 0
             for state, time_in_state in states_time.items():
                 total_contagious_probability += time_in_state * state.contagiousness

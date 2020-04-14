@@ -1,6 +1,6 @@
 from abc import ABC
 
-from state_machine import State
+from state_machine import State, StochasticState, TerminalState
 
 
 class MedicalState(State, ABC):
@@ -9,35 +9,20 @@ class MedicalState(State, ABC):
     test_willingness: float
     detectable: bool
 
+    def __init__(self, *args, **kwargs):
+        self.susceptible = kwargs.pop('susceptible')
+        self.contagiousness = kwargs.pop('contagiousness')
+        self.test_willingness = kwargs.pop('test_willingness')
+        self.detectable = kwargs.pop('detectable')
+        super().__init__(*args, **kwargs)
+
     def val(self):
         return self.agent_count
 
 
-class SusceptibleState(MedicalState, ABC):
-    def __init__(self, *args, test_willingness: float, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.test_willingness = test_willingness
-
-    contagiousness = 0
-    susceptible = True
-    detectable = False
+class TerminalMedicalState(MedicalState, TerminalState):
+    pass
 
 
-class ContagiousState(MedicalState, ABC):
-    susceptible = False
-    detectable = True
-
-    def __init__(self, *args, contagiousness: float, test_willingness: float, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.test_willingness = test_willingness
-        self.contagiousness = contagiousness
-
-
-class ImmuneState(MedicalState, ABC):
-    susceptible = False
-    contagiousness = 0
-
-    def __init__(self, *args, detectable: bool, test_willingness: float, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.test_willingness = test_willingness
-        self.detectable = detectable
+class StochasticMedicalState(MedicalState, StochasticState):
+    pass

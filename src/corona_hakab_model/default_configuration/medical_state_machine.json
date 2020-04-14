@@ -1,0 +1,179 @@
+{
+  "medical_states": {
+    "Susceptible": {
+      "susceptible": true,
+      "contagiousness": 0,
+      "test_willingness": 0.01,
+      "detectable": false,
+      "terminal": true
+    },
+    "Latent": {
+      "susceptible": false,
+      "contagiousness": 0,
+      "test_willingness": 0.01,
+      "detectable": false,
+      "stochastic": true
+    },
+    "Silent": {
+      "susceptible": false,
+      "contagiousness": 0.3,
+      "test_willingness": 0.01,
+      "detectable": true,
+      "stochastic": true
+    },
+    "Symptomatic": {
+      "susceptible": false,
+      "contagiousness": 0.75,
+      "test_willingness": 0.6,
+      "detectable": true,
+      "stochastic": true
+    },
+    "Asymptomatic": {
+      "susceptible": false,
+      "contagiousness": 0.25,
+      "test_willingness": 0.01,
+      "detectable": true,
+      "stochastic": true
+    },
+    "Hospitalized": {
+      "susceptible": false,
+      "contagiousness": 0.0,
+      "test_willingness": 0.9,
+      "detectable": true,
+      "stochastic": true
+    },
+    "ICU": {
+      "susceptible": false,
+      "contagiousness": 0.0,
+      "test_willingness": 1.0,
+      "detectable": true,
+      "stochastic": true
+    },
+    "Deceased": {
+      "susceptible": false,
+      "contagiousness": 0.0,
+      "test_willingness": 0.0,
+      "detectable": false,
+      "terminal": true
+    },
+    "Recovered": {
+      "susceptible": false,
+      "contagiousness": 0.0,
+      "test_willingness": 0.1,
+      "detectable": false,
+      "terminal": true
+    }
+  },
+  "initial_state": "Susceptible",
+  "default_state_upon_infection": "Latent",
+  "sick_states": [
+    "Symptomatic",
+    "Asymptomatic",
+    "Latent",
+    "Silent",
+    "ICU",
+    "Hospitalized"
+  ],
+  "was_ever_sick_states": [
+    "Symptomatic",
+    "Asymptomatic",
+    "Latent",
+    "Silent",
+    "ICU",
+    "Hospitalized",
+    "Deceased",
+    "Recovered"
+  ],
+  "medical_state_transitions": [
+    {
+      "from_state": "Latent",
+      "to": "Silent",
+      "distribution": [
+        1,
+        3
+      ]
+    },
+    {
+      "from_state": "Silent",
+      "to": "Asymptomatic",
+      "distribution": [
+        0,
+        3,
+        10
+      ],
+      "probability": 0.2
+    },
+    {
+      "from_state": "Silent",
+      "to": "Symptomatic",
+      "distribution": [
+        0,
+        3,
+        10
+      ]
+    },
+    {
+      "from_state": "Symptomatic",
+      "to": "Asymptomatic",
+      "distribution": [
+        7,
+        10,
+        14
+      ],
+      "probability": 0.85
+    },
+    {
+      "from_state": "Symptomatic",
+      "to": "Hospitalized",
+      "distribution": [
+        0,
+        1.5,
+        10
+      ]
+    },
+    {
+      "from_state": "Hospitalized",
+      "to": "ICU",
+      "distribution": [
+        5
+      ],
+      "probability": {
+        "type": "allEventualitiesExcept",
+        "from_state": "Hospitalized",
+        "to": "Asymptomatic"
+      }
+    },
+    {
+      "from_state": "Hospitalized",
+      "to": "Asymptomatic",
+      "distribution": [
+        18
+      ],
+      "probability": 0.8
+    },
+    {
+      "from_state": "ICU",
+      "to": "Hospitalized",
+      "distribution": [
+        7
+      ],
+      "probability": 0.65
+    },
+    {
+      "from_state": "ICU",
+      "to": "Deceased",
+      "distribution": [
+        7
+      ]
+    },
+    {
+      "from_state": "Asymptomatic",
+      "to": "Recovered",
+      "distribution": [
+        3,
+        5,
+        7
+      ]
+    }
+  ]
+}

@@ -6,18 +6,6 @@ from healthcare import DetectionTest
 
 @dataclass
 class DetectionTestConsts:
-    @dataclass
-    class TestWillingness:
-        susceptible: float = 0.01
-        latent: float = 0.01
-        silent: float = 0.01
-        asymptomatic: float = 0.01
-        symptomatic: float = 0.6
-        hospitalized: float = 0.9
-        icu: float = 1.0
-        recovered: float = 0.1
-
-    test_willingness: TestWillingness = TestWillingness()
     detection_test: DetectionTest = DetectionTest(detection_prob=0.98, false_alarm_prob=0.02, time_until_result=3)
     daily_num_of_tests_schedule: Dict = field(default_factory=lambda: {0: 100, 10: 1000, 20: 2000, 50: 5000})
     testing_gap_after_positive_test: int = 10

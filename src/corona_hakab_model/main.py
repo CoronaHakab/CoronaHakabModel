@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 
@@ -11,6 +12,8 @@ from generation.circles_consts import CirclesConsts
 from generation.generation_manager import GenerationManger
 from generation.matrix_consts import MatrixConsts
 from manager import SimulationManager
+from medical_state_consts.medical_state_machine_creator import MedicalStateMachineCreator
+from project_structure import MODEL_FOLDER
 from supervisor import LambdaValueSupervisable, Supervisable
 
 from typing import TYPE_CHECKING
@@ -25,6 +28,10 @@ def main():
     gen = sub_parsers.add_parser("generate", help="only generate the population data without running the simulation")
     gen.add_argument("output")
 
+    parser.add_argument(
+        "-MSM", "--medical-state-machine", dest="medical_state_machine_params",
+        help="Parameters for the medical state machine"
+    )
     parser.add_argument(
         "-s", "--simulation-parameters", dest="simulation_parameters_path", help="Parameters for simulation engine"
     )
@@ -54,6 +61,13 @@ def main():
             write(gm.matrix_data.matrix, w)
         return
 
+    if args.medical_state_machine_params:
+        medical_state_machine = MedicalStateMachineCreator(args.medical_state_machine_params).create_state_machine()
+    else:
+        msm_creator = MedicalStateMachineCreator(Path(MODEL_FOLDER) / "default_configuration" /
+                                                 "medical_state_machine.json")
+        medical_state_machine = msm_creator.create_state_machine()
+
     if args.simulation_parameters_path:
         consts = Consts.from_json(args.simulation_parameters_path)
     else:
@@ -61,26 +75,12 @@ def main():
 
     sm = SimulationManager(
         (
-            # "Latent",
-            Supervisable.State.AddedPerDay("Asymptomatic"),
-            Supervisable.State.Current("Asymptomatic"),
-            Supervisable.State.TotalSoFar("Asymptomatic"),
-            # "Silent",
-            # "Asymptomatic",
-            # "Symptomatic",
-            # "Deceased",
-            # "Hospitalized",
-            # "ICU",
-            # "Susceptible",
-            # "Recovered",
-            Supervisable.Sum(
-                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", name="currently sick"
-            ),
+            Supervisable.State.AddedPerDay(medical_state_machine.initial.name),
+            Supervisable.State.Current(medical_state_machine.initial.name),
+            Supervisable.State.TotalSoFar(medical_state_machine.initial.name),
+            Supervisable.Sum(*medical_state_machine.sick_states, name="currently sick"),
             # LambdaValueSupervisable("ever hospitalized", lambda manager: len(manager.medical_machine["Hospitalized"].ever_visited)),
-            LambdaValueSupervisable(
-                "was ever sick",
-                lambda manager: len(manager.agents) - manager.medical_machine["Susceptible"].agent_count,
-            ),
+            Supervisable.Sum(*medical_state_machine.was_ever_sick_states, name="was ever sick"),
             # Supervisable.NewCasesCounter(),
             # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
@@ -92,6 +92,7 @@ def main():
         ),
         gm.population_data,
         gm.matrix_data,
+        medical_state_machine=medical_state_machine,
         consts=consts,
     )
     print(sm)

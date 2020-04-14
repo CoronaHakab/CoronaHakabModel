@@ -11,6 +11,7 @@ from consts import Consts
 from generation.circles_generator import PopulationData
 from generation.matrix_generator import MatrixData
 from healthcare import PendingTestResult, PendingTestResults
+from medical_state_machine import MedicalStateMachine
 from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
@@ -27,6 +28,7 @@ class SimulationManager:
         supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
         population_data: PopulationData,
         matrix_data: MatrixData,
+        medical_state_machine: MedicalStateMachine,
         consts: Consts = Consts(),
     ):
         # setting logger
@@ -48,7 +50,7 @@ class SimulationManager:
 
         # setting up medical things
         self.consts: Consts = consts
-        self.medical_machine = consts.medical_state_machine()
+        self.medical_machine = medical_state_machine
         initial_state = self.medical_machine.initial
 
         self.pending_transfers = PendingTransfers()

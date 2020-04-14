@@ -1,0 +1,163 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "CoronaHakabModel Medical State Machine JSON file schema",
+  "description": "This file describes the medical state machine",
+  "required": [
+    "medical_states"
+  ],
+  "definitions": {
+    "medical_state_name": {
+      "type": "string",
+      "pattern": "^[A-Za-z_ ]+$"
+    }
+  },
+  "properties": {
+    "medical_states": {
+      "$id": "#/properties/medical_states",
+      "type": "object",
+      "title": "Medical states",
+      "description": "The medical state names and their properties",
+      "required": ["Deceased"],
+      "propertyNames": {
+        "$ref": "#/definitions/medical_state_name"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "susceptible": {
+            "$id": "#/properties/susceptible",
+            "type": "boolean",
+            "title": "Susceptible"
+          },
+          "contagiousness": {
+            "$id": "#/properties/contagiousness",
+            "type": "number",
+            "title": "Contagiousness"
+          },
+          "test_willingness": {
+            "$id": "#/properties/test_willingness",
+            "type": "number",
+            "title": "Test willingness"
+          },
+          "detectable": {
+            "$id": "#/properties/detectable",
+            "type": "boolean",
+            "title": "Detectable"
+          },
+          "terminal": {
+            "$id": "#/properties/terminal",
+            "type": "boolean",
+            "title": "Terminal"
+          },
+          "stochastic": {
+            "$id": "#/properties/stochastic",
+            "type": "boolean",
+            "title": "Stochastic"
+          }
+        },
+        "required": [
+          "susceptible",
+          "contagiousness",
+          "test_willingness",
+          "detectable"
+        ],
+        "oneOf": [
+          {
+            "required": [
+              "terminal"
+            ]
+          },
+          {
+            "required": [
+              "stochastic"
+            ]
+          }
+        ],
+        "additionalProperties": false
+      },
+      "contains": {
+        "type": "object",
+        "properties": {
+          "default_state_on_infection": {
+            "type": "boolean",
+            "title": "Default state on infection"
+          }
+        }
+      }
+    },
+    "initial_state": {
+      "$ref": "#/definitions/medical_state_name"
+    },
+    "default_state_upon_infection": {
+      "$ref": "#/definitions/medical_state_name"
+    },
+    "sick_states": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/medical_state_name"
+      }
+    },
+    "was_ever_sick_states": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/medical_state_name"
+      }
+    },
+    "medical_state_transitions": {
+      "$id": "#/properties/medical_state_transitions",
+      "type": "array",
+      "title": "Medical states transitions",
+      "description": "Transitions between medical states",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from_state": {
+            "$ref": "#/definitions/medical_state_name"
+          },
+          "to": {
+            "$ref": "#/definitions/medical_state_name"
+          },
+          "distribution": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 1,
+            "maxItems": 3
+          },
+          "probability": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "allEventualitiesExcept"
+                  },
+                  "from_state": {
+                    "$ref": "#/definitions/medical_state_name"
+                  },
+                  "to": {
+                    "$ref": "#/definitions/medical_state_name"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "required": [
+          "from_state",
+          "to",
+          "distribution"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
