@@ -82,7 +82,7 @@ class SimulationManager:
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self)
         self.infection_manager = infection.InfectionManager(self)
         self.healthcare_manager = healthcare.HealthcareManager(self)
-        self.medical_state_manager = MedicalStateManager(self)
+        self.medical_state_manager = MedicalStateManager(sim_manager=self)
         self.policy_manager = PolicyManager(self)
 
         self.current_step = 0
