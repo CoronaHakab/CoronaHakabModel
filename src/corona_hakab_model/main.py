@@ -101,6 +101,8 @@ def main():
         matrix_analyzer = MatrixAnalyzer(args.matrix_path)
         matrix_analyzer.export_raw_matrices_to_csv()
         matrix_analyzer.analyze_histograms()
+        matrix_analyzer.export_histograms()
+        matrix_analyzer.save_histogram_plots()
         if args.show:
             plt.show()
         return

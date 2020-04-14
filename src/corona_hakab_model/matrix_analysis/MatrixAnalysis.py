@@ -5,6 +5,7 @@ import numpy as np
 import csv
 
 from generation.matrix_generator import MatrixData
+import project_structure
 
 
 class MatrixAnalyzer:
@@ -12,14 +13,15 @@ class MatrixAnalyzer:
     A module for analyzing and plotting statistics of the simulation matrix.
     """
 
-    EXPORT_HISTOGRAM_DIR = "../../output/matrix_analysis/histogram_analysis/"
+    EXPORT_HISTOGRAM_DIR = project_structure.OUTPUT_FOLDER + "/matrix_analysis/histogram_analysis/"
     EXPORT_HISTOGRAM_FILE = "histogram_connection_type_{}.csv"
     EXPORT_HISTOGRAM_IMG = "histogram_connection_type_{}.png"
-    EXPORT_MATRIX_DIR = "../../output/matrix_analysis/raw_matrices/"
+    EXPORT_MATRIX_DIR = project_structure.OUTPUT_FOLDER + "/matrix_analysis/raw_matrices/"
     EXPORT_MATRIX_FILE = "raw_matrix_connection_type_{}.csv"
 
     def __init__(self, matrix_data_path=None):
         self.matrix_data = MatrixData()
+        self.histograms = []
         self.matrix_data.import_matrix_data_as_scipy_sparse(matrix_data_path)
         self.matrix_data.depth = len(self.matrix_data.matrix)
         self._convert_to_csr()
@@ -36,10 +38,9 @@ class MatrixAnalyzer:
         # all connections combined
         self.export_matrix_to_csv()
 
-    def export_matrix_to_csv(self, connection_type=None):
-        if connection_type is None:
+    def export_matrix_to_csv(self, connection_type='all'):
+        if connection_type == 'all':
             connection_matrix = sum(self.matrix_data.matrix)
-            connection_type = "all"
         else:
             connection_matrix = self.matrix_data.matrix[connection_type]
 
@@ -58,14 +59,15 @@ class MatrixAnalyzer:
         """
         run over all types of connections and analyze the connection histogram
         """
+        # analyze each connection type
         for connection_type in range(self.matrix_data.depth):
             self.analyze_connection_histogram(connection_type)
+        # analyze all connection combined (default)
         self.analyze_connection_histogram()
 
-    def analyze_connection_histogram(self, connection_type=None):
-        if connection_type is None:
+    def analyze_connection_histogram(self, connection_type='all'):
+        if connection_type == 'all':
             connection_matrix = sum(self.matrix_data.matrix)
-            connection_type = "all"
         else:
             connection_matrix = self.matrix_data.matrix[connection_type]
 
@@ -80,19 +82,30 @@ class MatrixAnalyzer:
                                                 bins=(max_connection-min_connection+1),
                                                 range=(min_connection - 0.5, max_connection + 0.5))
         bins = np.arange(min_connection, max_connection+1)
+        self.save_histogram(connections_histogram, bins,
+                            average_connection, median_connection, connection_type)
 
-        self.export_histogram_to_csv(connections_histogram, bins,
-                                     average_connection, median_connection, connection_type)
-        self.plot_histogram(connections_histogram, bins, average_connection, median_connection, connection_type)
+    def save_histogram(self, histogram, bins, average, median, connection_type):
+        self.histograms.append({'histogram': histogram, 'bins': bins, 'average': average,
+                                'median': median, 'connection_type': connection_type})
+
+    def export_histograms(self):
+        for hist in self.histograms:
+            self.export_histogram_to_csv(hist['histogram'], hist['bins'], hist['average'],
+                                         hist['median'], hist['connection_type'])
 
     def export_histogram_to_csv(self, histogram, bins, average_value, median_value, connection_type):
         headers = ['num_of_connections'] + bins.tolist() + ['average', 'median', 'type']
         values = ['amount'] + histogram.tolist() + [average_value, median_value, connection_type]
-
         export_file_path = self.EXPORT_HISTOGRAM_DIR + self.EXPORT_HISTOGRAM_FILE.format(connection_type)
         with open(export_file_path, 'w', newline='') as histogram_file:
             csv_writer = csv.writer(histogram_file, delimiter=',')
             csv_writer.writerows([headers, values])
+
+    def save_histogram_plots(self):
+        for hist in self.histograms:
+            self.plot_histogram(hist['histogram'], hist['bins'], hist['average'],
+                                hist['median'], hist['connection_type'])
 
     def plot_histogram(self, histogram, bins, average_value, median_value, connection_type):
         plt.figure()
@@ -113,12 +126,10 @@ class MatrixAnalyzer:
 
 def main():
     parser = ArgumentParser("Matrix Analyzer")
-    parser.add_argument("-m",
-                        "--matrix",
+    parser.add_argument("--matrix",
                         dest="matrix_path",
                         help="Matrix file to analyze")
-    parser.add_argument("-s",
-                        "--show",
+    parser.add_argument("--show",
                         dest="show",
                         action="store_true",
                         help="Show histograms")
@@ -127,6 +138,8 @@ def main():
     matrix_analyzer = MatrixAnalyzer(args.matrix_path)
     matrix_analyzer.export_raw_matrices_to_csv()
     matrix_analyzer.analyze_histograms()
+    matrix_analyzer.export_histograms()
+    matrix_analyzer.save_histogram_plots()
     if args.show:
         plt.show()
 

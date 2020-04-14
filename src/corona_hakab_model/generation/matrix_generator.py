@@ -22,15 +22,14 @@ from generation.matrix_consts import MatrixConsts
 from generation.node import Node
 from bsa.parasym import write_parasym, read_parasym
 from bsa.scipy_sparse import read_scipy_sparse
+import project_structure
 
 
 class MatrixData:
     __slots__ = ("matrix_type", "matrix", "depth")
 
     # import/export variables
-    IMPORT_MATRIX_PATH = "../../output/matrix_data"
-    EXPORT_OUTPUT_DIR = "../../output/"
-    EXPORT_FILE_NAME = "matrix_data"
+    IMPORT_MATRIX_PATH = os.path.join(project_structure.OUTPUT_FOLDER, "matrix_data")
 
     def __init__(self):
         self.matrix_type = None
@@ -50,7 +49,7 @@ class MatrixData:
             self.matrix_type = "scipy_sparse"
             self.depth = len(self.matrix)
         except FileNotFoundError:
-            raise FileNotFoundError("Couldn't open matrix data")
+            raise FileNotFoundError("Couldn't open matrix data from {}".format(matrix_data_path))
 
     # todo make this work, using the parasymbolic matrix serialization.
     def export(self, export_path: str):
