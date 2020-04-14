@@ -38,8 +38,15 @@ class GeographicCircle(Circle):
         for agent, age in zip(self.agents, ages):
             agent.age = age
             for connection_type in ConnectionTypes:
+                agent_connection_types = []
                 if np.random.random() < self.data_holder.connection_types_prob_by_age[age][connection_type]:
-                    self.connection_type_to_agents[connection_type].append(agent)
+                    agent_connection_types.append(connection_type)
+            
+            if agent.is_adult() and ConnectionTypes.School in agent_connection_types:
+                agent_connection_types.remove(ConnectionTypes.Work)
+            
+            for connection_type in agent_connection_types:
+                self.connection_type_to_agents[connection_type].append(agent)
 
     def create_inner_social_circles(self):
         # todo notice that family connection types doesnt notice between ages
