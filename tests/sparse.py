@@ -5,6 +5,7 @@ from typing import Union
 import numpy as np
 
 from bsa.sparse_base import write_sparse, read_sparse
+from clustered_matrix import ClusteredSparseMatrix
 from consts import generator
 from sparse_matrix import MagicOperator, SparseMatrix
 
@@ -174,6 +175,15 @@ def test_read_write():
     for i, j in product(range(4), repeat=2):
         assert matrix[i, j] == dec[i, j], f'[{i}, {j}], {matrix[i, j]} vs {dec[i, j]}'
 
+def test_csm_constructible():
+    # this is just a test to check that CSM is non-abstract
+    csm = ClusteredSparseMatrix(
+        [
+            [0,1,2,3],
+            [4,5,6],
+            [7,8,9]
+        ]
+    )
 
 if __name__ == "__main__":
-    test_read_write()
+    test_csm_constructible()

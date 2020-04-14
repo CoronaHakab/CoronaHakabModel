@@ -93,8 +93,9 @@ class ClusteredSparseMatrix(SparseBase):
         self.local_indices = np.empty(self.size, dtype=int)
         self.clusters = []
         for i, c in enumerate(clusters):
-            self.clusters.append(Cluster(c))
-            for j, a in enumerate(c):
+            clus = Cluster(c)
+            self.clusters.append(clus)
+            for j, a in enumerate(clus.indices):
                 self.cluster_index[a] = i
                 self.local_indices[a] = j
 
