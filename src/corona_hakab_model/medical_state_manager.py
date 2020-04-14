@@ -24,9 +24,10 @@ class MedicalStateManager:
 
         # all the new sick are going to get to the next state
         for agent_ind in new_sick:
-            changed_state_leaving[agent_ind.medical_state].append(agent_ind)
-            agent_ind.set_medical_state_no_inform(self.manager.medical_machine.get_state_upon_infection(agent_ind))
-            changed_state_introduced[agent_ind.medical_state].append(agent_ind)
+            changed_state_leaving[self.manager.agents_df.at(agent_ind).medical_state].append(agent_ind)
+            infected_state = self.manager.medical_machine.get_state_upon_infection(agent_ind)
+            self.manager.agents_df.change_agents_state(agent_ind, infected_state)
+            changed_state_introduced[infected_state].append(agent_ind)
 
         # saves this number for supervising
         self.manager.new_sick_counter = len(new_sick)  # TODO should be handled in SimulationManager

@@ -18,14 +18,14 @@ class AgentsDf:
         # initial data
         self.state_machine = state_machine
         self._df.age = [a.age for a in agents]
-        self._df.medical_state = state_machine.initial
-        self._df.test_willingness = 0.0
-        self._df.susceptible = False
+        initial = state_machine.initial
+        self._df.medical_state = initial
+        self._df.test_willingness = initial.test_willingness
+        self._df.susceptible = initial.susceptible
+        self._df.contagious = initial.contagiousness
         self._df.ever_tested_positive = False
-        self._df.contagious = 0
         self._df.test_result = DetectionResult.NOT_TAKEN
         self._df.date_of_last_test = 0
-        print(self._df.head())
 
     def n_agents(self) -> int:
         return self._df.shape[0]

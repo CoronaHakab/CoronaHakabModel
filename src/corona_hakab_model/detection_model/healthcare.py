@@ -102,8 +102,8 @@ class HealthcareManager:
             # First test the prioritized candidates
             for ind in np.random.permutation(list(test_candidates_inds)):
                 # permute the indices so we won't always test the lower indices
-                if detection_priority.is_agent_prioritized(self.manager.agents[ind]):
-                    tested.append(test_location.detection_test.test(self.manager.agents[ind]))
+                if detection_priority.is_agent_prioritized(self.manager.agents_df.at(ind)):
+                    tested.append(test_location.detection_test.test(self.manager.agents_df.at(ind), ind))
                     test_candidates_inds.remove(ind)  # Remove so it won't be tested again
                     num_of_tests -= 1
 
