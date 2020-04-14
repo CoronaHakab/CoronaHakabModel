@@ -69,7 +69,7 @@ class Consts(NamedTuple):
     hospitalized_test_willingness: float = 0.9
     icu_test_willingness: float = 1.0
     recovered_test_willingness: float = 0.1
-    detection_pool: List[DetectionTest] = [
+    detection_pool: List[DetectionSettings] = [
                                               DetectionSettings(
                                                   name="hospital",
                                                   detection_test=DetectionTest(detection_prob=0.98,
