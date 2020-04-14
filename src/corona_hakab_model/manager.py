@@ -112,7 +112,8 @@ class SimulationManager:
         new_sick = self.infection_manager.infection_step()
 
         # progress transfers
-        self.medical_state_manager.step(new_sick)
+        medical_machine_step_result = self.medical_state_manager.step(new_sick)
+        self.new_sick_counter = medical_machine_step_result['new_sick']
 
         self.current_step += 1
 

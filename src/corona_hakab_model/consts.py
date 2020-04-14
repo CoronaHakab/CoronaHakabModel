@@ -305,4 +305,5 @@ class Consts(NamedTuple):
 # TODO can we remove it?
 if __name__ == "__main__":
     c = Consts()
-    print(c.average_time_in_each_state())
+    for state, time in c.average_time_in_each_state().items():
+        print(f"For state {state.name} we have expected {time} days")
