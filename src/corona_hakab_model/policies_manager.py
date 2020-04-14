@@ -1,13 +1,16 @@
-from typing import Any, Callable, Iterable
+from typing import Any, Callable, Iterable, TYPE_CHECKING
 
 from generation.circles import SocialCircle
+
+if TYPE_CHECKING:
+    from consts import Consts
 
 
 class PolicyManager:
     def __init__(self, manager: "SimulationManager"):
         self.manager = manager
         self.update_matrix_manager = manager.update_matrix_manager
-        self.consts = manager.consts
+        self.consts: Consts = manager.consts
         self.logger = manager.logger
 
     def perform_policies(self):
@@ -17,12 +20,12 @@ class PolicyManager:
         :return:
         """
         # checks for a matrices summing change policy
-        if self.consts.change_policies and self.manager.current_step in self.consts.policies_changes:
+        if self.consts.change_policies and self.manager.current_step in self.consts.policy_changes:
             self.logger.info("changing policy")
             self.update_matrix_manager.change_connections_policy(
-                self.consts.policies_changes[self.manager.current_step][0]
+                self.consts.policy_changes[self.manager.current_step][0]
             )
-            self.add_message_to_manager(self.consts.policies_changes[self.manager.current_step][1])
+            self.add_message_to_manager(self.consts.policy_changes[self.manager.current_step][1])
 
         # check for a partial opening policy
         if self.consts.partial_opening_active:

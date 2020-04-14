@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 
@@ -14,6 +13,7 @@ from generation.matrix_consts import MatrixConsts
 from manager import SimulationManager
 from supervisor import LambdaValueSupervisable, Supervisable
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import pandas as pd
 
@@ -55,7 +55,7 @@ def main():
         return
 
     if args.simulation_parameters_path:
-        consts = Consts.from_file(args.simulation_parameters_path)
+        consts = Consts.from_json(args.simulation_parameters_path)
     else:
         consts = Consts()
 

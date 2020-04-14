@@ -43,7 +43,7 @@ class HealthcareManager:
     def __init__(self, sim_manager: SimulationManager):
         self.manager = sim_manager
 
-        if 0 not in self.manager.consts.daily_num_of_tests_schedule.keys():
+        if 0 not in self.manager.consts.detection_test_consts.daily_num_of_tests_schedule.keys():
             raise Exception(
                 "The initial number of tests (step=0) wasn't specified in the given schedule: "
                 f"{self.manager.consts.daily_num_of_test_schedule}"
@@ -55,7 +55,7 @@ class HealthcareManager:
             & self.manager.tested_positive_vector
             & (
                 self.manager.current_step - self.manager.date_of_last_test
-                < self.manager.consts.testing_gap_after_positive_test
+                < self.manager.consts.detection_test_consts.testing_gap_after_positive_test
             )
         )
 
@@ -64,15 +64,16 @@ class HealthcareManager:
             & np.logical_not(self.manager.tested_positive_vector)
             & (
                 self.manager.current_step - self.manager.date_of_last_test
-                < self.manager.consts.testing_gap_after_negative_test
+                < self.manager.consts.detection_test_consts.testing_gap_after_negative_test
             )
         )
 
         return np.logical_not(tested_pos_too_recently | tested_neg_too_recently) & self.manager.living_agents_vector
 
     def _get_current_num_of_tests(self, current_step):
-        closest_key = max([i for i in self.manager.consts.daily_num_of_tests_schedule.keys() if i <= current_step])
-        return self.manager.consts.daily_num_of_tests_schedule[closest_key]
+        daily_number_of_tests_scheduled = self.manager.consts.detection_test_consts.daily_num_of_tests_schedule
+        closest_key = max([i for i in daily_number_of_tests_scheduled.keys() if i <= current_step])
+        return self.manager.consts.detection_test_consts.daily_num_of_tests_schedule[closest_key]
 
     def testing_step(self):
         num_of_tests = self._get_current_num_of_tests(self.manager.current_step)
@@ -91,11 +92,11 @@ class HealthcareManager:
                 tested.append(self.manager.consts.detection_test.test(self.manager.agents[ind]))
                 num_of_tests -= 1
         else:
-            for priority_lambda in list(self.manager.consts.testing_priorities):
+            for priority in list(self.manager.consts.detection_test_consts.testing_priorities):
                 # First test the prioritized candidates
                 for ind in np.random.permutation(list(test_candidates_inds)):
                     # permute the indices so we won't always test the lower indices
-                    if priority_lambda(self.manager.agents[ind]):
+                    if self.manager.agents[ind].medical_state.name == priority:
                         tested.append(self.manager.consts.detection_test.test(self.manager.agents[ind]))
                         test_candidates_inds.remove(ind)  # Remove so it won't be tested again
                         num_of_tests -= 1

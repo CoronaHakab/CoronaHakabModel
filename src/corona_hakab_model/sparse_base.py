@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import List, Optional, Protocol, Tuple
+from typing import List, Optional, Protocol, Tuple, Iterable, Collection, Final, runtime_checkable
 
 import numpy as np
 
 
+@runtime_checkable
 class SparseBase(Protocol):
     @abstractmethod
     def batch_set(self, row, columns: np.ndarray, probs: np.ndarray, vals: np.ndarray):
@@ -47,10 +48,25 @@ class SparseBase(Protocol):
         """
 
     @abstractmethod
-    def manifest(self, sample: np.ndarray = None) -> ManifestBase:
+    def manifest(self, sample: np.ndarray = None, global_prob_factor: float = 1) -> ManifestBase:
         """
         Create a manifested sparse matrix from sample rolls.
         if sample is None, a new rolls array is created
+        global_prob_factor denotes a global probability coefficient to apply to all probs. 0.5 means that each cell has
+        only half as much chance to manifest. A global_prob_factor of 0 is an error.
+        """
+
+    @property
+    @abstractmethod
+    def size(self) -> int:
+        """
+        get the size of the matrix. This is the number of rows/columns
+        """
+
+    @abstractmethod
+    def non_zero_columns(self) -> List[Collection[int]]:
+        """
+        get the columns that have non-zero probs per roe
         """
 
 

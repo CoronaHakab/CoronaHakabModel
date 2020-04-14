@@ -48,7 +48,7 @@ def gen_no_policy_simulation():
     """
     for 500 rounds, run the simulation and update each day ranges according to the global min and max values per state.
     """
-    consts = Consts.from_file(consts_file)
+    consts = Consts.from_json(consts_file)
     range_per_day_dict = [deepcopy(test_states) for _ in range(consts.total_steps)]
 
     for i in range(500):

@@ -1,7 +1,11 @@
+from io import BytesIO
 from itertools import product
 from typing import Union
 
 import numpy as np
+
+from bsa.sparse_base import write_sparse, read_sparse
+from clustered_matrix import ClusteredSparseMatrix
 from consts import generator
 from sparse_matrix import MagicOperator, SparseMatrix
 
@@ -71,6 +75,11 @@ class npSparseMatrix:
 
         return npManifest(self, inner)
 
+    def non_zero_columns(self):
+        return [
+            list(np.flatnonzero(self.probs[i])) for i in range(self.size)
+        ]
+
 
 class npManifest:
     def __init__(self, origin, inner):
@@ -116,6 +125,9 @@ def check_equal(ps: SparseMatrix, mck: npSparseMatrix, msg: str):
     mnz = m.nz_rows()
     mmnz = mm.nz_rows()
     assert mnz == mmnz, f"{msg}, NZR {mnz} vs {mmnz}, inner: \n{mm.inner}"
+    cnz = ps.non_zero_columns()
+    mcnz = mck.non_zero_columns()
+    assert cnz == mcnz, f"{msg}, NZC {cnz} vs {mcnz}"
 
 
 def operate(matrix: Union[npSparseMatrix, SparseMatrix]):
@@ -148,5 +160,30 @@ def test_sparse():
         check_equal(main, mock, i)
 
 
+def test_read_write():
+    matrix = SparseMatrix(4)
+    matrix.batch_set(0, [1, 2, 3], [0.2, 0.5, 1], [0.1, 0.1, 0.2])
+    matrix.batch_set(1, [0, 3], [0.1, 0.1], [0.7, 1])
+    matrix.batch_set(2, [0], [0.7], [0.5])
+    matrix.batch_set(3, [2], [0.1], [0.9])
+
+    sink = BytesIO()
+    write_sparse(matrix, sink)
+    sink.seek(0)
+    dec = read_sparse(sink)
+
+    for i, j in product(range(4), repeat=2):
+        assert matrix[i, j] == dec[i, j], f'[{i}, {j}], {matrix[i, j]} vs {dec[i, j]}'
+
+def test_csm_constructible():
+    # this is just a test to check that CSM is non-abstract
+    csm = ClusteredSparseMatrix(
+        [
+            [0,1,2,3],
+            [4,5,6],
+            [7,8,9]
+        ]
+    )
+
 if __name__ == "__main__":
-    test_sparse()
+    test_csm_constructible()

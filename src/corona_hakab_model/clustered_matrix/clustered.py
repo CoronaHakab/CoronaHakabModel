@@ -24,7 +24,7 @@ class Cluster:
     )
 
     def __init__(self, indices: Iterable[int]):
-        self.indices = sorted(indices)
+        self.indices = np.array(sorted(indices))
         self.size = len(self.indices)
         self.probs = np.zeros((self.size, self.size), dtype=np.float32)
         self.vals = np.zeros((self.size, self.size), dtype=np.float32)
@@ -88,15 +88,23 @@ class ClusteredSparseMatrix(SparseBase):
     __slots__ = ("size", "cluster_index", "local_indices", "clusters")
 
     def __init__(self, clusters: Iterable[Collection[int]]):
-        self.size = sum(len(c) for c in clusters)
+        self.size: int = sum(len(c) for c in clusters)
         self.cluster_index = np.empty(self.size, dtype=int)
         self.local_indices = np.empty(self.size, dtype=int)
         self.clusters = []
         for i, c in enumerate(clusters):
-            self.clusters.append(Cluster(c))
-            for j, a in enumerate(c):
+            clus = Cluster(c)
+            self.clusters.append(clus)
+            for j, a in enumerate(clus.indices):
                 self.cluster_index[a] = i
                 self.local_indices[a] = j
+
+    def non_zero_columns(self):
+        ret = [None] * self.size
+        for cluster in self.clusters:
+            for index, row in zip(cluster.indices, cluster.probs):
+                ret[index] = list(cluster.indices[np.flatnonzero(row)])
+        return ret
 
     def batch_set(self, row, columns, probs, vals):
         c_i = self.cluster_index[row]
@@ -134,9 +142,11 @@ class ClusteredSparseMatrix(SparseBase):
         l_j = self.local_indices[j]
         return self.clusters[c_i][l_i, l_j]
 
-    def manifest(self, sample=None):
+    def manifest(self, sample=None, global_prob_factor: float = 1):
         if sample is None:
             sample = generator.random(sum(c.size ** 2 for c in self.clusters), dtype=np.float32)
+        if global_prob_factor != 1:
+            sample /= global_prob_factor
         s_next = 0
         ret = ManifestClusters(self)
         for i, c in enumerate(self.clusters):
@@ -165,7 +175,7 @@ class ManifestClusters(ManifestBase):
         ret = [None] * self.original.size
         for cluster, manifest in zip(self.original.clusters, self.inners):
             for i, row in zip(cluster.indices, manifest):
-                ret[i] = np.flatnonzero(row)
+                ret[i] = cluster.indices[np.flatnonzero(row)]
         return ret
 
     def __getitem__(self, item):

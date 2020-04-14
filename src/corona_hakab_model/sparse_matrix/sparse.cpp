@@ -5,6 +5,18 @@ dtype MagicOperator::operate(dtype w_val, dtype v_val) const{
     return 1 - w_val*v_val;
 }
 
+MagicOperator* MagicOperator::mul(dtype factor) const{
+    return new FactoredMagicOperator(this, factor);
+}
+
+FactoredMagicOperator::FactoredMagicOperator(MagicOperator const* inner, dtype factor): inner(inner), factor(factor){}
+dtype FactoredMagicOperator::operate(dtype w_val, dtype v_val) const{
+    return inner->operate(w_val, v_val) * factor;
+}
+MagicOperator* FactoredMagicOperator::mul(dtype factor) const{
+    return inner->mul(factor * this->factor);
+}
+
 int binary_search(size_t* haystack, size_t len, size_t needle){
     if (len == 0)
         return -1;
@@ -49,6 +61,11 @@ size(size), _nz_count(0){
 
 void SparseMatrix::batch_set(size_t row, size_t const* A_columns, size_t c_len, dtype const* A_probs, size_t p_len, dtype const* A_values, size_t v_len){
     _nz_count += c_len;
+
+    if (row_indices[row]){
+        std::cerr << "row " << row <<" already assigned" <<std::endl;
+        throw "";
+    }
 
     row_lens[row] = c_len;
     row_indices[row] = new size_t[c_len];
@@ -105,6 +122,18 @@ void SparseMatrix::row_set_value_offset(size_t row, dtype offset){
 }
 void SparseMatrix::col_set_value_offset(size_t column, dtype offset){
     value_column_offsets[column] = offset;
+}
+
+std::vector<std::vector<size_t>> SparseMatrix::non_zero_columns(){
+    std::vector<std::vector<size_t>> ret(size);
+    for (int i = 0; i < size; i++){
+        auto len = row_lens[i];
+        auto arr = row_indices[i];
+        for (auto j = 0; j < len; j++){
+            ret[i].push_back(arr[j]);
+        }
+    }
+    return ret;
 }
 
 SparseMatrix::~SparseMatrix(){

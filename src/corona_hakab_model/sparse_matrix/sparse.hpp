@@ -11,6 +11,17 @@ class MagicOperator{
     public:
         //invariant: if w_val = 0 or v_val = 0, operate(w_val, v_val) = 1
         virtual dtype operate(dtype w_val, dtype v_val) const;
+        virtual MagicOperator* mul(dtype factor) const;
+};
+
+class FactoredMagicOperator: public MagicOperator{
+    private:
+        MagicOperator const * inner;
+        dtype factor;
+    public:
+        FactoredMagicOperator(MagicOperator const* inner, dtype factor);
+        dtype operate(dtype w_val, dtype v_val) const;
+        MagicOperator* mul(dtype factor) const;
 };
 
 class ManifestMatrix;
@@ -47,6 +58,8 @@ class SparseMatrix{
 
         void row_set_value_offset(size_t row, dtype offset);
         void col_set_value_offset(size_t column, dtype offset);
+
+        std::vector<std::vector<size_t>> non_zero_columns();
 
         virtual ~SparseMatrix();
 };
