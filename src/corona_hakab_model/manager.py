@@ -15,7 +15,7 @@ from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
 from supervisor import Supervisable, SimulationProgression
-from agent import InitialSickAgents
+from agent import SickAgents
 from update_matrix import Policy
 
 
@@ -87,7 +87,7 @@ class SimulationManager:
         # initializing data for supervising
         # dict(day:int -> message:string) saving policies messages
         self.policies_messages = defaultdict(str)
-        self.initial_sick_agents = InitialSickAgents()
+        self.sick_agents = SickAgents()
 
         self.new_sick_counter = 0
         self.new_detected_daily = 0
@@ -110,6 +110,8 @@ class SimulationManager:
 
         # run infection
         new_sick = self.infection_manager.infection_step()
+        for agent in new_sick:
+            self.sick_agents.add_agent(agent.get_snapshot())
 
         # progress transfers
         self.medical_state_manager.step(new_sick)
@@ -146,7 +148,7 @@ class SimulationManager:
 
         for agent in agents_to_infect:
             agent.set_medical_state_no_inform(self.medical_machine.default_state_upon_infection)
-            self.initial_sick_agents.add_agent(agent.get_snapshot())
+            self.sick_agents.add_agent(agent.get_snapshot())
 
         self.medical_machine.initial.remove_many(agents_to_infect)
         self.medical_machine.default_state_upon_infection.add_many(agents_to_infect)
@@ -156,15 +158,16 @@ class SimulationManager:
             self.medical_machine.default_state_upon_infection.transfer(agents_to_infect)
         )
 
-    def run(self):
+    def run(self, **kwargs):
         """
         runs full simulation
         """
         self.setup_sick()
-        self.initial_sick_agents.export()
+        self.sick_agents.export('../../output/initial_sick.csv')
         for i in range(self.consts.total_steps):
             self.step()
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
+        self.sick_agents.export('../../output/all_sick.csv')
 
         # clearing lru cache after run
         # self.consts.medical_state_machine.cache_clear()
