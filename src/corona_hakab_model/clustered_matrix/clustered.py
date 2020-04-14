@@ -24,7 +24,7 @@ class Cluster:
     )
 
     def __init__(self, indices: Iterable[int]):
-        self.indices = sorted(indices)
+        self.indices = np.array(sorted(indices))
         self.size = len(self.indices)
         self.probs = np.zeros((self.size, self.size), dtype=np.float32)
         self.vals = np.zeros((self.size, self.size), dtype=np.float32)
@@ -98,6 +98,13 @@ class ClusteredSparseMatrix(SparseBase):
                 self.cluster_index[a] = i
                 self.local_indices[a] = j
 
+    def non_zero_columns(self):
+        ret = [None] * self.size
+        for cluster in self.clusters:
+            for index, row in zip(cluster.indices, cluster.probs):
+                ret[index] = list(cluster.indices[np.flatnonzero(row)])
+        return ret
+
     def batch_set(self, row, columns, probs, vals):
         c_i = self.cluster_index[row]
         l_i = self.local_indices[row]
@@ -167,7 +174,7 @@ class ManifestClusters(ManifestBase):
         ret = [None] * self.original.size
         for cluster, manifest in zip(self.original.clusters, self.inners):
             for i, row in zip(cluster.indices, manifest):
-                ret[i] = np.flatnonzero(row)
+                ret[i] = cluster.indices[np.flatnonzero(row)]
         return ret
 
     def __getitem__(self, item):
