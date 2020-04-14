@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING
 from dataclasses import dataclass
 from generation.connection_types import ConnectionTypes
 import pandas as pd
+
 if TYPE_CHECKING:
     from medical_state import MedicalState
     from manager import SimulationManager
@@ -42,7 +44,7 @@ class Agent:
         self.medical_state = new_state
         self.manager.contagiousness_vector[self.index] = new_state.contagiousness
 
-        if new_state == self.manager.medical_machine.states_by_name["Deceased"]:
+        if new_state.name == "Deceased":
             self.manager.living_agents_vector[self.index] = False
 
         self.manager.susceptible_vector[self.index] = new_state.susceptible
@@ -61,6 +63,7 @@ class Agent:
             social_circle_snapshots.append(social_circle.get_snapshot())
         return AgentSnapshot(self.index, self.age, geographic_circle_name, social_circle_snapshots)
 
+
 @dataclass
 class AgentSnapshot:
     index: int
@@ -70,27 +73,29 @@ class AgentSnapshot:
 
 
 class InitialSickAgents:
-    EXPORT_OUTPUT_DIR = "../../output/"
+    EXPORT_OUTPUT_DIR = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], "output")
     EXPORT_FILE_NAME = "initial_sick.csv"
+
     def __init__(self):
         self.agent_snapshots = []
 
-    def add_agent(self,agent_snapshot):
+    def add_agent(self, agent_snapshot):
         self.agent_snapshots.append(agent_snapshot)
 
     def export(self):
         num_sick = len(self.agent_snapshots)
-        export_dict = {"agent indexes":[0]*num_sick,"geographic_circles":[0]*num_sick,"age":[0]*num_sick}
-        social_circles = {connection_type.name:[0]*num_sick for connection_type in ConnectionTypes}
+        export_dict = {"agent indexes": [0] * num_sick, "geographic_circles": [0] * num_sick, "age": [0] * num_sick}
+        social_circles = {connection_type.name: [0] * num_sick for connection_type in ConnectionTypes}
         for index, agent_snapshot in enumerate(self.agent_snapshots):
             export_dict["agent indexes"][index] = agent_snapshot.index
             export_dict["geographic_circles"][index] = agent_snapshot.geographic_circle
             export_dict["age"][index] = agent_snapshot.age
             for social_circle_snapshot in agent_snapshot.social_circles:
                 social_circles[social_circle_snapshot.type][index] = social_circle_snapshot.num_members
-        export_dict = {**export_dict,**social_circles}
+        export_dict = {**export_dict, **social_circles}
         df_export_sick = pd.DataFrame(export_dict)
-        df_export_sick.to_csv(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME,index=False)
+        df_export_sick.to_csv(os.path.join(self.EXPORT_OUTPUT_DIR, self.EXPORT_FILE_NAME), index=False)
+
 
 class Circle:
     __slots__ = "kind", "agent_count"
@@ -152,5 +157,3 @@ class TrackingCircle(Circle):
         rest_of_circle = {o.index for o in self.agents}
         rest_of_circle.remove(my_index)
         return rest_of_circle
-
-
