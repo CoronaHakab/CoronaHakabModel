@@ -100,15 +100,24 @@ class CirclesConsts(NamedTuple):
 
 
     def get_required_adult_distributions(self):
-        students = 0
-        teachers = 0
+        """
+        This function returns a dictionary of adult-children distributions (a numpy random distribution)
+        for a ConnectionTypes and circle size.
+        The returned data structure is a dictionary whose keys are ConnectionTypes.
+        Each value is another dictionary relating circle size to the relevant random variable.
+        The random distributions can return random variables (via dist.rvs()) that is the number of adults
+        in the circle.  
+        """
+        all_students = 0
+        all_teachers = 0
         for i in range(self.ages):
             if self.ages[i] <= 18:
-                students += self.age_prob[i]*self.connection_type_prob_by_age_index[i][ConnectionTypes.School]
+                all_students += self.age_prob[i]*self.connection_type_prob_by_age_index[i][ConnectionTypes.School]
             else:
-                teachers += self.age_prob[i]*self.connection_type_prob_by_age_index[i][ConnectionTypes.School]
-                
-        teacher_student_ratio = teachers * 1.0 / students
+                all_teachers += self.age_prob[i]*self.connection_type_prob_by_age_index[i][ConnectionTypes.School]
+        # teacher to student ratio is the part of the school-going population that are teachers.
+        # it is used to calculate how many teachers are needed in each school (according to school size)
+        teacher_to_student_ratio = all_teachers / all_students
         school_sizes = self.circle_size_distribution_by_connection_type[ConnectionTypes.School][0]
         
         family_sizes = self.circle_size_distribution_by_connection_type[ConnectionTypes.Family][0]
@@ -116,7 +125,7 @@ class CirclesConsts(NamedTuple):
         family_distributions.update({size: rv_discrete(1, 2, values=([1, 2], [0.2, 0.8])) for size in family_sizes if size==2})
         family_distributions.update({size: rv_discrete(1, 3, values=([1, 2, 3], [0.1, 0.8, 0.1])) for size in family_sizes if size > 2})
         return {
-            ConnectionTypes.School: {school_size: randint(round(school_size*teacher_student_ratio), round(school_size*teacher_student_ratio)+1) for school_size in school_sizes},      
+            ConnectionTypes.School: {school_size: randint(round(school_size*teacher_to_student_ratio), round(school_size*teacher_to_student_ratio)+1) for school_size in school_sizes},      
             ConnectionTypes.Family: family_distributions
         }
 
