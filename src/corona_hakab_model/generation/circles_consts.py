@@ -16,7 +16,7 @@ Usage:
 
 
 class CirclesConsts(NamedTuple):
-    population_size: int = 20_000
+    population_size: int = 10_000
     ages: List[int] = [10, 40, 70]
     age_prob: List[int] = [0.30, 0.45, 0.25]
     connection_type_prob_by_age_index: List = [

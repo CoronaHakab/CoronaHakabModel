@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, DefaultDict
 
 import numpy as np
 
@@ -36,8 +36,9 @@ class InfectionManager:
         # v = [True if an agent can infect other agents in this time step]
         v = np.random.random(len(self.manager.agents)) < self.manager.contagiousness_vector
 
+        # TODO save manifests in a queue-ish data structure
         # u = mat dot_product v (log of the probability that an agent will get infected)
-        u = self.manager.matrix.prob_any(v)
+        manifests, u = self.manager.matrix.POA(v)
         # calculate the infections boolean vector
 
         infections = self.manager.susceptible_vector & (np.random.random(u.shape) < u)

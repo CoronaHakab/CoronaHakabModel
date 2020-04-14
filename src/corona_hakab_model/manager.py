@@ -44,7 +44,6 @@ class SimulationManager:
 
         self.matrix_type = matrix_data.matrix_type
         self.matrix = matrix_data.matrix
-        self.depth = matrix_data.depth
 
         # setting up medical things
         self.consts: Consts = consts
