@@ -79,7 +79,7 @@
 - This module is a library that allows a researcher to analyze the output of one or multiple simulation
     - The module implements both specific and generic methods to allow the user flexibility
 - To run the module first run the simulation few times, you can do that from the file main.py
-- For examples of usage of the module run python src/corona_hakab_model/analyzers/example_script.py, the script plot few graph and demonstrate the usage of the functions.
+- For examples of usage of the module run python src/corona_hakab_model/analyzers/example_script.py, the script plots  a few graphs and demonstrates the usage of the functions.
 	
 ## New to git/github?
 See the **"How to set up a git environment"** guide in the docs folder.
