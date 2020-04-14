@@ -22,6 +22,7 @@ if __package__ or "." in __name__:
     from . import _sparse
 else:
     import _sparse
+from consts import generator
 
 try:
     import builtins as __builtin__
