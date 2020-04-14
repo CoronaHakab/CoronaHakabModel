@@ -1,8 +1,9 @@
-from typing import Dict, NamedTuple, Tuple
+from typing import Dict, NamedTuple
+from functools import lru_cache
+import numpy as np
 
 from generation.connection_types import ConnectionTypes
 from util import rv_discrete
-
 
 """
 Overview:
@@ -21,10 +22,8 @@ class MatrixConsts(NamedTuple):
     # Attributes and default values
 
     # Connections Weights
-    connection_type_to_const_weight: Dict = {
-        ConnectionTypes.Family: 3,
-    }
     daily_connection_type_to_weight_generator: Dict = {
+        ConnectionTypes.Family: rv_discrete(values=([2.9], [1])),
         ConnectionTypes.Work: rv_discrete(values=([0.1, 0.2, 0.6, 2.5, 4], [0.12, 0.18, 0.2, 0.19, 0.31])),
         ConnectionTypes.School: rv_discrete(values=([0.1, 0.2, 0.6, 2.5, 4], [0.06, 0.07, 0.11, 0.25, 0.51])),
         ConnectionTypes.Other: rv_discrete(values=([0.1, 0.2, 0.6, 2.5, 4], [0.21, 0.26, 0.19, 0.23, 0.11])),
@@ -34,6 +33,19 @@ class MatrixConsts(NamedTuple):
         ConnectionTypes.School: rv_discrete(values=([0.1, 0.2, 0.6, 2.5, 4], [0.1, 0.15, 0.24, 0.32, 0.19])),
         ConnectionTypes.Other: rv_discrete(values=([0.1, 0.2, 0.6, 2.5, 4], [0.22, 0.26, 0.24, 0.22, 0.06])),
     }
+    # probabilities
+    daily_connection_type_to_probability_generator: Dict = {
+        ConnectionTypes.Family: rv_discrete(values=([1], [1])),
+        ConnectionTypes.Work: rv_discrete(values=([1], [1.0])),
+        ConnectionTypes.School: rv_discrete(values=([1], [1.0])),
+        ConnectionTypes.Other: rv_discrete(values=([1], [1.0])),
+    }
+    weekly_connection_type_to_probability_generator: Dict = {
+        ConnectionTypes.Work: rv_discrete(values=([1 / 7], [1.0])),
+        ConnectionTypes.School: rv_discrete(values=([1 / 7], [1.0])),
+        ConnectionTypes.Other: rv_discrete(values=([1 / 7], [1.0])),
+    }
+    # connections amount
     daily_connections_amount_by_connection_type: Dict = {
         ConnectionTypes.School: 6,
         ConnectionTypes.Work: 5.6,
@@ -58,7 +70,29 @@ class MatrixConsts(NamedTuple):
         ConnectionTypes.Work: 1,
         ConnectionTypes.Other: 1,
     }
-    use_parasymbolic_matrix: bool = True
+
+    @lru_cache(None)
+    def get_connection_type_data(self, con_type: ConnectionTypes) -> "ConnectionTypeData":
+        daily_weight = self.daily_connection_type_to_weight_generator[con_type]\
+            if con_type in self.daily_connection_type_to_weight_generator else None
+        weekly_weight = self.weekly_connection_type_to_weight_generator[con_type]\
+            if con_type in self.weekly_connection_type_to_weight_generator else None
+        daily_prob = self.daily_connection_type_to_probability_generator[con_type]\
+            if con_type in self.daily_connection_type_to_probability_generator else None
+        weekly_prob = self.weekly_connection_type_to_probability_generator[con_type]\
+            if con_type in self.weekly_connection_type_to_probability_generator else None
+        daily_amount = self.daily_connections_amount_by_connection_type[con_type]\
+            if con_type in self.daily_connections_amount_by_connection_type else None
+        weekly_amount = self.weekly_connections_amount_by_connection_type[con_type] \
+            if con_type in self.weekly_connections_amount_by_connection_type else None
+        triad_p = self.community_triad_probability[con_type] \
+            if con_type in self.community_triad_probability else None
+        magic_operator = self.connection_type_to_magic_operator[con_type] \
+            if con_type in self.connection_type_to_magic_operator else None
+
+        return ConnectionTypeData(con_type, daily_weight=daily_weight, weekly_weight=weekly_weight, daily_prob=daily_prob,
+                                  weekly_prob=weekly_prob, daily_amount=daily_amount, weekly_amount=weekly_amount,
+                                  triad_p=triad_p, magic_operator=magic_operator)
 
     @classmethod
     def from_file(cls, param_path):
@@ -83,3 +117,63 @@ class MatrixConsts(NamedTuple):
     # overriding hash and eq to allow caching while using un-hashable attributes
     __hash__ = object.__hash__
     __eq__ = object.__eq__
+
+
+class ConnectionTypeData:
+    """holds all the connection type data for better code readability"""
+
+    __slots__ = ("connection_type",
+                 "daily_weight_generator",
+                 "weekly_weight_generator",
+                 "daily_probability_generator",
+                 "weekly_probability_generator",
+                 "daily_connections_amount",
+                 "weekly_connections_amount",
+                 "triad_p",
+                 "magic_operator",
+                 "is_daily_only"
+                 )
+
+    def __init__(self, connection_type, daily_weight=None, weekly_weight=None, daily_prob=None, weekly_prob=None, daily_amount=None, weekly_amount=None, triad_p=None,
+                 magic_operator=None):
+        self.connection_type = connection_type
+        self.daily_weight_generator = daily_weight
+        self.weekly_weight_generator = weekly_weight
+        self.daily_probability_generator = daily_prob
+        self.weekly_probability_generator = weekly_prob
+        self.daily_connections_amount = daily_amount
+        self.weekly_connections_amount = weekly_amount
+        self.triad_p = triad_p
+        self.magic_operator = magic_operator
+        self.is_daily_only = weekly_amount is None
+
+        assert (weekly_weight is None) == (weekly_amount is None) == (weekly_prob is None)
+
+    def get_probs_and_vals(self, shape: int) -> (np.ndarray, np.ndarray):
+        """gets np arrays of meeting probability and strength for a given amount of interactions"""
+        if self.is_daily_only:
+            probs = self.daily_probability_generator.rvs(shape)
+            vals = self.daily_weight_generator.rvs(shape)
+            return probs, vals
+        return self.roll_daily_or_weekly(shape)
+
+    def roll_daily_or_weekly(self, shape: int) -> (np.ndarray, np.ndarray):
+        """for each meeting, rolls whether it is daily or weekly"""
+        daily_amount = self.daily_connections_amount
+        weekly_amount = self.weekly_connections_amount
+        total_amount = daily_amount + weekly_amount
+        daily_prob = daily_amount / total_amount
+        rolls = np.random.random(shape)
+
+        probs = np.zeros(shape, dtype=float)
+        vals = np.zeros(shape, dtype=float)
+
+        for i, roll in zip(range(shape), rolls):
+            if roll < daily_prob:
+                probs[i] = self.daily_probability_generator.rvs()
+                vals[i] = self.daily_weight_generator.rvs()
+            else:
+                probs[i] = self.weekly_probability_generator.rvs()
+                vals[i] = self.weekly_weight_generator.rvs()
+
+        return probs, vals
