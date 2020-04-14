@@ -39,6 +39,10 @@
     - run: **python main.py all** to run both the generation and simulation.
     - run: **python main.py [simulate|generate] --help** for more help about each option.
     
+## Installing on Ubuntu VM
+- If running on a remote Ubuntu machine (such as created by Microsoft Azure), run the commands listed in vm_install.txt
+- When connecting (with the same user) to the machine, it will automatically setup the environment variables and start the pipenv for CoronaHakabModel.
+- Note that when connecting to a machine via SSH, the graphs cannot be displayed, only saved for later viewing. Run **main.py --figure-path image_location** to save the image.
 
 ## Optional - Export/Import matrices!
 - Export: **python main.py -o <PATH>**
@@ -70,6 +74,20 @@
     - Manually insert the parameters in code (look at the bottom of the file for example)
     - Go to src/corona_hakab_model folder
     - Run: python moving_parameters_generator.py
+
+## Analyzers
+- This module is a library that allows a researcher to analyze the output of one or multiple simulation
+    - The module implements both specific and generic methods to allow the user flexibility
+- To run the module first run the simulation few times, you can do that from the file main.py
+- For examples of usage of the module run python src/corona_hakab_model/analyzers/example_script.py, the script plots  a few graphs and demonstrates the usage of the functions.
+### Population Analyser
+- The population analyser reads a population data file (generated with the simulator, usually "population_data.pickle") and outputs a histogram of population ages, and social circles sizes by type.
+- to use, run **python generation_analysis\population_analysis.py**
+- Most commonly, you will use the **[-d|--directory]** option to specify the directory to read. The directory is expected to contain a file named "population_data.pickle"
+- You can also specify the input population data file using **[-p|--population]**, and output files using **--circle** and **--age**.
+- As with all runnables, additional help can be found by running **python generation_analysis\population_analysis.py --help**
+### Simulation Analyser
+- TODO: Wrap simulation analyser in runnable (argparse, __main__, the works), and add documentation.
 
 ## New to git/github?
 See the **"How to set up a git environment"** guide in the docs folder.
