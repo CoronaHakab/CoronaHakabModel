@@ -79,9 +79,9 @@ class SickAgents:
 
     def export(self, file_path):
         num_sick = len(self.agent_snapshots)
-        export_dict = {"agent indexes":[0]*num_sick,"geographic_circles":[0]*num_sick,"age":[0]*num_sick}
-        social_circles_num_agents = {f'{connection_type.name}_num_agents': [0]*num_sick for connection_type in ConnectionTypes}
-        social_circles_index = {f'{connection_type.name}_index': [None] * num_sick for connection_type in ConnectionTypes}
+        export_dict = {"agent indexes":[0]*num_sick,"geographic_circles": [0] * num_sick, "age": [0] * num_sick}
+        social_circles_num_agents = {f'{connection_type.name}_num_agents': [0] * num_sick for connection_type in ConnectionTypes}
+        social_circles_guid = {f'{connection_type.name}_guid': [None] * num_sick for connection_type in ConnectionTypes}
 
         for index, agent_snapshot in enumerate(self.agent_snapshots):
             export_dict["agent indexes"][index] = agent_snapshot.index
@@ -89,8 +89,8 @@ class SickAgents:
             export_dict["age"][index] = agent_snapshot.age
             for social_circle_snapshot in agent_snapshot.social_circles:
                 social_circles_num_agents[f'{social_circle_snapshot.type}_num_agents'][index] = social_circle_snapshot.num_members
-                social_circles_index[f'{social_circle_snapshot.type}_index'][index] = social_circle_snapshot.index
-        export_dict = {**export_dict, **social_circles_num_agents, **social_circles_index}
+                social_circles_guid[f'{social_circle_snapshot.type}_guid'][index] = social_circle_snapshot.guid
+        export_dict = {**export_dict, **social_circles_num_agents, **social_circles_guid}
         df_export_sick = pd.DataFrame(export_dict)
 
         df_export_sick.to_csv(file_path, index=False)
