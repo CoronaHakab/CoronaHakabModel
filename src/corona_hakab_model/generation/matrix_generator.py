@@ -330,12 +330,15 @@ class MatrixGenerator:
 
         daily_strength_generator: rv_discrete = self.matrix_consts.daily_connection_type_to_weight_generator[con_type]
         weekly_strength_generator: rv_discrete = self.matrix_consts.weekly_connection_type_to_weight_generator[con_type]
+
+        daily_probability_generator: rv_discrete = self.matrix_consts.daily_connection_type_to_probability_generator[con_type]
+        weekly_probability_generator: rv_discrete = self.matrix_consts.weekly_connection_type_to_probability_generator[con_type]
         for i, roll in zip(range(shape), rolls):
             if roll < daily_prob:
-                probs[i] = 1
+                probs[i] = daily_probability_generator.rvs()
                 vals[i] = daily_strength_generator.rvs()
             else:
-                probs[i] = 1/7
+                probs[i] = weekly_probability_generator.rvs()
                 vals[i] = weekly_strength_generator.rvs()
 
         return probs, vals

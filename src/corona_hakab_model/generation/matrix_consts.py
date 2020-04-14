@@ -34,6 +34,16 @@ class MatrixConsts(NamedTuple):
         ConnectionTypes.School: rv_discrete(values=([0.1, 0.2, 0.6, 2.5, 4], [0.1, 0.15, 0.24, 0.32, 0.19])),
         ConnectionTypes.Other: rv_discrete(values=([0.1, 0.2, 0.6, 2.5, 4], [0.22, 0.26, 0.24, 0.22, 0.06])),
     }
+    daily_connection_type_to_probability_generator: Dict = {
+        ConnectionTypes.Work: rv_discrete(values=([1], [1.0])),
+        ConnectionTypes.School: rv_discrete(values=([1], [1.0])),
+        ConnectionTypes.Other: rv_discrete(values=([1], [1.0])),
+    }
+    weekly_connection_type_to_probability_generator: Dict = {
+        ConnectionTypes.Work: rv_discrete(values=([1/7], [1.0])),
+        ConnectionTypes.School: rv_discrete(values=([1/7], [1.0])),
+        ConnectionTypes.Other: rv_discrete(values=([1/7], [1.0])),
+    }
     daily_connections_amount_by_connection_type: Dict = {
         ConnectionTypes.School: 6,
         ConnectionTypes.Work: 5.6,
@@ -83,3 +93,4 @@ class MatrixConsts(NamedTuple):
     # overriding hash and eq to allow caching while using un-hashable attributes
     __hash__ = object.__hash__
     __eq__ = object.__eq__
+
