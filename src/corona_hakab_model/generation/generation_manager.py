@@ -30,3 +30,6 @@ class GenerationManger:
         logger.info("creating connections and matrix")
         matrix_generation = MatrixGenerator(circles_generation.population_data, matrix_consts=matrix_consts)
         self.matrix_data = matrix_generation.matrix_data
+
+
+gm = GenerationManger(CirclesConsts(), MatrixConsts())
