@@ -1,6 +1,8 @@
 from datetime import datetime
 import os
 from collections import Counter
+from typing import Dict, Tuple, List
+
 from agent import Agent
 from consts import Consts
 from generation.circles_consts import CirclesConsts
