@@ -53,7 +53,7 @@
 - **Always run the simulator after making changes and before merging**, to make sure you didn't break anything.
 - Especially if not sure, **try to get at least 1 person's review before merging**.
 
-## Multiple jsons generator
+## Multiple Jsons generator
 - In some cases, we would like to run the simulation/generation multiple times, when all parameters are the same, except 1 or 2 parameters that move across a certain range, in certain steps.
 - The module is found in src/corona_hakab_model/moving_parameters_generator.py
 - The module parameters
