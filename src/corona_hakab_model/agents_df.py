@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List, Set, Iterable
 
 import numpy as np
 import pandas as pd
@@ -12,7 +12,7 @@ from medical_state_machine import MedicalStateMachine
 
 class AgentsDf:
     def __init__(self, agents: List[Agent], state_machine: MedicalStateMachine):
-        self._df = pd.DataFrame(
+        self._df: pd.DataFrame = pd.DataFrame(
             columns=['age', 'medical_state', 'test_willingness', 'susceptible', 'contagious', 'test_result',
                      'ever_tested_positive', 'date_of_last_test'], index=[a.index for a in agents])
         # initial data
@@ -26,12 +26,13 @@ class AgentsDf:
         self._df.ever_tested_positive = False
         self._df.test_result = DetectionResult.NOT_TAKEN
         self._df.date_of_last_test = 0
+        self._cols_to_idx = {col: i for i, col in enumerate(self._df.columns)}
 
     def n_agents(self) -> int:
         return self._df.shape[0]
 
-    def agents_indexes(self) -> List[int]:
-        return self._df.index.values.tolist()
+    def agents_indexes(self) -> Iterable[int]:
+        return self._df.index.values
 
     def change_agents_state(self, index_list: List[int], state: MedicalState) -> None:
         col_names = ['medical_state', 'test_willingness', 'contagious', 'susceptible']
@@ -63,21 +64,21 @@ class AgentsDf:
                      (self._df.date_of_last_test > curr_date - pos_gap))
                     )
 
-        return set(self._df[want_to_be_tested()][alive()][can_be_tested_again()].index.values.tolist())
+        return set(self._df.index[want_to_be_tested() & alive() & can_be_tested_again()])
 
     def contagious_vec(self):
-        return self._df.contagious.tolist()
+        return self._df.contagious.values
 
     def susceptible_vec(self):
-        return self._df.susceptible.tolist()
+        return self._df.susceptible.values
 
     def set_test_start(self, agent_index, current_step):
-        self._df.loc[agent_index].date_of_last_test = current_step
+        self._df.at[agent_index, 'date_of_last_test'] = current_step
 
-    def set_test_result(self, agent_ind, test_result):
-        self._df.loc[agent_ind, 'test_result'] = test_result
+    def set_test_result(self, agent_index, test_result):
+        self._df.at[agent_index, 'test_result'] = test_result
         if test_result == DetectionResult.POSITIVE:
-            self._df.loc[agent_ind, 'ever_tested_positive'] = True
+            self._df.at[agent_index, 'ever_tested_positive'] = True
 
-    def ever_tested_positive(self, ind):
-        return self.at(ind).ever_tested_positive
+    def ever_tested_positive(self, agent_index) -> bool:
+        return self._df.at[agent_index, 'ever_tested_positive']
