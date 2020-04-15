@@ -3,6 +3,9 @@ from corona_hakab_model_data.__data__ import __version__
 
 
 def get_simulation_args_parser():
+    """
+    Returns a args parser used by the simulation
+    """
     parser = ArgumentParser("COVID-19 Simulation")
     subparser = parser.add_subparsers(dest="sub_command")
     subparser.add_parser("all", help="Run both data generation and simulation.")
@@ -64,3 +67,11 @@ def get_simulation_args_parser():
                         help='Set the random seed. Use only for exact reproducibility. By default, generate new seed.')
     parser.add_argument("--version", action="version", version=__version__)
     return parser
+
+
+def get_default_simulation_args_values():
+    """
+    Returns the default Namespace object that simulation uses
+    """
+    arg_parser = get_simulation_args_parser()
+    return arg_parser.parse_args(["all"])
