@@ -23,6 +23,9 @@ if __package__ or "." in __name__:
 else:
     import _sparse
 
+# todo remove this and add generator to cpp build
+from consts import generator
+
 try:
     import builtins as __builtin__
 except ImportError:

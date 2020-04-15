@@ -44,7 +44,6 @@ class SimulationManager:
 
         self.matrix_type = matrix_data.matrix_type
         self.matrix = matrix_data.matrix
-        self.depth = matrix_data.depth
 
         # setting up medical things
         self.consts: Consts = consts
@@ -54,7 +53,7 @@ class SimulationManager:
         self.pending_transfers = PendingTransfers()
 
         # the manager holds the vector, but the agents update it
-        self.contagiousness_vector = np.zeros(len(self.agents), dtype=float)  # how likely to infect others
+        self.contagiousness_vector = np.zeros(len(self.agents), dtype=np.float32)  # how likely to infect others
         self.susceptible_vector = np.zeros(len(self.agents), dtype=bool)  # can get infected
 
         # healthcare related data

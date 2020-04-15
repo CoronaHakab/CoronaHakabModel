@@ -47,7 +47,7 @@ def write_swim():
         """
     # flake8: noqa
     from sparse_base import SparseBase, ManifestBase
-    
+    from consts import generator
     import numpy as np
     size_t = np.dtype('uint64')
     """

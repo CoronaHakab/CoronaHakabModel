@@ -39,14 +39,14 @@ class UpdateMatrixManager:
         # unpacking commonly used information from manager
         self.matrix = manager.matrix
         self.matrix_type = manager.matrix_type
-        self.depth = manager.depth
         self.logger = manager.logger
         self.consts = manager.consts
         self.size = len(manager.agents)
-        # todo unpack more important information
-        self.normalize_factor = None
-        self.total_contagious_probability = None
-        self.normalize()
+
+        # todo add normalization
+        #self.normalize_factor = None
+        #self.total_contagious_probability = None
+        #self.normalize()
 
     def normalize(self):
         """

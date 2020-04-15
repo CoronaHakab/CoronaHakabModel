@@ -34,10 +34,11 @@ class InfectionManager:
         """
 
         # v = [True if an agent can infect other agents in this time step]
-        v = np.random.random(len(self.manager.agents)) < self.manager.contagiousness_vector
+        v = self.manager.contagiousness_vector
 
+        # TODO save manifests in a queue-ish data structure
         # u = mat dot_product v (log of the probability that an agent will get infected)
-        u = self.manager.matrix.prob_any(v)
+        _, u = self.manager.matrix.POA(v)
         # calculate the infections boolean vector
 
         infections = self.manager.susceptible_vector & (np.random.random(u.shape) < u)
