@@ -47,6 +47,9 @@ def write_swim():
         """
     # flake8: noqa
     from sparse_base import SparseBase, ManifestBase
+    from consts import generator
+    from itertools import product
+    from typing import Callable, Optional, Tuple, Dict, Any, Sequence, Sized
     
     import numpy as np
     size_t = np.dtype('uint64')
@@ -64,6 +67,7 @@ def write_swim():
     swim(pools.numpy_arrays(typedefs=tuple({"size_t": "unsigned long long", "dtype": "float"}.items())))
     swim(pools.tuple("dtype", "dtype"))
     swim(pools.print())
+    swim(Function.Behaviour()(src))
 
     oswim = ContainerSwim("MagicOperator", src, director=True)
     oswim(Function.Behaviour())
@@ -124,6 +128,36 @@ def write_swim():
     swim(oswim)
     swim(mswim)
     swim(pswim)
+
+    wswim = ContainerSwim("WMaskedTabularOp", src)
+    wswim(Function.Behaviour())
+    wswim.extend_py_def("from_enums",
+                        "cls, v_max: float, v_parts: int, *enums: Sized, solutions: Callable[..., Optional[float]]",
+                        """
+                        increments = [v_parts]
+                        for i in enums[:-1]:
+                            increments.append(increments[-1] * len(i))
+
+                        table = np.full(increments[-1] * len(enums[-1]), np.nan, dtype=np.float32)
+                        w_vals = {}
+
+                        v_increment = v_max / v_parts
+                        for v_i, *args_tup in product(
+                                range(v_parts), *(enumerate(e) for e in enums)
+                        ):
+                            v = v_increment * v_i
+                            args = tuple(e[1] for e in args_tup)
+                            arg_inds = tuple(e[0] for e in args_tup)
+                            sol = solutions(v, *args)
+                            if sol is None:
+                                continue
+                            ind = v_i + sum(i * a for i, a in zip(increments, arg_inds))
+                            table[ind] = sol
+                            w_vals[args] = from_bytes(arg_inds)
+                        return w_vals, cls(v_increment, v_parts, [len(e) for e in enums], table)
+                        """,
+                        wrapper="classmethod")
+    swim(wswim)
 
     swim.write("sparse.i")
 

@@ -235,3 +235,40 @@ ManifestMatrix::~ManifestMatrix(){
     }
     delete[] is_manifest;
 }
+
+WMaskedTabularOp::WMaskedTabularOp(dtype v_res, size_t v_len, size_t const* A_mask_len, size_t ml_len,
+                                                               dtype const * A_table, size_t table_len):
+    v_res(v_res), v_len(v_len){
+    memcpy(mask_len, A_mask_len, ml_len*sizeof(size_t));
+    for (auto i = ml_len; i < mask_count; i++){
+        mask_len[i] = 1;
+    }
+    table = new dtype[table_len];
+    memcpy(table, A_table, table_len*sizeof(dtype));
+
+    increments[0] = v_len;
+    for (auto i = 1; i < mask_count; i++){
+        increments[i] = increments[i-1] * mask_len[i-1];
+    }
+}
+dtype WMaskedTabularOp::operate(dtype w_val, dtype v_val) const{
+    auto w_chars = reinterpret_cast<unsigned char *>(&w_val);
+    size_t index = (int)(v_val / v_res);
+    for (auto i = 0; i < mask_count; i++){
+        index += increments[i] * w_chars[i];
+    }
+    return table[index];
+}
+WMaskedTabularOp::~WMaskedTabularOp(){
+    delete[] table;
+}
+
+dtype from_bytes(unsigned char const* A_bytes, size_t b_len){
+    unsigned char bytes[mask_count];
+    memcpy(bytes, A_bytes, b_len);
+    for (auto i = b_len; i < mask_count; i++){
+        bytes[i] = 0;
+    }
+    auto ref = reinterpret_cast<float const *>(bytes);
+    return *ref;
+}

@@ -186,4 +186,6 @@ def test_csm_constructible():
     )
 
 if __name__ == "__main__":
-    test_csm_constructible()
+    matrix = SparseMatrix(4)
+    matrix.manifest()
+    test_sparse()

@@ -7,6 +7,9 @@
 
 	# flake8: noqa
 from sparse_base import SparseBase, ManifestBase
+from consts import generator
+from itertools import product
+from typing import Callable, Optional, Tuple, Dict, Any, Sequence, Sized
 
 import numpy as np
 size_t = np.dtype('uint64')
@@ -70,6 +73,17 @@ class _SwigNonDynamicMeta(type):
     __setattr__ = _swig_setattr_nondynamic_class_variable(type.__setattr__)
 
 
+
+def from_bytes(A_bytes: "unsigned char const *") -> "dtype":
+    r"""
+    from_bytes(A_bytes) -> dtype
+
+    Parameters
+    ----------
+    A_bytes: unsigned char const *
+
+    """
+    return _sparse.from_bytes(A_bytes)
 class MagicOperator(object):
     thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
     __repr__ = _swig_repr
@@ -79,10 +93,11 @@ class MagicOperator(object):
 
     def mul(self, factor: "dtype") -> "MagicOperator *":
         return _sparse.MagicOperator_mul(self, factor)
+    __swig_destroy__ = _sparse.delete_MagicOperator
 
     def __init__(self):
+        r"""__init__(MagicOperator self) -> MagicOperator"""
         _sparse.MagicOperator_swiginit(self, _sparse.new_MagicOperator())
-    __swig_destroy__ = _sparse.delete_MagicOperator
 
 # Register MagicOperator in _sparse:
 _sparse.MagicOperator_swigregister(MagicOperator)
@@ -319,6 +334,65 @@ if isinstance(__temp_store, (classmethod, staticmethod, property)):
 	__temp_def = type(__temp_store)(__temp_def)
 __temp_def.prev = __temp_store
 SparseMatrix.batch_set = __temp_def
+del __temp_store, __temp_def
+
+class WMaskedTabularOp(MagicOperator):
+    thisown = property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc="The membership flag")
+    __repr__ = _swig_repr
+
+    def __init__(self, v_res: "dtype", v_len: "size_t", A_mask_len: "size_t const *", A_table: "dtype const *"):
+        r"""
+        __init__(self, v_res, v_len, A_mask_len, A_table) -> WMaskedTabularOp
+
+        Parameters
+        ----------
+        v_res: dtype
+        v_len: size_t
+        A_mask_len: size_t const *
+        A_table: dtype const *
+
+        """
+        _sparse.WMaskedTabularOp_swiginit(self, _sparse.new_WMaskedTabularOp(v_res, v_len, A_mask_len, A_table))
+
+    def operate(self, w_val: "dtype", v_val: "dtype") -> "dtype":
+        return _sparse.WMaskedTabularOp_operate(self, w_val, v_val)
+    __swig_destroy__ = _sparse.delete_WMaskedTabularOp
+
+    if '''from_enums''' not in locals():
+    	@classmethod
+    	def from_enums(cls, v_max: float, v_parts: int, *enums: Sized, solutions: Callable[..., Optional[float]]): pass
+
+
+# Register WMaskedTabularOp in _sparse:
+_sparse.WMaskedTabularOp_swigregister(WMaskedTabularOp)
+
+
+__temp_store = getattr(WMaskedTabularOp,"""from_enums""",None)
+def __temp_def(cls, v_max: float, v_parts: int, *enums: Sized, solutions: Callable[..., Optional[float]]):
+	increments = [v_parts]
+	for i in enums[:-1]:
+	    increments.append(increments[-1] * len(i))
+
+	table = np.full(increments[-1] * len(enums[-1]), np.nan, dtype=np.float32)
+	w_vals = {}
+
+	v_increment = v_max / v_parts
+	for v_i, *args_tup in product(
+	        range(v_parts), *(enumerate(e) for e in enums)
+	):
+	    v = v_increment * v_i
+	    args = tuple(e[1] for e in args_tup)
+	    arg_inds = tuple(e[0] for e in args_tup)
+	    sol = solutions(v, *args)
+	    if sol is None:
+	        continue
+	    ind = v_i + sum(i * a for i, a in zip(increments, arg_inds))
+	    table[ind] = sol
+	    w_vals[args] = from_bytes(arg_inds)
+	return w_vals, cls(v_increment, v_parts, [len(e) for e in enums], table)
+__temp_def = classmethod(__temp_def)
+__temp_def.prev = __temp_store
+WMaskedTabularOp.from_enums = __temp_def
 del __temp_store, __temp_def
 
 

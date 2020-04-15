@@ -12,6 +12,7 @@ class MagicOperator{
         //invariant: if w_val = 0 or v_val = 0, operate(w_val, v_val) = 1
         virtual dtype operate(dtype w_val, dtype v_val) const;
         virtual MagicOperator* mul(dtype factor) const;
+        virtual ~MagicOperator() = default;
 };
 
 class FactoredMagicOperator: public MagicOperator{
@@ -78,4 +79,23 @@ class ManifestMatrix{
             dtype** AF_out, size_t* o_len);
         std::vector<std::vector<size_t>> nz_rows();
         virtual ~ManifestMatrix();
+};
+//todo namespace?
+const int mask_count = sizeof(dtype);
+
+dtype from_bytes(unsigned char const* A_bytes, size_t b_len);
+
+class WMaskedTabularOp: public MagicOperator{
+    private:
+        const dtype v_res;
+        const size_t v_len;
+        size_t mask_len[mask_count];
+        size_t increments[mask_count];
+        dtype* table;
+    public:
+        //invariant: if w_val = 0 or v_val = 0, operate(w_val, v_val) = 1
+        WMaskedTabularOp(dtype v_res, size_t v_len, size_t const* A_mask_len, size_t ml_len,
+                                                    dtype const * A_table, size_t table_len);
+        virtual dtype operate(dtype w_val, dtype v_val) const;
+        virtual ~WMaskedTabularOp();
 };
