@@ -39,20 +39,19 @@
     - run: **python main.py all** to run both the generation and simulation.
     - run: **python main.py [simulate|generate] --help** for more help about each option.
     
+
+## Linux
+- Ubuntu VM
+    - If running on a remote Ubuntu machine (such as created by Microsoft Azure), please us linux/vm_install.sh
+    - When connecting (with the same user) to the machine, it will automatically setup the environment variables and start the pipenv for CoronaHakabModel.
+    - Note that when connecting to a machine via SSH, the graphs cannot be displayed, only saved for later viewing. Run **main.py --figure-path image_location** to save the image.
+
+- Debian (tested on Debian 10):
+    - Please use linux/deb_run.sh (work in progress)
+
+- Docker
+    - Please reffer to docker.md and Dockerfile (work in progress)
     
-## Installing and running under Linux (tested on Debian 10):
-- sudo apt install swig liblzma-dev libbz2-dev
-    - swig - building parasymoblic matrix needs swig
-    - liblzma-dev libbz2-dev - since we use Pandas, we need Python with support for bz2 and lzma support
-        - (https://stackoverflow.com/questions/22346269/bz2-is-module-not-available-when-installing-pandas-with-pip-in-python-virtual) 
-- Building Python 3.8 (currently not on the official repos...)
-    - https://linuxize.com/post/how-to-install-python-3-8-on-debian-10/
-
-## Installing on Ubuntu VM
-- If running on a remote Ubuntu machine (such as created by Microsoft Azure), run the commands listed in vm_install.txt
-- When connecting (with the same user) to the machine, it will automatically setup the environment variables and start the pipenv for CoronaHakabModel.
-- Note that when connecting to a machine via SSH, the graphs cannot be displayed, only saved for later viewing. Run **main.py --figure-path image_location** to save the image.
-
 ## Optional - Export/Import matrices!
 - Export: **python main.py -o <PATH>**
 - Import: **python main.py -i <PATH>**

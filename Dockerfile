@@ -42,10 +42,4 @@ ENV PIPENV_MAX_DEPTH=5
 RUN cd ${PROJDIR}/src/corona_hakab_model/parasymbolic_matrix/ \
     && pipenv run python build_unix.py
 
-#cd ~/CoronaHakabModel/
-#echo -e "export QT_QPA_PLATFORM=offscreen\nexport PYTHONPATH=`pwd`/src:`pwd`/src/corona_hakab_model\ncd ~/CoronaHakabModel/\npipenv shell" > ~/.bash_login
-#source ~/.bash_login
-
-# RUN apt-get install qt5-default
-
 CMD ["pipenv", "run", "python", "./src/corona_hakab_model/main.py", "--help"]

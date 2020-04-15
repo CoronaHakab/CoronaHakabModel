@@ -1,28 +1,16 @@
-# install Python3.8.2
-#https://linuxize.com/post/how-to-install-python-3-8-on-debian-10/
-sudo apt-get update -y && \
-sudo apt-get install -y build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libsqlite3-dev libreadline-dev libffi-dev curl liblzma-dev libbz2-dev && \
-curl -O https://www.python.org/ftp/python/3.8.2/Python-3.8.2.tar.xz && \
-tar -xf Python-3.8.2.tar.xz && \
-cd Python-3.8.2 && \
-./configure --enable-optimizations && \
-make -j `nproc` && \
-sudo make altinstall && \
-python3.8 --version
-
 # git clone
 cd ~
 sudo apt-get install -y git
 git clone https://github.com/CoronaHakab/CoronaHakabModel.git
 cd ./CoronaHakabModel/
 
-# we'll work with docker branch
-git checkout docker
+# install Python3.8.2
+./linux/deb_install_python3.8.sh
 
 # install the project dependencies
 sudo pip3.8 install --upgrade pip
 sudo pip3.8 install pipenv
-pipenv install --dev
+pipenv install
 pipenv shell
 
 # compile parasymbolic_matrix
