@@ -17,6 +17,7 @@ from numpy.random import random
 from policies_manager import ConditionedPolicy, Policy
 from state_machine import StochasticState, TerminalState
 from util import upper_bound
+
 # todo make sure we only use this
 generator = np.random.default_rng()
 
@@ -260,4 +261,5 @@ class Consts:
 # TODO can we remove it?
 if __name__ == "__main__":
     c = Consts()
-    print(c.average_time_in_each_state())
+    for state, time in c.average_time_in_each_state().items():
+        print(f"For state {state.name} we have expected {time} days")
