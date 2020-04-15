@@ -30,6 +30,13 @@ def upper_bound(d):
     return d.b + d.kwds.get("loc", 0)
 
 
+def parse_str_to_num(val):
+    try:
+        return int(val)
+    except ValueError:
+        return float(val)
+
+
 def lower_bound(d):
     return d.a + d.kwds.get("loc", 0)
 

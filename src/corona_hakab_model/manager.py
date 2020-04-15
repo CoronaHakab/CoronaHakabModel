@@ -5,8 +5,8 @@ from typing import Callable, Dict, Iterable, List, Union
 
 import healthcare
 import infection
-import numpy as np
 import update_matrix
+import numpy as np
 from consts import Consts
 from generation.circles_generator import PopulationData
 from generation.connection_types import ConnectionTypes
@@ -146,8 +146,9 @@ class SimulationManager:
         """
         agents_to_infect = []
         agent_index = 0
-        assert self.initial_agent_constraints.constraints is None\
-               or len(self.initial_agent_constraints.constraints) == self.consts.initial_infected_count
+        if self.initial_agent_constraints.constraints is not None\
+                and len(self.initial_agent_constraints.constraints) != self.consts.initial_infected_count:
+            raise ValueError("Constraints file row number must match number of sick agents in simulation")
         while len(agents_to_infect) < self.consts.initial_infected_count:
             if agent_index == len(self.agents):
                 raise ValueError("Initial sick agents over-constrained, couldn't find compatible agents")

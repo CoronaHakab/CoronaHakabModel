@@ -4,7 +4,9 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass
 from generation.connection_types import ConnectionTypes
 from generation.circles import SocialCircleConstraint
+from util import parse_str_to_num
 import pandas as pd
+from numpy import nan
 if TYPE_CHECKING:
     from medical_state import MedicalState
     from manager import SimulationManager
@@ -71,24 +73,25 @@ class AgentSnapshot:
 
 
 class AgentConstraint:
-    MAX_AGE = 120
-    def __init__(self,min_age=0,max_age=MAX_AGE,geographic_circle="",social_circle_constraints=None):
+    def __init__(self,min_age,max_age,geographic_circle,social_circle_constraints):
         self.min_age = min_age
         self.max_age = max_age
         self.geographic_circle = geographic_circle
         self.social_circle_constraints = social_circle_constraints
 
     def meets_constraint(self,agent: AgentSnapshot):
-        try:
-            assert pd.isna(self.min_age) or agent.age >= self.min_age
-            assert pd.isna(self.max_age) or agent.age <= self.max_age
-            assert self.geographic_circle is None or self.geographic_circle == agent.geographic_circle
-            if self.social_circle_constraints is not None:
-                for constraint in self.social_circle_constraints:
-                    assert constraint.meets_constraint(agent)
-        except AssertionError:
-            return False
-        return True
+        constraint_met = True
+        if not pd.isna(self.min_age) and agent.age < self.min_age:
+            constraint_met = False
+        if not pd.isna(self.max_age) and agent.age > self.max_age:
+            constraint_met = False
+        if not pd.isna(self.geographic_circle) and self.geographic_circle != agent.geographic_circle:
+            constraint_met = False
+        if self.social_circle_constraints is not None:
+            for constraint in self.social_circle_constraints:
+                if not constraint.meets_constraint(agent):
+                    constraint_met = False
+        return constraint_met
 
 class InitialSickAgents:
     EXPORT_OUTPUT_DIR = "../../output/"
@@ -130,10 +133,7 @@ class InitialAgentsConstraints:
         if constraints_file_path is None:
             return None
         df_constraints = pd.read_csv(constraints_file_path)
-        constraints = []
-        for index, row in df_constraints.iterrows():
-            constraints.append(self.parse_row(row))
-        return constraints
+        return [self.parse_row(row) for index,row in df_constraints.iterrows()]
 
     def parse_row(self,row):
         min_age,max_age = self.parse_range(row[self.AGE])
@@ -145,21 +145,17 @@ class InitialAgentsConstraints:
         return AgentConstraint(min_age,max_age,geographic_circle,social_circle_constraints)
 
     def parse_range(self,range_element):
-        if type(range_element) is int or type(range_element) is float:
-            return range_element,range_element
-        assert type(range_element) is str
-        split_range = range_element.split(self.RANGE_DELIMITER)
-        assert 0< len(split_range) <= 2
-        if len(split_range) == 1:
-            return self.parse_str_to_num(split_range[0]),self.parse_str_to_num(split_range[0])
-        return self.parse_str_to_num(split_range[0]), self.parse_str_to_num(split_range[1])
+        if isinstance(range_element,str):
+            split_range = range_element.split(self.RANGE_DELIMITER)
+            if len(split_range) == 1:
+                return parse_str_to_num(split_range[0]), parse_str_to_num(split_range[0])
+            if len(split_range) == 2:
+                return parse_str_to_num(split_range[0]), parse_str_to_num(split_range[1])
+            raise ValueError("Invalid range format!")
 
-    @staticmethod
-    def parse_str_to_num(val):
-        try:
-            return int(val)
-        except ValueError:
-            return float(val)
+        else:
+            return range_element,range_element
+
 class Circle:
     __slots__ = "kind", "agent_count"
 
