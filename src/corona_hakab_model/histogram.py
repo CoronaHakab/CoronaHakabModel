@@ -1,7 +1,6 @@
 from collections import Counter
 import numpy as np
 from typing import List
-from pprint import pformat
 
 from generation.connection_types import ConnectionTypes
 
