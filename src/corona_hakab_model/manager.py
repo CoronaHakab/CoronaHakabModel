@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-from random import random
+from random import random, choice
 from typing import Callable, Dict, Iterable, List, Union
 
 import healthcare
@@ -17,7 +17,7 @@ from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
 from supervisor import Supervisable, SimulationProgression
-from agent import InitialSickAgents
+from agent import InitialSickAgents, InitialAgentsConstraints
 from update_matrix import Policy
 
 
@@ -31,6 +31,7 @@ class SimulationManager:
         supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
         population_data: PopulationData,
         matrix_data: MatrixData,
+        inital_agent_constraints: InitialAgentsConstraints,
         consts: Consts = Consts(),
     ):
         # setting logger
@@ -40,6 +41,7 @@ class SimulationManager:
         self.logger.info("Creating a new simulation.")
 
         # unpacking data from generation
+        self.initial_agent_constraints = inital_agent_constraints
         self.agents = population_data.agents
         self.geographic_circles = population_data.geographic_circles
         self.social_circles_by_connection_type = population_data.social_circles_by_connection_type
@@ -142,8 +144,23 @@ class SimulationManager:
         """"
         setting up the simulation with a given amount of infected people
         """
-        # todo we only do this once so it's fine but we should really do something better
-        agents_to_infect = self.agents[: self.consts.initial_infected_count]
+        agents_to_infect = []
+        agent_index = 0
+        assert self.initial_agent_constraints.constraints is None\
+               or len(self.initial_agent_constraints.constraints) == self.consts.initial_infected_count
+        while len(agents_to_infect) < self.consts.initial_infected_count:
+            if agent_index == len(self.agents):
+                raise ValueError("Initial sick agents over-constrained, couldn't find compatible agents")
+            temp_agent = self.agents[agent_index]
+            agent_index += 1
+            if self.initial_agent_constraints.constraints is None:
+                agents_to_infect.append(temp_agent)
+            else:
+                for constraint in self.initial_agent_constraints.constraints:
+                    if constraint.meets_constraint(temp_agent.get_snapshot()):
+                        self.initial_agent_constraints.constraints.remove(constraint)
+                        agents_to_infect.append(temp_agent)
+                        break
 
         for agent in agents_to_infect:
             agent.set_medical_state_no_inform(self.medical_machine.default_state_upon_infection)

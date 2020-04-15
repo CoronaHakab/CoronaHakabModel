@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from dataclasses import dataclass
 from generation.connection_types import ConnectionTypes
+from generation.circles import SocialCircleConstraint
 import pandas as pd
 if TYPE_CHECKING:
     from medical_state import MedicalState
@@ -69,6 +70,26 @@ class AgentSnapshot:
     social_circles: list
 
 
+class AgentConstraint:
+    MAX_AGE = 120
+    def __init__(self,min_age=0,max_age=MAX_AGE,geographic_circle="",social_circle_constraints=None):
+        self.min_age = min_age
+        self.max_age = max_age
+        self.geographic_circle = geographic_circle
+        self.social_circle_constraints = social_circle_constraints
+
+    def meets_constraint(self,agent: AgentSnapshot):
+        try:
+            assert pd.isna(self.min_age) or agent.age >= self.min_age
+            assert pd.isna(self.max_age) or agent.age <= self.max_age
+            assert self.geographic_circle is None or self.geographic_circle == agent.geographic_circle
+            if self.social_circle_constraints is not None:
+                for constraint in self.social_circle_constraints:
+                    assert constraint.meets_constraint(agent)
+        except AssertionError:
+            return False
+        return True
+
 class InitialSickAgents:
     EXPORT_OUTPUT_DIR = "../../output/"
     EXPORT_FILE_NAME = "initial_sick.csv"
@@ -97,6 +118,48 @@ class InitialSickAgents:
         df_export_sick = pd.DataFrame(export_dict)
         df_export_sick.to_csv(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME,index=False)
 
+
+class InitialAgentsConstraints:
+    AGE = 'age'
+    GEOGRAPHIC_CIRCLE = "geographic_circles"
+    RANGE_DELIMITER = '~'
+    def __init__(self,constraints_file_path=None):
+        self.constraints = self.parse_constraints(constraints_file_path)
+
+    def parse_constraints(self,constraints_file_path):
+        if constraints_file_path is None:
+            return None
+        df_constraints = pd.read_csv(constraints_file_path)
+        constraints = []
+        for index, row in df_constraints.iterrows():
+            constraints.append(self.parse_row(row))
+        return constraints
+
+    def parse_row(self,row):
+        min_age,max_age = self.parse_range(row[self.AGE])
+        geographic_circle = row[self.GEOGRAPHIC_CIRCLE]
+        social_circle_constraints = []
+        for connection_type in ConnectionTypes:
+            min_num,max_num = self.parse_range(row[connection_type.name])
+            social_circle_constraints.append(SocialCircleConstraint(min_num,max_num,connection_type))
+        return AgentConstraint(min_age,max_age,geographic_circle,social_circle_constraints)
+
+    def parse_range(self,range_element):
+        if type(range_element) is int or type(range_element) is float:
+            return range_element,range_element
+        assert type(range_element) is str
+        split_range = range_element.split(self.RANGE_DELIMITER)
+        assert 0< len(split_range) <= 2
+        if len(split_range) == 1:
+            return self.parse_str_to_num(split_range[0]),self.parse_str_to_num(split_range[0])
+        return self.parse_str_to_num(split_range[0]), self.parse_str_to_num(split_range[1])
+
+    @staticmethod
+    def parse_str_to_num(val):
+        try:
+            return int(val)
+        except ValueError:
+            return float(val)
 class Circle:
     __slots__ = "kind", "agent_count"
 

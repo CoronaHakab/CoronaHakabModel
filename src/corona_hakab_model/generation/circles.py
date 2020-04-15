@@ -1,5 +1,6 @@
 from generation.connection_types import ConnectionTypes
 from dataclasses import dataclass
+import pandas as pd
 
 class Circle:
     __slots__ = "kind", "agent_count", "circle_id"
@@ -63,3 +64,25 @@ class SocialCircleSnapshot:
     type: str
     num_members: int
     id: int
+
+class SocialCircleConstraint:
+    def __init__(self,min_members,max_members,connection_type):
+        self.min_members = min_members
+        self.max_members = max_members
+        self.connection_type = connection_type
+
+    def meets_constraint(self,agent):
+        assert agent is not None
+        has_circle = False
+        if pd.isna(self.min_members) and pd.isna(self.max_members):
+            return  True
+        try:
+            for social_circle in agent.social_circles:
+                if social_circle.type == self.connection_type.name:
+                    assert social_circle.num_members >= self.min_members
+                    assert social_circle.num_members <= self.max_members
+                    has_circle = True
+            assert has_circle
+        except AssertionError:
+            return False
+        return True

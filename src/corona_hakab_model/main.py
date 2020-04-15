@@ -20,6 +20,7 @@ from generation.generation_manager import GenerationManger
 from generation.matrix_consts import MatrixConsts
 from generation.matrix_generator import MatrixData
 from manager import SimulationManager
+from agent import InitialAgentsConstraints
 from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
 
 
@@ -79,6 +80,11 @@ def main():
                      default='',
                      help='Save the resulting figure to a file instead of displaying it')
 
+    sim.add_argument('--agent-constraints-path',
+                     dest='agent_constraints_path',
+                     default=None,
+                     help='Add constraints to the selection of the initial sick agents, see readme for file format')
+
     parser.add_argument('--seed',
                         dest='seed',
                         type=int,
@@ -125,6 +131,7 @@ def generate_data(args):
 def run_simulation(args):
     matrix_data = MatrixData.import_matrix_data(args.matrix_data)
     population_data = PopulationData.import_population_data(args.population_data)
+    initial_agent_constraints = InitialAgentsConstraints(args.agent_constraints_path)
     if args.simulation_parameters_path:
         consts = Consts.from_file(args.simulation_parameters_path)
     else:
@@ -163,6 +170,7 @@ def run_simulation(args):
         ),
         population_data,
         matrix_data,
+        initial_agent_constraints,
         consts=consts,
     )
     print(sm)

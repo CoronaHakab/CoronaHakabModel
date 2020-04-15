@@ -44,6 +44,15 @@
 - Export: **python main.py -o <PATH>**
 - Import: **python main.py -i <PATH>**
 
+##Optional - Initial sick agent constraints:
+- Usage: **python main.py --agent-constraints-path <PATH>**
+- Format: csv file with the following columns : geographic_circles,age,Work,School,Family,Other
+- each row represents an agent, amount of rows must correspond to initial number of sick agents
+- to specify an exact value (geocircle name, age, or number of members in social circle), simply write it in the appropriate column and row
+- to specify a range, use '~' eg. "10~70" indicates age 10 to 70, including both
+- unspecified values will be free.
+- If no agents corresponding to the constraints are found, the code will crash
+
 ## Workflow -
 - When working, **work on a new git branch**.
 - run quality test: **tox -e quality**, if it fails you might need to reformat: **tox -e reformat**.
