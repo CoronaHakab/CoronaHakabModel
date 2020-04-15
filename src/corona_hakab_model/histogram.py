@@ -1,6 +1,7 @@
 from collections import Counter
 import numpy as np
 from typing import List
+from pprint import pformat
 
 from generation.connection_types import ConnectionTypes
 
@@ -18,22 +19,24 @@ class Histogram:
          * 'median': The median number of connections for all agents.
     """
     def __init__(self, connections_distribution: List = None):
-        self.weighted_connections = {}
+        self.weighted_connections = Counter()
         self.histogram = {}
         self.min_connection = 0
         self.max_connection = 0
         if connections_distribution is not None:
             self.update(connections_distribution)
 
-    def __repr__(self):
-        return str(self.histogram)
+    def get(self):
+        return self.histogram
 
     def update(self, connections_distribution: List):
-        # weighted_connections is a dictionary where the keys are the number of connections for an agent,
-        # and the values are the weight of that number, i.e. the total number of agents with that number if connections
-        self.weighted_connections = dict(Counter(self.weighted_connections)+Counter(connections_distribution))
-        self.min_connection = np.min(list(self.weighted_connections.keys()))
-        self.max_connection = np.max(list(self.weighted_connections.keys()))
+        """
+        Weighted_connections is a Counter object where the keys are the number of connections for an agent,
+        and the values are the weight of that number, i.e. the total number of agents with that number if connections
+        """
+        self.weighted_connections += Counter(connections_distribution)
+        self.min_connection = min(self.weighted_connections.keys())
+        self.max_connection = max(self.weighted_connections.keys())
         probability_density, bins_edges = np.histogram(list(self.weighted_connections.keys()),
                                                        bins=(self.max_connection - self.min_connection + 1),
                                                        range=(self.min_connection - 0.5, self.max_connection + 0.5),
@@ -114,4 +117,4 @@ class TimeHistograms:
             self.time_histograms[hist_name].update(conn_list)
 
     def get(self):
-        return self.time_histograms
+        return [{hist_name: histogram.get()} for hist_name, histogram in self.time_histograms.items()]
