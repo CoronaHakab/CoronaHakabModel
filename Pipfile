@@ -6,10 +6,6 @@ verify_ssl = true
 [dev-packages]
 yappi = "*"
 pytest = "*"
-tox = "*"
-flake8 = "*"
-isort = "*"
-black = "*"
 swimport = "*"
 
 [packages]

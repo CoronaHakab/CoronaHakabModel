@@ -14,7 +14,7 @@ setuptools.setup(
     packages=["corona_hakab_model", "corona_hakab_model_data"],
     install_requires=["numpy", "scipy", "scikit-learn", "matplotlib", "pytest", "pandas"],
     extras_require={
-        "quality": ["pytest", "tox", "flake8", "isort", "black"],
+        "quality": ["pytest"],
         "profiling": ["yappi"],
         "pretty graphs": ["pyside2"],
         "building": ["swimport"],
