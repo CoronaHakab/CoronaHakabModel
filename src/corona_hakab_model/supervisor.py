@@ -48,8 +48,22 @@ class SimulationProgression:
         file_name = filename or os.path.join(output_folder, datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
         # TODO: Switch ^ to use pathlib
 
+        tabular_supervisables = [s for s in self.supervisables if isinstance(s, TabularSupervisable)]
+        value_supervisables = [s for s in self.supervisables if isinstance(s, ValueSupervisable)]
+
+        # Output each tabular sample to a new csv file
+        # (all samples of a given supervisable are gathered in a new subfolder)
+        for s in tabular_supervisables:
+            day_to_table_dict = s.publish()
+            supervisable_folder = os.path.join(output_folder, s.name())
+            os.mkdir(supervisable_folder)
+            for day, table in day_to_table_dict.items():
+                sample_file_name = os.path.join(supervisable_folder, day + ".csv")
+                df = pd.DataFrame(table)
+                df.to_csv(sample_file_name)
+
         all_data = {}
-        for s in self.supervisables:
+        for s in value_supervisables:
             all_data.update(s.publish())
 
         df = pd.DataFrame(all_data, index=self.time_vector)
@@ -150,6 +164,14 @@ class Supervisable(ABC):
         def __call__(self, manager):
             return _NewInfectedCount()
 
+    class CurrentInfectedTable:
+        def __init__(self, *args, **kwargs):
+            self.args = args
+            self.kwargs = kwargs
+
+        def __call__(self, manager):
+            return _CurrentInfectedTable(*self.args, **self.kwargs)
+
     class GrowthFactor:
         def __init__(self, sum_supervisor: "Sum", new_infected_supervisor: "NewCasesCounter"):
             self.new_infected_supervisor = new_infected_supervisor
@@ -177,6 +199,27 @@ class ValueSupervisable(Supervisable):
 
     def publish(self):
         return {self.name(): np.array(self.data)}
+
+
+class TabularSupervisable(Supervisable):
+    def __init__(self, interval: int):
+        self.data = []
+        self.interval = interval
+
+    def names(self):
+        sampling_days = [d * self.interval for d in range(1, len(self.data) + 1)]
+        return [f"t0 +{d} days" for d in sampling_days]
+
+    @abstractmethod
+    def get(self, manager: "manager.SimulationManager"):
+        pass
+
+    def snapshot(self, manager: "manager.SimulationManager"):
+        if manager.current_step % self.interval == 0:
+            self.data.append(self.get(manager))
+
+    def publish(self):
+        return {name_i: data_i for name_i, data_i in zip(self.names(), self.data)}
 
 
 class LambdaValueSupervisable(ValueSupervisable):
@@ -215,6 +258,28 @@ class _StateTotalSoFarSupervisable(ValueSupervisable):
 
     def name(self) -> str:
         return self.__name
+
+
+class _CurrentInfectedTable(TabularSupervisable):
+    def __init__(self, interval):
+        super().__init__(interval)
+        self.sick_states_names = ['Latent', 'Asymptomatic', 'Symptomatic', 'Hospitalized', 'ICU']
+
+    def get(self, manager) -> float:
+        agent_ids = []
+        medical_status = []
+
+        for state_name in self.sick_states_names:
+            state = manager.medical_machine.states_by_name[state_name]
+            agent_ids += [agent.index for agent in state.agents]
+            medical_status += [state_name] * state.agent_count
+        return {
+            "agent_id" : agent_ids,
+            "medical_status" : medical_status
+        }
+
+    def name(self) -> str:
+        return "infected_table"
 
 
 class _DelayedSupervisable(ValueSupervisable):
