@@ -53,7 +53,7 @@ class SimulationManager:
         self.pending_transfers = PendingTransfers()
 
         # the manager holds the vector, but the agents update it
-        self.contagiousness_vector = np.zeros(len(self.agents), dtype=float)  # how likely to infect others
+        self.contagiousness_vector = np.zeros(len(self.agents), dtype=np.float32)  # how likely to infect others
         self.susceptible_vector = np.zeros(len(self.agents), dtype=bool)  # can get infected
 
         # healthcare related data
