@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from typing import Any, Callable, List, NamedTuple, Sequence
+from typing import Any, Callable, List, NamedTuple, Sequence, Union
 
 import manager
 import numpy as np
@@ -42,15 +42,13 @@ class SimulationProgression:
         for s in self.supervisables:
             s.snapshot(manager)
 
-    def dump(self):
+    def dump(self, filename=None):
 
         output_folder = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], "output")
-        file_name = os.path.join(output_folder, datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
+        file_name = filename or os.path.join(output_folder, datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
         # TODO: Switch ^ to use pathlib
 
-        all_data = {}
-        for s in self.supervisables:
-            all_data.update(s.publish())
+        all_data = dict([s.publish() for s in self.supervisables])
 
         df = pd.DataFrame(all_data, index=self.time_vector)
         df.to_csv(file_name)
@@ -108,6 +106,46 @@ class Supervisable(ABC):
                 diff_sup = _DiffSupervisable(_StateTotalSoFarSupervisable(m.medical_machine[self.name]))
                 return _NameOverrideSupervisable(diff_sup, "New " + self.name)
 
+    class Wrappers:
+        class RunningAverage:
+            def __init__(self, supervisable, window_size) -> None:
+                self.supervisable = supervisable
+                self.window_size = window_size
+                self.func = lambda arr: np.convolve(
+                    np.concatenate([np.zeros(window_size - 1), arr]),
+                    np.ones(window_size) / window_size,
+                    'valid'
+                )
+
+            def __call__(self, m):
+                sup = Supervisable.coerce(self.supervisable, m)
+                return _PostProcessSupervisor(sup, self.func,
+                                              sup.name() + f' - {self.window_size} days running average')
+
+        class Growth:
+            def __init__(self, supervisable, num_of_days_to_group_together=1) -> None:
+                self.supervisable = supervisable
+                self.num_of_days_to_group_together = num_of_days_to_group_together
+
+                def foo(arr):
+                    cumsum = arr.cumsum()
+                    res = np.zeros_like(arr, dtype=float) + np.nan
+                    for i in range(num_of_days_to_group_together, len(arr)):
+                        if cumsum[i - num_of_days_to_group_together] == 0:
+                            continue
+
+                        res[i] = (cumsum[i] - cumsum[i - num_of_days_to_group_together]) / cumsum[
+                            i - num_of_days_to_group_together]
+
+                    return res
+
+                self.func = foo
+
+            def __call__(self, m):
+                sup = Supervisable.coerce(self.supervisable, m)
+                return _PostProcessSupervisor(sup, self.func,
+                                              sup.name() + f' - {self.num_of_days_to_group_together} days growth')
+
     class Delayed(NamedTuple):
         arg: Any
         delay: int
@@ -160,6 +198,15 @@ class Supervisable(ABC):
                 Supervisable.coerce(self.new_infected_supervisor, m), Supervisable.coerce(self.sum_supervisor, m)
             )
 
+    class SupervisiblesLambda(NamedTuple):
+        supervisiables: Sequence
+        func: Callable
+        name: str
+
+        def __call__(self, m):
+            return _PostProcessSupervisor([Supervisable.coerce(s, m) for s in self.supervisiables], self.func,
+                                          self.name)
+
 
 SupervisableMaker = Callable[[Any], Supervisable]
 
@@ -176,7 +223,7 @@ class ValueSupervisable(Supervisable):
         self.data.append(self.get(manager))
 
     def publish(self):
-        return {self.name(): np.array(self.data)}
+        return self.name(), np.array(self.data)
 
 
 class LambdaValueSupervisable(ValueSupervisable):
@@ -372,3 +419,38 @@ class _GrowthFactor(ValueSupervisable):
 
     def name(self) -> str:
         return "growth factor"
+
+
+class _PostProcessSupervisor(ValueSupervisable):
+    def __init__(self, supervisables: Union[List[Supervisable], Supervisable], func: Callable, name: str):
+        super().__init__()
+        self._name = name
+        self.func = func
+        if isinstance(supervisables, Supervisable):
+            supervisables = [supervisables]
+        self.supervisables = supervisables
+
+    def get(self, manager: "manager.SimulationManager"):
+        pass
+
+    def snapshot(self, manager: "manager.SimulationManager"):
+        [v.snapshot(manager) for v in self.supervisables]
+        # super().snapshot(manager)
+
+    def publish(self):
+        vectors = [s.publish()[1] for s in self.supervisables]
+        expected_length_of_result = len(vectors[0])
+
+        res = self.func(*vectors)
+
+        # If the function shortens the array length (e.g. diff()), pad with zeros
+        if len(res) < expected_length_of_result:
+            temp = np.zeros_like(vectors[0])
+            temp[-len(res):] = res
+            res = temp
+
+        self.data = res
+        return super().publish()
+
+    def name(self) -> str:
+        return self._name

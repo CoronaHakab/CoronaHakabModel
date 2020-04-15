@@ -1,4 +1,6 @@
 from generation.connection_types import ConnectionTypes
+from dataclasses import dataclass
+import uuid
 
 
 class Circle:
@@ -21,13 +23,14 @@ class Circle:
 
 
 class SocialCircle(Circle):
-    __slots__ = ("agents", "connection_type")
+    __slots__ = ("agents", "connection_type", "guid")
 
     def __init__(self, connection_type: ConnectionTypes):
         super().__init__()
         self.kind = "social circle"
         self.agents = set()
         self.connection_type = connection_type
+        self.guid = str(uuid.uuid4())
 
     def add_agent(self, agent):
         super().add_agent(agent)
@@ -53,3 +56,13 @@ class SocialCircle(Circle):
         rest_of_circle = {o.index for o in self.agents}
         rest_of_circle.remove(my_index)
         return rest_of_circle
+
+    def get_snapshot(self):
+        return SocialCircleSnapshot(self.connection_type.name, len(self.agents), self.guid)
+
+
+@dataclass
+class SocialCircleSnapshot:
+    type: str
+    num_members: int
+    guid: str

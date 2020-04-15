@@ -1,19 +1,21 @@
 import platform
 import subprocess
 from pathlib import Path
+from sysconfig import get_paths
 
 import numpy as np
 from swimport import ContainerSwim, FileSource, Function, Swim, Typedef, pools
 
-PYTHON = Path(subprocess.run(["which", "python"], capture_output=True, text=True).stdout.strip())
-PY_ROOT = PYTHON.parents[1]  # the python environment root folder
-
 COMPILE_ADDITIONAL_INCLUDE_DIRS = [
-    str(PY_ROOT / "include" / "python3.8"),
+    get_paths()['include'],
+    get_paths()['platinclude'],
     np.get_include(),
 ]
 COMPILE_ADDITIONAL_INCLUDE_LIBS = [
-    str(PY_ROOT / "lib" / "python3.8"),
+    get_paths()['stdlib'],
+    get_paths()['platstdlib'],
+    get_paths()['platlib'],
+    get_paths()['purelib'],
 ]
 
 
@@ -27,7 +29,10 @@ def write_swim():
 
     swim(pools.include(src))
 
-    swim(pools.primitive())
+    swim(pools.primitive(additionals=False, out_iterable_types=()))
+    swim(pools.list("size_t"))
+    swim(pools.list("std::vector<size_t>"))
+    swim(pools.list("std::vector<std::vector<size_t>>"))
 
     swim(Typedef.Behaviour()(src))
 
