@@ -20,7 +20,7 @@ from generation.generation_manager import GenerationManger
 from generation.matrix_consts import MatrixConsts
 from generation.matrix_generator import MatrixData
 from manager import SimulationManager
-from supervisor import LambdaValueSupervisable, Supervisable, Supervisor, SimulationProgression
+from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
 from matrix_analysis.MatrixAnalysis import MatrixAnalyzer
 
 from typing import TYPE_CHECKING
