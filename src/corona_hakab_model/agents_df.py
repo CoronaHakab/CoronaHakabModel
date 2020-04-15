@@ -1,4 +1,4 @@
-from typing import List, Set, Iterable
+from typing import List, Set, Iterable, Union, Sequence
 
 import numpy as np
 import pandas as pd
@@ -72,13 +72,24 @@ class AgentsDf:
     def susceptible_vec(self):
         return self._df.susceptible.values
 
-    def set_test_start(self, agent_index, current_step):
-        self._df.at[agent_index, 'date_of_last_test'] = current_step
+    def set_test_start(self, agent_index: Union[int, Iterable[int]], current_step: int):
+        if isinstance(agent_index, int):
+            self._df.at[agent_index, 'date_of_last_test'] = current_step
+        else:
+            self._df.loc[agent_index, 'date_of_last_test'] = current_step
 
-    def set_test_result(self, agent_index, test_result):
-        self._df.at[agent_index, 'test_result'] = test_result
-        if test_result == DetectionResult.POSITIVE:
-            self._df.at[agent_index, 'ever_tested_positive'] = True
+    def set_test_result(self, agent_index: Union[int, Sequence[int]],
+                        test_result: Union[DetectionResult, Iterable[DetectionResult]]):
+        if isinstance(agent_index, int):
+            self._df.at[agent_index, 'test_result'] = test_result
+            if test_result == DetectionResult.POSITIVE:
+                self._df.at[agent_index, 'ever_tested_positive'] = True
+        else:
+            self._df.loc[agent_index, 'test_result'] = test_result
+            self._df.loc[agent_index[test_result == DetectionResult.POSITIVE], 'ever_tested_positive'] = True
 
-    def ever_tested_positive(self, agent_index) -> bool:
-        return self._df.at[agent_index, 'ever_tested_positive']
+    def ever_tested_positive(self, agent_index: Union[int, Iterable[int]]) -> bool:
+        if isinstance(agent_index, int):
+            return self._df.at[agent_index, 'ever_tested_positive']
+        else:
+            return self._df.loc[agent_index, 'ever_tested_positive']

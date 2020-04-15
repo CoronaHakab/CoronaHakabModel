@@ -63,7 +63,7 @@ class HealthcareManager:
         for test_location in self.manager.consts.detection_pool:
             num_of_tests = self._get_current_num_of_tests(self.manager.current_step, test_location)
 
-            # Who can to be tested
+            # Who can be tested
             test_candidates_inds = self.manager.agents_df.test_candidates(test_location, self.manager.current_step)
             test_candidates_inds -= set(result.agent_index for result in tested)
 

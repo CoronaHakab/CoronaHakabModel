@@ -118,14 +118,14 @@ class Consts(NamedTuple):
     connection_type_to_conditioned_policy: Dict[ConnectionTypes, List[ConditionedPolicy]] = {
         ConnectionTypes.School: [
             ConditionedPolicy(
-                activating_condition=lambda kwargs: len(
-                    np.flatnonzero(kwargs["manager"].agents_df.contagious_vec())) > 1000,
+                activating_condition=lambda kwargs:
+                    np.count_nonzero(kwargs["manager"].agents_df.contagious_vec()) > 1000,
                 policy=Policy(0, [lambda circle: random() > 0]),
                 message="closing all schools",
             ),
             ConditionedPolicy(
-                activating_condition=lambda kwargs: len(
-                    np.flatnonzero(kwargs["manager"].agents_df.contagious_vec())) < 500,
+                activating_condition=lambda kwargs:
+                    np.count_nonzero(kwargs["manager"].agents_df.contagious_vec()) < 500,
                 policy=Policy(1, [lambda circle: random() > 1]),
                 active=True,
                 message="opening all schools",
@@ -133,14 +133,14 @@ class Consts(NamedTuple):
         ],
         ConnectionTypes.Work: [
             ConditionedPolicy(
-                activating_condition=lambda kwargs: len(
-                    np.flatnonzero(kwargs["manager"].agents_df.contagious_vec())) > 1000,
+                activating_condition=lambda kwargs:
+                    np.count_nonzero(kwargs["manager"].agents_df.contagious_vec()) > 1000,
                 policy=Policy(0, [lambda circle: random() > 0]),
                 message="closing all workplaces",
             ),
             ConditionedPolicy(
-                activating_condition=lambda kwargs: len(
-                    np.flatnonzero(kwargs["manager"].agents_df.contagious_vec())) < 500,
+                activating_condition=lambda kwargs:
+                    np.count_nonzero(kwargs["manager"].agents_df.contagious_vec()) < 500,
                 policy=Policy(0, [lambda circle: random() > 1]),
                 active=True,
                 message="opening all workplaces",
