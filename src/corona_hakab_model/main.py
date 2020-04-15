@@ -1,28 +1,22 @@
 from __future__ import annotations
 
 import logging
-from argparse import ArgumentParser
 import matplotlib_set_backend
 import matplotlib.pyplot as plt
 import random
-import numpy as np
-import pickle
 import os.path
 import sys
 
 import numpy as np
 
-from bsa.universal import write
 from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
 from consts import Consts
-from corona_hakab_model_data.__data__ import __version__
-from generation.circles_consts import CirclesConsts
 from generation.circles_generator import PopulationData
 from generation.generation_manager import GenerationManger
-from generation.matrix_consts import MatrixConsts
 from generation.matrix_generator import MatrixData
 from manager import SimulationManager
-from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
+from subconsts.modules_argpasers import get_simulation_args_parser
+from supervisor import LambdaValueSupervisable, Supervisable
 
 
 from typing import TYPE_CHECKING
@@ -30,71 +24,10 @@ if TYPE_CHECKING:
     import pandas as pd
 
 
-logger = logging.getLogger('application')
-logger.setLevel(logging.INFO)
-
 def main():
-    parser = ArgumentParser("COVID-19 Simulation")
-    subparser = parser.add_subparsers(dest="sub_command")
-    all_parse = subparser.add_parser("all", help="Run both data generation and simulation.")
-    gen = subparser.add_parser('generate', help='only generate the population data without running the simulation')
-    gen.add_argument("-c",
-                     "--circles-consts",
-                     dest="circles_consts_path",
-                     help="Parameter file with consts for the circles")
-    gen.add_argument("-m",
-                     "--matrix-consts",
-                     dest="matrix_consts_path",
-                     help="Parameter file with consts for the matrix")
-    gen.add_argument("-o",
-                     "--output-folder",
-                     dest="output_folder",
-                     default='../../output',
-                     help="output folder if not using --consts-folder or --master-folder")
-    gen.add_argument("--consts-folder",
-                     dest="consts_folder",
-                     help="Folder to take matrix_consts.json and circles_consts.json from."
-                          "Also output folder for generation")
-    gen.add_argument("--master-folder",
-                     dest="master_folder",
-                     help="Master folder - find all immediate sub-folders containing parameter files and generate"
-                          "population data and matrix files in them.")
-    # Simulation parameters
-    sim = subparser.add_parser("simulate", help='Run the simulation using existing data')
-    sim.add_argument(
-        "-s", "--simulation-parameters", dest="simulation_parameters_path", help="Parameters for simulation engine"
-    )
-    sim.add_argument('--population-data',
-                     dest='population_data',
-                     default='../../output/population_data.pickle',
-                     help='Previously exported population data file to use in the simulation')
-    sim.add_argument('--matrix-data',
-                     dest='matrix_data',
-                     default='../../output/matrix_data.parasymbolic',
-                     help='Previously exported matrix data file to use in the simulation')
-    sim.add_argument('--initial_sick',
-                     dest='initial_sick_agents_path',
-                     default='../../output/initial_sick.csv',
-                     help='Output csv file for initial sick agents - after setup of simulation')
-    sim.add_argument('--all_sick',
-                     dest='all_sick_agents_path',
-                     default='../../output/all_sick.csv',
-                     help='Output csv file for all sick agents - at the end of the simulation run')
-    sim.add_argument('--output',
-                     dest='output',
-                     default='',
-                     help='Filepath to resulting csv. Defaults to ../../output/(timestamp).csv')
-    sim.add_argument('--figure-path',
-                     dest='figure_path',
-                     default='',
-                     help='Save the resulting figure to a file instead of displaying it')
-
-    parser.add_argument('--seed',
-                        dest='seed',
-                        type=int,
-                        default=None,
-                        help='Set the random seed. Use only for exact reproducibility. By default, generate new seed.')
-    parser.add_argument("--version", action="version", version=__version__)
+    logger = logging.getLogger('application')
+    logger.setLevel(logging.INFO)
+    parser = get_simulation_args_parser()
     args, _ = parser.parse_known_args()
     set_seeds(args.seed)
 
@@ -194,6 +127,7 @@ def set_seeds(seed=0):
     seed = seed or None
     np.random.seed(seed)
     random.seed(seed)
+
 
 def compare_simulations_example():
     sm1 = SimulationManager(
