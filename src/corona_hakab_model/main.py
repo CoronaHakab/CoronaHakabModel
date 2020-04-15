@@ -10,6 +10,8 @@ import pickle
 import os.path
 import sys
 
+import numpy as np
+
 from bsa.universal import write
 from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
 from consts import Consts
@@ -152,11 +154,13 @@ def run_simulation(args):
                 "was ever sick",
                 lambda manager: len(manager.agents) - manager.medical_machine["Susceptible"].agent_count,
             ),
-            # Supervisable.NewCasesCounter(),
+            Supervisable.NewCasesCounter(),
+            Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter(), 1),
+            Supervisable.Wrappers.RunningAverage(Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter()), 7),
+            Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter(), 7),
             # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
-            Supervisable.NewCasesCounter(),
-            LambdaValueSupervisable("Detected Daily", lambda manager: manager.new_detected_daily),
+            # LambdaValueSupervisable("Detected Daily", lambda manager: manager.new_detected_daily),
             # LambdaValueSupervisable("Current Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
             # Supervisable.R0(),
             # Supervisable.Delayed("Symptomatic", 3),
