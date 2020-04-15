@@ -1,6 +1,7 @@
 import logging
 from collections import defaultdict
 from typing import Callable, Iterable, List, Union
+import numpy as np
 
 import infection
 import update_matrix
@@ -8,7 +9,7 @@ from agent import InitialSickAgents
 from agents_df import AgentsDf
 from consts import Consts
 from detection_model import healthcare
-from detection_model.healthcare import PendingTestResult, PendingTestResults
+from detection_model.healthcare import PendingTestResult, PendingTestResults, DetectionResult
 from generation.circles_generator import PopulationData
 from generation.matrix_generator import MatrixData
 from medical_state_manager import MedicalStateManager
@@ -60,7 +61,7 @@ class SimulationManager:
         # # initializing agents to current simulation
         # for agent in self.agents:
         #     agent.add_to_simulation(self, initial_state)
-        initial_state.add_many(self.agents_df.agents_indexes())
+        initial_state.add_many(self.agents_df.agents_indices())
 
         # initializing simulation modules
         self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers],
@@ -110,20 +111,23 @@ class SimulationManager:
     def progress_tests_and_isolation(self, new_tests: List[PendingTestResult]):
         self.new_detected_daily = 0
         new_results = self.pending_test_results.advance()
-        for agent_ind, test_result, _ in new_results:
-            if test_result:
-                if not self.agents_df.ever_tested_positive(agent_ind):
-                    # TODO: awful late night implementation, improve ASAP
-                    self.new_detected_daily += 1
-            self.agents_df.set_test_result(agent_ind, test_result)
+
+        if new_results:
+            agent_indices, test_results, _ = zip(*new_results)
+            self.agents_df.set_tests_results(agent_indices, test_results)
+            tests_taken_mask = np.array([res != DetectionResult.NOT_TAKEN for res in test_results])
+            self.new_detected_daily = np.count_nonzero(
+                tests_taken_mask & self.agents_df.ever_tested_positive(agent_indices))
 
         # TODO send the detected agents to the selected kind of isolation
         # TODO: Track isolated agents
         # TODO: Remove healthy agents from isolation?
 
-        for new_test in new_tests:
-            self.agents_df.set_test_start(new_test.agent_index, self.current_step)
-            self.pending_test_results.append(new_test)
+        self.pending_test_results.extend(new_tests)
+        new_tested_agents_indices = [new_test.agent_index for new_test in new_tests]
+        self.agents_df.set_tests_start(new_tested_agents_indices, self.current_step)
+        # for idx in new_tested_agents_indices:
+        #     self.agents_df.set_tests_start(idx, self.current_step)
 
     def setup_sick(self):
         """"
