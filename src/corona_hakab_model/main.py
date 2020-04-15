@@ -5,24 +5,19 @@ from argparse import ArgumentParser
 import matplotlib_set_backend
 import matplotlib.pyplot as plt
 import random
-import numpy as np
-import pickle
 import os.path
 import sys
 
 import numpy as np
 
-from bsa.universal import write
 from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
 from consts import Consts
 from corona_hakab_model_data.__data__ import __version__
-from generation.circles_consts import CirclesConsts
 from generation.circles_generator import PopulationData
 from generation.generation_manager import GenerationManger
-from generation.matrix_consts import MatrixConsts
 from generation.matrix_generator import MatrixData
 from manager import SimulationManager
-from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
+from supervisor import LambdaValueSupervisable, Supervisable
 
 
 from typing import TYPE_CHECKING
@@ -30,13 +25,34 @@ if TYPE_CHECKING:
     import pandas as pd
 
 
-logger = logging.getLogger('application')
-logger.setLevel(logging.INFO)
-
 def main():
+    logger = logging.getLogger('application')
+    logger.setLevel(logging.INFO)
+    parser = get_simulation_args_parser()
+    args, _ = parser.parse_known_args()
+    set_seeds(args.seed)
+
+    if args.sub_command == 'generate':
+        generate_data(args)
+
+    if args.sub_command == 'simulate':
+        run_simulation(args)
+
+    if args.sub_command == 'all':
+        argv_list = sys.argv[1:]
+        command_index = argv_list.index('all')
+        argv_list[command_index] = 'generate'
+        gen_args, _ = parser.parse_known_args(argv_list)
+        argv_list[command_index] = 'simulate'
+        sim_args, _ = parser.parse_known_args(argv_list)
+        generate_data(gen_args)
+        run_simulation(sim_args)
+
+
+def get_simulation_args_parser():
     parser = ArgumentParser("COVID-19 Simulation")
     subparser = parser.add_subparsers(dest="sub_command")
-    all_parse = subparser.add_parser("all", help="Run both data generation and simulation.")
+    subparser.add_parser("all", help="Run both data generation and simulation.")
     gen = subparser.add_parser('generate', help='only generate the population data without running the simulation')
     gen.add_argument("-c",
                      "--circles-consts",
@@ -88,31 +104,13 @@ def main():
                      dest='figure_path',
                      default='',
                      help='Save the resulting figure to a file instead of displaying it')
-
     parser.add_argument('--seed',
                         dest='seed',
                         type=int,
                         default=None,
                         help='Set the random seed. Use only for exact reproducibility. By default, generate new seed.')
     parser.add_argument("--version", action="version", version=__version__)
-    args, _ = parser.parse_known_args()
-    set_seeds(args.seed)
-
-    if args.sub_command == 'generate':
-        generate_data(args)
-
-    if args.sub_command == 'simulate':
-        run_simulation(args)
-
-    if args.sub_command == 'all':
-        argv_list = sys.argv[1:]
-        command_index = argv_list.index('all')
-        argv_list[command_index] = 'generate'
-        gen_args, _ = parser.parse_known_args(argv_list)
-        argv_list[command_index] = 'simulate'
-        sim_args, _ = parser.parse_known_args(argv_list)
-        generate_data(gen_args)
-        run_simulation(sim_args)
+    return parser
 
 
 def generate_data(args):
@@ -194,6 +192,7 @@ def set_seeds(seed=0):
     seed = seed or None
     np.random.seed(seed)
     random.seed(seed)
+
 
 def compare_simulations_example():
     sm1 = SimulationManager(
