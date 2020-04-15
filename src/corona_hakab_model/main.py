@@ -12,7 +12,7 @@ from generation.circles_consts import CirclesConsts
 from generation.generation_manager import GenerationManger
 from generation.matrix_consts import MatrixConsts
 from manager import SimulationManager
-from medical_state_consts.medical_state_machine_creator import MedicalStateMachineCreator
+from medical_state_consts.medical_state_machine_builder import MedicalStateMachineBuilder
 from project_structure import MODEL_FOLDER
 from supervisor import LambdaValueSupervisable, Supervisable
 
@@ -30,7 +30,8 @@ def main():
 
     parser.add_argument(
         "-MSM", "--medical-state-machine", dest="medical_state_machine_params",
-        help="Parameters for the medical state machine"
+        help="Parameters to build the medical state machine",
+        default=str(Path(MODEL_FOLDER) / "default_configuration" / "medical_state_machine.json")
     )
     parser.add_argument(
         "-s", "--simulation-parameters", dest="simulation_parameters_path", help="Parameters for simulation engine"
@@ -62,11 +63,9 @@ def main():
         return
 
     if args.medical_state_machine_params:
-        medical_state_machine = MedicalStateMachineCreator(args.medical_state_machine_params).create_state_machine()
+        medical_state_machine = MedicalStateMachineBuilder(args.medical_state_machine_params).create_state_machine()
     else:
-        msm_creator = MedicalStateMachineCreator(Path(MODEL_FOLDER) / "default_configuration" /
-                                                 "medical_state_machine.json")
-        medical_state_machine = msm_creator.create_state_machine()
+        raise KeyError("Medical state machine params file not defined!")
 
     if args.simulation_parameters_path:
         consts = Consts.from_json(args.simulation_parameters_path)

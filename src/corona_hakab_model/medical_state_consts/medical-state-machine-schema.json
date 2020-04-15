@@ -23,6 +23,7 @@
       "propertyNames": {
         "$ref": "#/definitions/medical_state_name"
       },
+      "uniqueItems": true,
       "additionalProperties": {
         "type": "object",
         "properties": {
@@ -46,34 +47,19 @@
             "type": "boolean",
             "title": "Detectable"
           },
-          "terminal": {
-            "$id": "#/properties/terminal",
-            "type": "boolean",
-            "title": "Terminal"
-          },
-          "stochastic": {
-            "$id": "#/properties/stochastic",
-            "type": "boolean",
-            "title": "Stochastic"
+          "mechanism": {
+            "$id": "#/properties/mechanism",
+            "type": "string",
+            "title": "Terminal",
+            "enum": ["terminal", "stochastic"]
           }
         },
         "required": [
           "susceptible",
           "contagiousness",
           "test_willingness",
-          "detectable"
-        ],
-        "oneOf": [
-          {
-            "required": [
-              "terminal"
-            ]
-          },
-          {
-            "required": [
-              "stochastic"
-            ]
-          }
+          "detectable",
+          "mechanism"
         ],
         "additionalProperties": false
       },
@@ -119,7 +105,7 @@
           "to": {
             "$ref": "#/definitions/medical_state_name"
           },
-          "distribution": {
+          "duration_distribution": {
             "type": "array",
             "items": {
               "type": "number"
@@ -153,7 +139,7 @@
         "required": [
           "from_state",
           "to",
-          "distribution"
+          "duration_distribution"
         ],
         "additionalProperties": false
       }
