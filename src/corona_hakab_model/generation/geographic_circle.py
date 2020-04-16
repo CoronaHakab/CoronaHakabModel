@@ -42,9 +42,12 @@ class GeographicCircle(Circle):
                 if np.random.random() < self.data_holder.connection_types_prob_by_age[age][connection_type]:
                     agent_connection_types.append(connection_type)
             
-            if agent.is_adult() and ConnectionTypes.School in agent_connection_types:
-                agent_connection_types.remove(ConnectionTypes.Work)
-            
+            if agent.is_adult() and ConnectionTypes.Work in agent_connection_types:
+                # if the agent works, there's a chance it is a teachers job 
+                if np.random.random() < self.teachers_workforce_ratio:
+                    agent_connection_types.remove(ConnectionTypes.Work)
+                    agent_connection_types.append(ConnectionTypes.School)
+
             for connection_type in agent_connection_types:
                 self.connection_type_to_agents[connection_type].append(agent)
 

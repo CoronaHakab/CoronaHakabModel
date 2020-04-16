@@ -18,7 +18,7 @@ class CirclesConsts(NamedTuple):
     population_size: int = 20_000
     ages: List[int] = [10, 40, 70]
     age_prob: List[int] = [0.30, 0.45, 0.25]
-    teachers_ratio = 0.04 # ratio of teachers out of workforce
+    teachers_workforce_ratio = 0.04 # ratio of teachers out of workforce
     connection_type_prob_by_age_index: List = [
         {
             ConnectionTypes.Work: 0,
@@ -27,14 +27,14 @@ class CirclesConsts(NamedTuple):
             ConnectionTypes.Other: 1.0,
         },
         {
-            ConnectionTypes.Work: 0.9 * (1 - teachers_ratio),
-            ConnectionTypes.School: 0.9 * teachers_ratio,
+            ConnectionTypes.Work: 0.9,
+            ConnectionTypes.School: 0,
             ConnectionTypes.Family: 1.0,
             ConnectionTypes.Other: 1.0,
         },
         {
-            ConnectionTypes.Work: 0.25 * (1 - teachers_ratio),
-            ConnectionTypes.School: 0.25 * teachers_ratio,
+            ConnectionTypes.Work: 0.25,
+            ConnectionTypes.School: 0,
             ConnectionTypes.Family: 1.0,
             ConnectionTypes.Other: 1.0,
         },
@@ -83,7 +83,8 @@ class CirclesConsts(NamedTuple):
                 self.circle_size_distribution_by_connection_type,
                 self.get_connection_types_prob_by_age(),
                 self.multi_zone_connection_type_to_geo_circle_probability[i],
-                self.get_required_adult_distributions()
+                self.get_required_adult_distributions(),
+                self.teachers_workforce_ratio
             )
             for i in range(self.geo_circles_amount)
         ]
@@ -110,7 +111,7 @@ class CirclesConsts(NamedTuple):
         """
         all_students = 0
         all_teachers = 0
-        for i in range(self.ages):
+        for i in range(len(self.ages)):
             if self.ages[i] <= 18:
                 all_students += self.age_prob[i]*self.connection_type_prob_by_age_index[i][ConnectionTypes.School]
             else:
@@ -139,7 +140,8 @@ class GeographicalCircleDataHolder:
         "connection_types_prob_by_age",
         "circles_size_distribution_by_connection_type",
         "multi_zone_connection_type_to_geo_circle_probability",
-        "adult_distributions"
+        "adult_distributions",
+        "teachers_workforce_ratio"
     )
 
     # todo define how social circles logics should be represented
@@ -151,7 +153,8 @@ class GeographicalCircleDataHolder:
         circles_size_distribution_by_connection_type,
         connection_types_prob_by_age,
         multi_zone_connection_type_to_geo_circle_probability,
-        adult_distributions        
+        adult_distributions,
+        teachers_workforce_ratio        
     ):
         self.name = name
         self.agents_share = agents_share
@@ -160,3 +163,4 @@ class GeographicalCircleDataHolder:
         self.circles_size_distribution_by_connection_type = circles_size_distribution_by_connection_type
         self.multi_zone_connection_type_to_geo_circle_probability = multi_zone_connection_type_to_geo_circle_probability
         self.adult_distributions = adult_distributions
+        self.teachers_workforce_ratio = teachers_workforce_ratio
