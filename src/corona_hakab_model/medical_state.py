@@ -1,6 +1,6 @@
 from abc import ABC
 
-from state_machine import State
+from state_machine import State  # , StochasticState, TerminalState
 
 
 class MedicalState(State, ABC):

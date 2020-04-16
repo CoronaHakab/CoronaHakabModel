@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, NamedTuple
+from typing import TYPE_CHECKING, Callable, List, NamedTuple
 
 import numpy as np
 from agent import Agent

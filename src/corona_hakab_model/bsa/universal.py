@@ -26,10 +26,3 @@ except ImportError:
     pass
 else:
     write.register(spmatrix, write_scipy_sparse)
-
-try:
-    from bsa.sparse_base import SparseBase, read_sparse, write_sparse
-except ImportError:
-    pass
-else:
-    write.register(SparseBase, write_sparse)
