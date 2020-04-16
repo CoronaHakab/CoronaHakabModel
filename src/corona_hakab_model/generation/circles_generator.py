@@ -4,7 +4,7 @@ from typing import List
 import os.path
 
 from agent import Agent
-from corona_hakab_model_data.__data__ import __version__
+from __data__ import __version__
 from generation.circles import SocialCircle
 from generation.circles_consts import CirclesConsts
 from generation.connection_types import ConnectionTypes, Multi_Zone_types, Whole_Population_types

@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from corona_hakab_model_data.__data__ import __version__
+from __data__ import __version__
 
 
 def get_simulation_args_parser():

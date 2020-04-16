@@ -1,6 +1,5 @@
 import logging
 import math
-import pickle
 from itertools import islice
 from random import random, sample
 from typing import List
@@ -8,9 +7,9 @@ import os.path
 
 import bsa.universal
 import bsa.parasym
+import bsa.scipy_sparse
 import corona_matrix
 import numpy as np
-from corona_hakab_model_data.__data__ import __version__
 from generation.circles import SocialCircle
 from generation.circles_generator import PopulationData
 from generation.connection_types import (
@@ -51,6 +50,15 @@ class MatrixData:
         matrix_data.depth = len(ConnectionTypes) # This seems to essentialy be a constant.
         return matrix_data
 
+    def get_scipy_sparse(self):
+        """
+        A wrapper for getting the scipy_sparse representation of the matrix.
+        It doesn't change the current matrix, but creates a different one.
+        :return: List[scipy.spars.lil_matrix] of #<depth> elements
+        """
+        b = bsa.parasym.write_parasym(self.matrix)
+        b.seek(0)
+        return bsa.scipy_sparse.read_scipy_sparse(b)
 
 # todo right now only supports parasymbolic matrix. need to merge with corona matrix class import selector
 class MatrixGenerator:

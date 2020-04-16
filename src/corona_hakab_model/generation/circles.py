@@ -24,7 +24,7 @@ class Circle:
 class SocialCircle(Circle):
     __slots__ = ("agents", "connection_type", "guid")
 
-    def __init__(self, connection_type: ConnectionTypes,**kwargs):
+    def __init__(self, connection_type: ConnectionTypes):
         super().__init__()
         self.kind = "social circle"
         self.agents = set()
