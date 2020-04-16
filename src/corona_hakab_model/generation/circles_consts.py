@@ -118,7 +118,10 @@ class CirclesConsts(NamedTuple):
                 all_teachers += self.age_prob[i]*self.connection_type_prob_by_age_index[i][ConnectionTypes.School]
         # teacher to student ratio is the part of the school-going population that are teachers.
         # it is used to calculate how many teachers are needed in each school (according to school size)
-        teacher_to_student_ratio = all_teachers / all_students
+        if all_students > 0:
+            teacher_to_student_ratio = all_teachers / all_students
+        else:
+            teacher_to_student_ratio = 1
         school_sizes = self.circle_size_distribution_by_connection_type[ConnectionTypes.School][0]
         
         family_sizes = self.circle_size_distribution_by_connection_type[ConnectionTypes.Family][0]
