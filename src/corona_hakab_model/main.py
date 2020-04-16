@@ -62,10 +62,7 @@ def main():
             write(gm.matrix_data.matrix, w)
         return
 
-    if args.medical_state_machine_params:
-        medical_state_machine = MedicalStateMachineBuilder(args.medical_state_machine_params).create_state_machine()
-    else:
-        raise KeyError("Medical state machine params file not defined!")
+    medical_state_machine = MedicalStateMachineBuilder(args.medical_state_machine_params).create_state_machine()
 
     if args.simulation_parameters_path:
         consts = Consts.from_json(args.simulation_parameters_path)

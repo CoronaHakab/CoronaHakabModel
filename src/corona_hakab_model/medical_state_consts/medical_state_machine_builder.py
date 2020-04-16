@@ -12,21 +12,24 @@ from util import dist
 # Note: JSON should be validated with the medical-state-machine-schema.json JSON schema to ensure that the data is valid
 
 
+# This class allows one to define the probability of a transition from state to another dynamically based upon existing
+# probabilities - specifically to define it as all cases except an existing transition probability
 class ProbabilityData(TypedDict):
     type: str
     from_state: str
     to: str
 
 
+# This class defines a medical state and the mechanism by which it can/cannot transition to another state
 class MedicalStateData(TypedDict):
     susceptible: bool
     contagiousness: float
     test_willingness: float
     detectable: bool
-    name: str
     mechanism: str
 
 
+# This class defines transitions between medical states
 class StateTransitionData(TypedDict):
     from_state: str
     to: str
@@ -34,6 +37,9 @@ class StateTransitionData(TypedDict):
     probability: Union[float, ProbabilityData]
 
 
+# This class defines a Medical State Machine, defining it's given medical states, it's initial state, default state
+# upon infection, the transitions between states, the states which are defined as "sick_states" and those that are
+# defined as "was_ever_sick_states"
 class MedicalStateMachineData(TypedDict):
     medical_states: Dict[str, MedicalStateData]
     initial_state: str
