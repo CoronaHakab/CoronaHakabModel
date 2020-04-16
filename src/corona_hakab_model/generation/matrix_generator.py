@@ -1,6 +1,5 @@
 import logging
 import math
-import pickle
 from itertools import islice
 from random import random, sample
 from typing import List
@@ -10,7 +9,6 @@ import bsa.universal
 import bsa.parasym
 import corona_matrix
 import numpy as np
-from corona_hakab_model_data.__data__ import __version__
 from generation.circles import SocialCircle
 from generation.circles_generator import PopulationData
 from generation.connection_types import (
