@@ -3,11 +3,10 @@ from dataclasses import dataclass
 import pandas as pd
 
 class Circle:
-    __slots__ = "kind", "agent_count", "circle_id"
+    __slots__ = "kind", "agent_count"
 
-    def __init__(self,circle_id=-1):
+    def __init__(self,):
         self.agent_count = 0
-        self.circle_id = circle_id
 
     def add_many(self, agents):
         self.agent_count += len(agents)

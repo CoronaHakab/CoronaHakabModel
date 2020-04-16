@@ -80,6 +80,11 @@ class AgentConstraint:
         self.social_circle_constraints = social_circle_constraints
 
     def meets_constraint(self,agent: AgentSnapshot):
+        """
+
+        :param agent: an AgentSnapshot of the agent you want to test against the constraint
+        :return: True if the constraint is met, otherwise return False
+        """
         constraint_met = True
         if not pd.isna(self.min_age) and agent.age < self.min_age:
             constraint_met = False
@@ -96,7 +101,6 @@ class AgentConstraint:
 class InitialSickAgents:
     EXPORT_OUTPUT_DIR = "../../output/"
     EXPORT_FILE_NAME = "initial_sick.csv"
-    ID_SUFFIX = " id"
     def __init__(self):
         self.agent_snapshots = []
 
