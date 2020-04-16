@@ -33,6 +33,8 @@ class Consts(NamedTuple):
 
     total_steps: int = 350
     initial_infected_count: int = 20
+    export_infected_agents_interval = 50
+
     # Tsvika: Currently the distribution is selected based on the number of input parameters.
     # Think we should do something more readable later on.
     # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}

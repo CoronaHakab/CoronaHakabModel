@@ -55,10 +55,8 @@ class SimulationProgression:
         # (all samples of a given supervisable are gathered in a new subfolder)
         for s in tabular_supervisables:
             day_to_table_dict = s.publish()
-            supervisable_folder = os.path.join(output_folder, s.name())
-            os.mkdir(supervisable_folder)
             for day, table in day_to_table_dict.items():
-                sample_file_name = os.path.join(supervisable_folder, day + ".csv")
+                sample_file_name = os.path.join(output_folder, f"{s.name()} {day}.csv")
                 df = pd.DataFrame(table)
                 df.to_csv(sample_file_name)
 
@@ -204,11 +202,11 @@ class ValueSupervisable(Supervisable):
 class TabularSupervisable(Supervisable):
     def __init__(self, interval: int):
         self.data = []
+        self.sampling_days = []
         self.interval = interval
 
     def names(self):
-        sampling_days = [d * self.interval for d in range(1, len(self.data) + 1)]
-        return [f"t0 +{d} days" for d in sampling_days]
+        return [f"t0 +{d} days" for d in self.sampling_days]
 
     @abstractmethod
     def get(self, manager: "manager.SimulationManager"):
@@ -217,6 +215,7 @@ class TabularSupervisable(Supervisable):
     def snapshot(self, manager: "manager.SimulationManager"):
         if manager.current_step % self.interval == 0:
             self.data.append(self.get(manager))
+            self.sampling_days.append(manager.current_step)
 
     def publish(self):
         return {name_i: data_i for name_i, data_i in zip(self.names(), self.data)}
