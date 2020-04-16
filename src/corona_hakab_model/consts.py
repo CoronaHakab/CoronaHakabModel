@@ -37,22 +37,24 @@ class Consts(NamedTuple):
     # Think we should do something more readable later on.
     # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
     # disease states transition lengths distributions
-    latent_to_pre_symptomatic_days: rv_discrete = rv_discrete(values=([1,2,3,4,5,6,7,8,9,10], [0.022,0.052,0.082,0.158,0.234,0.158,0.152,0.082,0.04,0.02]))
-    latent_to_asymptomatic_days: rv_discrete = rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11], [0.02,0.05,0.08,0.15,0.22,0.15,0.15,0.08,0.05,0.03,0.02]))
+    latent_to_pre_symptomatic_days: rv_discrete = dist(1, 5, 10)  # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10], [0.022,0.052,0.082,0.158,0.234,0.158,0.152,0.082,0.04,0.02]))
+    latent_to_asymptomatic_days: rv_discrete = dist(1, 5, 11)  # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11], [0.02,0.05,0.08,0.15,0.22,0.15,0.15,0.08,0.05,0.03,0.02]))
     pre_symptomatic_to_mild_condition_days: rv_discrete = dist(1, 3)
-    mild_to_close_medical_care_days: rv_discrete = rv_discrete(values=([3,4,5,6,7,8,9,10,11,12], [0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.01]))
-    mild_to_need_icu_days: rv_discrete = rv_discrete(values=([6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29], [0.012,0.019,0.032,0.046,0.059,0.069,0.076,0.078,0.076,0.072,0.066,0.060,0.053,0.046,0.040,0.035,0.030,0.028,0.026,0.022,0.020,0.015,0.010,0.010]))
-    mild_to_pre_recovered_days: rv_discrete = rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28], [0.001,0.001,0.001,0.001,0.001,0.002,0.004,0.008,0.013,0.022,0.032,0.046,0.06,0.075,0.088,0.097,0.1,0.098,0.088,0.075,0.06,0.046,0.032,0.022,0.013,0.008,0.004,0.002]))
+    mild_to_close_medical_care_days: rv_discrete = dist(3, 11)  # Actual distribution: rv_discrete(values=([3,4,5,6,7,8,9,10,11,12], [0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.01]))
+    mild_to_need_icu_days: rv_discrete = dist(6, 13, 29)  # Actual distribution: rv_discrete(values=([6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29], [0.012,0.019,0.032,0.046,0.059,0.069,0.076,0.078,0.076,0.072,0.066,0.060,0.053,0.046,0.040,0.035,0.030,0.028,0.026,0.022,0.020,0.015,0.010,0.010]))
+    mild_to_pre_recovered_days: rv_discrete = dist(1, 17, 28)  # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28], [0.001,0.001,0.001,0.001,0.001,0.002,0.004,0.008,0.013,0.022,0.032,0.046,0.06,0.075,0.088,0.097,0.1,0.098,0.088,0.075,0.06,0.046,0.032,0.022,0.013,0.008,0.004,0.002]))
     close_medical_care_to_icu_days: rv_discrete = dist(10, 12, 14)
     close_medical_care_to_mild_days: rv_discrete = dist(8, 10, 12)
-    need_icu_to_deceased_days: rv_discrete = rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20], [0.030,0.102,0.126,0.112,0.090,0.080,0.075,0.070,0.065,0.050,0.040,0.035,0.030,0.025,0.020,0.015,0.012,0.010,0.008,0.005]))
-    need_icu_to_improving_days: rv_discrete = rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25], [0.021,0.041,0.081,0.101,0.101,0.081,0.071,0.066,0.061,0.056,0.046,0.041,0.039,0.033,0.031,0.026,0.021,0.016,0.013,0.013,0.011,0.011,0.009,0.005,0.005]))
+    need_icu_to_deceased_days: rv_discrete = dist(1, 3, 20)  # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20], [0.030,0.102,0.126,0.112,0.090,0.080,0.075,0.070,0.065,0.050,0.040,0.035,0.030,0.025,0.020,0.015,0.012,0.010,0.008,0.005]))
+    need_icu_to_improving_days: rv_discrete = dist(1, 5, 25)  # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25], [0.021,0.041,0.081,0.101,0.101,0.081,0.071,0.066,0.061,0.056,0.046,0.041,0.039,0.033,0.031,0.026,0.021,0.016,0.013,0.013,0.011,0.011,0.009,0.005,0.005]))
     improving_to_need_icu_days: rv_discrete = dist(21, 42)
     improving_to_pre_recovered_days: rv_discrete = dist(21, 42)
     improving_to_mild_condition_days: rv_discrete = dist(21, 42)
-    pre_recovered_to_recovered_days: rv_discrete = rv_discrete(values=([14, 28], [0.8, 0.2]))
-    asymptomatic_to_pre_recovered_days: rv_discrete = rv_discrete(values=([10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35], [0.013,0.016,0.025,0.035,0.045,0.053,0.061,0.065,0.069,0.069,0.065,0.063,0.058,0.053,0.056,0.041,0.040,0.033,0.030,0.025,0.020,0.015,0.015,0.015,0.010,0.010]))
+    pre_recovered_to_recovered_days: rv_discrete = dist(14, 28)  # Actual distribution: rv_discrete(values=([14, 28], [0.8, 0.2]))
+    asymptomatic_to_pre_recovered_days: rv_discrete = dist(10, 18, 35)  # Actual distribution: rv_discrete(values=([10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35], [0.013,0.016,0.025,0.035,0.045,0.053,0.061,0.065,0.069,0.069,0.065,0.063,0.058,0.053,0.056,0.041,0.040,0.033,0.030,0.025,0.020,0.015,0.015,0.015,0.010,0.010]))
     # infections ratios
+    pre_symptomatic_infection_ratio: float = 0.75
+    mild_condition_infection_ratio: float = 0.40
     symptomatic_infection_ratio: float = 0.75
     asymptomatic_infection_ratio: float = 0.25
     silent_infection_ratio: float = 0.3
@@ -63,11 +65,13 @@ class Consts(NamedTuple):
     # the probability that an infected agent is asking to be tested
     susceptible_test_willingness: float = 0.01
     latent_test_willingness: float = 0.01
-    silent_test_willingness: float = 0.01
     asymptomatic_test_willingness: float = 0.01
-    symptomatic_test_willingness: float = 0.6
-    hospitalized_test_willingness: float = 0.9
-    icu_test_willingness: float = 1.0
+    pre_symptomatic_test_willingness: float = 0.01
+    mild_condition_test_willingness: float = 0.6
+    need_close_medical_care_test_willingness: float = 0.9
+    need_icu_test_willingness: float = 1.0
+    improving_health_test_willingness: float = 1.0
+    pre_recovered_test_willingness: float = 0.5
     recovered_test_willingness: float = 0.1
     detection_pool: List[DetectionSettings] = [
                                               DetectionSettings(
@@ -247,10 +251,15 @@ class Consts(NamedTuple):
             detectable=False,
             test_willingness=self.latent_test_willingness
         )
+        asymptomatic = ImmuneStochasticState(
+            "Asymptomatic",
+            detectable=True,
+            test_willingness = self.asymptomatic_test_willingness
+        )
         pre_symptomatic = ContagiousStochasticState(
             "Pre-Symptomatic",
             contagiousness=self.pre_symptomatic_infection_ratio,
-            test_willingness=self.silent_test_willingness,
+            test_willingness=self.pre_symptomatic_test_willingness,
         )
         mild_condition = ContagiousStochasticState(
             "Mild-Condition",
@@ -260,9 +269,14 @@ class Consts(NamedTuple):
         need_close_medical_care = ImmuneStochasticState(
             "NeedOfCloseMedicalCare",
             test_willingness=self.need_close_medical_care_test_willingness,
+            detectable=True,
         )
 
-        need_icu = ImmuneStochasticState("NeedICU", detectable=True, test_willingness=self.need_icu_test_willingness)
+        need_icu = ImmuneStochasticState(
+            "NeedICU",
+            detectable=True,
+            test_willingness=self.need_icu_test_willingness
+        )
 
         improving_health = ImmuneStochasticState(
             "ImprovingHealth",
@@ -274,12 +288,6 @@ class Consts(NamedTuple):
             "PreRecovered",
             detectable=True,
             test_willingness=self.pre_recovered_test_willingness
-        )
-
-        asymptomatic = ImmuneStochasticState(
-            "Asymptomatic",
-            detectable=True,
-            test_willingness=self.asymptomatic_test_willingness
         )
 
         deceased = ImmuneTerminalState(
