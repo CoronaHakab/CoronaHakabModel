@@ -1,3 +1,4 @@
+from consts import Consts
 from generation.circles_consts import CirclesConsts
 from generation.circles_generator import PopulationData, CirclesGenerator
 from generation.matrix_consts import MatrixConsts
@@ -45,6 +46,35 @@ def calculate_r_effective(config=dict()):
         matrix_data = MatrixGenerator(population_data=population_data,
                                       matrix_consts=matrix_consts).matrix_data
     max_num_of_days = max(simulation_time_slices)
+
+    consts = Consts(initial_infected_count=200,
+                    change_policies=False,
+                    partial_opening_active=False)
+    sim_run_args = get_default_simulation_args_values()
+
+    sm = SimulationManager((),
+                           population_data,
+                           matrix_data,
+                           run_args=sim_run_args,
+                           consts=consts)
+
+    df_columns_new_infected_column = [f"new_infected_day_{i + 1}"
+                                      for i in range(max_num_of_days)]
+    df_columns_growth_rate_column = [f"infected_growth_day_{i + 1}"
+                                     for i in range(1, max_num_of_days)]
+    df = pd.DataFrame(columns=df_columns_new_infected_column + df_columns_growth_rate_column)
+    total_loops = 0
+    for number_of_days, number_of_loops in sorted(simulation_time_slices.items(), reverse=True):
+        for i in range(total_loops, number_of_loops):
+            sm.reset()
+            sm.setup_sick()
+            current_run_results = _compute_r0_for_one_run(sm, number_of_days)
+            df.loc[i, :number_of_days] = current_run_results['new_sick_every_day']
+            df.loc[i, max_num_of_days:
+                      max_num_of_days+number_of_days-1] = current_run_results['growth_rates']
+        total_loops += number_of_loops
+    return df
+
 
 
 if __name__ == "__main__":
