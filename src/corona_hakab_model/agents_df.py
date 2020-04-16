@@ -98,6 +98,10 @@ class AgentsDf:
     def test_willingness(self):
         return np.array([ms.test_willingness for ms in self.medical_state])
 
+    @property
+    def ever_tested_positive(self):
+        return self._ever_tested_positive
+
     def set_tests_start(self, agent_index: Union[int, Iterable[int]], current_step: int):
         self._date_of_last_test[agent_index] = current_step
 
@@ -106,5 +110,5 @@ class AgentsDf:
         self._test_result[agent_index] = test_result
         self._ever_tested_positive[agent_index[test_result == DetectionResult.POSITIVE]] = True
 
-    def ever_tested_positive(self, agent_index: Union[int, Iterable[int]]) -> Union[bool, Iterable[bool]]:
-        return self._ever_tested_positive[agent_index]
+    # def ever_tested_positive(self, agent_index: Union[int, Iterable[int]] = None) -> Union[bool, Iterable[bool]]:
+    #     return self._ever_tested_positive[agent_index]

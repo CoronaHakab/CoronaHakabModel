@@ -79,7 +79,7 @@ class Consts(NamedTuple):
             testing_priorities=[
                 DetectionPriority(
                     lambda agent: (agent.medical_state.name == "Symptomatic" and
-                                   agent not in agent.manager.tested_positive_vector),  # FIXME: using AgentsDf seems like the manager is never set
+                                   agent.ever_tested_positive),  # TODO: should probably vectorize this
                     max_tests=100),
                 DetectionPriority(
                     lambda agent: agent.medical_state.name == "Recovered"),

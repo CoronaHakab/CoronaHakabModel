@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, List, NamedTuple
+from typing import TYPE_CHECKING, List, NamedTuple, Iterable
 
 import numpy as np
 
@@ -33,7 +33,7 @@ class DetectionTest:
         self.false_alarm_prob = false_alarm_prob
         self.time_until_result = time_until_result
 
-    def test(self, agents, agents_indices):
+    def test(self, agents, agents_indices) -> Iterable[PendingTestResult]:
         rand_vec = np.random.random(len(agents_indices))
         test_results = (
                 (agents.detectable & (rand_vec < self.detection_prob)) |
