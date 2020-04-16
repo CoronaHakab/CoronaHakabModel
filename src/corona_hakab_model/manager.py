@@ -29,8 +29,8 @@ class SimulationManager:
             population_data: PopulationData,
             matrix_data: MatrixData,
             run_args,
-            consts: Consts = Consts(),
-    ):
+            consts: Consts = Consts()):
+
         # setting logger
         self.logger = logging.getLogger("simulation")
         logging.basicConfig()
@@ -52,11 +52,19 @@ class SimulationManager:
 
         # setting up medical things
         self.consts = consts
-        self.medical_machine = consts.medical_state_machine()
-        initial_state = self.medical_machine.initial
 
         self.pending_transfers = PendingTransfers()
 
+        self.reset()
+        self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers],
+                                                            self)
+        self.logger.info("Created new simulation.")
+        self.simulation_progression.snapshot(self)
+
+    def reset(self):
+        self.consts.medical_state_machine.cache_clear()  # In order to get the new medical_state_machine
+        self.medical_machine = self.consts.medical_state_machine()
+        initial_state = self.medical_machine.initial
         # the manager holds the vector, but the agents update it
         self.contagiousness_vector = np.zeros(len(self.agents), dtype=float)  # how likely to infect others
         self.susceptible_vector = np.zeros(len(self.agents), dtype=bool)  # can get infected
@@ -76,8 +84,6 @@ class SimulationManager:
         initial_state.add_many(self.agents)
 
         # initializing simulation modules
-        self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers],
-                                                            self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self)
         self.infection_manager = infection.InfectionManager(self)
         self.healthcare_manager = healthcare.HealthcareManager(self)
@@ -94,8 +100,7 @@ class SimulationManager:
         self.new_sick_counter = 0
         self.new_detected_daily = 0
 
-        self.logger.info("Created new simulation.")
-        self.simulation_progression.snapshot(self)
+        self.logger.info("Done reset to simulation.")
 
     def step(self):
         """
