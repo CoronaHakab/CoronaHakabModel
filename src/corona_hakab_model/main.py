@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 import logging
@@ -5,6 +6,7 @@ import matplotlib.pyplot as plt
 import random
 import os.path
 import sys
+from matplotlib import pyplot as plt
 
 import numpy as np
 
@@ -17,7 +19,7 @@ from manager import SimulationManager
 from agent import InitialAgentsConstraints
 from subconsts.modules_argpasers import get_simulation_args_parser
 from supervisor import LambdaValueSupervisable, Supervisable
-
+from analyzers import matrix_analysis
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -31,6 +33,9 @@ def main():
 
     args, _ = parser.parse_known_args()
     set_seeds(args.seed)
+
+    if args.sub_command == 'analyze-matrix':
+        analyze_matrix(args)
 
     if args.sub_command == 'generate':
         generate_data(args)
@@ -166,6 +171,16 @@ def compare_simulations_example():
         consts=Consts(r0=1.8),
     )
     sm2.run()
+
+
+def analyze_matrix(args):
+    matrix_data = matrix_analysis.import_matrix_data(args.matrix_path)
+    matrix_analysis.export_raw_matrices_to_csv(matrix_data)
+    histograms = matrix_analysis.analyze_histograms(matrix_data)
+    matrix_analysis.export_histograms(histograms)
+    matrix_analysis.save_histogram_plots(histograms)
+    if args.show:
+        plt.show()
 
 
 if __name__ == "__main__":

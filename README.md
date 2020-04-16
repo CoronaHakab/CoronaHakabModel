@@ -108,6 +108,28 @@
 - As with all runnables, additional help can be found by running **python generation_analysis\population_analysis.py --help**
 ### Simulation Analyser
 - TODO: Wrap simulation analyser in runnable (argparse, __main__, the works), and add documentation.
+### Matrix Analyzer  
+- This module calculates histograms and statistics about the connections represented in the matrix.  
+##### **INPUTS**:  
+  **--matrix** < path_to_matrix > (optional) : This input specifies the path to the matrix which will be analyzed. If not given, assuming the 
+  matrix file is at the project's **output** folder, under the name **matrix_data**.  
+  **--show** (optional) : This input determines whether or not histogram plots will be shown (they are always being saved).  
+  ****NOTICE**: When plots are being shown, you need to close them in order for the program to finish.  
+##### **OUTPUTS**  
+- The module creates multiple files. The files created are raw-data '.csv' file of the matrix's different connection type (e.g. work, family) 
+  and an histogram analysis of those connections (both '.csv' file and '.png' of the histogrm).  
+  The files are being saved to **'/output/matrix_analysis/'** folder.  
+  The created folder is divided to 2 subfolders:  
+  **histogram_analysis** - This folder is where the histogram plots and .csv files are saved.  
+  **raw_matrices** - This folder is where the matrix's raw data is saved. 
+- The file names indicate what type of connection they are related to.  
+##### **EXAMPLES**  
+  1. Run the analysis on defualt matrix file and don't show plots:  
+  `python ./main analyze-matrix`  
+  2. Run with specified matrix file:  
+  `python ./main analyze-matrix --matrix /example/to/matrix/path`  
+  3. Run with specified matrix file and show histograms:  
+  `python ./main analyze-matrix --matrix /example/to/matrix/path --show` 
 
 ## New to git/github?
 See the **"How to set up a git environment"** guide in the docs folder.
