@@ -1,5 +1,4 @@
 from corona_hakab_model.analyzers.simulation_analysis import *
-from project_structure import OUTPUT_FOLDER
 import os
 
 ### This is an example script for running the Simulation Analysis tools
