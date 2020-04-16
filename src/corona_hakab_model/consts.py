@@ -68,7 +68,7 @@ class Consts(NamedTuple):
     improving_to_mild_condition_days: rv_discrete = dist(21, 42)
     pre_recovered_to_recovered_days: rv_discrete = dist(14, 28)
     # Actual distribution: rv_discrete(values=([14, 28], [0.8, 0.2]))
-    asymptomatic_to_pre_recovered_days: rv_discrete = dist(10, 18, 35)
+    asymptomatic_to_recovered_days: rv_discrete = dist(10, 18, 35)
     # Actual distribution: rv_discrete(values=(
     # [10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35],
     # [0.013,0.016,0.025,0.035,0.045,0.053,0.061,0.065,0.069,0.069,0.065,0.063,0.058,0.053,0.056,0.041,0.040,0.033,
@@ -76,8 +76,6 @@ class Consts(NamedTuple):
     # infections ratios
     pre_symptomatic_infection_ratio: float = 0.75
     mild_condition_infection_ratio: float = 0.40
-    symptomatic_infection_ratio: float = 0.75
-    asymptomatic_infection_ratio: float = 0.25
     silent_infection_ratio: float = 0.3
     # base r0 of the disease
     r0: float = 2.4
@@ -275,7 +273,7 @@ class Consts(NamedTuple):
         asymptomatic = ImmuneStochasticState(
             "Asymptomatic",
             detectable=True,
-            test_willingness = self.asymptomatic_test_willingness
+            test_willingness=self.asymptomatic_test_willingness
         )
         pre_symptomatic = ContagiousStochasticState(
             "Pre-Symptomatic",
@@ -408,8 +406,8 @@ class Consts(NamedTuple):
         )
 
         asymptomatic.add_transfer(
-            pre_recovered,
-            duration=self.asymptomatic_to_pre_recovered_days,
+            recovered,
+            duration=self.asymptomatic_to_recovered_days,
             probability=...
         )
 
