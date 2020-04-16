@@ -102,7 +102,7 @@ class Consts(NamedTuple):
                                                           lambda agent: agent.medical_state.name == "Recovered"),
                                                   ]),
                                           ]
-
+    should_isolate_positive_detected = False
     # --policies params--
     change_policies: bool = False
     # a dictionary of day:([ConnectionTypes], message). on each day, keeps only the given connection types opened
