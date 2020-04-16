@@ -319,7 +319,7 @@ class Consts(NamedTuple):
         latent.add_transfer(
             latent_asymp,
             duration=dist(1),
-            probability=0.7
+            probability=0.3
         )
         latent.add_transfer(
             latent_presymp,
