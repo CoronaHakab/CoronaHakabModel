@@ -28,4 +28,9 @@ ENV PIPENV_MAX_DEPTH=5
 RUN cd ${PROJDIR}/src/corona_hakab_model/parasymbolic_matrix/ \
     && pipenv run python build_unix.py
 
-CMD ["pipenv", "run", "python", "./src/corona_hakab_model/main.py", "--help"]
+RUN mkdir ../../output/
+
+CMD git pull \
+    && pipenv run python ./src/corona_hakab_model/main.py --help \
+    && pipenv run python ./src/corona_hakab_model/main.py generate \
+    && pipenv run python ./src/corona_hakab_model/main.py simulate
