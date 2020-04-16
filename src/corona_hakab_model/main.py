@@ -2,16 +2,10 @@
 from __future__ import annotations
 
 import logging
-import matplotlib_set_backend
-import matplotlib.pyplot as plt
 import random
 import os.path
 import sys
-from argparse import ArgumentParser
 from matplotlib import pyplot as plt
-from bsa.universal import write
-from corona_hakab_model_data.__data__ import __version__
-
 
 import numpy as np
 
@@ -22,9 +16,8 @@ from generation.generation_manager import GenerationManger
 from generation.matrix_generator import MatrixData
 from manager import SimulationManager
 from subconsts.modules_argpasers import get_simulation_args_parser
-from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
-from matrix_analysis import matrix_analysis
-
+from supervisor import LambdaValueSupervisable, Supervisable
+from analyzers import matrix_analysis
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
