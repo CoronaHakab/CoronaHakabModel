@@ -231,6 +231,8 @@ class MatrixGenerator:
             indexes = [agent.index for agent in agents]
             nodes: List[Node] = [Node(index) for index in indexes]
 
+            if len(agents) == 0:
+                continue
             # insert first node
             first_node = sample(nodes, 1)[0]
             connected_nodes = set([first_node])

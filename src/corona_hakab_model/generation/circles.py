@@ -1,6 +1,7 @@
 from generation.connection_types import ConnectionTypes
 from dataclasses import dataclass
 import pandas as pd
+import uuid
 
 class Circle:
     __slots__ = "kind", "agent_count"
@@ -21,13 +22,14 @@ class Circle:
         self.agent_count -= 1
 
 class SocialCircle(Circle):
-    __slots__ = ("agents", "connection_type")
+    __slots__ = ("agents", "connection_type", "guid")
 
     def __init__(self, connection_type: ConnectionTypes,**kwargs):
-        super().__init__(**kwargs)
+        super().__init__()
         self.kind = "social circle"
         self.agents = set()
         self.connection_type = connection_type
+        self.guid = str(uuid.uuid4())
 
     def add_agent(self, agent):
         super().add_agent(agent)
@@ -55,14 +57,14 @@ class SocialCircle(Circle):
         return rest_of_circle
 
     def get_snapshot(self):
-        return SocialCircleSnapshot(self.connection_type.name,len(self.agents),self.circle_id)
-
+        return SocialCircleSnapshot(self.connection_type.name, len(self.agents), self.guid)
 
 @dataclass
 class SocialCircleSnapshot:
     type: str
     num_members: int
-    id: int
+    guid: str
+
 
 class SocialCircleConstraint:
     def __init__(self,min_members,max_members,connection_type):
@@ -71,6 +73,13 @@ class SocialCircleConstraint:
         self.connection_type = connection_type
 
     def meets_constraint(self,agent):
+        """
+
+        :param agent: an AgentSnapshot that we want to check if it's social circles meet the constraint
+        :return: True if the constraint is trivial (min and max are nan) or if the agent contains a circle of the
+        same type, which fits the constraint. Return False otherwise( agent has no such circle, or the circle doesn't
+        obey the constraint
+        """
         has_circle = False
         constraint_met = True
         if pd.isna(self.min_members) and pd.isna(self.max_members):
@@ -80,6 +89,7 @@ class SocialCircleConstraint:
                 if social_circle.type == self.connection_type.name:
                     if social_circle.num_members < self.min_members or social_circle.num_members > self.max_members:
                         constraint_met = False
+                        break
                     has_circle = True
             if not has_circle:
                 constraint_met = False

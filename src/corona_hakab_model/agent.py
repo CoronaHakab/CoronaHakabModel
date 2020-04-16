@@ -64,13 +64,13 @@ class Agent:
             social_circle_snapshots.append(social_circle.get_snapshot())
         return AgentSnapshot(self.index, self.age, geographic_circle_name, social_circle_snapshots)
 
+
 @dataclass
 class AgentSnapshot:
     index: int
     age: int
     geographic_circle: str
     social_circles: list
-
 
 class AgentConstraint:
     def __init__(self,min_age,max_age,geographic_circle,social_circle_constraints):
@@ -98,32 +98,34 @@ class AgentConstraint:
                     constraint_met = False
         return constraint_met
 
-class InitialSickAgents:
-    EXPORT_OUTPUT_DIR = "../../output/"
-    EXPORT_FILE_NAME = "initial_sick.csv"
+
+
+
+class SickAgents:
     def __init__(self):
         self.agent_snapshots = []
 
     def add_agent(self,agent_snapshot):
         self.agent_snapshots.append(agent_snapshot)
 
-    def export(self):
+    def export(self, file_path):
         num_sick = len(self.agent_snapshots)
-        export_dict = {"agent indexes":[""]*num_sick,"geographic_circles":[""]*num_sick,"age":[""]*num_sick}
-        social_circles = {connection_type.name:[""]*num_sick for connection_type in ConnectionTypes}
-        social_circles_ids = {connection_type.name + self.ID_SUFFIX:[""]*num_sick for connection_type in ConnectionTypes}
-        social_circles = {**social_circles,**social_circles_ids}
+
+        export_dict = {"agent indexes":[nan]*num_sick,"geographic_circles": [nan] * num_sick, "age": [nan] * num_sick}
+        social_circles_num_agents = {f'{connection_type.name}_num_agents': [nan] * num_sick for connection_type in ConnectionTypes}
+        social_circles_guid = {f'{connection_type.name}_guid': [nan] * num_sick for connection_type in ConnectionTypes}
 
         for index, agent_snapshot in enumerate(self.agent_snapshots):
             export_dict["agent indexes"][index] = agent_snapshot.index
             export_dict["geographic_circles"][index] = agent_snapshot.geographic_circle
             export_dict["age"][index] = agent_snapshot.age
             for social_circle_snapshot in agent_snapshot.social_circles:
-                social_circles[social_circle_snapshot.type][index] = social_circle_snapshot.num_members
-                social_circles[social_circle_snapshot.type + self.ID_SUFFIX][index] = social_circle_snapshot.id
-        export_dict = {**export_dict,**social_circles}
+                social_circles_num_agents[f'{social_circle_snapshot.type}_num_agents'][index] = social_circle_snapshot.num_members
+                social_circles_guid[f'{social_circle_snapshot.type}_guid'][index] = social_circle_snapshot.guid
+        export_dict = {**export_dict, **social_circles_num_agents, **social_circles_guid}
         df_export_sick = pd.DataFrame(export_dict)
-        df_export_sick.to_csv(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME,index=False)
+        df_export_sick.to_csv(file_path, index=False)
+
 
 
 class InitialAgentsConstraints:
