@@ -76,7 +76,6 @@ class Consts(NamedTuple):
     # infections ratios
     pre_symptomatic_infection_ratio: float = 0.75
     mild_condition_infection_ratio: float = 0.40
-    silent_infection_ratio: float = 0.3
     # base r0 of the disease
     r0: float = 2.4
 
@@ -317,12 +316,12 @@ class Consts(NamedTuple):
         ret = MedicalStateMachine(susceptible, latent)
 
         latent.add_transfer(
-            latent_asymp,
+            latent_presymp,
             duration=dist(1),
             probability=0.7
         )
         latent.add_transfer(
-            latent_presymp,
+            latent_asymp,
             duration=dist(1),
             probability=...
         )
