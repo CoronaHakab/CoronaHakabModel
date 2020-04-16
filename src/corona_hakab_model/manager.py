@@ -118,7 +118,7 @@ class SimulationManager:
             self.agents_df.set_tests_results(agent_indices, test_results)
             tests_taken_mask = np.array([res != DetectionResult.NOT_TAKEN for res in test_results])
             self.new_detected_daily = np.count_nonzero(
-                tests_taken_mask & self.agents_df.ever_tested_positive[agent_indices])
+                tests_taken_mask & ~self.agents_df.ever_tested_positive[agent_indices])
 
         # TODO send the detected agents to the selected kind of isolation
         # TODO: Track isolated agents
