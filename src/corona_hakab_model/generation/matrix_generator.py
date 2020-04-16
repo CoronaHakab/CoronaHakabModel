@@ -228,6 +228,8 @@ class MatrixGenerator:
         self._add_small_circle_connections(super_small_circles_combined, connections, total_connections_float)
 
         # insert all connections to matrix
+        # we need to remember the strengths so the connection will be symmetric
+        known_strengths = {}
         for agent, conns in zip(self.agents, connections):
             conns = np.array(conns)
             conns.sort()
@@ -237,6 +239,15 @@ class MatrixGenerator:
             strengthes = np.random.choice(
                 [connection_strength, connection_strength / 7], size=len(conns), p=[daily_share, weekly_share]
             )
+            # check if some strengths were determined earlier
+            for conn in conns:
+                known_strength = known_strengths.get((conn, agent.index), None)
+                if known_strength != None:
+                    strengthes[np.where(conns==conn)] = known_strength
+                    del known_strengths[(conn, agent.index)]
+                else:
+                    # connection is new. store the strength for future use
+                    known_strengths[(agent.index, conn)] = strengthes[np.where(conns==conn)] 
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
 
@@ -304,6 +315,8 @@ class MatrixGenerator:
                 connections[connected_node.index].extend([other_node.index for other_node in connected_node.connected])
 
         # insert all connections to matrix
+        # we need to remember the strengths so the connection will be symmetric
+        known_strengths = {}
         for agent, conns in zip(self.agents, connections):
             conns = np.array(conns)
             conns.sort()
@@ -316,6 +329,15 @@ class MatrixGenerator:
                     weekly_connections_float / total_connections_float,
                 ],
             )
+            # check if some strengths were determined earlier
+            for conn in conns:
+                known_strength = known_strengths.get((conn, agent.index), None)
+                if known_strength != None:
+                    strengthes[np.where(conns==conn)] = known_strength
+                    del known_strengths[(conn, agent.index)]
+                else:
+                    # connection is new. store the strength for future use
+                    known_strengths[(agent.index, conn)] = strengthes[np.where(conns==conn)] 
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
 
