@@ -69,15 +69,15 @@ class Consts(NamedTuple):
     hospitalized_test_willingness: float = 0.9
     icu_test_willingness: float = 1.0
     recovered_test_willingness: float = 0.1
-    detection_pool: List[DetectionTest] = [
+    detection_pool: List[DetectionSettings] = [
                                               DetectionSettings(
                                                   name="hospital",
                                                   detection_test=DetectionTest(detection_prob=0.98,
-                                                                               false_alarm_prob=0.02,
+                                                                               false_alarm_prob=0.,
                                                                                time_until_result=3),
                                                   daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
-                                                  testing_gap_after_positive_test=10,
-                                                  testing_gap_after_negative_test=5,
+                                                  testing_gap_after_positive_test=2,
+                                                  testing_gap_after_negative_test=1,
                                                   testing_priorities=[
                                                       DetectionPriority(
                                                           lambda agent: (agent.medical_state.name == "Symptomatic" and
@@ -90,7 +90,7 @@ class Consts(NamedTuple):
                                               DetectionSettings(
                                                   name="street",
                                                   detection_test=DetectionTest(detection_prob=0.92,
-                                                                               false_alarm_prob=0.03,
+                                                                               false_alarm_prob=0.,
                                                                                time_until_result=5),
                                                   daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
                                                   testing_gap_after_positive_test=3,
@@ -102,7 +102,7 @@ class Consts(NamedTuple):
                                                           lambda agent: agent.medical_state.name == "Recovered"),
                                                   ]),
                                           ]
-
+    should_isolate_positive_detected = False
     # --policies params--
     change_policies: bool = False
     # a dictionary of day:([ConnectionTypes], message). on each day, keeps only the given connection types opened
@@ -305,4 +305,5 @@ class Consts(NamedTuple):
 # TODO can we remove it?
 if __name__ == "__main__":
     c = Consts()
-    print(c.average_time_in_each_state())
+    for state, time in c.average_time_in_each_state().items():
+        print(f"For state {state.name} we have expected {time} days")

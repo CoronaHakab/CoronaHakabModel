@@ -63,6 +63,7 @@ class Agent:
     
     def is_adult(self):
         return self.age > 18
+
 @dataclass
 class AgentSnapshot:
     index: int
@@ -71,28 +72,31 @@ class AgentSnapshot:
     social_circles: list
 
 
-class InitialSickAgents:
-    EXPORT_OUTPUT_DIR = "../../output/"
-    EXPORT_FILE_NAME = "initial_sick.csv"
+class SickAgents:
     def __init__(self):
         self.agent_snapshots = []
 
     def add_agent(self,agent_snapshot):
         self.agent_snapshots.append(agent_snapshot)
 
-    def export(self):
+    def export(self, file_path):
         num_sick = len(self.agent_snapshots)
-        export_dict = {"agent indexes":[0]*num_sick,"geographic_circles":[0]*num_sick,"age":[0]*num_sick}
-        social_circles = {connection_type.name:[0]*num_sick for connection_type in ConnectionTypes}
+        export_dict = {"agent indexes":[0]*num_sick,"geographic_circles": [0] * num_sick, "age": [0] * num_sick}
+        social_circles_num_agents = {f'{connection_type.name}_num_agents': [0] * num_sick for connection_type in ConnectionTypes}
+        social_circles_guid = {f'{connection_type.name}_guid': [None] * num_sick for connection_type in ConnectionTypes}
+
         for index, agent_snapshot in enumerate(self.agent_snapshots):
             export_dict["agent indexes"][index] = agent_snapshot.index
             export_dict["geographic_circles"][index] = agent_snapshot.geographic_circle
             export_dict["age"][index] = agent_snapshot.age
             for social_circle_snapshot in agent_snapshot.social_circles:
-                social_circles[social_circle_snapshot.type][index] = social_circle_snapshot.num_members
-        export_dict = {**export_dict,**social_circles}
+                social_circles_num_agents[f'{social_circle_snapshot.type}_num_agents'][index] = social_circle_snapshot.num_members
+                social_circles_guid[f'{social_circle_snapshot.type}_guid'][index] = social_circle_snapshot.guid
+        export_dict = {**export_dict, **social_circles_num_agents, **social_circles_guid}
         df_export_sick = pd.DataFrame(export_dict)
-        df_export_sick.to_csv(self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME,index=False)
+
+        df_export_sick.to_csv(file_path, index=False)
+
 
 class Circle:
     __slots__ = "kind", "agent_count"

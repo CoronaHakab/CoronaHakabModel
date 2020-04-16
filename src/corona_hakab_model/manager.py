@@ -6,6 +6,7 @@ import numpy as np
 
 import infection
 import update_matrix
+from agent import SickAgents
 from consts import Consts
 from detection_model import healthcare
 from detection_model.healthcare import PendingTestResult, PendingTestResults
@@ -15,8 +16,6 @@ from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
 from supervisor import Supervisable, SimulationProgression
-from agent import InitialSickAgents
-from update_matrix import Policy
 
 
 class SimulationManager:
@@ -25,11 +24,12 @@ class SimulationManager:
     """
 
     def __init__(
-        self,
-        supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
-        population_data: PopulationData,
-        matrix_data: MatrixData,
-        consts: Consts = Consts(),
+            self,
+            supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
+            population_data: PopulationData,
+            matrix_data: MatrixData,
+            run_args,
+            consts: Consts = Consts(),
     ):
         # setting logger
         self.logger = logging.getLogger("simulation")
@@ -47,6 +47,8 @@ class SimulationManager:
         self.matrix_type = matrix_data.matrix_type
         self.matrix = matrix_data.matrix
         self.depth = matrix_data.depth
+
+        self.run_args = run_args
 
         # setting up medical things
         self.consts = consts
@@ -87,7 +89,7 @@ class SimulationManager:
         # initializing data for supervising
         # dict(day:int -> message:string) saving policies messages
         self.policies_messages = defaultdict(str)
-        self.initial_sick_agents = InitialSickAgents()
+        self.sick_agents = SickAgents()
 
         self.new_sick_counter = 0
         self.new_detected_daily = 0
@@ -110,9 +112,12 @@ class SimulationManager:
 
         # run infection
         new_sick = self.infection_manager.infection_step()
+        for agent in new_sick:
+            self.sick_agents.add_agent(agent.get_snapshot())
 
         # progress transfers
-        self.medical_state_manager.step(new_sick)
+        medical_machine_step_result = self.medical_state_manager.step(new_sick)
+        self.new_sick_counter = medical_machine_step_result['new_sick']
 
         self.current_step += 1
 
@@ -126,6 +131,9 @@ class SimulationManager:
                 if not self.ever_tested_positive_vector[agent.index]:
                     # TODO: awful late night implementation, improve ASAP
                     self.new_detected_daily += 1
+                # if tested positive then isolate agent
+                if self.consts.should_isolate_positive_detected:
+                    self.update_matrix_manager.apply_full_isolation_on_agent(agent)
 
             agent.set_test_result(test_result)
 
@@ -146,7 +154,7 @@ class SimulationManager:
 
         for agent in agents_to_infect:
             agent.set_medical_state_no_inform(self.medical_machine.default_state_upon_infection)
-            self.initial_sick_agents.add_agent(agent.get_snapshot())
+            self.sick_agents.add_agent(agent.get_snapshot())
 
         self.medical_machine.initial.remove_many(agents_to_infect)
         self.medical_machine.default_state_upon_infection.add_many(agents_to_infect)
@@ -161,10 +169,13 @@ class SimulationManager:
         runs full simulation
         """
         self.setup_sick()
-        self.initial_sick_agents.export()
+        if self.run_args.initial_sick_agents_path:
+            self.sick_agents.export(self.run_args.initial_sick_agents_path)
         for i in range(self.consts.total_steps):
             self.step()
             self.logger.info(f"performing step {i + 1}/{self.consts.total_steps}")
+        if self.run_args.all_sick_agents_path:
+            self.sick_agents.export(self.run_args.all_sick_agents_path)
 
         # clearing lru cache after run
         # self.consts.medical_state_machine.cache_clear()
