@@ -159,7 +159,10 @@ class CirclesGenerator:
     def create_whole_population_circles(self):
         for connection_type in Whole_Population_types:
             social_circle = SocialCircle(connection_type)
-            social_circle.add_many(self.agents)
+            agents = []
+            for geo_circle in self.geographic_circles:
+                agents.extend(geo_circle.connection_type_to_agents[connection_type])
+            social_circle.add_many(agents)
             self.social_circles_by_connection_type[connection_type].append(social_circle)
 
     def fill_social_circles_by_agent_index(self):
