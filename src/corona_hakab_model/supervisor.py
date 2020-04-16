@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from typing import Any, Callable, List, NamedTuple, Sequence
+from typing import Any, Callable, List, NamedTuple, Sequence, Dict
 
 import manager
 import numpy as np
@@ -264,7 +264,7 @@ class _CurrentInfectedTable(TabularSupervisable):
         super().__init__(interval)
         self.sick_states_names = ['Latent', 'Asymptomatic', 'Symptomatic', 'Hospitalized', 'ICU']
 
-    def get(self, manager) -> float:
+    def get(self, manager) -> Dict[str, List]:
         agent_ids = []
         medical_status = []
 
