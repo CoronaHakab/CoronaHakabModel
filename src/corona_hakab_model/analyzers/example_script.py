@@ -1,3 +1,4 @@
+from analyzers.population_analysis import load_population_data_to_dfs, plot_sick_per_work_size
 from corona_hakab_model.analyzers.simulation_analysis import *
 from project_structure import OUTPUT_FOLDER
 import os
@@ -31,3 +32,7 @@ plot_parameter_propagation_aggregated(parameter_names=[parameter_name],
 # you can also plot all the parameters time propagation
 plot_parameter_propagation_aggregated(mean_df=results_df_dict["mean"], std_df=results_df_dict["std"])
 
+
+# plot social circles sickness analisys
+initial_sick_data_df, final_sick_data_df, all_circles_df = load_population_data_to_dfs()
+plot_sick_per_work_size(final_sick_data_df, all_circles_df)

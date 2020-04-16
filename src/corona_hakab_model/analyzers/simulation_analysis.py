@@ -2,6 +2,7 @@ from typing import List, Callable, Dict
 import os
 from glob import glob
 from project_structure import OUTPUT_FOLDER
+from analyzers.config import TIME_OUTPUT_PATH
 import pandas as pd
 from datetime import datetime
 from itertools import chain
@@ -18,13 +19,13 @@ def create_comparison_files(files: list = None):
         for each parameter creates a file combining the information from each file given.
     """
     if files is None:
-        files = glob(os.path.join(OUTPUT_FOLDER, "*.csv"))
+        files = glob(os.path.join(TIME_OUTPUT_PATH, "*.csv"))
     dfs_dict = dict(map(lambda f: (os.path.basename(f),
                                    pd.read_csv(f).drop(["Unnamed: 0"], axis=1, errors='ignore')),
                         files))
     dfs_columns = map(lambda f: f.columns.tolist(), dfs_dict.values())
     parameters_to_compare = set(chain.from_iterable(dfs_columns))
-    result_folder_name = os.path.join(OUTPUT_FOLDER, datetime.now().strftime("%Y_%m_%d-%H_%M_%S"))
+    result_folder_name = os.path.join(TIME_OUTPUT_PATH, datetime.now().strftime("%Y_%m_%d-%H_%M_%S"))
     os.mkdir(result_folder_name)
     for parameter in parameters_to_compare:
         result_df = pd.DataFrame(columns=dfs_dict.keys())
@@ -107,10 +108,10 @@ def create_time_step_aggregation(parameters_dir_path, agg_funcs_dict: Dict[str, 
     :param agg_funcs_dict: dict of all the aggregation functions that want to be applied across multiple simulation runs
     :return: a dictionary with keys the same as agg_funcs_dict but values the df corresponding to the aggregation
     """
-    files = glob(os.path.join(OUTPUT_FOLDER, parameters_dir_path, "*.csv"))
+    files = glob(os.path.join(TIME_OUTPUT_PATH, parameters_dir_path, "*.csv"))
     dfs_dict = {os.path.basename(f).replace('.csv', ''):
              pd.read_csv(f).drop(["Unnamed: 0"], axis=1, errors='ignore') for f in files}
-    result_folder_name = os.path.join(OUTPUT_FOLDER, datetime.now().strftime("%Y_%m_%d-%H_%M_%S")+"_time_agg")
+    result_folder_name = os.path.join(TIME_OUTPUT_PATH, datetime.now().strftime("%Y_%m_%d-%H_%M_%S")+"_time_agg")
     os.mkdir(result_folder_name)
     results_df_dict = {}
     for agg_name, agg_func in agg_funcs_dict.items():
