@@ -37,9 +37,9 @@ class Consts(NamedTuple):
     # Think we should do something more readable later on.
     # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
     # disease states transition lengths distributions
-    latent_to_pre_symptomatic_days: rv_discrete = 1
-    latent_to_asymptomatic_days: rv_discrete = 1
-    pre_symptomatic_to_mild_condition_days: rv_discrete = dist(3)
+    latent_to_pre_symptomatic_days: rv_discrete = rv_discrete(values=([1,2,3,4,5,6,7,8,9,10], [0.022,0.052,0.082,0.158,0.234,0.158,0.152,0.082,0.04,0.02]))
+    latent_to_asymptomatic_days: rv_discrete = rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11], [0.02,0.05,0.08,0.15,0.22,0.15,0.15,0.08,0.05,0.03,0.02]))
+    pre_symptomatic_to_mild_condition_days: rv_discrete = dist(1, 3)
     mild_to_close_medical_care_days: rv_discrete = rv_discrete(values=([3,4,5,6,7,8,9,10,11,12], [0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.01]))
     mild_to_need_icu_days: rv_discrete = rv_discrete(values=([6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29], [0.012,0.019,0.032,0.046,0.059,0.069,0.075,0.077,0.075,0.072,0.066,0.060,0.053,0.046,0.040,0.035,0.030,0.028,0.026,0.022,0.020,0.015,0.010,0.010]))
     mild_to_pre_recovered_days: rv_discrete = rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28], [0.001,0.001,0.001,0.001,0.001,0.002,0.004,0.008,0.013,0.022,0.032,0.046,0.06,0.075,0.088,0.097,0.1,0.097,0.088,0.075,0.06,0.046,0.032,0.022,0.013,0.008,0.004,0.002]))
@@ -230,12 +230,23 @@ class Consts(NamedTuple):
             pass
 
         # In order to deal with the latent + pre-symptomatic probabilities, we split latent state in two:
-        # latent-presymp - which will have the duration of the incubation period
-        # letent-asymp - will have the durations of latent, summed by each day
+        # latent-presymp - which will have the duration of the incubation period (minus 1 day)
+        # Presymp will have a short distribution of 1-3 days
+        # latent-asymp - will have the durations of latent, summed by each day
         # probability for each is same as probability from latent to presymp and asymp
 
         susceptible = SusceptibleTerminalState("Susceptible", test_willingness=self.susceptible_test_willingness)
         latent = ImmuneStochasticState("Latent", detectable=False, test_willingness=self.latent_test_willingness)
+        latent_presymp = ImmuneStochasticState(
+            "Latent-Presymp",
+            detectable=False,
+            test_willingness=self.latent_test_willingness
+        )
+        latent_asymp = ImmuneStochasticState(
+            "Latent-Asymp",
+            detectable=False,
+            test_willingness=self.latent_test_willingness
+        )
         pre_symptomatic = ContagiousStochasticState(
             "Pre-Symptomatic",
             contagiousness=self.pre_symptomatic_infection_ratio,
@@ -279,11 +290,23 @@ class Consts(NamedTuple):
         ret = MedicalStateMachine(susceptible, latent)
 
         latent.add_transfer(
-            pre_symptomatic,
-            duration=self.latent_to_pre_symptomatic_days,
+            latent_asymp,
+            duration=dist(1),
             probability=0.7
         )
         latent.add_transfer(
+            latent_presymp,
+            duration=dist(1),
+            probability=...
+        )
+
+        latent_presymp.add_transfer(
+            pre_symptomatic,
+            duration=self.latent_to_pre_symptomatic_days,
+            probability=...
+        )
+
+        latent_asymp.add_transfer(
             asymptomatic,
             duration=self.latent_to_asymptomatic_days,
             probability=...
