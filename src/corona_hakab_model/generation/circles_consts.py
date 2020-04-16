@@ -115,7 +115,7 @@ class CirclesConsts(NamedTuple):
             if self.ages[i] <= 18:
                 all_students += self.age_prob[i]*self.connection_type_prob_by_age_index[i][ConnectionTypes.School]
             else:
-                all_teachers += self.age_prob[i]*self.connection_type_prob_by_age_index[i][ConnectionTypes.School]
+                all_teachers += self.age_prob[i]*self.connection_type_prob_by_age_index[i][ConnectionTypes.Work]*self.teachers_workforce_ratio
         # teacher to student ratio is the part of the school-going population that are teachers.
         # it is used to calculate how many teachers are needed in each school (according to school size)
         if all_students > 0:
