@@ -90,7 +90,17 @@ def run_simulation(args):
             # "Susceptible",
             # "Recovered",
             Supervisable.Sum(
-                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", name="currently sick"
+                "Latent",
+                "Latent-Asymp",
+                "Latent-Presymp",
+                "Asymptomatic",
+                "Pre-Symptomatic",
+                "Mild-Condition",
+                "NeedOfCloseMedicalCare",
+                "NeedICU",
+                "ImprovingHealth",
+                "PreRecovered",
+                name="currently sick"
             ),
             # LambdaValueSupervisable("ever hospitalized", lambda manager: len(manager.medical_machine["Hospitalized"].ever_visited)),
             LambdaValueSupervisable(
