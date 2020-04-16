@@ -95,28 +95,9 @@ class HealthcareManager:
                     tested.append(test_location.detection_test.test(self.manager.agents[ind]))
                     num_of_tests -= 1
             else:
-                num_of_tests = self._test_according_to_priority(num_of_tests, test_candidates_inds, test_location,
-                                                                tested)
+                self._test_according_to_priority(num_of_tests, test_candidates_inds, test_location,
+                                                 tested)
 
-                # Test the low prioritized now
-                num_of_low_priority_to_test = min(num_of_tests, len(test_candidates_inds))
-                low_priority_tested = [
-                    test_location.detection_test.test(self.manager.agents[ind])
-                    for ind in np.random.permutation(list(test_candidates_inds))[:num_of_low_priority_to_test]
-                ]
-                tested += low_priority_tested
-                num_of_tests -= len(low_priority_tested)
-
-        # # There are some tests left. Choose randomly from outside the pool
-        # test_leftovers_candidates_inds = np.flatnonzero(can_be_tested & np.logical_not(want_to_be_tested))
-        # will_be_tested_inds = np.random.choice(
-        #     test_leftovers_candidates_inds, min(num_of_tests, len(test_leftovers_candidates_inds)), replace=False
-        # )
-        #
-        # for ind in will_be_tested_inds:
-        #     tested.append(self.manager.consts.detection_test.test(self.manager.agents[ind]))
-        #     num_of_tests -= 1
-        #
         return tested
 
     def _test_according_to_priority(self, num_of_tests, test_candidates_inds, test_location, tested):
