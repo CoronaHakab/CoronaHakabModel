@@ -37,20 +37,20 @@ class GeographicCircle(Circle):
         ages = iter(self.data_holder.age_distribution.rvs(size=len(self.agents)))
         for agent, age in zip(self.agents, ages):
             agent.age = age
+            agent_connection_types = []
             for connection_type in ConnectionTypes:
-                agent_connection_types = []
                 if np.random.random() < self.data_holder.connection_types_prob_by_age[age][connection_type]:
                     agent_connection_types.append(connection_type)
             
             if agent.is_adult() and ConnectionTypes.Work in agent_connection_types:
                 # if the agent works, there's a chance it is a teachers job 
-                if np.random.random() < self.teachers_workforce_ratio:
+                if np.random.random() < self.data_holder.teachers_workforce_ratio:
                     agent_connection_types.remove(ConnectionTypes.Work)
                     agent_connection_types.append(ConnectionTypes.School)
 
             for connection_type in agent_connection_types:
                 self.connection_type_to_agents[connection_type].append(agent)
-
+            
     def create_inner_social_circles(self):
         # todo notice that family connection types doesnt notice between ages
         for connection_type in In_Zone_types:
