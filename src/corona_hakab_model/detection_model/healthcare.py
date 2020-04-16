@@ -101,27 +101,26 @@ class HealthcareManager:
 
     def _test_according_to_priority(self, num_of_tests, test_candidates_inds, test_location, tested):
         candidates_by_priority_inds = []
-        test_candidates: AgentsDf = self.manager.agents_df.at(test_candidates_inds)
+        # test_candidates: AgentsDf = self.manager.agents_df.at(test_candidates_inds)
 
         # First test the prioritized candidates
         for detection_priority in list(test_location.testing_priorities):
-            is_priority_agent = {agent_index: detection_priority.is_agent_prioritized(agent) for agent_index, agent in
-                                 zip(test_candidates_inds, test_candidates)}
+            # need no more candidates to test
+            if num_of_tests == 0:
+                break
+            # is_priority_agent = {agent_index: detection_priority.is_agent_prioritized(agent) for agent_index, agent in
+            #                      zip(test_candidates_inds, test_candidates)}
+
             # permute the indices so we won't always test the lower indices
             for ind in np.random.permutation(list(test_candidates_inds)):
-                if is_priority_agent[ind]:
-                    # tested.append(test_location.detection_test.test(self.manager.agents_df.at(ind), ind))
+                # TODO: vectorize?
+                if detection_priority.is_agent_prioritized(self.manager.agents_df.at(ind)):
                     candidates_by_priority_inds.append(ind)
-                    # FIXME
-                    test_candidates.drop(ind, inplace=True)
                     test_candidates_inds.remove(ind)  # Remove so it won't be tested again
                     num_of_tests -= 1
                     # need no more candidates to test
                     if num_of_tests == 0:
                         break
-            # need no more candidates to test
-            if num_of_tests == 0:
-                break
 
         if candidates_by_priority_inds:
             tested += test_location.detection_test.test(self.manager.agents_df.at(candidates_by_priority_inds),
