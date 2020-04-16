@@ -23,61 +23,12 @@ from generation.matrix_generator import MatrixData
 from manager import SimulationManager
 from subconsts.modules_argpasers import get_simulation_args_parser
 from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
-from matrix_analysis.MatrixAnalysis import MatrixAnalyzer
+from matrix_analysis import matrix_analysis
 
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import pandas as pd
-
-from matrix_analysis.MatrixAnalysis import MatrixAnalyzer
-
-
-def main():
-    parser = ArgumentParser("COVID-19 Simulation")
-
-    sub_parsers = parser.add_subparsers(dest='sub_command')
-    gen = sub_parsers.add_parser('generate', help='only generate the population data without running the simulation')
-    gen.add_argument('output')
-
-    matrix = sub_parsers.add_parser('analyze-matrix', help="analyze matrix histograms and export csv's")
-    matrix.add_argument("--matrix",
-                        dest="matrix_path",
-                        help="Matrix file to analyze")
-    matrix.add_argument("--show",
-                        dest="show",
-                        action="store_true",
-                        help="Show histograms")
-
-    parser.add_argument("-s",
-                        "--simulation-parameters",
-                        dest="simulation_parameters_path",
-                        help="Parameters for simulation engine")
-    parser.add_argument("-c",
-                        "--circles-consts",
-                        dest="circles_consts_path",
-                        help="Parameter file with consts for the circles")
-    parser.add_argument("-m",
-                        "--matrix-consts",
-                        dest="matrix_consts_path",
-                        help="Parameter file with consts for the matrix")
-    parser.add_argument('--version', action='version', version=__version__)
-    args = parser.parse_args()
-
-    if args.sub_command == 'analyze-matrix':
-        matrix_analyzer = MatrixAnalyzer(args.matrix_path)
-        matrix_analyzer.export_raw_matrices_to_csv()
-        matrix_analyzer.analyze_histograms()
-        matrix_analyzer.export_histograms()
-        matrix_analyzer.save_histogram_plots()
-        if args.show:
-            plt.show()
-        return
-
-    if args.circles_consts_path:
-        circles_consts = CirclesConsts.from_file(args.circles_consts_path)
-    else:
-        circles_consts = CirclesConsts()
 
 
 def main():
@@ -86,6 +37,9 @@ def main():
     parser = get_simulation_args_parser()
     args, _ = parser.parse_known_args()
     set_seeds(args.seed)
+
+    if args.sub_command == 'analyze-matrix':
+        analyze_matrix(args)
 
     if args.sub_command == 'generate':
         generate_data(args)
@@ -209,6 +163,16 @@ def compare_simulations_example():
         consts=Consts(r0=1.8),
     )
     sm2.run()
+
+
+def analyze_matrix(args):
+    matrix_data = matrix_analysis.import_matrix_data(args.matrix_path)
+    matrix_analysis.export_raw_matrices_to_csv(matrix_data)
+    histograms = matrix_analysis.analyze_histograms(matrix_data)
+    matrix_analysis.export_histograms(histograms)
+    matrix_analysis.save_histogram_plots(histograms)
+    if args.show:
+        plt.show()
 
 
 if __name__ == "__main__":

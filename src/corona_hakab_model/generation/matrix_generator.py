@@ -51,31 +51,6 @@ class MatrixData:
         except FileNotFoundError:
             raise FileNotFoundError("Couldn't open matrix data from {}".format(matrix_data_path))
 
-    def import_matrix_data_as_parasym(self, matrix_data_path=None):
-        """
-        Import a MatrixData object from file.
-        The matrix is imported as parasymbolic.
-        """
-        if matrix_data_path is None:
-            matrix_data_path = self.IMPORT_MATRIX_PATH
-        try:
-            with open(matrix_data_path, "rb") as import_file:
-                self.matrix = read_parasym(import_file)
-            self.matrix_type = "parasymbolic"
-            self.depth = len(self.matrix)
-        except FileNotFoundError:
-            raise FileNotFoundError("Couldn't open matrix data")
-
-    def export(self, output_path=None):
-        """
-        This method exports the MatrixData object to a file.
-        The matrix is exported as parasymbolic using the write_parasym() function.
-        """
-        if output_path is None:
-            output_path = self.EXPORT_OUTPUT_DIR + self.EXPORT_FILE_NAME
-        with open(output_path, 'wb') as export_file:
-            write_parasym(self.matrix, export_file)
-
     # todo make this work, using the parasymbolic matrix serialization.
     def export(self, export_path: str):
         if not export_path.endswith(self.matrix_type):

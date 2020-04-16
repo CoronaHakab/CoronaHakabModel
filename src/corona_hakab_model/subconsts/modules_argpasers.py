@@ -9,6 +9,14 @@ def get_simulation_args_parser():
     parser = ArgumentParser("COVID-19 Simulation")
     subparser = parser.add_subparsers(dest="sub_command")
     subparser.add_parser("all", help="Run both data generation and simulation.")
+    matrix = subparser.add_parser('analyze-matrix', help="analyze matrix histograms and export csv's")
+    matrix.add_argument("--matrix",
+                        dest="matrix_path",
+                        help="Matrix file to analyze")
+    matrix.add_argument("--show",
+                        dest="show",
+                        action="store_true",
+                        help="Show histograms")
     gen = subparser.add_parser('generate', help='only generate the population data without running the simulation')
     gen.add_argument("-c",
                      "--circles-consts",
