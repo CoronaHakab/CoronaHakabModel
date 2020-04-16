@@ -4,7 +4,7 @@ ENV WORKDIR=/app
 ENV PROJDIR=${WORKDIR}/proj
 
 # change this to develop once docker branch is merged this needs to be deleted
-ENV WORKBRANCH=docker
+ENV WORKBRANCH=develop
 
 # git clone
 WORKDIR ${WORKDIR}
