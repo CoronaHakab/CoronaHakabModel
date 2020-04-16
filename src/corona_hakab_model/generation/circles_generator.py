@@ -1,9 +1,10 @@
 import pickle
 import sys
 from typing import List
+import os.path
 
 from agent import Agent
-from corona_hakab_model_data.__data__ import __version__
+from __data__ import __version__
 from generation.circles import SocialCircle
 from generation.circles_consts import CirclesConsts
 from generation.connection_types import ConnectionTypes, Multi_Zone_types, Whole_Population_types
@@ -38,7 +39,7 @@ class PopulationData:
         if not file_name.endswith(".pickle"):
             file_name += ".pickle"
 
-        with open(export_path + file_name, "wb") as export_file:
+        with open(os.path.join(export_path,file_name), "wb") as export_file:
             pickle.dump(self, export_file)
 
     @staticmethod
@@ -57,7 +58,6 @@ class CirclesGenerator:
     # import/export variables
     EXPORT_OUTPUT_DIR = "../../output/"
     EXPORT_FILE_NAME = "population_data.pickle"
-
     # todo split consts into generation_consts, simulation_consts, and plot_consts
     def __init__(
         self, circles_consts: CirclesConsts,
@@ -65,7 +65,6 @@ class CirclesGenerator:
         self.circles_consts = circles_consts
         self.population_data = PopulationData()
         self.agents = [Agent(index) for index in range(self.circles_consts.population_size)]
-
         # create geographic circles, and allocate each with agents
         self.geographic_circles: List[GeographicCircle] = []
         self.create_geographic_circles()
@@ -105,8 +104,7 @@ class CirclesGenerator:
         self.social_circles_by_agent_index = {}
         self.fill_social_circles_by_agent_index()
 
-        # export the population data
-        self.export()
+        self._fill_population_data()
 
     def create_geographic_circles(self):
         """
@@ -159,7 +157,10 @@ class CirclesGenerator:
     def create_whole_population_circles(self):
         for connection_type in Whole_Population_types:
             social_circle = SocialCircle(connection_type)
-            social_circle.add_many(self.agents)
+            agents = []
+            for geo_circle in self.geographic_circles:
+                agents.extend(geo_circle.connection_type_to_agents[connection_type])
+            social_circle.add_many(agents)
             self.social_circles_by_connection_type[connection_type].append(social_circle)
 
     def fill_social_circles_by_agent_index(self):
@@ -172,7 +173,7 @@ class CirclesGenerator:
                 for agent in social_circle.agents:
                     self.social_circles_by_agent_index.setdefault(agent.index, []).append(social_circle)
 
-    def export(self):
+    def _fill_population_data(self):
         # fill population data with my data
         self.population_data.agents = self.agents
         self.population_data.social_circles_by_connection_type = self.social_circles_by_connection_type
@@ -180,6 +181,7 @@ class CirclesGenerator:
         self.population_data.geographic_circle_by_agent_index = self.geographic_circle_by_agent_index
         self.population_data.social_circles_by_agent_index = self.social_circles_by_agent_index
 
+    def export(self):
         # export population data using pickle
         self.population_data.export(self.EXPORT_OUTPUT_DIR, self.EXPORT_FILE_NAME)
 

@@ -1,7 +1,6 @@
 from typing import Dict, List, NamedTuple
-
 from generation.connection_types import ConnectionTypes
-from util import rv_discrete
+from util import rv_discrete, randint
 
 
 """
@@ -19,6 +18,7 @@ class CirclesConsts(NamedTuple):
     population_size: int = 20_000
     ages: List[int] = [10, 40, 70]
     age_prob: List[int] = [0.30, 0.45, 0.25]
+    teachers_workforce_ratio = 0.04 # ratio of teachers out of workforce
     connection_type_prob_by_age_index: List = [
         {
             ConnectionTypes.Work: 0,
@@ -83,6 +83,8 @@ class CirclesConsts(NamedTuple):
                 self.circle_size_distribution_by_connection_type,
                 self.get_connection_types_prob_by_age(),
                 self.multi_zone_connection_type_to_geo_circle_probability[i],
+                self.get_required_adult_distributions(),
+                self.teachers_workforce_ratio
             )
             for i in range(self.geo_circles_amount)
         ]
@@ -92,10 +94,41 @@ class CirclesConsts(NamedTuple):
 
     def get_connection_types_prob_by_age(self):
         return {age: self.connection_type_prob_by_age_index[i] for i, age in enumerate(self.ages)}
-
+    
     # overriding hash and eq to allow caching while using un-hashable attributes
     __hash__ = object.__hash__
     __eq__ = object.__eq__
+
+
+    def get_required_adult_distributions(self):
+        """
+        This function returns a dictionary of adult-children distributions (a numpy random distribution)
+        for a ConnectionTypes and circle size.
+        The returned data structure is a dictionary whose keys are ConnectionTypes.
+        Each value is another dictionary relating circle size to the relevant random variable.
+        The random distributions can return random variables (via dist.rvs()) that is the number of adults
+        in the circle.  
+        """
+        all_students = 0
+        all_teachers = 0
+        for i in range(len(self.ages)):
+            if self.ages[i] <= 18:
+                all_students += self.age_prob[i]*self.connection_type_prob_by_age_index[i][ConnectionTypes.School]
+            else:
+                all_teachers += self.age_prob[i]*self.connection_type_prob_by_age_index[i][ConnectionTypes.School]
+        # teacher to student ratio is the part of the school-going population that are teachers.
+        # it is used to calculate how many teachers are needed in each school (according to school size)
+        teacher_to_student_ratio = all_teachers / all_students
+        school_sizes = self.circle_size_distribution_by_connection_type[ConnectionTypes.School][0]
+        
+        family_sizes = self.circle_size_distribution_by_connection_type[ConnectionTypes.Family][0]
+        family_distributions = {size: randint(1,2) for size in family_sizes if size==1}
+        family_distributions.update({size: rv_discrete(1, 2, values=([1, 2], [0.2, 0.8])) for size in family_sizes if size==2})
+        family_distributions.update({size: rv_discrete(1, 3, values=([1, 2, 3], [0.1, 0.8, 0.1])) for size in family_sizes if size > 2})
+        return {
+            ConnectionTypes.School: {school_size: randint(round(school_size*teacher_to_student_ratio), round(school_size*teacher_to_student_ratio)+1) for school_size in school_sizes},      
+            ConnectionTypes.Family: family_distributions
+        }
 
 
 class GeographicalCircleDataHolder:
@@ -107,6 +140,8 @@ class GeographicalCircleDataHolder:
         "connection_types_prob_by_age",
         "circles_size_distribution_by_connection_type",
         "multi_zone_connection_type_to_geo_circle_probability",
+        "adult_distributions",
+        "teachers_workforce_ratio"
     )
 
     # todo define how social circles logics should be represented
@@ -118,6 +153,8 @@ class GeographicalCircleDataHolder:
         circles_size_distribution_by_connection_type,
         connection_types_prob_by_age,
         multi_zone_connection_type_to_geo_circle_probability,
+        adult_distributions,
+        teachers_workforce_ratio        
     ):
         self.name = name
         self.agents_share = agents_share
@@ -125,3 +162,5 @@ class GeographicalCircleDataHolder:
         self.connection_types_prob_by_age = connection_types_prob_by_age
         self.circles_size_distribution_by_connection_type = circles_size_distribution_by_connection_type
         self.multi_zone_connection_type_to_geo_circle_probability = multi_zone_connection_type_to_geo_circle_probability
+        self.adult_distributions = adult_distributions
+        self.teachers_workforce_ratio = teachers_workforce_ratio
