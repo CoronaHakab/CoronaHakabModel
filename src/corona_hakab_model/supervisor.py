@@ -131,6 +131,9 @@ class Supervisable(ABC):
                     cumsum = arr.cumsum()
                     res = np.zeros_like(arr, dtype=float) + np.nan
                     for i in range(num_of_days_to_group_together, len(arr)):
+                        if cumsum[i - num_of_days_to_group_together] == 0:
+                            continue
+
                         res[i] = (cumsum[i] - cumsum[i - num_of_days_to_group_together]) / cumsum[
                             i - num_of_days_to_group_together]
 

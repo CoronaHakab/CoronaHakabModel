@@ -62,25 +62,36 @@
 - The module is found in src/corona_hakab_model/moving_parameters_generator.py
 - The module parameters
     - Input file path - file path of the json containing the parameters
-    - List of "moving" parameters - a "moving" parameter contains
-        - Parameter name (has to be the same name as in the json file)
-        - Start range
-        - End range
-        - Step size
+    - "Moving" parameters file path
+        - The file should contain a List of "moving" parameters
+        - A "moving" parameter contains
+            - Parameter name (has to be the same name as in the json file)
+            - Start range
+            - End range
+            - Step size
     - Output folder path - folder path for the json output files
         - Each "moving" parameter will have a separate folder
         - The name of the file is set to be the parameter's value
-- Running the module (for now)
-    - Manually insert the parameters in code (look at the bottom of the file for example)
+- Running the module
     - Go to src/corona_hakab_model folder
-    - Run: python moving_parameters_generator.py
-    
+    - Run: **python moving_parameters_generator.py --help** for parameters syntax.
+    - Run: **python moving_parameters_generator.py** with parameters
+    - Run example: **python moving_parameters_generator.py --input-params Parameters/circles_parameters_example.py --moving-params Parameters/moving_parameters_example.json --output-folder ../../output/generated_parameters/circles_parameters**
+
 ## Analyzers
 - This module is a library that allows a researcher to analyze the output of one or multiple simulation
     - The module implements both specific and generic methods to allow the user flexibility
 - To run the module first run the simulation few times, you can do that from the file main.py
 - For examples of usage of the module run python src/corona_hakab_model/analyzers/example_script.py, the script plots  a few graphs and demonstrates the usage of the functions.
-	
+### Population Analyser
+- The population analyser reads a population data file (generated with the simulator, usually "population_data.pickle") and outputs a histogram of population ages, and social circles sizes by type.
+- to use, run **python generation_analysis\population_analysis.py**
+- Most commonly, you will use the **[-d|--directory]** option to specify the directory to read. The directory is expected to contain a file named "population_data.pickle"
+- You can also specify the input population data file using **[-p|--population]**, and output files using **--circle** and **--age**.
+- As with all runnables, additional help can be found by running **python generation_analysis\population_analysis.py --help**
+### Simulation Analyser
+- TODO: Wrap simulation analyser in runnable (argparse, __main__, the works), and add documentation.
+
 ## New to git/github?
 See the **"How to set up a git environment"** guide in the docs folder.
 

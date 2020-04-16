@@ -6,6 +6,7 @@ import numpy as np
 
 import infection
 import update_matrix
+from agent import SickAgents
 from consts import Consts
 from detection_model import healthcare
 from detection_model.healthcare import PendingTestResult, PendingTestResults
@@ -15,8 +16,6 @@ from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
 from supervisor import Supervisable, SimulationProgression
-from agent import SickAgents
-from update_matrix import Policy
 
 
 class SimulationManager:
@@ -25,12 +24,12 @@ class SimulationManager:
     """
 
     def __init__(
-        self,
-        supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
-        population_data: PopulationData,
-        matrix_data: MatrixData,
-        run_args,
-        consts: Consts = Consts(),
+            self,
+            supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
+            population_data: PopulationData,
+            matrix_data: MatrixData,
+            run_args,
+            consts: Consts = Consts(),
     ):
         # setting logger
         self.logger = logging.getLogger("simulation")
@@ -117,7 +116,8 @@ class SimulationManager:
             self.sick_agents.add_agent(agent.get_snapshot())
 
         # progress transfers
-        self.medical_state_manager.step(new_sick)
+        medical_machine_step_result = self.medical_state_manager.step(new_sick)
+        self.new_sick_counter = medical_machine_step_result['new_sick']
 
         self.current_step += 1
 
@@ -131,6 +131,9 @@ class SimulationManager:
                 if not self.ever_tested_positive_vector[agent.index]:
                     # TODO: awful late night implementation, improve ASAP
                     self.new_detected_daily += 1
+                # if tested positive then isolate agent
+                if self.consts.should_isolate_positive_detected:
+                    self.update_matrix_manager.apply_full_isolation_on_agent(agent)
 
             agent.set_test_result(test_result)
 
