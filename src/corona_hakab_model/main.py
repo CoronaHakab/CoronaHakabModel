@@ -161,7 +161,10 @@ def run_simulation(args):
         consts=consts,
     )
     print(sm)
+    from time import time
+    start = time()
     sm.run()
+    logger.info(f"Simulation RUN took {time() - start}s")
     df: pd.DataFrame = sm.dump(filename=args.output)
     df.plot()
     if args.figure_path:

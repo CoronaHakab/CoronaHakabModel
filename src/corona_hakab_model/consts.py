@@ -79,7 +79,7 @@ class Consts(NamedTuple):
             testing_priorities=[
                 DetectionPriority(
                     lambda agent: (agent.medical_state.name == "Symptomatic" and
-                                   agent not in agent.manager.tested_positive_vector),
+                                   agent not in agent.manager.tested_positive_vector),  # FIXME: using AgentsDf seems like the manager is never set
                     max_tests=100),
                 DetectionPriority(
                     lambda agent: agent.medical_state.name == "Recovered"),
@@ -119,13 +119,13 @@ class Consts(NamedTuple):
         ConnectionTypes.School: [
             ConditionedPolicy(
                 activating_condition=lambda kwargs:
-                    np.count_nonzero(kwargs["manager"].agents_df.contagious_vec()) > 1000,
+                np.count_nonzero(kwargs["manager"].agents_df.contagiousness) > 1000,
                 policy=Policy(0, [lambda circle: random() > 0]),
                 message="closing all schools",
             ),
             ConditionedPolicy(
                 activating_condition=lambda kwargs:
-                    np.count_nonzero(kwargs["manager"].agents_df.contagious_vec()) < 500,
+                np.count_nonzero(kwargs["manager"].agents_df.contagiousness) < 500,
                 policy=Policy(1, [lambda circle: random() > 1]),
                 active=True,
                 message="opening all schools",
@@ -134,13 +134,13 @@ class Consts(NamedTuple):
         ConnectionTypes.Work: [
             ConditionedPolicy(
                 activating_condition=lambda kwargs:
-                    np.count_nonzero(kwargs["manager"].agents_df.contagious_vec()) > 1000,
+                np.count_nonzero(kwargs["manager"].agents_df.contagiousness) > 1000,
                 policy=Policy(0, [lambda circle: random() > 0]),
                 message="closing all workplaces",
             ),
             ConditionedPolicy(
                 activating_condition=lambda kwargs:
-                    np.count_nonzero(kwargs["manager"].agents_df.contagious_vec()) < 500,
+                np.count_nonzero(kwargs["manager"].agents_df.contagiousness) < 500,
                 policy=Policy(0, [lambda circle: random() > 1]),
                 active=True,
                 message="opening all workplaces",

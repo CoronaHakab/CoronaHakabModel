@@ -4,8 +4,9 @@ from enum import Enum
 from typing import TYPE_CHECKING, List, NamedTuple
 
 import numpy as np
-import pandas as pd
 
+if TYPE_CHECKING:
+    from agents_df import AgentsDf
 from detection_model.detection_testing_types import DetectionSettings
 from util import Queue
 
@@ -34,11 +35,9 @@ class DetectionTest:
 
     def test(self, agents, agents_indices):
         rand_vec = np.random.random(len(agents_indices))
-        # is_detectable_mask = np.array([ms.detectable for ms in agents.medical_state])
-        is_detectable_mask = agents.detectable.values
         test_results = (
-                (is_detectable_mask & (rand_vec < self.detection_prob)) |
-                (~is_detectable_mask & (rand_vec < self.false_alarm_prob))
+                (agents.detectable & (rand_vec < self.detection_prob)) |
+                (~agents.detectable & (rand_vec < self.false_alarm_prob))
         )
 
         test_results = [DetectionResult.POSITIVE if test_result else DetectionResult.NEGATIVE for test_result in
@@ -69,18 +68,20 @@ class HealthcareManager:
             num_of_tests = self._get_current_num_of_tests(self.manager.current_step, test_location)
 
             # Who can be tested
-            test_candidates_inds = self.manager.agents_df.test_candidates(test_location, self.manager.current_step)
+            test_candidates_inds = set(self.manager.agents_df.test_candidates(test_location, self.manager.current_step))
             test_candidates_inds -= set(result.agent_index for result in tested)
 
+            if not test_candidates_inds:
+                break
+
             if len(test_candidates_inds) < num_of_tests:
+                test_candidates_inds = list(test_candidates_inds)
                 # There are more tests than candidates. Don't check the priorities
                 tested += test_location.detection_test.test(self.manager.agents_df.at(test_candidates_inds),
                                                             test_candidates_inds)
                 num_of_tests -= len(test_candidates_inds)
-                # for ind in test_candidates_inds:
-                #     tested.append(test_location.detection_test.test(self.manager.agents_df.at(ind), ind))
-                #     num_of_tests -= 1
             else:
+                test_candidates_inds = list(test_candidates_inds)
                 num_of_tests = self._test_according_to_priority(num_of_tests, test_candidates_inds, test_location,
                                                                 tested)
 
@@ -93,38 +94,25 @@ class HealthcareManager:
                         self.manager.agents_df.at(low_priority_indices),
                         low_priority_indices)
 
-                    # low_priority_tested = [
-                    #     test_location.detection_test.test(self.manager.agents_df.at(ind), ind)
-                    #     for ind in np.random.permutation(list(test_candidates_inds))[:num_of_low_priority_to_test]
-                    # ]
                     tested += low_priority_tested
                     num_of_tests -= len(low_priority_tested)
 
-        # # There are some tests left. Choose randomly from outside the pool
-        # test_leftovers_candidates_inds = np.flatnonzero(can_be_tested & np.logical_not(want_to_be_tested))
-        # will_be_tested_inds = np.random.choice(
-        #     test_leftovers_candidates_inds, min(num_of_tests, len(test_leftovers_candidates_inds)), replace=False
-        # )
-        #
-        # for ind in will_be_tested_inds:
-        #     tested.append(self.manager.consts.detection_test.test(self.manager.agents[ind]))
-        #     num_of_tests -= 1
-        #
         return tested
 
     def _test_according_to_priority(self, num_of_tests, test_candidates_inds, test_location, tested):
         candidates_by_priority_inds = []
-        test_candidates: pd.Dataframe = self.manager.agents_df.at(test_candidates_inds)
+        test_candidates: AgentsDf = self.manager.agents_df.at(test_candidates_inds)
 
         # First test the prioritized candidates
         for detection_priority in list(test_location.testing_priorities):
             is_priority_agent = {agent_index: detection_priority.is_agent_prioritized(agent) for agent_index, agent in
-                                 zip(test_candidates_inds, test_candidates.itertuples())}
+                                 zip(test_candidates_inds, test_candidates)}
             # permute the indices so we won't always test the lower indices
             for ind in np.random.permutation(list(test_candidates_inds)):
                 if is_priority_agent[ind]:
                     # tested.append(test_location.detection_test.test(self.manager.agents_df.at(ind), ind))
                     candidates_by_priority_inds.append(ind)
+                    # FIXME
                     test_candidates.drop(ind, inplace=True)
                     test_candidates_inds.remove(ind)  # Remove so it won't be tested again
                     num_of_tests -= 1

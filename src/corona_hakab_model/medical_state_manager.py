@@ -27,13 +27,7 @@ class MedicalStateManager:
             new_sick_agents = self.manager.agents_df.at(new_sick)
             infected_states = [self.manager.medical_machine.get_state_upon_infection(agent_ind) for agent_ind in new_sick]
 
-            # for agent_ind in new_sick:
-            #     changed_state_leaving[self.manager.agents_df.at(agent_ind).medical_state].append(agent_ind)
-            #     infected_state = self.manager.medical_machine.get_state_upon_infection(agent_ind)
-            #     self.manager.agents_df.change_agents_state(agent_ind, infected_state)
-            #     changed_state_introduced[infected_state].append(agent_ind)
-
-            for agent_ind, infected_state, agent in zip(new_sick, infected_states, new_sick_agents.itertuples()):
+            for agent_ind, infected_state, agent in zip(new_sick, infected_states, new_sick_agents):
                 changed_state_leaving[agent.medical_state].append(agent_ind)
                 changed_state_introduced[infected_state].append(agent_ind)
             self.manager.agents_df.change_agents_state(new_sick, infected_states)

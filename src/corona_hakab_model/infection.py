@@ -34,13 +34,13 @@ class InfectionManager:
         """
 
         # v = [True if an agent can infect other agents in this time step]
-        v = np.random.random(self.manager.agents_df.n_agents()) < self.manager.agents_df.contagious_vec()
+        v = np.random.random(self.manager.agents_df.n_agents()) < self.manager.agents_df.contagiousness
 
         # u = mat dot_product v (log of the probability that an agent will get infected)
         u = self.manager.matrix.prob_any(v)
         # calculate the infections boolean vector
 
-        infections = self.manager.agents_df.susceptible_vec() & (np.random.random(u.shape) < u)
+        infections = self.manager.agents_df.susceptible & (np.random.random(u.shape) < u)
         infected_indices = np.flatnonzero(infections)
 
         # new_infected: dict -
