@@ -1,4 +1,6 @@
-sudo apt-get update 
+# this script should be merged with linux/vm_install.sh, it will eventually.
+
+sudo apt-get update
 sudo apt-get install checkinstall -y
 sudo apt-get install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev -y
 sudo apt-get install liblzma-dev -y
