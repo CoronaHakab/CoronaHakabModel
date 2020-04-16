@@ -77,7 +77,7 @@ class HealthcareManager:
             if len(test_candidates_inds) < num_of_tests:
                 test_candidates_inds = list(test_candidates_inds)
                 # There are more tests than candidates. Don't check the priorities
-                tested += test_location.detection_test.test(self.manager.agents_df.at(test_candidates_inds),
+                tested += test_location.detection_test.test(self.manager.agents_df[test_candidates_inds],
                                                             test_candidates_inds)
                 num_of_tests -= len(test_candidates_inds)
             else:
@@ -91,7 +91,7 @@ class HealthcareManager:
                     low_priority_indices = np.random.permutation(list(test_candidates_inds))[
                                            :num_of_low_priority_to_test]
                     low_priority_tested = test_location.detection_test.test(
-                        self.manager.agents_df.at(low_priority_indices),
+                        self.manager.agents_df[low_priority_indices],
                         low_priority_indices)
 
                     tested += low_priority_tested
@@ -101,7 +101,7 @@ class HealthcareManager:
 
     def _test_according_to_priority(self, num_of_tests, test_candidates_inds, test_location, tested):
         candidates_by_priority_inds = []
-        # test_candidates: AgentsDf = self.manager.agents_df.at(test_candidates_inds)
+        # test_candidates: AgentsDf = self.manager.agents_df.[test_candidates_inds]
 
         # First test the prioritized candidates
         for detection_priority in list(test_location.testing_priorities):
@@ -114,7 +114,7 @@ class HealthcareManager:
             # permute the indices so we won't always test the lower indices
             for ind in np.random.permutation(list(test_candidates_inds)):
                 # TODO: vectorize?
-                if detection_priority.is_agent_prioritized(self.manager.agents_df.at(ind)):
+                if detection_priority.is_agent_prioritized(self.manager.agents_df[ind]):
                     candidates_by_priority_inds.append(ind)
                     test_candidates_inds.remove(ind)  # Remove so it won't be tested again
                     num_of_tests -= 1
@@ -123,7 +123,7 @@ class HealthcareManager:
                         break
 
         if candidates_by_priority_inds:
-            tested += test_location.detection_test.test(self.manager.agents_df.at(candidates_by_priority_inds),
+            tested += test_location.detection_test.test(self.manager.agents_df[candidates_by_priority_inds],
                                                         candidates_by_priority_inds)
         return num_of_tests
 

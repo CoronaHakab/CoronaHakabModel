@@ -139,7 +139,7 @@ class SimulationManager:
         infected_state = self.medical_machine.default_state_upon_infection
         self.agents_df.change_agents_state(agents_to_infect, infected_state)
 
-        self.initial_sick_agents.add_many_agents(self.agents_df.at(agents_to_infect))
+        self.initial_sick_agents.add_many_agents(self.agents_df[agents_to_infect])
 
         self.medical_machine.initial.remove_many(agents_to_infect)
         self.medical_machine.default_state_upon_infection.add_many(agents_to_infect)
