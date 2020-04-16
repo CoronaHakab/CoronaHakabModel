@@ -47,7 +47,7 @@ class Agent:
 
         self.manager.susceptible_vector[self.index] = new_state.susceptible
         self.manager.test_willingness_vector[self.index] = new_state.test_willingness
-
+    
     def __str__(self):
         return f"<Person,  index={self.index}, medical={self.medical_state}>"
 
@@ -60,7 +60,9 @@ class Agent:
         for social_circle in self.manager.social_circles_by_agent_index[self.index]:
             social_circle_snapshots.append(social_circle.get_snapshot())
         return AgentSnapshot(self.index, self.age, geographic_circle_name, social_circle_snapshots)
-
+    
+    def is_adult(self):
+        return self.age > 18
 
 @dataclass
 class AgentSnapshot:
