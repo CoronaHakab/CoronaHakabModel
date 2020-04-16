@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from corona_hakab_model_data.__data__ import __version__
+from __data__ import __version__
 
 
 def get_simulation_args_parser():
@@ -68,6 +68,10 @@ def get_simulation_args_parser():
                      dest='figure_path',
                      default='',
                      help='Save the resulting figure to a file instead of displaying it')
+    sim.add_argument('--agent-constraints-path',
+                     dest='agent_constraints_path',
+                     default=None,
+                     help='Add constraints to the selection of the initial sick agents, see readme for file format')
     parser.add_argument('--seed',
                         dest='seed',
                         type=int,

@@ -23,7 +23,7 @@
 - In order to make PyCharm recognize the project modules:
     - right click src folder -> Mark directory as -> Source Root
     - right click src/corona_hakab_model folder -> Mark directory as -> Source Root
-- double click src/corona_hakab_model folder/main.py and run it (Run -> Run)
+- Double click src/corona_hakab_model folder/main.py and run it (Run -> Run)
 
 ## Install and run the simulator from cmd (also possible):
 - Install Python 3.8
@@ -39,14 +39,31 @@
     - run: **python main.py all** to run both the generation and simulation.
     - run: **python main.py [simulate|generate] --help** for more help about each option.
     
-## Installing on Ubuntu VM
-- If running on a remote Ubuntu machine (such as created by Microsoft Azure), run the commands listed in vm_install.txt
-- When connecting (with the same user) to the machine, it will automatically setup the environment variables and start the pipenv for CoronaHakabModel.
-- Note that when connecting to a machine via SSH, the graphs cannot be displayed, only saved for later viewing. Run **main.py --figure-path image_location** to save the image.
 
+## Linux
+- Ubuntu VM
+    - If running on a remote Ubuntu machine (such as created by Microsoft Azure), please us linux/vm_install.sh
+    - When connecting (with the same user) to the machine, it will automatically setup the environment variables and start the pipenv for CoronaHakabModel.
+    - Note that when connecting to a machine via SSH, the graphs cannot be displayed, only saved for later viewing. Run **main.py --figure-path image_location** to save the image.
+
+- Debian (tested on Debian 10):
+    - Please use linux/deb_run.sh (work in progress)
+
+- Docker
+    - Please reffer to docker.md and Dockerfile (work in progress)
+    
 ## Optional - Export/Import matrices!
 - Export: **python main.py -o <PATH>**
 - Import: **python main.py -i <PATH>**
+
+##Optional - Initial sick agent constraints:
+- Usage: **python main.py --agent-constraints-path <PATH>**
+- Format: csv file with the following columns : geographic_circles,age,Work,School,Family,Other
+- each row represents an agent, amount of rows must correspond to initial number of sick agents
+- to specify an exact value (geocircle name, age, or number of members in social circle), simply write it in the appropriate column and row
+- to specify a range, use '~' eg. "10~70" indicates age 10 to 70, including both
+- unspecified values will be free.
+- If no agents corresponding to the constraints are found, the code will crash
 
 ## Workflow -
 - When working, **work on a new git branch**.
