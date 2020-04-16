@@ -12,12 +12,15 @@ class GeographicCircle(Circle):
         "agents",
         "all_social_circles",
         "data_holder",
+        "circle_count",
         "connection_type_to_agents",
         "connection_type_to_social_circles",
+
     )
 
     def __init__(self, data_holder: GeographicalCircleDataHolder):
         super().__init__()
+        self.circle_count = 0
         self.kind = "geographic circle"
         self.agents = []
         self.data_holder = data_holder
@@ -73,6 +76,7 @@ class GeographicCircle(Circle):
         rolls = np.random.choice(possible_sizes, size=len(agents_for_type), p=probs)
         for roll in rolls:
             size_num_agents[roll] += 1
+
 
         # populate circles in each size group
         for size in possible_sizes:
