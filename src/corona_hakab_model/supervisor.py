@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from functools import lru_cache
 from typing import Any, Callable, List, NamedTuple, Sequence, Union
 
+from generation.connection_types import ConnectionTypes
 import manager
 import numpy as np
 import pandas as pd
@@ -17,6 +18,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from state_machine import State
 
+from histogram import TimeHistograms
 
 class SimulationProgression:
     """
@@ -198,6 +200,13 @@ class Supervisable(ABC):
                 Supervisable.coerce(self.new_infected_supervisor, m), Supervisable.coerce(self.sum_supervisor, m)
             )
 
+    class TimeBasedHistograms:
+        def __init__(self):
+            pass
+
+        def __call__(self, manager):
+            return _TimeBasedHistograms()
+
     class SupervisiblesLambda(NamedTuple):
         supervisiables: Sequence
         func: Callable
@@ -206,6 +215,7 @@ class Supervisable(ABC):
         def __call__(self, m):
             return _PostProcessSupervisor([Supervisable.coerce(s, m) for s in self.supervisiables], self.func,
                                           self.name)
+
 
 
 SupervisableMaker = Callable[[Any], Supervisable]
@@ -419,6 +429,22 @@ class _GrowthFactor(ValueSupervisable):
 
     def name(self) -> str:
         return "growth factor"
+
+
+class _TimeBasedHistograms(Supervisable):
+    def __init__(self):
+        self._name = 'time-based histograms'
+        self.histograms = TimeHistograms()
+
+    def name(self):
+        return self._name
+
+    def snapshot(self, manager: "manager.SimulationManager"):
+        matrix = manager.matrix.get_scipy_sparse()
+        self.histograms.update_all_histograms(matrix)
+
+    def publish(self):
+        return {self.name(): self.histograms.get()}
 
 
 class _PostProcessSupervisor(ValueSupervisable):

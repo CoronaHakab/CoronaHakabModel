@@ -23,7 +23,7 @@
 - In order to make PyCharm recognize the project modules:
     - right click src folder -> Mark directory as -> Source Root
     - right click src/corona_hakab_model folder -> Mark directory as -> Source Root
-- double click src/corona_hakab_model folder/main.py and run it (Run -> Run)
+- Double click src/corona_hakab_model folder/main.py and run it (Run -> Run)
 
 ## Install and run the simulator from cmd (also possible):
 - Install Python 3.8
@@ -39,14 +39,31 @@
     - run: **python main.py all** to run both the generation and simulation.
     - run: **python main.py [simulate|generate] --help** for more help about each option.
     
-## Installing on Ubuntu VM
-- If running on a remote Ubuntu machine (such as created by Microsoft Azure), run the commands listed in vm_install.txt
-- When connecting (with the same user) to the machine, it will automatically setup the environment variables and start the pipenv for CoronaHakabModel.
-- Note that when connecting to a machine via SSH, the graphs cannot be displayed, only saved for later viewing. Run **main.py --figure-path image_location** to save the image.
 
+## Linux
+- Ubuntu VM
+    - If running on a remote Ubuntu machine (such as created by Microsoft Azure), please us linux/vm_install.sh
+    - When connecting (with the same user) to the machine, it will automatically setup the environment variables and start the pipenv for CoronaHakabModel.
+    - Note that when connecting to a machine via SSH, the graphs cannot be displayed, only saved for later viewing. Run **main.py --figure-path image_location** to save the image.
+
+- Debian (tested on Debian 10):
+    - Please use linux/deb_run.sh (work in progress)
+
+- Docker
+    - Please reffer to docker.md and Dockerfile (work in progress)
+    
 ## Optional - Export/Import matrices!
 - Export: **python main.py -o <PATH>**
 - Import: **python main.py -i <PATH>**
+
+##Optional - Initial sick agent constraints:
+- Usage: **python main.py --agent-constraints-path <PATH>**
+- Format: csv file with the following columns : geographic_circles,age,Work,School,Family,Other
+- each row represents an agent, amount of rows must correspond to initial number of sick agents
+- to specify an exact value (geocircle name, age, or number of members in social circle), simply write it in the appropriate column and row
+- to specify a range, use '~' eg. "10~70" indicates age 10 to 70, including both
+- unspecified values will be free.
+- If no agents corresponding to the constraints are found, the code will crash
 
 ## Workflow -
 - When working, **work on a new git branch**.
@@ -91,6 +108,28 @@
 - As with all runnables, additional help can be found by running **python generation_analysis\population_analysis.py --help**
 ### Simulation Analyser
 - TODO: Wrap simulation analyser in runnable (argparse, __main__, the works), and add documentation.
+### Matrix Analyzer  
+- This module calculates histograms and statistics about the connections represented in the matrix.  
+##### **INPUTS**:  
+  **--matrix** < path_to_matrix > (optional) : This input specifies the path to the matrix which will be analyzed. If not given, assuming the 
+  matrix file is at the project's **output** folder, under the name **matrix_data**.  
+  **--show** (optional) : This input determines whether or not histogram plots will be shown (they are always being saved).  
+  ****NOTICE**: When plots are being shown, you need to close them in order for the program to finish.  
+##### **OUTPUTS**  
+- The module creates multiple files. The files created are raw-data '.csv' file of the matrix's different connection type (e.g. work, family) 
+  and an histogram analysis of those connections (both '.csv' file and '.png' of the histogrm).  
+  The files are being saved to **'/output/matrix_analysis/'** folder.  
+  The created folder is divided to 2 subfolders:  
+  **histogram_analysis** - This folder is where the histogram plots and .csv files are saved.  
+  **raw_matrices** - This folder is where the matrix's raw data is saved. 
+- The file names indicate what type of connection they are related to.  
+##### **EXAMPLES**  
+  1. Run the analysis on defualt matrix file and don't show plots:  
+  `python ./main analyze-matrix`  
+  2. Run with specified matrix file:  
+  `python ./main analyze-matrix --matrix /example/to/matrix/path`  
+  3. Run with specified matrix file and show histograms:  
+  `python ./main analyze-matrix --matrix /example/to/matrix/path --show` 
 
 ## New to git/github?
 See the **"How to set up a git environment"** guide in the docs folder.

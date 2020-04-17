@@ -1,11 +1,12 @@
+
 from __future__ import annotations
 
 import logging
-import matplotlib_set_backend
 import matplotlib.pyplot as plt
 import random
 import os.path
 import sys
+from matplotlib import pyplot as plt
 
 import numpy as np
 
@@ -15,9 +16,10 @@ from generation.circles_generator import PopulationData
 from generation.generation_manager import GenerationManger
 from generation.matrix_generator import MatrixData
 from manager import SimulationManager
+from agent import InitialAgentsConstraints
 from subconsts.modules_argpasers import get_simulation_args_parser
 from supervisor import LambdaValueSupervisable, Supervisable
-
+from analyzers import matrix_analysis
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -28,8 +30,12 @@ def main():
     logger = logging.getLogger('application')
     logger.setLevel(logging.INFO)
     parser = get_simulation_args_parser()
+
     args, _ = parser.parse_known_args()
     set_seeds(args.seed)
+
+    if args.sub_command == 'analyze-matrix':
+        analyze_matrix(args)
 
     if args.sub_command == 'generate':
         generate_data(args)
@@ -68,6 +74,7 @@ def generate_data(args):
 def run_simulation(args):
     matrix_data = MatrixData.import_matrix_data(args.matrix_data)
     population_data = PopulationData.import_population_data(args.population_data)
+    initial_agent_constraints = InitialAgentsConstraints(args.agent_constraints_path)
     if args.simulation_parameters_path:
         consts = Consts.from_file(args.simulation_parameters_path)
     else:
@@ -88,7 +95,17 @@ def run_simulation(args):
             # "Susceptible",
             # "Recovered",
             Supervisable.Sum(
-                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", name="currently sick"
+                "Latent",
+                "Latent-Asymp",
+                "Latent-Presymp",
+                "Asymptomatic",
+                "Pre-Symptomatic",
+                "Mild-Condition",
+                "NeedOfCloseMedicalCare",
+                "NeedICU",
+                "ImprovingHealth",
+                "PreRecovered",
+                name="currently sick"
             ),
             # LambdaValueSupervisable("ever hospitalized", lambda manager: len(manager.medical_machine["Hospitalized"].ever_visited)),
             LambdaValueSupervisable(
@@ -108,6 +125,7 @@ def run_simulation(args):
         ),
         population_data,
         matrix_data,
+        initial_agent_constraints,
         run_args=args,
         consts=consts,
     )
@@ -153,6 +171,16 @@ def compare_simulations_example():
         consts=Consts(r0=1.8),
     )
     sm2.run()
+
+
+def analyze_matrix(args):
+    matrix_data = matrix_analysis.import_matrix_data(args.matrix_path)
+    matrix_analysis.export_raw_matrices_to_csv(matrix_data)
+    histograms = matrix_analysis.analyze_histograms(matrix_data)
+    matrix_analysis.export_histograms(histograms)
+    matrix_analysis.save_histogram_plots(histograms)
+    if args.show:
+        plt.show()
 
 
 if __name__ == "__main__":
