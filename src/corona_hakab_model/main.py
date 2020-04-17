@@ -72,6 +72,17 @@ def run_simulation(args):
         consts = Consts.from_file(args.simulation_parameters_path)
     else:
         consts = Consts()
+
+    # Sanity check for medical states time
+    time_parameters = ["latent_to_silent_days", "silent_to_asymptomatic_days", "silent_to_symptomatic_days",
+                       "asymptomatic_to_recovered_days", "symptomatic_to_asymptomatic_days",
+                       "symptomatic_to_hospitalized_days", "hospitalized_to_asymptomatic_days",
+                       "hospitalized_to_icu_days", "icu_to_deceased_days", "icu_to_hospitalized_days"]
+
+    for time_param in time_parameters:
+        if getattr(consts, time_param).pmf(0) != 0:
+            raise ValueError(f"Parameter {time_param} allows a duration of zero for medical state")
+
     set_seeds(args.seed)
     sm = SimulationManager(
         (
