@@ -9,6 +9,8 @@ from functools import lru_cache
 from typing import Any, Callable, List, NamedTuple, Sequence, Dict
 
 import manager
+from state_machine import StochasticState
+
 import numpy as np
 import pandas as pd
 
@@ -262,16 +264,19 @@ class _StateTotalSoFarSupervisable(ValueSupervisable):
 class _CurrentInfectedTable(TabularSupervisable):
     def __init__(self, interval):
         super().__init__(interval)
-        self.sick_states_names = ['Latent', 'Asymptomatic', 'Symptomatic', 'Hospitalized', 'ICU']
+        self.sick_states = None
 
     def get(self, manager) -> Dict[str, List]:
+        if self.sick_states is None:
+            medical_states = manager.medical_machine.states_by_name.values()
+            self.sick_states = [s for s in medical_states if isinstance(s, StochasticState)]
+
         agent_ids = []
         medical_status = []
 
-        for state_name in self.sick_states_names:
-            state = manager.medical_machine.states_by_name[state_name]
+        for state in self.sick_states:
             agent_ids += [agent.index for agent in state.agents]
-            medical_status += [state_name] * state.agent_count
+            medical_status += [state.name] * state.agent_count
         return {
             "agent_id" : agent_ids,
             "medical_status" : medical_status
