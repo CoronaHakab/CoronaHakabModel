@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import logging
@@ -79,17 +78,6 @@ def run_simulation(args):
         consts = Consts.from_file(args.simulation_parameters_path)
     else:
         consts = Consts()
-
-    # Sanity check for medical states time
-    time_parameters = ["latent_to_pre_symptomatic_days", "latent_to_asymptomatic_days",
-                       "pre_symptomatic_to_mild_condition_days", "mild_to_close_medical_care_days",
-                       "mild_to_need_icu_days", "mild_to_pre_recovered_days", "close_medical_care_to_icu_days",
-                       "close_medical_care_to_mild_days", "need_icu_to_deceased_days", "need_icu_to_improving_days"]
-
-    for time_param in time_parameters:
-        if getattr(consts, time_param).pmf(0) != 0:
-            raise ValueError(f"Parameter {time_param} allows a duration of zero for medical state")
-
     set_seeds(args.seed)
     sm = SimulationManager(
         (
