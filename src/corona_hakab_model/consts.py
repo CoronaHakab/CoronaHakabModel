@@ -38,11 +38,11 @@ class Consts(NamedTuple):
     # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
     # disease states transition lengths distributions
     latent_to_silent_days: rv_discrete = dist(1, 3)
-    silent_to_asymptomatic_days: rv_discrete = dist(0, 3, 10)
-    silent_to_symptomatic_days: rv_discrete = dist(0, 3, 10)
+    silent_to_asymptomatic_days: rv_discrete = dist(1, 3, 10)
+    silent_to_symptomatic_days: rv_discrete = dist(1, 3, 10)
     asymptomatic_to_recovered_days: rv_discrete = dist(3, 5, 7)
     symptomatic_to_asymptomatic_days: rv_discrete = dist(7, 10, 14)
-    symptomatic_to_hospitalized_days: rv_discrete = dist(0, 1.5, 10)
+    symptomatic_to_hospitalized_days: rv_discrete = dist(1, 1.5, 10)
     hospitalized_to_asymptomatic_days: rv_discrete = dist(18)
     hospitalized_to_icu_days: rv_discrete = dist(5)
     icu_to_deceased_days: rv_discrete = dist(7)
