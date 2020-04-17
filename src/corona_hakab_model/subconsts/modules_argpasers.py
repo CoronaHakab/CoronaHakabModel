@@ -65,6 +65,8 @@ def get_simulation_args_parser():
                         type=int,
                         default=None,
                         help='Set the random seed. Use only for exact reproducibility. By default, generate new seed.')
+    parser.add_argument("-s", "--silent",
+                        help="Do not print anything")
     parser.add_argument("--version", action="version", version=__version__)
     return parser
 
@@ -75,3 +77,12 @@ def get_default_simulation_args_values():
     """
     arg_parser = get_simulation_args_parser()
     return arg_parser.parse_args(["all"])
+
+
+def get_default_silent_simulation_args():
+    """
+        Returns the default Namespace object that simulation uses
+        and prevents it from printing
+        """
+    arg_parser = get_simulation_args_parser()
+    return arg_parser.parse_args(["--silent", "all"])
