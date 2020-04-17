@@ -156,3 +156,4 @@ static
 
 # Output directory
 output/
+/tests/params_file_test.py

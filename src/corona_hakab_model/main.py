@@ -81,10 +81,10 @@ def run_simulation(args):
         consts = Consts()
 
     # Sanity check for medical states time
-    time_parameters = ["latent_to_silent_days", "silent_to_asymptomatic_days", "silent_to_symptomatic_days",
-                       "asymptomatic_to_recovered_days", "symptomatic_to_asymptomatic_days",
-                       "symptomatic_to_hospitalized_days", "hospitalized_to_asymptomatic_days",
-                       "hospitalized_to_icu_days", "icu_to_deceased_days", "icu_to_hospitalized_days"]
+    time_parameters = ["latent_to_pre_symptomatic_days", "latent_to_asymptomatic_days",
+                       "pre_symptomatic_to_mild_condition_days", "mild_to_close_medical_care_days",
+                       "mild_to_need_icu_days", "mild_to_pre_recovered_days", "close_medical_care_to_icu_days",
+                       "close_medical_care_to_mild_days", "need_icu_to_deceased_days", "need_icu_to_improving_days"]
 
     for time_param in time_parameters:
         if getattr(consts, time_param).pmf(0) != 0:
