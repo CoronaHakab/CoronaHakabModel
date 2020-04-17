@@ -125,7 +125,7 @@ class CirclesConsts(NamedTuple):
         ]
 
     def get_age_distribution(self, geo_circle):
-        return rv_discrete(10, 70, values=(geo_circle["ages"], geo_circle["age_prob"]))
+        return rv_discrete(min(geo_circle["ages"]), max(geo_circle["ages"]), values=(geo_circle["ages"], geo_circle["age_prob"]))
 
     def get_connection_types_prob_by_age(self, geo_circle):
         return {age: geo_circle["connection_type_prob_by_age_index"][i] for i, age in enumerate(geo_circle["ages"])}
