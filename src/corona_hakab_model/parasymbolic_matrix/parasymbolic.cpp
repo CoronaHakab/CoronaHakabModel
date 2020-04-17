@@ -88,6 +88,18 @@ double BareSparseMatrix::get_total(){
     return sum;
 }
 
+bool BareSparseMatrix::validate(){
+    for (auto row_ind = 0; row_ind < size; row_ind++){
+        auto& row = rows[row_ind];
+        for (auto pair: row){
+            if (pair.second != rows[pair.first][row_ind]){
+                return false;
+             }
+        }
+    }
+    return true;
+}
+
 BareSparseMatrix::~BareSparseMatrix(){
     delete[] rows;
     delete[] columns;
@@ -403,6 +415,30 @@ std::vector<std::vector<std::vector<size_t>>> ParasymbolicMatrix::non_zero_colum
         );
     }
     return ret;
+}
+
+bool ParasymbolicMatrix::validate(){
+    // validate symmetry of coffs
+    for (auto i = 0; i < component_count; i++){
+        CoffedSparseMatrix* comp = components[i];
+        if (!comp->validate()){
+            return false;
+        }
+    }
+    // validate symmetry of inner.data + value is a probability
+    for (auto row_index = 0; row_index < inner.size; row_index++){
+        auto& row_columns_indices = inner.indices[row_index];
+        for (size_t i = 0; i < row_columns_indices.size(); ++i){
+            auto col_index = row_columns_indices[i];
+            if (inner.data[row_index][i] != get(col_index, row_index)){
+                return false;
+             }
+             if ((inner.data[row_index][i] < 0) || (inner.data[row_index][i] > 1)){
+                 return false;
+             }
+        }
+    }
+    return true;
 }
 
 ParasymbolicMatrix::~ParasymbolicMatrix(){

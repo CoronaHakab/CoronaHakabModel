@@ -25,6 +25,7 @@ class BareSparseMatrix{
         dtype get(size_t row,size_t column);
         void batch_set(size_t row, size_t const* A_columns, size_t c_len, dtype const* A_values, size_t v_len);
         double get_total();
+        bool validate();
         virtual ~BareSparseMatrix();
 };
 
@@ -93,5 +94,6 @@ class ParasymbolicMatrix{
          dtype const* A_values, size_t v_len);
         void set_calc_lock(bool value);
         virtual ~ParasymbolicMatrix();
+        bool validate();
         std::vector<std::vector<std::vector<size_t>>> non_zero_columns();
 };
