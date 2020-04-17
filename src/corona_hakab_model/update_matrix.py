@@ -47,6 +47,7 @@ class UpdateMatrixManager:
         self.normalize_factor = None
         self.total_contagious_probability = None
         self.normalize()
+        self.validate_matrix()
 
     def normalize(self):
         """
@@ -125,3 +126,11 @@ class UpdateMatrixManager:
         for connection_type in ConnectionTypes:
             self.matrix.mul_sub_row(connection_type, agent.index, factor)
             self.matrix.mul_sub_col(connection_type, agent.index, factor)
+
+    def validate_matrix(self):
+        submatrixes_rows_nonzero_columns = self.matrix.non_zero_columns()
+        for rows_nonzero_columns in submatrixes_rows_nonzero_columns:
+            for row_index, nonzero_columns in enumerate(rows_nonzero_columns):
+                for column_index in nonzero_columns:
+                    assert self.matrix.get(row_index, column_index) == self.matrix.get(column_index, row_index)
+                    assert 1 >= self.matrix.get(row_index, column_index) >= 0
