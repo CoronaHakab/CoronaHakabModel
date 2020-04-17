@@ -1,18 +1,17 @@
-from os import path
+from pathlib import Path
 from typing import Tuple
-import pickle
 import pandas as pd
 from generation.connection_types import ConnectionTypes
 import matplotlib.pyplot as plt
 from analyzers.config import POPULATION_OUTPUT_PATH
+from generation.circles_generator import PopulationData
 
 
-def load_population_data_to_dfs() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    output_file_path = POPULATION_OUTPUT_PATH
-    population_data = pickle.load(open(path.join(output_file_path, "population_data.pickle"), "rb"))
-
-    initial_sick_data_df = pd.read_csv(path.join(output_file_path, 'initial_sick.csv'))
-    final_sick_data_df = pd.read_csv(path.join(output_file_path, 'all_sick.csv'))
+def load_population_data_to_dfs(output_file_path=POPULATION_OUTPUT_PATH) \
+        -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    population_data = PopulationData.import_population_data(Path(output_file_path) / 'population_data.pickle')
+    initial_sick_data_df = pd.read_csv(Path(output_file_path) / 'initial_sick.csv')
+    final_sick_data_df = pd.read_csv(Path(output_file_path) / 'all_sick.csv')
 
     all_connections = []
     for circle_type, type_connections_list in population_data.social_circles_by_connection_type.items():
@@ -69,7 +68,7 @@ def plot_sick_per_relevant_circle(relevant_circles: pd.DataFrame, relevant_circl
     ax2.set_ylim([0, 1.5])
     ax2.set_title(f"percentage of sick people vs number of agents in {relevant_circles_name}")
     plt.xlabel(f"number of agents in {relevant_circles_name}")
-    plt.ylabel("number of sick people")
+    plt.ylabel("percentage of sick people")
     if log_scale:
         plt.xscale("log")
     plt.show()

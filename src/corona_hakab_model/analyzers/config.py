@@ -1,5 +1,5 @@
-from os import path
 from project_structure import OUTPUT_FOLDER
+from pathlib import Path
 
-POPULATION_OUTPUT_PATH = path.join(path.dirname(path.abspath(__file__)), "../../../output")
-TIME_OUTPUT_PATH = OUTPUT_FOLDER
+TIME_OUTPUT_PATH = Path(__file__).parent / "../../output"
+POPULATION_OUTPUT_PATH = OUTPUT_FOLDER

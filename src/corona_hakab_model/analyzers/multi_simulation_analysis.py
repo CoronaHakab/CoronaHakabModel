@@ -1,5 +1,7 @@
 from typing import List, Callable, Dict
 import os
+from pathlib import Path
+
 from glob import glob
 from project_structure import OUTPUT_FOLDER
 from analyzers.config import TIME_OUTPUT_PATH
@@ -19,13 +21,13 @@ def create_comparison_files(files: list = None):
         for each parameter creates a file combining the information from each file given.
     """
     if files is None:
-        files = glob(os.path.join(TIME_OUTPUT_PATH, "*.csv"))
+        files = Path(TIME_OUTPUT_PATH).glob("*.csv")
     dfs_dict = dict(map(lambda f: (os.path.basename(f),
                                    pd.read_csv(f).drop(["Unnamed: 0"], axis=1, errors='ignore')),
                         files))
     dfs_columns = map(lambda f: f.columns.tolist(), dfs_dict.values())
     parameters_to_compare = set(chain.from_iterable(dfs_columns))
-    result_folder_name = os.path.join(TIME_OUTPUT_PATH, datetime.now().strftime("%Y_%m_%d-%H_%M_%S"))
+    result_folder_name = Path(TIME_OUTPUT_PATH) / datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
     os.mkdir(result_folder_name)
     for parameter in parameters_to_compare:
         result_df = pd.DataFrame(columns=dfs_dict.keys())
@@ -34,7 +36,7 @@ def create_comparison_files(files: list = None):
                 result_df.loc[:, file_name] = file_df.loc[:, parameter]
             else:
                 result_df.loc[:, file_name] = pd.nan
-        result_df.to_csv(os.path.join(result_folder_name, f"{parameter}.csv"))
+        result_df.to_csv(Path(result_folder_name) / f"{parameter}.csv")
     return result_folder_name
 
 
@@ -108,10 +110,11 @@ def create_time_step_aggregation(parameters_dir_path, agg_funcs_dict: Dict[str, 
     :param agg_funcs_dict: dict of all the aggregation functions that want to be applied across multiple simulation runs
     :return: a dictionary with keys the same as agg_funcs_dict but values the df corresponding to the aggregation
     """
-    files = glob(os.path.join(TIME_OUTPUT_PATH, parameters_dir_path, "*.csv"))
+    files = (Path(TIME_OUTPUT_PATH)/parameters_dir_path).glob("*.csv")
+
     dfs_dict = {os.path.basename(f).replace('.csv', ''):
              pd.read_csv(f).drop(["Unnamed: 0"], axis=1, errors='ignore') for f in files}
-    result_folder_name = os.path.join(TIME_OUTPUT_PATH, datetime.now().strftime("%Y_%m_%d-%H_%M_%S")+"_time_agg")
+    result_folder_name = Path(TIME_OUTPUT_PATH) / (datetime.now().strftime("%Y_%m_%d-%H_%M_%S")+"_time_agg")
     os.mkdir(result_folder_name)
     results_df_dict = {}
     for agg_name, agg_func in agg_funcs_dict.items():
@@ -120,7 +123,7 @@ def create_time_step_aggregation(parameters_dir_path, agg_funcs_dict: Dict[str, 
             param_name = param_name.replace('.csv', '')
             columns[param_name] = df.agg(agg_func, axis=1)
         results_df_dict[agg_name] = pd.DataFrame.from_dict(columns)
-        results_df_dict[agg_name].to_csv(os.path.join(result_folder_name, f"{agg_name}.csv"))
+        results_df_dict[agg_name].to_csv(Path(result_folder_name) / f"{agg_name}.csv")
     return results_df_dict
 
 
