@@ -18,6 +18,7 @@ from util import dist, rv_discrete, upper_bound
 
 """
 Overview:
+
 Consts class is a named tuple holding all important consts for the simulation stage.
 it may either be made using default params, or by loading parameters from a file.
 Usage:
@@ -172,6 +173,7 @@ class Consts(NamedTuple):
     def from_file(cls, param_path):
         """
         Load parameters from file and return Consts object with those values.
+
         No need to sanitize the eval'd data as we disabled __builtins__ and only passed specific functions
         Documentation about what is allowed and not allowed can be found at the top of this page.
         """
