@@ -50,7 +50,7 @@
     - Please use linux/deb_run.sh (work in progress)
 
 - Docker
-    - Please reffer to docker.md and Dockerfile (work in progress)
+    - Please refer to docker.md and Dockerfile (work in progress)
     
 ## Optional - Export/Import matrices!
 - Export: **python main.py -o <PATH>**
@@ -68,7 +68,7 @@
 ## Workflow -
 - When working, **work on a new git branch**.
 - run quality test: **tox -e quality**, if it fails you might need to reformat: **tox -e reformat**.
-- if you use named expressions := then for now you have to add the comment # flake8: noqa which will exclude the file from flake8 checks because it doens't support namded expressions currently.
+- if you use named expressions := then for now you have to add the comment # flake8: noqa which will exclude the file from flake8 checks because it doesn't support namded expressions currently.
 - if ** tox -e reformat** fails then we have to check it out...
 - When done, **push changes to your branch, and create a pull request**.
 - **Always run the simulator after making changes and before merging**, to make sure you didn't break anything.
@@ -113,14 +113,14 @@
     * **--population_size** to set population size.
     * **--consts_file**
     * **--circle_consts_file**
-- The result of the run creats a json file with suffix of "state_machine_analysis_" and prefix of the time we ran the analyzer.
+- The result of the run creates a json file with suffix of "state_machine_analysis_" and prefix of the time we ran the analyzer.
 - The result file has several fields:
     * population_size. Defaults to 50,000
     * days_passed - The number of days the simulation ended
-    * time_in_each_state - dictionary whose keys are states and values are time spendt in total at that state
+    * time_in_each_state - dictionary whose keys are states and values are time spend in total at that state
     * visitors_in_each_state - dictionary whose keys are states and values are number of people who were at this state of the infection
     * average_duration_in_state - dictionary whose keys are states and values are the expected time to be at that state provided that we visited it at least once
-    * state_duration_expected_time - dictionary whose keys are states and values are expected time spent in taht state of the illness
+    * state_duration_expected_time - dictionary whose keys are states and values are expected time spent in that state of the illness
     * average_time_to_terminal - The average time it took agent to end at terminal state
 ### Simulation Analyser
 - TODO: Wrap simulation analyser in runnable (argparse, __main__, the works), and add documentation.
@@ -133,14 +133,14 @@
   ****NOTICE**: When plots are being shown, you need to close them in order for the program to finish.  
 ##### **OUTPUTS**  
 - The module creates multiple files. The files created are raw-data '.csv' file of the matrix's different connection type (e.g. work, family) 
-  and an histogram analysis of those connections (both '.csv' file and '.png' of the histogrm).  
+  and an histogram analysis of those connections (both '.csv' file and '.png' of the histogram).  
   The files are being saved to **'/output/matrix_analysis/'** folder.  
-  The created folder is divided to 2 subfolders:  
+  The created folder is divided to 2 sub-folders:  
   **histogram_analysis** - This folder is where the histogram plots and .csv files are saved.  
   **raw_matrices** - This folder is where the matrix's raw data is saved. 
 - The file names indicate what type of connection they are related to.  
 ##### **EXAMPLES**  
-  1. Run the analysis on defualt matrix file and don't show plots:  
+  1. Run the analysis on default matrix file and don't show plots:  
   `python ./main analyze-matrix`  
   2. Run with specified matrix file:  
   `python ./main analyze-matrix --matrix /example/to/matrix/path`  

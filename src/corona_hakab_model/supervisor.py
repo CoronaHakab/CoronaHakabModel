@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from functools import lru_cache
 from typing import Any, Callable, List, NamedTuple, Sequence, Union, Dict
 
-from project_structure import SIM_OUTPUT_FOLDER
+from project_structure import SIM_OUTPUT_FOLDER, OUTPUT_FOLDER
 from pathlib import Path
 import manager
 from state_machine import StochasticState
@@ -50,8 +50,7 @@ class SimulationProgression:
         file_name = Path(filename) if filename else Path(SIM_OUTPUT_FOLDER) / (datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
         file_name.parent.mkdir(parents=True, exist_ok=True)
 
-        output_folder = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], "output")
-        file_name = filename or os.path.join(output_folder, datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
+        file_name = filename or OUTPUT_FOLDER / (datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
         # TODO: Switch ^ to use pathlib
 
         tabular_supervisables = [s for s in self.supervisables if isinstance(s, TabularSupervisable)]

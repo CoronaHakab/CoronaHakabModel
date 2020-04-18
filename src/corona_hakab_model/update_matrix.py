@@ -95,7 +95,7 @@ class UpdateMatrixManager:
     def apply_policy_on_circles(self, policy: Policy, circles: Iterable[SocialCircle]):
         # for now, we will not update the matrix at all
         for circle in circles:
-            # check if circle is relevent to conditions
+            # check if circle is relevant to conditions
             flag = True
             for condition in policy.conditions:
                 flag = flag and condition(circle)
