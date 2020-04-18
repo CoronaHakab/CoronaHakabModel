@@ -82,11 +82,19 @@ class CirclesConsts(NamedTuple):
             },
         },
     ]
+    random_connections_exponential_base: {
+        ConnectionTypes.School: 1.5,
+        ConnectionTypes.Work: 1.5,
+        ConnectionTypes.Family: 1.5,
+        ConnectionTypes.Other: 1.5,
+    }
     geo_circles_agents_share: List[float] = [0.6, 0.4]
     multi_zone_connection_type_to_geo_circle_probability: List = [
         {ConnectionTypes.Work: {"north": 0.7, "south": 0.3}},
         {ConnectionTypes.Work: {"north": 0.2, "south": 0.8}},
     ]
+
+
 
     @classmethod
     def from_file(cls, param_path):

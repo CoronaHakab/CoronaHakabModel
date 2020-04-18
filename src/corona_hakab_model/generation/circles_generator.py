@@ -3,6 +3,8 @@ import sys
 from typing import List
 import os.path
 
+from numpy import np
+
 from agent import Agent
 from __data__ import __version__
 from generation.circles import SocialCircle
@@ -16,7 +18,6 @@ sys.setrecursionlimit(5000)
 
 
 class PopulationData:
-
     __slots__ = (
         "version",
         "agents",
@@ -24,6 +25,7 @@ class PopulationData:
         "social_circles_by_connection_type",
         "geographic_circle_by_agent_index",
         "social_circles_by_agent_index",
+        "num_of_random_connections"
     )
 
     def __init__(self):
@@ -34,12 +36,13 @@ class PopulationData:
         self.social_circles_by_connection_type = {}
         self.geographic_circle_by_agent_index = {}
         self.social_circles_by_agent_index = {}
+        self.num_of_random_connections: np.ndarray = np.array([])
 
     def export(self, export_path, file_name: str):
         if not file_name.endswith(".pickle"):
             file_name += ".pickle"
 
-        with open(os.path.join(export_path,file_name), "wb") as export_file:
+        with open(os.path.join(export_path, file_name), "wb") as export_file:
             pickle.dump(self, export_file)
 
     @staticmethod
@@ -53,14 +56,14 @@ class PopulationData:
 
 
 class CirclesGenerator:
-
     # todo organize all path fields in a single file
     # import/export variables
     EXPORT_OUTPUT_DIR = "../../output/"
     EXPORT_FILE_NAME = "population_data.pickle"
+
     # todo split consts into generation_consts, simulation_consts, and plot_consts
     def __init__(
-        self, circles_consts: CirclesConsts,
+            self, circles_consts: CirclesConsts,
     ):
         self.circles_consts = circles_consts
         self.population_data = PopulationData()
@@ -104,7 +107,26 @@ class CirclesGenerator:
         self.social_circles_by_agent_index = {}
         self.fill_social_circles_by_agent_index()
 
+        self.num_of_random_connections = self.generate_random_connections()
+
         self._fill_population_data()
+
+    def generate_random_connections(self):
+        num_of_random_connections = np.zeros((len(self.agents), len(ConnectionTypes)), dtype=int)
+        for connection_type, all_circs in self.social_circles_by_connection_type.items():
+            circle: SocialCircle
+            exp_base = self.circles_consts.random_connections_exponential_base[connection_type]
+
+            for circle in all_circs:
+                agents_id = [a.index for a in circle.agents]
+                rand_connections = np.round(np.exp(exp_base * np.arange(len(agents_id))))
+                circle.total_random_connections = sum(rand_connections)
+
+                num_of_random_connections[
+                    np.random.permutation(agents_id), [connection_type] * len(agents_id)
+                ] = rand_connections
+
+        return num_of_random_connections
 
     def create_geographic_circles(self):
         """
@@ -180,6 +202,7 @@ class CirclesGenerator:
         self.population_data.geographic_circles = self.geographic_circles
         self.population_data.geographic_circle_by_agent_index = self.geographic_circle_by_agent_index
         self.population_data.social_circles_by_agent_index = self.social_circles_by_agent_index
+        self.population_data.num_of_random_connections = self.num_of_random_connections
 
     def export(self):
         # export population data using pickle
