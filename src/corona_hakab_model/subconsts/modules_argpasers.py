@@ -44,6 +44,11 @@ def get_simulation_args_parser():
     sim.add_argument(
         "-s", "--simulation-parameters", dest="simulation_parameters_path", help="Parameters for simulation engine"
     )
+    state_machine = subparser.add_parser("analyze-state-machine", help="Run stochastic analyzer for the state machine")
+    state_machine.add_argument("--population_size",
+                               dest="population_size",
+                               default="50_000",
+                               help="Folder to save the result of")
     sim.add_argument('--population-data',
                      dest='population_data',
                      default='../../output/population_data.pickle',
