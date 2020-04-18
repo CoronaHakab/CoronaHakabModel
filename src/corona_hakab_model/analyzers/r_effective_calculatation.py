@@ -74,21 +74,18 @@ def _calculate_series_r0(infections, p_tau):
 
 
 def r_effective_over_time(infections_df, config) -> pd.DataFrame:
-    p_tau = config['p_tau']  # The distribution to get infected on each day from agent
+    p_tau = np.array(config['p_tau'])  # The distribution to get infected on each day from agent
     interval_length = len(p_tau)
-    r_effective_days = list(range(interval_length + 1, len(infections_df.columns)))
+    r_effective_days = list(range(interval_length, len(infections_df.columns)))
     r_effective_df = pd.DataFrame(np.nan,
                                   index=infections_df.index,
                                   columns=r_effective_days)
-    relevant_df = infections_df.loc[interval_length + 1: len(infections_df)]
+
     for i in r_effective_days:
-        print(i)
-        current_r0s_series = relevant_df.apply(lambda row: (_calculate_series_r0(
-            row[i-interval_length-1: i],
-            p_tau)),
-                                               axis=1)
-        r_effective_df.loc[:, i] = current_r0s_series
-        return r_effective_df
+        average_total_infections = infections_df.loc[:, i-interval_length: i-1] @ p_tau
+        r_effective_df.loc[:, i] = infections_df.loc[:, i]/average_total_infections
+
+    return r_effective_df
 
 
 def calculate_r_effective(config):
