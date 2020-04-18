@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 import os
 from collections import Counter
@@ -21,13 +22,8 @@ def _generate_agents_randomly(population_size, circle_consts) -> List:
                                          according to circles configuration
     :return: List of agents
     """
-    list_of_agents = []
-    random_ages = circle_consts.get_age_distribution().rvs(size=population_size)
-    for _ in range(population_size):
-        new_agent = Agent(index=_)
-        new_agent.age = random_ages[_]
-        list_of_agents.append(new_agent)
-    return list_of_agents
+    # Currently not modeling difference between agents such as age or geo region
+    return [Agent(index=_) for _ in range(population_size)]
 
 
 def _infect_all_agents(list_of_agents, medical_machine_manager, medical_state_machine):
@@ -106,9 +102,8 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
     if "circle_consts_file" in configuration:
         circle_const = CirclesConsts.from_file(configuration['circle_consts_file'])
     else:
-        circle_const = CirclesConsts()
-
-    population_size = configuration["monte_carlo_size"]
+        population_size = int(configuration["population_size"])
+        circle_const = CirclesConsts(population_size=population_size)
 
     medical_state_machine = consts.medical_state_machine()
     medical_machine_manager = MedicalStateManager(medical_state_machine=medical_state_machine)
@@ -148,11 +143,19 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
                 average_time_to_terminal=sum_days_to_terminal/population_size)
 
 
+def extract_state_machine_analysis(configuration):
+    output_file = OUTPUT_FOLDER /\
+                  f"state_machine_analysis_{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
+    result = monte_carlo_state_machine_analysis(configuration)
+    with open(output_file, 'w') as result_json:
+        json.dump(result, result_json, indent=4, sort_keys=True)
+
+
 if __name__ == "__main__":
     import pandas as pd
     df = pd.DataFrame()
     for i in [1000, 5000, 10000, 25_000, 50_000, 100_000]:
-        monte_carlo_config = dict(monte_carlo_size=i)
+        monte_carlo_config = dict(population_size=i)
         result = monte_carlo_state_machine_analysis(monte_carlo_config)
         dataframe_dict = dict()
         for k, v in result.items():
