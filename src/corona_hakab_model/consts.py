@@ -130,7 +130,7 @@ class Consts(NamedTuple):
     change_policies: bool = False
     # a dictionary of day:([ConnectionTypes], message). on each day, keeps only the given connection types opened
     policies_changes: Dict[int, tuple] = {
-        40: ([ConnectionTypes.Family, ConnectionTypes.Other], "closing schools and kindergartens and works"),
+        40: ([ConnectionTypes.Family, ConnectionTypes.Other], "closing schools, kindergartens and works"),
         70: ([ConnectionTypes.Family, ConnectionTypes.Other, ConnectionTypes.School, ConnectionTypes.Kindergarten],
              "opening schools and kindergartens"),
         100: (ConnectionTypes, "opening works"),
