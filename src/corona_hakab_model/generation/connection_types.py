@@ -15,6 +15,7 @@ In_Zone_types = [ConnectionTypes.School, ConnectionTypes.Family]
 Multi_Zone_types = [ConnectionTypes.Work]
 Whole_Population_types = [ConnectionTypes.Other]
 Non_Random_Age_Types = [ConnectionTypes.Family, ConnectionTypes.School]
+With_Random_Connections = [ConnectionTypes.Work, ConnectionTypes.School, ConnectionTypes.Other]
 
 # used for matrices generations
 Connect_To_All_types = [ConnectionTypes.Family]

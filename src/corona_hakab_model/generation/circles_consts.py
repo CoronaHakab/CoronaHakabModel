@@ -82,11 +82,16 @@ class CirclesConsts(NamedTuple):
             },
         },
     ]
-    random_connections_exponential_base: {
-        ConnectionTypes.School: 1.5,
-        ConnectionTypes.Work: 1.5,
-        ConnectionTypes.Family: 1.5,
-        ConnectionTypes.Other: 1.5,
+    random_connections_dist_mean = {
+        ConnectionTypes.School: 0.25,
+        ConnectionTypes.Work: 2.2,
+        ConnectionTypes.Other: 2.1,
+    }
+    random_connections_strength_factor = {
+        ConnectionTypes.School: 0.7,
+        ConnectionTypes.Work: 0.7,
+        ConnectionTypes.Family: 0.7,
+        ConnectionTypes.Other: 0.7,
     }
     geo_circles_agents_share: List[float] = [0.6, 0.4]
     multi_zone_connection_type_to_geo_circle_probability: List = [

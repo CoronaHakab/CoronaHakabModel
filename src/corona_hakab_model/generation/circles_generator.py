@@ -1,12 +1,13 @@
 import pickle
 import sys
-from typing import List
+from typing import List, Dict
 import os.path
 
-from numpy import np
+import numpy as np
 
 from agent import Agent
 from __data__ import __version__
+from generation import connection_types
 from generation.circles import SocialCircle
 from generation.circles_consts import CirclesConsts
 from generation.connection_types import ConnectionTypes, Multi_Zone_types, Whole_Population_types
@@ -33,7 +34,7 @@ class PopulationData:
 
         self.agents = []
         self.geographic_circles: List[GeographicCircle] = []
-        self.social_circles_by_connection_type = {}
+        self.social_circles_by_connection_type: Dict[ConnectionTypes, List[SocialCircle]] = {}
         self.geographic_circle_by_agent_index = {}
         self.social_circles_by_agent_index = {}
         self.num_of_random_connections: np.ndarray = np.array([])
@@ -97,7 +98,8 @@ class CirclesGenerator:
                 )
 
         # fills self's social circles by connection types from all geographic circles
-        self.social_circles_by_connection_type = {connection_type: [] for connection_type in ConnectionTypes}
+        self.social_circles_by_connection_type: Dict[ConnectionTypes, List[SocialCircle]] =\
+            {connection_type: [] for connection_type in ConnectionTypes}
         self.fill_social_circles()
 
         # create whole population circles
@@ -112,19 +114,29 @@ class CirclesGenerator:
         self._fill_population_data()
 
     def generate_random_connections(self):
-        num_of_random_connections = np.zeros((len(self.agents), len(ConnectionTypes)), dtype=int)
-        for connection_type, all_circs in self.social_circles_by_connection_type.items():
-            circle: SocialCircle
-            exp_base = self.circles_consts.random_connections_exponential_base[connection_type]
+        num_of_random_connections = np.zeros((len(self.agents), len(ConnectionTypes)), dtype=float)
+        for connection_type in connection_types.With_Random_Connections:
+            exp_mean = self.circles_consts.random_connections_dist_mean[connection_type]
 
-            for circle in all_circs:
+            for circle in self.social_circles_by_connection_type[connection_type]:
+                num_of_agents_in_circle = len(circle.agents)
+                if num_of_agents_in_circle == 1:
+                    # No random connections
+                    continue
+
                 agents_id = [a.index for a in circle.agents]
-                rand_connections = np.round(np.exp(exp_base * np.arange(len(agents_id))))
-                circle.total_random_connections = sum(rand_connections)
 
-                num_of_random_connections[
-                    np.random.permutation(agents_id), [connection_type] * len(agents_id)
-                ] = rand_connections
+                # Sample from exponential distribution
+                rand_connections = np.random.exponential(exp_mean, len(agents_id))
+
+                # You can't have more random connections than the number of people (other than you) in the circle
+                rand_connections[rand_connections > num_of_agents_in_circle - 1] = num_of_agents_in_circle - 1
+
+                circle.total_random_connections = sum(rand_connections)
+                circle.random_connections_strength_factor = \
+                    self.circles_consts.random_connections_strength_factor[connection_type]
+
+                num_of_random_connections[agents_id, [connection_type] * len(agents_id)] = rand_connections
 
         return num_of_random_connections
 

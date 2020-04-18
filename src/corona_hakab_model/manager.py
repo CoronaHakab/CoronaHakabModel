@@ -1,12 +1,9 @@
 import logging
 from collections import defaultdict
-
-from random import random, choice
-from typing import Callable, Dict, Iterable, List, Union
-import infection
-import update_matrix
-import numpy as np
 from typing import Callable, Iterable, List, Union
+
+import numpy as np
+
 import infection
 import update_matrix
 from agent import SickAgents, InitialAgentsConstraints
@@ -19,8 +16,6 @@ from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
 from supervisor import Supervisable, SimulationProgression
-from update_matrix import Policy
-
 
 
 class SimulationManager:
@@ -51,6 +46,7 @@ class SimulationManager:
         self.social_circles_by_connection_type = population_data.social_circles_by_connection_type
         self.geographic_circle_by_agent_index = population_data.geographic_circle_by_agent_index
         self.social_circles_by_agent_index = population_data.social_circles_by_agent_index
+        self.num_of_random_connections = population_data.num_of_random_connections
 
         self.matrix_type = matrix_data.matrix_type
         self.matrix = matrix_data.matrix
@@ -159,7 +155,7 @@ class SimulationManager:
         """
         agents_to_infect = []
         agent_index = 0
-        if self.initial_agent_constraints.constraints is not None\
+        if self.initial_agent_constraints.constraints is not None \
                 and len(self.initial_agent_constraints.constraints) != self.consts.initial_infected_count:
             raise ValueError("Constraints file row number must match number of sick agents in simulation")
         while len(agents_to_infect) < self.consts.initial_infected_count:
