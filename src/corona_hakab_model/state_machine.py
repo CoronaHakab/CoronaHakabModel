@@ -9,7 +9,7 @@ from typing import Collection, Dict, Generic, Iterable, List, NamedTuple, Option
 import numpy as np
 from agent import Agent, TrackingCircle
 from scipy.stats import rv_discrete
-from util import Queue, upper_bound
+from util import Queue, upper_bound, lower_bound
 
 
 class PendingTransfer(NamedTuple):
@@ -58,6 +58,10 @@ class StochasticTransferGenerator:
             p = probability
         # todo improve?
         self.probs_cumulative = np.append(self.probs_cumulative, p)
+
+        # Sanity check for medical states time
+        if lower_bound(duration) <= 0:
+            raise ValueError("duration of medical state allowed to be 0")
 
         self.destinations.append(destination)
         self.durations.append(duration)

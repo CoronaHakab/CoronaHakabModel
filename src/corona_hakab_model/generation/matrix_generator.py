@@ -1,6 +1,5 @@
 import logging
 import math
-import pickle
 from itertools import islice
 from random import random, sample
 from typing import List
@@ -8,9 +7,9 @@ import os.path
 
 import bsa.universal
 import bsa.parasym
+import bsa.scipy_sparse
 import corona_matrix
 import numpy as np
-from corona_hakab_model_data.__data__ import __version__
 from generation.circles import SocialCircle
 from generation.circles_generator import PopulationData
 from generation.connection_types import (
@@ -21,14 +20,36 @@ from generation.connection_types import (
 )
 from generation.matrix_consts import MatrixConsts
 from generation.node import Node
+from bsa.parasym import write_parasym, read_parasym
+from bsa.scipy_sparse import read_scipy_sparse
+import project_structure
 
 
 class MatrixData:
     __slots__ = ("matrix_type", "matrix", "depth")
 
+    # import/export variables
+    IMPORT_MATRIX_PATH = os.path.join(project_structure.OUTPUT_FOLDER, "matrix_data")
+
     def __init__(self):
         self.matrix_type = None
         self.matrix = None
+        self.depth = 0
+
+    def import_matrix_data_as_scipy_sparse(self, matrix_data_path):
+        """
+        Import a MatrixData object from file.
+        The matrix is imported as scipy_sparse.
+        """
+        if matrix_data_path is None:
+            matrix_data_path = self.IMPORT_MATRIX_PATH
+        try:
+            with open(matrix_data_path, "rb") as import_file:
+                self.matrix = read_scipy_sparse(import_file)
+            self.matrix_type = "scipy_sparse"
+            self.depth = len(self.matrix)
+        except FileNotFoundError:
+            raise FileNotFoundError("Couldn't open matrix data from {}".format(matrix_data_path))
 
     # todo make this work, using the parasymbolic matrix serialization.
     def export(self, export_path: str):
@@ -51,6 +72,15 @@ class MatrixData:
         matrix_data.depth = len(ConnectionTypes) # This seems to essentialy be a constant.
         return matrix_data
 
+    def get_scipy_sparse(self):
+        """
+        A wrapper for getting the scipy_sparse representation of the matrix.
+        It doesn't change the current matrix, but creates a different one.
+        :return: List[scipy.spars.lil_matrix] of #<depth> elements
+        """
+        b = bsa.parasym.write_parasym(self.matrix)
+        b.seek(0)
+        return bsa.scipy_sparse.read_scipy_sparse(b)
 
 # todo right now only supports parasymbolic matrix. need to merge with corona matrix class import selector
 class MatrixGenerator:
@@ -198,6 +228,8 @@ class MatrixGenerator:
         self._add_small_circle_connections(super_small_circles_combined, connections, total_connections_float)
 
         # insert all connections to matrix
+        # we need to remember the strengths so the connection will be symmetric
+        known_strengths = {}
         for agent, conns in zip(self.agents, connections):
             conns = np.array(conns)
             conns.sort()
@@ -207,6 +239,15 @@ class MatrixGenerator:
             strengthes = np.random.choice(
                 [connection_strength, connection_strength / 7], size=len(conns), p=[daily_share, weekly_share]
             )
+            # check if some strengths were determined earlier
+            for conn in conns:
+                known_strength = known_strengths.get((conn, agent.index), None)
+                if known_strength != None:
+                    strengthes[np.where(conns==conn)] = known_strength
+                    del known_strengths[(conn, agent.index)]
+                else:
+                    # connection is new. store the strength for future use
+                    known_strengths[(agent.index, conn)] = strengthes[np.where(conns==conn)] 
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
 
@@ -231,6 +272,8 @@ class MatrixGenerator:
             indexes = [agent.index for agent in agents]
             nodes: List[Node] = [Node(index) for index in indexes]
 
+            if len(agents) == 0:
+                continue
             # insert first node
             first_node = sample(nodes, 1)[0]
             connected_nodes = set([first_node])
@@ -272,6 +315,8 @@ class MatrixGenerator:
                 connections[connected_node.index].extend([other_node.index for other_node in connected_node.connected])
 
         # insert all connections to matrix
+        # we need to remember the strengths so the connection will be symmetric
+        known_strengths = {}
         for agent, conns in zip(self.agents, connections):
             conns = np.array(conns)
             conns.sort()
@@ -284,6 +329,15 @@ class MatrixGenerator:
                     weekly_connections_float / total_connections_float,
                 ],
             )
+            # check if some strengths were determined earlier
+            for conn in conns:
+                known_strength = known_strengths.get((conn, agent.index), None)
+                if known_strength != None:
+                    strengthes[np.where(conns==conn)] = known_strength
+                    del known_strengths[(conn, agent.index)]
+                else:
+                    # connection is new. store the strength for future use
+                    known_strengths[(agent.index, conn)] = strengthes[np.where(conns==conn)] 
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
 

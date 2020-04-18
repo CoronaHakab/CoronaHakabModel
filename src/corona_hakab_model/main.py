@@ -1,92 +1,40 @@
 from __future__ import annotations
 
 import logging
-from argparse import ArgumentParser
-import matplotlib_set_backend
 import matplotlib.pyplot as plt
 import random
-import numpy as np
-import pickle
 import os.path
 import sys
+from matplotlib import pyplot as plt
 
-from bsa.universal import write
+import numpy as np
+
 from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
 from consts import Consts
-from corona_hakab_model_data.__data__ import __version__
-from generation.circles_consts import CirclesConsts
 from generation.circles_generator import PopulationData
 from generation.generation_manager import GenerationManger
-from generation.matrix_consts import MatrixConsts
 from generation.matrix_generator import MatrixData
 from manager import SimulationManager
-from supervisor import LambdaValueSupervisable, Supervisable, SimulationProgression
-
+from agent import InitialAgentsConstraints
+from subconsts.modules_argpasers import get_simulation_args_parser
+from supervisor import LambdaValueSupervisable, Supervisable
+from analyzers import matrix_analysis
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import pandas as pd
 
 
-logger = logging.getLogger('application')
-logger.setLevel(logging.INFO)
-
 def main():
-    parser = ArgumentParser("COVID-19 Simulation")
-    subparser = parser.add_subparsers(dest="sub_command")
-    all_parse = subparser.add_parser("all", help="Run both data generation and simulation.")
-    gen = subparser.add_parser('generate', help='only generate the population data without running the simulation')
-    gen.add_argument("-c",
-                     "--circles-consts",
-                     dest="circles_consts_path",
-                     help="Parameter file with consts for the circles")
-    gen.add_argument("-m",
-                     "--matrix-consts",
-                     dest="matrix_consts_path",
-                     help="Parameter file with consts for the matrix")
-    gen.add_argument("-o",
-                     "--output-folder",
-                     dest="output_folder",
-                     default='../../output',
-                     help="output folder if not using --consts-folder or --master-folder")
-    gen.add_argument("--consts-folder",
-                     dest="consts_folder",
-                     help="Folder to take matrix_consts.json and circles_consts.json from."
-                          "Also output folder for generation")
-    gen.add_argument("--master-folder",
-                     dest="master_folder",
-                     help="Master folder - find all immediate sub-folders containing parameter files and generate"
-                          "population data and matrix files in them.")
-    # Simulation parameters
-    sim = subparser.add_parser("simulate", help='Run the simulation using existing data')
-    sim.add_argument(
-        "-s", "--simulation-parameters", dest="simulation_parameters_path", help="Parameters for simulation engine"
-    )
-    sim.add_argument('--population-data',
-                     dest='population_data',
-                     default='../../output/population_data.pickle',
-                     help='Previously exported population data file to use in the simulation')
-    sim.add_argument('--matrix-data',
-                     dest='matrix_data',
-                     default='../../output/matrix_data.parasymbolic',
-                     help='Previously exported matrix data file to use in the simulation')
-    sim.add_argument('--output',
-                     dest='output',
-                     default='',
-                     help='Filepath to resulting csv. Defaults to ../../output/(timestamp).csv')
-    sim.add_argument('--figure-path',
-                     dest='figure_path',
-                     default='',
-                     help='Save the resulting figure to a file instead of displaying it')
+    logger = logging.getLogger('application')
+    logger.setLevel(logging.INFO)
+    parser = get_simulation_args_parser()
 
-    parser.add_argument('--seed',
-                        dest='seed',
-                        type=int,
-                        default=None,
-                        help='Set the random seed. Use only for exact reproducibility. By default, generate new seed.')
-    parser.add_argument("--version", action="version", version=__version__)
     args, _ = parser.parse_known_args()
     set_seeds(args.seed)
+
+    if args.sub_command == 'analyze-matrix':
+        analyze_matrix(args)
 
     if args.sub_command == 'generate':
         generate_data(args)
@@ -125,6 +73,7 @@ def generate_data(args):
 def run_simulation(args):
     matrix_data = MatrixData.import_matrix_data(args.matrix_data)
     population_data = PopulationData.import_population_data(args.population_data)
+    initial_agent_constraints = InitialAgentsConstraints(args.agent_constraints_path)
     if args.simulation_parameters_path:
         consts = Consts.from_file(args.simulation_parameters_path)
     else:
@@ -145,25 +94,39 @@ def run_simulation(args):
             # "Susceptible",
             # "Recovered",
             Supervisable.Sum(
-                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", name="currently sick"
+                "Latent",
+                "Latent-Asymp",
+                "Latent-Presymp",
+                "Asymptomatic",
+                "Pre-Symptomatic",
+                "Mild-Condition",
+                "NeedOfCloseMedicalCare",
+                "NeedICU",
+                "ImprovingHealth",
+                "PreRecovered",
+                name="currently sick"
             ),
             # LambdaValueSupervisable("ever hospitalized", lambda manager: len(manager.medical_machine["Hospitalized"].ever_visited)),
             LambdaValueSupervisable(
                 "was ever sick",
                 lambda manager: len(manager.agents) - manager.medical_machine["Susceptible"].agent_count,
             ),
-            # Supervisable.NewCasesCounter(),
+            Supervisable.NewCasesCounter(),
+            Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter(), 1),
+            Supervisable.Wrappers.RunningAverage(Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter()), 7),
+            Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter(), 7),
             # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
-            Supervisable.NewCasesCounter(),
             Supervisable.CurrentInfectedTable(interval=Consts.export_infected_agents_interval),
-            LambdaValueSupervisable("Detected Daily", lambda manager: manager.new_detected_daily),
+            # LambdaValueSupervisable("Detected Daily", lambda manager: manager.new_detected_daily),
             # LambdaValueSupervisable("Current Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
             # Supervisable.R0(),
             # Supervisable.Delayed("Symptomatic", 3),
         ),
         population_data,
         matrix_data,
+        initial_agent_constraints,
+        run_args=args,
         consts=consts,
     )
     print(sm)
@@ -182,6 +145,7 @@ def set_seeds(seed=0):
     seed = seed or None
     np.random.seed(seed)
     random.seed(seed)
+
 
 def compare_simulations_example():
     sm1 = SimulationManager(
@@ -207,6 +171,16 @@ def compare_simulations_example():
         consts=Consts(r0=1.8),
     )
     sm2.run()
+
+
+def analyze_matrix(args):
+    matrix_data = matrix_analysis.import_matrix_data(args.matrix_path)
+    matrix_analysis.export_raw_matrices_to_csv(matrix_data)
+    histograms = matrix_analysis.analyze_histograms(matrix_data)
+    matrix_analysis.export_histograms(histograms)
+    matrix_analysis.save_histogram_plots(histograms)
+    if args.show:
+        plt.show()
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 from typing import Any, Callable, Iterable
 
 import numpy as np
-from agent import Agent
+
 from generation.circles import SocialCircle
 from generation.connection_types import ConnectionTypes
 from policies_manager import ConditionedPolicy
@@ -47,7 +47,8 @@ class UpdateMatrixManager:
         self.normalize_factor = None
         self.total_contagious_probability = None
         self.normalize()
-
+        self.validate_matrix()
+        
     def normalize(self):
         """
         this function should normalize the weights within W to represent the infection rate.
@@ -106,11 +107,11 @@ class UpdateMatrixManager:
                 self.matrix.mul_sub_col(connection_type, agent.index, factor)
 
     def check_and_apply(
-        self,
-        con_type: ConnectionTypes,
-        circles: Iterable[SocialCircle],
-        conditioned_policy: ConditionedPolicy,
-        **activating_condition_kwargs,
+            self,
+            con_type: ConnectionTypes,
+            circles: Iterable[SocialCircle],
+            conditioned_policy: ConditionedPolicy,
+            **activating_condition_kwargs,
     ):
         if (not conditioned_policy.active) and conditioned_policy.activating_condition(activating_condition_kwargs):
             self.logger.info("activating policy on circles")
@@ -119,3 +120,17 @@ class UpdateMatrixManager:
             conditioned_policy.active = True
             # adding the message
             self.manager.policy_manager.add_message_to_manager(conditioned_policy.message)
+
+    def apply_full_isolation_on_agent(self, agent):
+        factor = 0  # full isolation
+        for connection_type in ConnectionTypes:
+            self.matrix.mul_sub_row(connection_type, agent.index, factor)
+            self.matrix.mul_sub_col(connection_type, agent.index, factor)
+
+    def validate_matrix(self):
+        submatrixes_rows_nonzero_columns = self.matrix.non_zero_columns()
+        for rows_nonzero_columns in submatrixes_rows_nonzero_columns:
+            for row_index, nonzero_columns in enumerate(rows_nonzero_columns):
+                for column_index in nonzero_columns:
+                    assert self.matrix.get(row_index, column_index) == self.matrix.get(column_index, row_index), "Matrix is not symmetric"
+                    assert 1 >= self.matrix.get(row_index, column_index) >= 0, "Some values in the matrix are not probabilities"

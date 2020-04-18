@@ -1,27 +1,50 @@
-from collections import namedtuple
-from typing import List
+from argparse import ArgumentParser
+from dataclasses import dataclass
+import numpy as np
 import pathlib
+import json
 import os
 
-MovingParameter = namedtuple("MovingParameter", ["param_name", "start_range", "end_range", "step_size"])
+
+@dataclass
+class MovingParameter:
+    parameter_name: str
+    start_range: float
+    end_range: float
+    step_size: float
 
 
 class MovingParametersGenerator:
     @classmethod
-    def generate_moving_parameters(cls, params_path, moving_params: List[MovingParameter], output_folder_path):
+    def generate_moving_parameters(cls, params_path, moving_params_path, output_folder_path):
         """
         Generate parameters files according to the moving parameters and output them to folder.
         """
 
-        with open(params_path, "rt") as read_file:
-            loaded_params_str = read_file.read()
+        with open(params_path, "rt") as params_file:
+            loaded_params_str = params_file.read()
+
+        moving_params = cls.get_moving_parameters(moving_params_path)
 
         for moving_param in moving_params:
-            for param_value in range(moving_param.start_range, moving_param.end_range, moving_param.step_size):
-                generated_params = cls.replace_parameter_value(loaded_params_str, moving_param.param_name, param_value)
+            param_values = np.arange(moving_param.start_range, moving_param.end_range, moving_param.step_size)
+            for param_value in param_values:
+                generated_params = cls.replace_parameter_value(loaded_params_str, moving_param.parameter_name,
+                                                               param_value)
 
-                cls.write_generated_parameters_to_file(generated_params, moving_param.param_name, param_value,
+                cls.write_generated_parameters_to_file(generated_params, moving_param.parameter_name, param_value,
                                                        output_folder_path)
+
+    @classmethod
+    def get_moving_parameters(cls, moving_params_path):
+        """
+        Load moving parameters from file and return a list of MovingParameter.
+        """
+
+        with open(moving_params_path, "rt") as moving_params_file:
+            moving_params = json.load(moving_params_file)
+
+        return [MovingParameter(**moving_param_dict) for moving_param_dict in moving_params]
 
     @classmethod
     def replace_parameter_value(cls, params_str, param_name, param_value):
@@ -53,18 +76,21 @@ class MovingParametersGenerator:
 
 
 if __name__ == "__main__":
-    example_input_file_path = "Parameters/circles_parameters_example.py"
-    example_output_folder_path = "../../output/generated_parameters/circles_parameters"
+    parser = ArgumentParser("Multiple Jsons Generator")
+    parser.add_argument("-p",
+                        "--input-params",
+                        dest="input_file_path",
+                        help="Input parameters file path")
+    parser.add_argument("-m",
+                        "--moving-params",
+                        dest="moving_parameters_file_path",
+                        help="Moving parameters file path")
+    parser.add_argument("-o",
+                        "--output-folder",
+                        dest="output_folder_path",
+                        default='../../output/generated_parameters',
+                        help="Output folder - default is  ../../output/generated_parameters")
+    args = parser.parse_args()
 
-    population_size_param = MovingParameter(param_name="population_size",
-                                            start_range=20_000,
-                                            end_range=50_000,
-                                            step_size=10_000)
-    geo_circles_amount_param = MovingParameter(param_name="geo_circles_amount",
-                                               start_range=2,
-                                               end_range=5,
-                                               step_size=1)
-    example_moving_params = [population_size_param, geo_circles_amount_param]
-
-    MovingParametersGenerator.generate_moving_parameters(example_input_file_path, example_moving_params,
-                                                         example_output_folder_path)
+    MovingParametersGenerator.generate_moving_parameters(args.input_file_path, args.moving_parameters_file_path,
+                                                         args.output_folder_path)

@@ -289,14 +289,14 @@ dtype ParasymbolicMatrix::get(size_t comp, size_t row, size_t column){
 double ParasymbolicMatrix::total(){
     if (calc_lock)
         return NAN;
-    dtype ret = 0;
+    double ret = 0;
     // todo kahan?
     for (auto i = 0; i < inner.size; i++){
         auto& data = inner.data[i];
         for (auto j = data.cbegin(); j < data.cend(); j++)
             ret += *j;
     }
-    return ret;
+    return (float)ret;
 }
 
 size_t ParasymbolicMatrix::get_size(){
