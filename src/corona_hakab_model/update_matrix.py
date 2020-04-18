@@ -2,6 +2,7 @@ from typing import Any, Callable, Iterable
 
 import numpy as np
 
+from analyzers.state_machine_analysis import monte_carlo_state_machine_analysis
 from generation.circles import SocialCircle
 from generation.connection_types import ConnectionTypes
 from policies_manager import ConditionedPolicy
@@ -47,7 +48,8 @@ class UpdateMatrixManager:
         self.normalize_factor = normalize_factor
         self.total_contagious_probability = None
         self.normalize()
-
+        self.validate_matrix()
+        
     def normalize(self):
         """
         this function should normalize the weights within W to represent the infection rate.
@@ -56,10 +58,12 @@ class UpdateMatrixManager:
         self.logger.info(f"normalizing matrix")
         if self.normalize_factor is None:
             # updates r0 to fit the contagious length and ratio.
-            states_time = self.consts.average_time_in_each_state()
+            population_size_for_mc = self.consts.population_size_for_state_machine_analysis
+            machine_state_statistics = monte_carlo_state_machine_analysis(dict(population_size=population_size_for_mc))
+            states_time = machine_state_statistics['state_duration_expected_time']
             total_contagious_probability = 0
-            for state, time_in_state in states_time.items():
-                total_contagious_probability += time_in_state * state.contagiousness
+            for state in self.manager.medical_machine.states:
+                total_contagious_probability += states_time[state.name] * state.contagiousness
             beta = self.consts.r0 / total_contagious_probability
 
             # saves this for the effective r0 graph
@@ -125,3 +129,11 @@ class UpdateMatrixManager:
         for connection_type in ConnectionTypes:
             self.matrix.mul_sub_row(connection_type, agent.index, factor)
             self.matrix.mul_sub_col(connection_type, agent.index, factor)
+
+    def validate_matrix(self):
+        submatrixes_rows_nonzero_columns = self.matrix.non_zero_columns()
+        for rows_nonzero_columns in submatrixes_rows_nonzero_columns:
+            for row_index, nonzero_columns in enumerate(rows_nonzero_columns):
+                for column_index in nonzero_columns:
+                    assert self.matrix.get(row_index, column_index) == self.matrix.get(column_index, row_index), "Matrix is not symmetric"
+                    assert 1 >= self.matrix.get(row_index, column_index) >= 0, "Some values in the matrix are not probabilities"

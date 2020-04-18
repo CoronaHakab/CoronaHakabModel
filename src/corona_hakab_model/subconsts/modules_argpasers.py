@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from corona_hakab_model_data.__data__ import __version__
+from __data__ import __version__
 
 
 def get_simulation_args_parser():
@@ -9,6 +9,14 @@ def get_simulation_args_parser():
     parser = ArgumentParser("COVID-19 Simulation")
     subparser = parser.add_subparsers(dest="sub_command")
     subparser.add_parser("all", help="Run both data generation and simulation.")
+    matrix = subparser.add_parser('analyze-matrix', help="analyze matrix histograms and export csv's")
+    matrix.add_argument("--matrix",
+                        dest="matrix_path",
+                        help="Matrix file to analyze")
+    matrix.add_argument("--show",
+                        dest="show",
+                        action="store_true",
+                        help="Show histograms")
     gen = subparser.add_parser('generate', help='only generate the population data without running the simulation')
     gen.add_argument("-c",
                      "--circles-consts",
@@ -36,6 +44,11 @@ def get_simulation_args_parser():
     sim.add_argument(
         "-s", "--simulation-parameters", dest="simulation_parameters_path", help="Parameters for simulation engine"
     )
+    state_machine = subparser.add_parser("analyze-state-machine", help="Run stochastic analyzer for the state machine")
+    state_machine.add_argument("--population_size",
+                               dest="population_size",
+                               default="50_000",
+                               help="Folder to save the result of")
     sim.add_argument('--population-data',
                      dest='population_data',
                      default='../../output/population_data.pickle',
@@ -60,6 +73,10 @@ def get_simulation_args_parser():
                      dest='figure_path',
                      default='',
                      help='Save the resulting figure to a file instead of displaying it')
+    sim.add_argument('--agent-constraints-path',
+                     dest='agent_constraints_path',
+                     default=None,
+                     help='Add constraints to the selection of the initial sick agents, see readme for file format')
     parser.add_argument('--seed',
                         dest='seed',
                         type=int,

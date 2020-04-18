@@ -1,6 +1,6 @@
 from unittest import TestCase
 import os
-from corona_hakab_model.analyzers.simulation_analysis import create_comparison_files
+from corona_hakab_model.analyzers.multi_simulation_analysis import create_comparison_files, plot_minmax_barchart_single_param
 from project_structure import OUTPUT_FOLDER
 
 
