@@ -4,7 +4,7 @@ from typing import List
 import os.path
 
 from agent import Agent
-from corona_hakab_model_data.__data__ import __version__
+from __data__ import __version__
 from generation.circles import SocialCircle
 from generation.circles_consts import CirclesConsts
 from generation.connection_types import ConnectionTypes, Multi_Zone_types, Whole_Population_types
@@ -58,7 +58,6 @@ class CirclesGenerator:
     # import/export variables
     EXPORT_OUTPUT_DIR = "../../output/"
     EXPORT_FILE_NAME = "population_data.pickle"
-
     # todo split consts into generation_consts, simulation_consts, and plot_consts
     def __init__(
         self, circles_consts: CirclesConsts,
@@ -66,7 +65,6 @@ class CirclesGenerator:
         self.circles_consts = circles_consts
         self.population_data = PopulationData()
         self.agents = [Agent(index) for index in range(self.circles_consts.population_size)]
-
         # create geographic circles, and allocate each with agents
         self.geographic_circles: List[GeographicCircle] = []
         self.create_geographic_circles()
@@ -159,7 +157,10 @@ class CirclesGenerator:
     def create_whole_population_circles(self):
         for connection_type in Whole_Population_types:
             social_circle = SocialCircle(connection_type)
-            social_circle.add_many(self.agents)
+            agents = []
+            for geo_circle in self.geographic_circles:
+                agents.extend(geo_circle.connection_type_to_agents[connection_type])
+            social_circle.add_many(agents)
             self.social_circles_by_connection_type[connection_type].append(social_circle)
 
     def fill_social_circles_by_agent_index(self):

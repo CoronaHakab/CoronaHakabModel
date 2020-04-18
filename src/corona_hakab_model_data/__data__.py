@@ -1,5 +1,0 @@
-__version__ = "1.0.1"
-__author__ = "Tht authors"
-__author_email__ = "@"
-__license__ = "?"
-__url__ = r"https://github.com/CoronaHakab/CoronaHakabModel"
