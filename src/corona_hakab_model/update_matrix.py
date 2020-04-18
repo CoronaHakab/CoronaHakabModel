@@ -48,7 +48,7 @@ class UpdateMatrixManager:
         self.total_contagious_probability = None
         self.normalize()
         self.validate_matrix()
-
+        
     def normalize(self):
         """
         this function should normalize the weights within W to represent the infection rate.
@@ -132,5 +132,5 @@ class UpdateMatrixManager:
         for rows_nonzero_columns in submatrixes_rows_nonzero_columns:
             for row_index, nonzero_columns in enumerate(rows_nonzero_columns):
                 for column_index in nonzero_columns:
-                    assert self.matrix.get(row_index, column_index) == self.matrix.get(column_index, row_index)
-                    assert 1 >= self.matrix.get(row_index, column_index) >= 0
+                    assert self.matrix.get(row_index, column_index) == self.matrix.get(column_index, row_index), "Matrix is not symmetric"
+                    assert 1 >= self.matrix.get(row_index, column_index) >= 0, "Some values in the matrix are not probabilities"
