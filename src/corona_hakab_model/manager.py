@@ -20,6 +20,7 @@ from policies_manager import PolicyManager
 from state_machine import PendingTransfers
 from supervisor import Supervisable, SimulationProgression
 from update_matrix import Policy
+from generation.connection_types import ConnectionTypes
 
 
 
@@ -100,6 +101,7 @@ class SimulationManager:
         self.sick_agents = SickAgents()
 
         self.new_sick_counter = 0
+        self.new_sick_by_infection_method = {connection_type : 0 for connection_type in ConnectionTypes}
         self.new_detected_daily = 0
 
         self.logger.info("Created new simulation.")
@@ -122,6 +124,10 @@ class SimulationManager:
         new_sick, infection_methods = self.infection_manager.infection_step()
         for agent in new_sick:
             self.sick_agents.add_agent(agent.get_snapshot())
+        
+        self.new_sick_by_infection_method = {connection_type : 0 for connection_type in ConnectionTypes}
+        for infection_method in infection_methods:
+            self.new_sick_by_infection_method[infection_method] += 1
 
         # progress transfers
         medical_machine_step_result = self.medical_state_manager.step(new_sick)

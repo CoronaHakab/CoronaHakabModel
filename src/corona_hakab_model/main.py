@@ -15,11 +15,13 @@ from consts import Consts
 from generation.circles_generator import PopulationData
 from generation.generation_manager import GenerationManger
 from generation.matrix_generator import MatrixData
+from generation.connection_types import ConnectionTypes
 from manager import SimulationManager
 from agent import InitialAgentsConstraints
 from subconsts.modules_argpasers import get_simulation_args_parser
 from supervisor import LambdaValueSupervisable, Supervisable
 from analyzers import matrix_analysis
+
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -126,6 +128,10 @@ def run_simulation(args):
             # LambdaValueSupervisable("Current Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
             # Supervisable.R0(),
             # Supervisable.Delayed("Symptomatic", 3),
+            LambdaValueSupervisable("daily infected by work", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Work]),
+            LambdaValueSupervisable("daily infected by school", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.School]),
+            LambdaValueSupervisable("daily infected by other", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Other]),
+            LambdaValueSupervisable("daily infected by family", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Family]),
         ),
         population_data,
         matrix_data,
