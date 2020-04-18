@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Dict, List
 
 import numpy as np
 from agent import Agent
+from generation.connection_types import ConnectionTypes
 
 if TYPE_CHECKING:
     from medical_state import MedicalState
@@ -43,7 +44,13 @@ class InfectionManager:
 
         infections = self.manager.susceptible_vector & (np.random.random(u.shape) < u)
         infected_indices = np.flatnonzero(infections)
-
+        
+        # get infection methods
+        infection_methods = []
+        nonzero_columns = self.manager.matrix.non_zero_columns()
+        for agent_index in infected_indices:
+            infection_methods.append(self._get_infection_method(agent_index, nonzero_columns))
+            
         # new_infected: dict -
         # key = medical state (currently only susceptible state which an agent can be infected)
         # value = list of agents
@@ -52,4 +59,18 @@ class InfectionManager:
             agent = self.manager.agents[index]
             new_infected.append(agent)
 
-        return new_infected
+        return new_infected, infection_methods
+
+    def _get_infection_method(self, agent_index, non_zero_columns):
+        probability_by_conn_type = []
+        for connection_type in ConnectionTypes:
+            possible_infectors = non_zero_columns[connection_type][agent_index]
+            conn_infection_probability = sum([self.manager.matrix.get(
+                int(connection_type), 
+                int(agent_index), 
+                other_index) 
+                for other_index in possible_infectors])
+            probability_by_conn_type.append(conn_infection_probability)
+        normalize_factor = 1/sum(probability_by_conn_type)
+        probs_by_conn_type = [prob * normalize_factor for prob in probability_by_conn_type]
+        return np.random.choice(ConnectionTypes, p=probs_by_conn_type)    

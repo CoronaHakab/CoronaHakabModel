@@ -119,7 +119,7 @@ class SimulationManager:
         self.progress_tests_and_isolation(new_tests)
 
         # run infection
-        new_sick = self.infection_manager.infection_step()
+        new_sick, infection_methods = self.infection_manager.infection_step()
         for agent in new_sick:
             self.sick_agents.add_agent(agent.get_snapshot())
 
