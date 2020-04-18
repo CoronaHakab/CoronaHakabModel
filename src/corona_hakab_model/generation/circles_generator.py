@@ -131,7 +131,7 @@ class CirclesGenerator:
 
                 # You can't have more random connections than the number of people (other than you) in the circle
                 rand_connections[rand_connections > num_of_agents_in_circle - 1] = num_of_agents_in_circle - 1
-
+                rand_connections = np.clip(rand_connections, a_max=num_of_agents_in_circle - 1)
                 circle.total_random_connections = sum(rand_connections)
                 circle.random_connections_strength_factor = \
                     self.circles_consts.random_connections_strength_factor[connection_type]
