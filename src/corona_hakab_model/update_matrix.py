@@ -57,7 +57,8 @@ class UpdateMatrixManager:
         self.logger.info(f"normalizing matrix")
         if self.normalize_factor is None:
             # updates r0 to fit the contagious length and ratio.
-            machine_state_statistics = monte_carlo_state_machine_analysis(dict(population_size=25000))
+            population_size_for_mc = self.consts.population_size_for_state_machine_analysis
+            machine_state_statistics = monte_carlo_state_machine_analysis(dict(population_size=population_size_for_mc))
             states_time = machine_state_statistics['state_duration_expected_time']
             total_contagious_probability = 0
             for state in self.manager.medical_machine.states:
