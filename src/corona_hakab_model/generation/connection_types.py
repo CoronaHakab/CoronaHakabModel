@@ -5,10 +5,10 @@ from enum import IntEnum, unique
 @unique
 class ConnectionTypes(IntEnum):
     Work = 0
-    School = 1
-    Family = 2
-    Other = 3
-
+    Kindergarten = 1
+    School = 2
+    Family = 3
+    Other = 4
 
 # used for circles generation
 In_Zone_types = [ConnectionTypes.School, ConnectionTypes.Family]

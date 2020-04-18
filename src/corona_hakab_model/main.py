@@ -132,6 +132,7 @@ def run_simulation(args):
             LambdaValueSupervisable("daily infected by school", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.School]),
             LambdaValueSupervisable("daily infected by other", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Other]),
             LambdaValueSupervisable("daily infected by family", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Family]),
+            LambdaValueSupervisable("daily infected by kindergarten", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Kindergarten]),
         ),
         population_data,
         matrix_data,
