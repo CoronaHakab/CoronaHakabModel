@@ -2,6 +2,7 @@ from typing import Any, Callable, Iterable
 
 import numpy as np
 
+from analyzers.state_machine_analysis import monte_carlo_state_machine_analysis
 from generation.circles import SocialCircle
 from generation.connection_types import ConnectionTypes
 from policies_manager import ConditionedPolicy
@@ -56,10 +57,11 @@ class UpdateMatrixManager:
         self.logger.info(f"normalizing matrix")
         if self.normalize_factor is None:
             # updates r0 to fit the contagious length and ratio.
-            states_time = self.consts.average_time_in_each_state()
+            machine_state_statistics = monte_carlo_state_machine_analysis(dict(population_size=25000))
+            states_time = machine_state_statistics['state_duration_expected_time']
             total_contagious_probability = 0
-            for state, time_in_state in states_time.items():
-                total_contagious_probability += time_in_state * state.contagiousness
+            for state in self.manager.medical_machine.states:
+                total_contagious_probability += states_time[state.name] * state.contagiousness
             beta = self.consts.r0 / total_contagious_probability
 
             # saves this for the effective r0 graph

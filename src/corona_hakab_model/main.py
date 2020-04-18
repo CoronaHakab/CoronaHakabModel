@@ -9,6 +9,7 @@ from matplotlib import pyplot as plt
 
 import numpy as np
 
+from analyzers.state_machine_analysis import extract_state_machine_analysis
 from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
 from consts import Consts
 from generation.circles_generator import PopulationData
@@ -32,6 +33,9 @@ def main():
 
     args, _ = parser.parse_known_args()
     set_seeds(args.seed)
+
+    if args.sub_command == 'analyze-state-machine':
+        extract_state_machine_analysis(vars(args))
 
     if args.sub_command == 'analyze-matrix':
         analyze_matrix(args)

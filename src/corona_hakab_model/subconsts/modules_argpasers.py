@@ -45,8 +45,8 @@ def get_simulation_args_parser():
         "-s", "--simulation-parameters", dest="simulation_parameters_path", help="Parameters for simulation engine"
     )
     state_machine = subparser.add_parser("analyze-state-machine", help="Run stochastic analyzer for the state machine")
-    state_machine.add_argument("--number_of_loop",
-                               dest="monte_carlo_loops",
+    state_machine.add_argument("--population_size",
+                               dest="population_size",
                                default="50_000",
                                help="Folder to save the result of")
     sim.add_argument('--population-data',

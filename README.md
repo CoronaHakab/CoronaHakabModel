@@ -108,14 +108,14 @@
 - As with all runnables, additional help can be found by running **python generation_analysis\population_analysis.py --help**
 ### State Machine Analyser
 - The state machine analyzer get a population size, and uses it as a way to average results of the state machine of all the agents.
-- To use run **python main.py --analyze-state-machine**
+- To use run **python main.py analyze-state-machine**
 - Optional flags includes:
     * **--population_size** to set population size.
     * **--consts_file**
     * **--circle_consts_file**
 - The result of the run creats a json file with suffix of "state_machine_analysis_" and prefix of the time we ran the analyzer.
 - The result file has several fields:
-    * population_size
+    * population_size. Defaults to 50,000
     * days_passed - The number of days the simulation ended
     * time_in_each_state - dictionary whose keys are states and values are time spendt in total at that state
     * visitors_in_each_state - dictionary whose keys are states and values are number of people who were at this state of the infection
