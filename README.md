@@ -106,6 +106,22 @@
 - Most commonly, you will use the **[-d|--directory]** option to specify the directory to read. The directory is expected to contain a file named "population_data.pickle"
 - You can also specify the input population data file using **[-p|--population]**, and output files using **--circle** and **--age**.
 - As with all runnables, additional help can be found by running **python generation_analysis\population_analysis.py --help**
+### State Machine Analyser
+- The state machine analyzer get a population size, and uses it as a way to average results of the state machine of all the agents.
+- To use run **python main.py --analyze-state-machine**
+- Optional flags includes:
+    * **--population_size** to set population size.
+    * **--consts_file**
+    * **--circle_consts_file**
+- The result of the run creats a json file with suffix of "state_machine_analysis_" and prefix of the time we ran the analyzer.
+- The result file has several fields:
+    * population_size
+    * days_passed - The number of days the simulation ended
+    * time_in_each_state - dictionary whose keys are states and values are time spendt in total at that state
+    * visitors_in_each_state - dictionary whose keys are states and values are number of people who were at this state of the infection
+    * average_duration_in_state - dictionary whose keys are states and values are the expected time to be at that state provided that we visited it at least once
+    * state_duration_expected_time - dictionary whose keys are states and values are expected time spent in taht state of the illness
+    * average_time_to_terminal - The average time it took agent to end at terminal state
 ### Simulation Analyser
 - TODO: Wrap simulation analyser in runnable (argparse, __main__, the works), and add documentation.
 ### Matrix Analyzer  
