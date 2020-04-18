@@ -16,7 +16,6 @@ In_Zone_types = [ConnectionTypes.School, ConnectionTypes.Kindergarten, Connectio
 Multi_Zone_types = [ConnectionTypes.Work]
 Whole_Population_types = [ConnectionTypes.Other]
 Non_Random_Age_Types = [ConnectionTypes.Family, ConnectionTypes.Kindergarten, ConnectionTypes.School]
-Non_Exclusive_Types = [ConnectionTypes.Family, ConnectionTypes.Other]
 Education_Types = [ConnectionTypes.School, ConnectionTypes.Kindergarten]
 
 # used for matrices generations

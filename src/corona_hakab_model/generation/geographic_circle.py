@@ -3,8 +3,7 @@ from typing import List
 import numpy as np
 from generation.circles import Circle, SocialCircle
 from generation.circles_consts import GeographicalCircleDataHolder
-from generation.connection_types import ConnectionTypes, In_Zone_types, Multi_Zone_types, Non_Exclusive_Types, \
-    Education_Types
+from generation.connection_types import ConnectionTypes, In_Zone_types, Multi_Zone_types, Education_Types
 from util import rv_discrete
 
 
@@ -48,9 +47,6 @@ class GeographicCircle(Circle):
         for agent, age in zip(self.agents, ages):
             agent.age = age
             agent_connection_types = []
-            for connection_type in Non_Exclusive_Types:
-                if np.random.random() < self.data_holder.connection_types_prob_by_age[age][connection_type]:
-                    agent_connection_types.append(connection_type)
             
             if agent.is_adult() and np.random.random() < self.data_holder.connection_types_prob_by_age[age][
                 ConnectionTypes.Work]:
@@ -58,12 +54,21 @@ class GeographicCircle(Circle):
                 # if the agent works, decide workplace
                 agent_connection_types.append(workplace_distribution.rvs())
 
-            education_prob = [self.data_holder.connection_types_prob_by_age[age][connection_type] for
-                              connection_type in Education_Types]
-            education_type = rv_discrete(values=([Education_Types + [-1], education_prob + [1 - sum(education_prob)]])).rvs()
+            if not agent.is_adult():
+                education_prob = [self.data_holder.connection_types_prob_by_age[age][connection_type] for
+                                  connection_type in Education_Types]
+                if np.random.random() < sum(education_prob):
+                    # normalize the probabilities
+                    education_type = rv_discrete(
+                        values=(Education_Types, [prob / sum(education_prob) for prob in education_prob])).rvs()
+                    agent_connection_types.append(education_type)
 
-            if not agent.is_adult() and education_type > 0:
-                agent_connection_types.append(education_type)
+            # handle other connection types. This single FOR condition contains words "connection" and "type" 9 times
+            for connection_type in [connection_type for connection_type in ConnectionTypes if connection_type not in [
+                ConnectionTypes.School, ConnectionTypes.Work, ConnectionTypes.Kindergarten]]:
+
+                if np.random.random() < self.data_holder.connection_types_prob_by_age[age][connection_type]:
+                    agent_connection_types.append(connection_type)
 
             for connection_type in agent_connection_types:
                 self.connection_type_to_agents[connection_type].append(agent)

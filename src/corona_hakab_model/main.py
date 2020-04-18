@@ -129,6 +129,27 @@ def run_simulation(args):
         consts=consts,
     )
     print(sm)
+    kindergarten_children = 0
+    children = 0
+    kindergarten_workers = 0
+    workers = 0
+    teachers = 0
+    for agent_snapshot in [agent.get_snapshot() for agent in sm.agents]:
+        social_circle_types = [circle.type for circle in agent_snapshot.social_circles]
+        if agent_snapshot.age > 18:
+            if "Work" in social_circle_types or "School" in social_circle_types or "Kindergarten" in social_circle_types:
+                workers += 1
+            if "School" in social_circle_types:
+                teachers += 1
+        if agent_snapshot.age <= 18:
+            children += 1
+        if "Kindergarten" in social_circle_types:
+            assert "Work" not in social_circle_types and "School" not in social_circle_types
+            if agent_snapshot.age > 18:
+                kindergarten_workers += 1
+            else:
+                kindergarten_children += 1
+    print(f"children in kindergarten: {kindergarten_children / children}. Workers in kindergartens: {kindergarten_workers / workers}. Teachers: {teachers / workers}")
     sm.run()
     df: pd.DataFrame = sm.dump(filename=args.output)
     df.plot()

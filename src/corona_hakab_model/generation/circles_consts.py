@@ -22,7 +22,7 @@ class CirclesConsts(NamedTuple):
             "ages": [10, 40, 70],
             "age_prob": [0.30, 0.45, 0.25],
             "teachers_workforce_ratio": 0.04,  # ratio of teachers out of workforce
-            "kindergarten_workforce_ratio": 0.002,  # ratio of kindergarten workers out of workforce
+            "kindergarten_workforce_ratio": 0.004,  # ratio of kindergarten workers out of workforce
             "connection_type_prob_by_age_index": [
                 {
                     ConnectionTypes.Work: 0,
@@ -59,7 +59,7 @@ class CirclesConsts(NamedTuple):
             "ages": [10, 40, 70],
             "age_prob": [0.30, 0.45, 0.25],
             "teachers_workforce_ratio": 0.04,  # ratio of teachers out of workforce
-            "kindergarten_workforce_ratio": 0.002,  # ratio of kindergarten workers out of workforce
+            "kindergarten_workforce_ratio": 0.004,  # ratio of kindergarten workers out of workforce
             "connection_type_prob_by_age_index": [
                 {
                     ConnectionTypes.Work: 0,
