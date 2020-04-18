@@ -56,7 +56,9 @@ class SimulationManager:
 
         self.pending_transfers = PendingTransfers()
 
+        self.update_matrix_manager = None
         self.reset()
+
         self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers],
                                                             self)
         self.logger.info("Created new simulation.")
@@ -85,7 +87,10 @@ class SimulationManager:
         initial_state.add_many(self.agents)
 
         # initializing simulation modules
-        self.update_matrix_manager = update_matrix.UpdateMatrixManager(self)
+        if self.update_matrix_manager:
+            factor = self.update_matrix_manager.normalize_factor
+            self.update_matrix_manager = update_matrix.UpdateMatrixManager(manager=self,
+                                                                           normalize_factor=factor)
         self.infection_manager = infection.InfectionManager(self)
         self.healthcare_manager = healthcare.HealthcareManager(self)
         self.medical_state_manager = MedicalStateManager(sim_manager=self)

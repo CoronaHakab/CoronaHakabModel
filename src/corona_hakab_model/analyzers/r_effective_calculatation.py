@@ -74,15 +74,15 @@ def _calculate_series_r0(infections, p_tau):
 
 
 def r_effective_over_time(infections_df, config) -> pd.DataFrame:
-    p_tau = np.array(config['p_tau'])  # The distribution to get infected on each day from agent
-    interval_length = len(p_tau)
+    p_tau_reversed = np.array(config['p_tau'][::-1])  # The distribution to get infected on each day from agent
+    interval_length = len(p_tau_reversed)
     r_effective_days = list(range(interval_length, len(infections_df.columns)))
     r_effective_df = pd.DataFrame(np.nan,
                                   index=infections_df.index,
                                   columns=r_effective_days)
 
     for i in r_effective_days:
-        average_total_infections = infections_df.loc[:, i-interval_length: i-1] @ p_tau
+        average_total_infections = infections_df.loc[:, i-interval_length: i-1] @ p_tau_reversed
         r_effective_df.loc[:, i] = infections_df.loc[:, i]/average_total_infections
 
     return r_effective_df
@@ -90,11 +90,15 @@ def r_effective_over_time(infections_df, config) -> pd.DataFrame:
 
 def calculate_r_effective(config):
     infect_statistics = new_infects_over_time(config)
-    infect_statistics.to_csv(OUTPUT_FOLDER / "infect_stats.csv")
+    file_suffix = datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
+    infect_statistics.to_csv(OUTPUT_FOLDER /
+                             ("multiple_run_infection_statistics_"+file_suffix))
     r0_over_time = r_effective_over_time(infect_statistics, config)
-    r0_over_time.to_csv(OUTPUT_FOLDER / "r0_over_time.csv")
+    r0_over_time.to_csv(OUTPUT_FOLDER /
+                        ("multiple_run_r0_over_time_"+file_suffix))
     r0_per_day_averages = r0_over_time.mean(axis=1)
-    r0_per_day_averages.to_csv(OUTPUT_FOLDER / "r0_avgs.csv")
+    r0_per_day_averages.to_csv(OUTPUT_FOLDER /
+                               ("r0_averaged"+file_suffix))
 
 
 if __name__ == "__main__":
