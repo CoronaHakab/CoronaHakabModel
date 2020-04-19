@@ -1,18 +1,21 @@
 # install Python3.8.2
-./linux/deb_install_python3.8.sh
+#./linux/deb_install_python3.8.sh
 
-export PROJDIR=~/CoronaHakabModel/
-export WORKBRANCH=develop
+export WORKDIR=~
+export PROJDIR=${WORKDIR}/proj
+export WORK_BRANCH=paths_fix_3.7.0
 
 # git clone
-cd ~
+cd $WORKDIR
 sudo apt-get update
 sudo apt-get -y upgrade
 sudo apt-get install -y git
 git clone https://github.com/CoronaHakab/CoronaHakabModel.git $PROJDIR
 
 cd $PROJDIR
-git checkout $WORKBRANCH
+
+git checkout $WORK_BRANCH
+sed -i.bak '/pyside2/d' Pipfile
 
 # install the project dependencies
 sudo pip3.8 install --upgrade pip
@@ -25,12 +28,8 @@ export PIPENV_MAX_DEPTH=5
 # build parasymbolic_matrix
 sudo apt-get install -y swig
 cd $PROJDIR/src/corona_hakab_model/parasymbolic_matrix/
-python3.8 build_unix.py
+pipenv run python build_unix.py
+cd $PROJDIR
 
-#mkdir output
-
-git pull
-cd $PROJDIR/src/corona_hakab_model
-pipenv run python ./main.py --help
-pipenv run python main.py generate
-pipenv run python main.py simulate
+pipenv run python $PROJDIR/src/corona_hakab_model/main.py --help
+pipenv run python $PROJDIR/src/corona_hakab_model/main.py all

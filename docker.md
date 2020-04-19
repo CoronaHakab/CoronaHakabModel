@@ -1,11 +1,13 @@
 # To build the image
-docker build -t corona_hakab_image .
+docker build -t hakab/chm:latest .
 
 # To run the image in interactive mode
-docker run -it corona_hakab_image bash
+docker run -it hakab/chm:latest bash
 
 # To execute a command inside a running container
-docker exec -it corona_hakab_image bash
+docker exec -it hakab/chm:latest bash
+
+docker images
 
 # show all running images
 docker ps -all

@@ -2,9 +2,7 @@ FROM python:3.8.2-buster
 
 ENV WORKDIR=/app
 ENV PROJDIR=${WORKDIR}/proj
-
-# change this to develop once docker branch is merged this needs to be deleted
-ENV WORKBRANCH=develop
+ENV WORK_BRANCH=paths_fix_3.7.0
 
 # git clone
 WORKDIR ${WORKDIR}
@@ -14,7 +12,9 @@ RUN apt-get install -y git
 RUN git clone https://github.com/CoronaHakab/CoronaHakabModel.git ${PROJDIR}
 
 WORKDIR ${PROJDIR}
-RUN git checkout ${WORKBRANCH}
+
+RUN git checkout -b ${WORK_BRANCH}
+RUN sed -i.bak '/pyside2/d' Pipfile
 
 # install the project dependencies
 RUN pip3.8 install --upgrade pip
@@ -29,10 +29,10 @@ RUN apt-get install -y swig
 RUN cd ${PROJDIR}/src/corona_hakab_model/parasymbolic_matrix/ \
     && pipenv run python build_unix.py
 
-#RUN mkdir output
+CMD pipenv run python ./src/corona_hakab_model/main.py --help
 
-CMD git pull \
-    && cd ./src/corona_hakab_model/ \
-    && pipenv run python main.py --help \
-    && pipenv run python main.py generate \
-    && pipenv run python main.py simulate
+#CMD git pull \
+#    && pipenv run python ./src/corona_hakab_model/main.py --help
+#    && pipenv run python ./src/corona_hakab_model/main.py all
+#    && pipenv run python ./src/corona_hakab_model/main.py generate \
+#    && pipenv run python ./src/corona_hakab_model/main.py simulate
