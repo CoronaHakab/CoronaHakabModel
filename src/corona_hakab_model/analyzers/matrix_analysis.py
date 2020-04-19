@@ -17,7 +17,7 @@ EXPORT_MATRIX_FILE = "raw_matrix_connection_type_{}.csv"
 # create output directories
 EXPORT_HISTOGRAM_DIR = Path(project_structure.OUTPUT_FOLDER / "matrix_analysis" / "histogram_analysis")
 EXPORT_HISTOGRAM_DIR.mkdir(parents=True, exist_ok=True)
-EXPORT_MATRIX_DIR = Path(project_structure.OUTPUT_FOLDER / "matrix_analysis/raw_matrices")
+EXPORT_MATRIX_DIR = Path(project_structure.OUTPUT_FOLDER / "matrix_analysis" / "raw_matrices")
 EXPORT_MATRIX_DIR.mkdir(parents=True, exist_ok=True)
 
 
