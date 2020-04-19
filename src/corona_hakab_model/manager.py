@@ -19,8 +19,6 @@ from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
 from supervisor import Supervisable, SimulationProgression
-from update_matrix import Policy
-
 
 
 class SimulationManager:
@@ -51,6 +49,9 @@ class SimulationManager:
         self.social_circles_by_connection_type = population_data.social_circles_by_connection_type
         self.geographic_circle_by_agent_index = population_data.geographic_circle_by_agent_index
         self.social_circles_by_agent_index = population_data.social_circles_by_agent_index
+        self.num_of_random_connections = population_data.num_of_random_connections
+        self.random_connections_strength = population_data.random_connections_strength
+        self.random_connections_factor = np.ones_like(self.num_of_random_connections, dtype=float)
 
         self.matrix_type = matrix_data.matrix_type
         self.matrix = matrix_data.matrix
