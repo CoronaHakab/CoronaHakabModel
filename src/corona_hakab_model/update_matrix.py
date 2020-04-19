@@ -1,10 +1,16 @@
-from typing import Any, Callable, Iterable
+from __future__ import annotations
+
+from typing import Any, Callable, Iterable, TYPE_CHECKING
 
 import numpy as np
 
 from generation.circles import SocialCircle
 from generation.connection_types import ConnectionTypes
 from policies_manager import ConditionedPolicy
+
+if TYPE_CHECKING:
+    from medical_state import MedicalState
+    from manager import SimulationManager
 
 
 class Policy:
@@ -34,7 +40,7 @@ class UpdateMatrixManager:
     Manages the "Update Matrix" stage of the simulation.
     """
 
-    def __init__(self, manager: "SimulationManager"):  # noqa: F821 - todo how to fix it?
+    def __init__(self, manager: SimulationManager):  # noqa: F821 - todo how to fix it?
         self.manager = manager
         # unpacking commonly used information from manager
         self.matrix = manager.matrix
@@ -65,8 +71,11 @@ class UpdateMatrixManager:
             # saves this for the effective r0 graph
             self.total_contagious_probability = total_contagious_probability
 
+            # Random connections
+            random_total = np.dot(self.manager.num_of_random_connections.sum(0), self.manager.random_connections_strength)
+
             # this factor should be calculated once when the matrix is full, and be left un-changed for the rest of the run.
-            self.normalize_factor = (beta * self.size) / (self.matrix.total())
+            self.normalize_factor = (beta * self.size) / (self.matrix.total() + random_total)
 
         self.matrix *= self.normalize_factor  # now each entry in W is such that bd=R0
 

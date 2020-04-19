@@ -26,7 +26,8 @@ class PopulationData:
         "social_circles_by_connection_type",
         "geographic_circle_by_agent_index",
         "social_circles_by_agent_index",
-        "num_of_random_connections"
+        "num_of_random_connections",
+        "random_connections_strength"
     )
 
     def __init__(self):
@@ -38,6 +39,7 @@ class PopulationData:
         self.geographic_circle_by_agent_index = {}
         self.social_circles_by_agent_index = {}
         self.num_of_random_connections: np.ndarray = np.array([])
+        self.random_connections_strength: np.ndarray = np.array([])
 
     def export(self, export_path, file_name: str):
         if not file_name.endswith(".pickle"):
@@ -109,14 +111,18 @@ class CirclesGenerator:
         self.social_circles_by_agent_index = {}
         self.fill_social_circles_by_agent_index()
 
-        self.num_of_random_connections = self.generate_random_connections()
+        self.num_of_random_connections = np.zeros((len(self.agents), len(ConnectionTypes)), dtype=float)
+        self.random_connections_strength = np.zeros(len(ConnectionTypes), dtype=float)
+        self.generate_random_connections()
 
         self._fill_population_data()
 
     def generate_random_connections(self):
-        num_of_random_connections = np.zeros((len(self.agents), len(ConnectionTypes)), dtype=float)
         for connection_type in connection_types.With_Random_Connections:
             exp_mean = self.circles_consts.random_connections_dist_mean[connection_type]
+
+            if connection_type in self.circles_consts.random_connections_strength_factor:
+                self.random_connections_strength[connection_type] = self.circles_consts.random_connections_strength_factor[connection_type]
 
             for circle in self.social_circles_by_connection_type[connection_type]:
                 num_of_agents_in_circle = len(circle.agents)
@@ -130,15 +136,14 @@ class CirclesGenerator:
                 rand_connections = np.random.exponential(exp_mean, len(agents_id))
 
                 # You can't have more random connections than the number of people (other than you) in the circle
-                rand_connections[rand_connections > num_of_agents_in_circle - 1] = num_of_agents_in_circle - 1
-                rand_connections = np.clip(rand_connections, a_max=num_of_agents_in_circle - 1)
+                # rand_connections = np.clip(rand_connections, a_max=num_of_agents_in_circle - 1)  # TODO: Should we clip?
                 circle.total_random_connections = sum(rand_connections)
                 circle.random_connections_strength_factor = \
                     self.circles_consts.random_connections_strength_factor[connection_type]
 
-                num_of_random_connections[agents_id, [connection_type] * len(agents_id)] = rand_connections
+                self.num_of_random_connections[agents_id, [connection_type] * len(agents_id)] = rand_connections
 
-        return num_of_random_connections
+        return self.num_of_random_connections
 
     def create_geographic_circles(self):
         """
@@ -215,6 +220,7 @@ class CirclesGenerator:
         self.population_data.geographic_circle_by_agent_index = self.geographic_circle_by_agent_index
         self.population_data.social_circles_by_agent_index = self.social_circles_by_agent_index
         self.population_data.num_of_random_connections = self.num_of_random_connections
+        self.population_data.random_connections_strength = self.random_connections_strength
 
     def export(self):
         # export population data using pickle

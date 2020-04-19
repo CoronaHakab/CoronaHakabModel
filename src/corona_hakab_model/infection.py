@@ -51,10 +51,11 @@ class InfectionManager:
         return infections
 
     def _infect_random_connections(self):
-        probs_not_infected_from_connection = np.ones_like(self.manager.num_of_random_connections, dtype=float)
+        connections = self.manager.num_of_random_connections * self.manager.random_connections_factor
+        probs_not_infected_from_connection = np.ones_like(connections, dtype=float)
         for connection_type, all_circs in self.manager.social_circles_by_connection_type.items():
             for circle in all_circs:
-                agents_id = [a.index for a in circle.agents]  # TODO: Don't generate it every time!!!
+                agents_id = [a.index for a in circle.agents]
 
                 if len(agents_id) == 1:
                     # One-Agent circle, you can't randomly meet yourself..
@@ -62,15 +63,15 @@ class InfectionManager:
 
                 total_infectious_random_connections = np.dot(
                     self.manager.contagiousness_vector[(agents_id,)],
-                    self.manager.num_of_random_connections[(agents_id, [connection_type] * len(agents_id))],
+                    connections[(agents_id, [connection_type] * len(agents_id))],
                 )
 
                 prob = total_infectious_random_connections / circle.total_random_connections
 
                 probs_not_infected_from_connection[(agents_id, [connection_type] * len(agents_id))] = \
-                    1 - prob * circle.random_connections_strength_factor
+                    1 - prob * circle.random_connections_strength_factor * self.manager.update_matrix_manager.normalize_factor
 
-        not_infected_probs = np.power(probs_not_infected_from_connection, self.manager.num_of_random_connections)
+        not_infected_probs = np.power(probs_not_infected_from_connection, connections)
         prob_infected_in_any_circle = 1 - not_infected_probs.prod(axis=1)
         infections = self.manager.susceptible_vector & \
                      (np.random.random(len(self.manager.agents)) < prob_infected_in_any_circle)
