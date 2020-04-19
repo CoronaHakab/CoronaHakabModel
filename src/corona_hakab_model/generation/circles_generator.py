@@ -65,6 +65,7 @@ class CirclesGenerator:
     EXPORT_FILE_NAME = "population_data.pickle"
 
     # todo split consts into generation_consts, simulation_consts, and plot_consts
+
     def __init__(
             self, circles_consts: CirclesConsts,
     ):

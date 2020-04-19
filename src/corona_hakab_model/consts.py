@@ -135,8 +135,9 @@ class Consts(NamedTuple):
     change_policies: bool = False
     # a dictionary of day:([ConnectionTypes], message). on each day, keeps only the given connection types opened
     policies_changes: Dict[int, tuple] = {
-        40: ([ConnectionTypes.Family, ConnectionTypes.Other], "closing schools and works"),
-        70: ([ConnectionTypes.Family, ConnectionTypes.Other, ConnectionTypes.School], "opening schools"),
+        40: ([ConnectionTypes.Family, ConnectionTypes.Other], "closing schools, kindergartens and works"),
+        70: ([ConnectionTypes.Family, ConnectionTypes.Other, ConnectionTypes.School, ConnectionTypes.Kindergarten],
+             "opening schools and kindergartens"),
         100: (ConnectionTypes, "opening works"),
     }
     # policies acting on a specific connection type, when a term is satisfied
@@ -157,6 +158,19 @@ class Consts(NamedTuple):
                 policy=Policy(1, [lambda circle: random() > 1]),
                 active=True,
                 message="opening all schools",
+            ),
+        ],
+        ConnectionTypes.Kindergarten: [
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
+                policy=Policy(0, [lambda circle: random() > 0]),
+                message="closing all kindergartens",
+            ),
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
+                policy=Policy(1, [lambda circle: random() > 1]),
+                active=True,
+                message="opening all kindergartens",
             ),
         ],
         ConnectionTypes.Work: [

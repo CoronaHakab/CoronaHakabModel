@@ -3,7 +3,8 @@ from typing import List
 import numpy as np
 from generation.circles import Circle, SocialCircle
 from generation.circles_consts import GeographicalCircleDataHolder
-from generation.connection_types import ConnectionTypes, In_Zone_types, Multi_Zone_types, Non_Random_Age_Types
+from generation.connection_types import ConnectionTypes, In_Zone_types, Multi_Zone_types, Education_Types
+from util import rv_discrete
 
 
 class GeographicCircle(Circle):
@@ -34,22 +35,40 @@ class GeographicCircle(Circle):
         Iterates over each agent. Generates it's age by a given age distribution (self.data_holder.age_distribution).
         For each agent, iterates over each connection type, and rolls whether it has this type of connection or not.
         Gets this probabilities from self.data_holder.connection_types_prob_by_age.
-        It allows choosing whether some one goes to work, to school, or to none of those.
+        It allows choosing whether some one goes to work, to school, to kindergarten or to none of those.
         :return:
         """
         ages = iter(self.data_holder.age_distribution.rvs(size=len(self.agents)))
+        workplace_distribution = rv_discrete(
+            values=([ConnectionTypes.School, ConnectionTypes.Kindergarten, ConnectionTypes.Work],
+                    [self.data_holder.teachers_workforce_ratio, self.data_holder.kindergarten_workforce_ratio,
+                    1 - self.data_holder.teachers_workforce_ratio - self.data_holder.kindergarten_workforce_ratio])
+        )
         for agent, age in zip(self.agents, ages):
             agent.age = age
             agent_connection_types = []
-            for connection_type in ConnectionTypes:
+            
+            if agent.is_adult() and np.random.random() < self.data_holder.connection_types_prob_by_age[age][
+                ConnectionTypes.Work]:
+
+                # if the agent works, decide workplace
+                agent_connection_types.append(workplace_distribution.rvs())
+
+            if not agent.is_adult():
+                education_prob = [self.data_holder.connection_types_prob_by_age[age][connection_type] for
+                                  connection_type in Education_Types]
+                if np.random.random() < sum(education_prob):
+                    # normalize the probabilities
+                    education_type = rv_discrete(
+                        values=(Education_Types, [prob / sum(education_prob) for prob in education_prob])).rvs()
+                    agent_connection_types.append(education_type)
+
+            # handle other connection types. This single FOR condition contains words "connection" and "type" 9 times
+            for connection_type in [connection_type for connection_type in ConnectionTypes if connection_type not in [
+                ConnectionTypes.School, ConnectionTypes.Work, ConnectionTypes.Kindergarten]]:
+
                 if np.random.random() < self.data_holder.connection_types_prob_by_age[age][connection_type]:
                     agent_connection_types.append(connection_type)
-            
-            if agent.is_adult() and ConnectionTypes.Work in agent_connection_types:
-                # if the agent works, there's a chance it is a teachers job 
-                if np.random.random() < self.data_holder.teachers_workforce_ratio:
-                    agent_connection_types.remove(ConnectionTypes.Work)
-                    agent_connection_types.append(ConnectionTypes.School)
 
             for connection_type in agent_connection_types:
                 self.connection_type_to_agents[connection_type].append(agent)

@@ -1,9 +1,12 @@
 import logging
 from collections import defaultdict
-from typing import Callable, Iterable, List, Union
 
+from random import shuffle
+from typing import Callable, Dict, Iterable, List, Union
+import infection
+import update_matrix
 import numpy as np
-
+from typing import Callable, Iterable, List, Union
 import infection
 import update_matrix
 from agent import SickAgents, InitialAgentsConstraints
@@ -157,13 +160,21 @@ class SimulationManager:
         """
         agents_to_infect = []
         agent_index = 0
-        if self.initial_agent_constraints.constraints is not None \
+        agent_permutation = list(range(len(self.agents)))
+
+        if self.run_args.randomize:
+            self.logger.info("creating permutation")
+            shuffle(agent_permutation) #this is somewhat expensive for large sets, but imho it's worth it.
+            self.logger.info("finished permuting")
+        else:
+            self.logger.info("running without permutation")
+        if self.initial_agent_constraints.constraints is not None\
                 and len(self.initial_agent_constraints.constraints) != self.consts.initial_infected_count:
             raise ValueError("Constraints file row number must match number of sick agents in simulation")
         while len(agents_to_infect) < self.consts.initial_infected_count:
             if agent_index == len(self.agents):
                 raise ValueError("Initial sick agents over-constrained, couldn't find compatible agents")
-            temp_agent = self.agents[agent_index]
+            temp_agent = self.agents[agent_permutation[agent_index]]
             agent_index += 1
             if self.initial_agent_constraints.constraints is None:
                 agents_to_infect.append(temp_agent)
