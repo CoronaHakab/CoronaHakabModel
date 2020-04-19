@@ -35,7 +35,7 @@ class UpdateMatrixManager:
     Manages the "Update Matrix" stage of the simulation.
     """
 
-    def __init__(self, manager: "SimulationManager", normalize_factor = None):  # noqa: F821 - todo how to fix it?
+    def __init__(self, manager: "SimulationManager", normalize_factor=None):  # noqa: F821 - todo how to fix it?
         self.manager = manager
         # unpacking commonly used information from manager
         self.matrix = manager.matrix

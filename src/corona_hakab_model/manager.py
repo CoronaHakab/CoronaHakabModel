@@ -66,6 +66,7 @@ class SimulationManager:
         self.simulation_progression.snapshot(self)
 
     def reset(self):
+        self.matrix.set_factors([1] * self.depth)
         self.consts.medical_state_machine.cache_clear()  # In order to get the new medical_state_machine
         self.medical_machine = self.consts.medical_state_machine()
         initial_state = self.medical_machine.initial
