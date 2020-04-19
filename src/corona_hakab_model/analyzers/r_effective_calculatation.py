@@ -68,7 +68,7 @@ def new_infects_over_time(config=None) -> pd.DataFrame:
                            consts=consts)
     max_number_of_days = max(simulation_time_slices.keys())
     max_loops = max(simulation_time_slices.values())
-    df = pd.DataFrame(columns=range(1, max_number_of_days+1),
+    df = pd.DataFrame(columns=range(1, max_number_of_days),
                       index=range(max_loops))
     total_loops = 0
     for number_of_days, number_of_loops in sorted(simulation_time_slices.items(), reverse=True):
@@ -77,21 +77,15 @@ def new_infects_over_time(config=None) -> pd.DataFrame:
             current_run_results = _compute_simulation_new_sick(sm, number_of_days)
             df.iloc[i] = pd.Series(current_run_results)
             sm.reset()
-        total_loops += number_of_loops
+        total_loops = number_of_loops
     return df
 
 
-def _calculate_series_r0(infections, p_tau):
-    weighted_infections_history = sum(infections[:-1] * p_tau)
-    if weighted_infections_history == 0:
-        return 0
-    return infections.iloc[-1] / weighted_infections_history
-
-
-def r_effective_over_time(infections_df, config) -> pd.DataFrame:
+def weighted_r_effective_over_time(infections_df, config) -> pd.DataFrame:
     p_tau_reversed = np.array(config['p_tau'][::-1])  # The distribution to get infected on each day from agent
     interval_length = len(p_tau_reversed)
-    r_effective_days = list(range(interval_length, len(infections_df.columns)))
+    first_column, last_column = infections_df.columns[0], infections_df.columns[-1]
+    r_effective_days = list(range(interval_length+first_column, last_column+1))
     r_effective_df = pd.DataFrame(np.nan,
                                   index=infections_df.index,
                                   columns=r_effective_days)
@@ -102,18 +96,64 @@ def r_effective_over_time(infections_df, config) -> pd.DataFrame:
     return r_effective_df
 
 
-def calculate_r_effective(config):
+def simplified_r_effective_over_time(infections_df, config):
+    state_machine_stats = monte_carlo_state_machine_analysis(config['monte_carlo_config'])
+    total_expected_infected_days = state_machine_stats["average_time_to_terminal"]
+    r_effective_days = infections_df.columns[1:]
+    r_effective_df = pd.DataFrame(np.nan,
+                                  index=infections_df.index,
+                                  columns=r_effective_days)
+    for i in r_effective_days:
+        yesterday_infects = infections_df.loc[:, i-1].replace(0, np.nan)
+        r0_of_day_series = infections_df.loc[:, i]/yesterday_infects
+        r_effective_df.loc[:, i] = r0_of_day_series ** total_expected_infected_days
+    return r_effective_df
+
+
+def _sim_r_effective_calc_by_type(infect_statistics, config, file_suffix):
+    if config["r_effective_computation_type"] == "all":
+        config["r_effective_computation_type"] = "simple"
+        _sim_r_effective_calc_by_type(infect_statistics, config, file_suffix)
+        config["r_effective_computation_type"] = "weighted"
+        _sim_r_effective_calc_by_type(infect_statistics, config, file_suffix)
+    else:
+        if config["r_effective_computation_type"] == "simple":
+            r_effective_over_time = simplified_r_effective_over_time(infect_statistics,
+                                                                     config)
+        elif config["r_effective_computation_type"] == "weighted":
+            r_effective_over_time = weighted_r_effective_over_time(infect_statistics,
+                                                                   config)
+        else:
+            raise NotImplementedError
+        file_prefix = config["r_effective_computation_type"]
+        r_effective_over_time.to_csv(OUTPUT_FOLDER /
+                                     (f"{file_prefix}_"
+                                      f"multiple_run_r_eff_over_time_"
+                                      f"{file_suffix}"))
+        r0_per_day_averages = r_effective_over_time.mean()
+        r0_per_day_averages.to_csv(OUTPUT_FOLDER /
+                                   (f"{file_prefix}_"
+                                    f"r_eff_averaged_"
+                                    f"{file_suffix}"))
+
+
+def calculate_r_effective(*, config=None, json_file=None):
+    assert json_file or config, "Must give a path to json file or a config dict as input"
+    if json_file:
+        with open(json_file, "r") as fh:
+            config = json.load(fh)
+        # We make a list o/w the iterator updates
+        for k in list(config['simulation_time_slices'].keys()):
+            config['simulation_time_slices'][int(k)] = config['simulation_time_slices'].pop(k)
     infect_statistics = new_infects_over_time(config)
     file_suffix = datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
     infect_statistics.to_csv(OUTPUT_FOLDER /
                              ("multiple_run_infection_statistics_"+file_suffix))
-    r0_over_time = r_effective_over_time(infect_statistics, config)
-    r0_over_time.to_csv(OUTPUT_FOLDER /
-                        ("multiple_run_r0_over_time_"+file_suffix))
-    r0_per_day_averages = r0_over_time.mean(axis=1)
-    r0_per_day_averages.to_csv(OUTPUT_FOLDER /
-                               ("r0_averaged"+file_suffix))
+    _sim_r_effective_calc_by_type(infect_statistics,
+                                  config,
+                                  file_suffix)
 
 
 if __name__ == "__main__":
-    calculate_r_effective()
+    main_config_file = ANALYZERS_FOLDER / "r_effective_calculation_default_config.json"
+    calculate_r_effective(json_file=main_config_file)
