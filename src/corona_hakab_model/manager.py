@@ -1,10 +1,5 @@
 import logging
 from collections import defaultdict
-
-from random import random, choice
-from typing import Callable, Dict, Iterable, List, Union
-import infection
-import update_matrix
 import numpy as np
 from typing import Callable, Iterable, List, Union
 import infection
@@ -19,8 +14,6 @@ from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
 from supervisor import Supervisable, SimulationProgression
-from update_matrix import Policy
-
 
 
 class SimulationManager:
@@ -99,6 +92,8 @@ class SimulationManager:
             factor = self.update_matrix_manager.normalize_factor
             self.update_matrix_manager = update_matrix.UpdateMatrixManager(manager=self,
                                                                            normalize_factor=factor)
+        else:
+            self.update_matrix_manager = update_matrix.UpdateMatrixManager(manager=self)
         self.infection_manager = infection.InfectionManager(self)
         self.healthcare_manager = healthcare.HealthcareManager(self)
         self.medical_state_manager = MedicalStateManager(sim_manager=self)

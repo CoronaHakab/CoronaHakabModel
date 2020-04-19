@@ -61,7 +61,7 @@ class SimulationProgression:
         for s in tabular_supervisables:
             day_to_table_dict = s.publish()
             for day, table in day_to_table_dict.items():
-                sample_file_name = os.path.join(output_folder, f"{s.name()} {day}.csv")
+                sample_file_name = Path(OUTPUT_FOLDER / f"{s.name()} {day}.csv")
                 df = pd.DataFrame(table)
                 df.to_csv(sample_file_name)
 
