@@ -47,12 +47,9 @@ class SimulationProgression:
             s.snapshot(manager)
 
     def dump(self, filename=None):
-        file_name = Path(filename) if filename else Path(SIM_OUTPUT_FOLDER) / (datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
+        output_folder = Path(SIM_OUTPUT_FOLDER)
+        file_name = Path(filename) if filename else output_folder / (datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
         file_name.parent.mkdir(parents=True, exist_ok=True)
-
-        output_folder = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], "output")
-        file_name = filename or os.path.join(output_folder, datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
-        # TODO: Switch ^ to use pathlib
 
         tabular_supervisables = [s for s in self.supervisables if isinstance(s, TabularSupervisable)]
         value_supervisables = [s for s in self.supervisables if isinstance(s, ValueSupervisable)]
@@ -62,7 +59,7 @@ class SimulationProgression:
         for s in tabular_supervisables:
             day_to_table_dict = s.publish()
             for day, table in day_to_table_dict.items():
-                sample_file_name = os.path.join(output_folder, f"{s.name()} {day}.csv")
+                sample_file_name = output_folder / f"{s.name()} {day}.csv"
                 df = pd.DataFrame(table)
                 df.to_csv(sample_file_name)
 
@@ -274,7 +271,7 @@ class TabularSupervisable(Supervisable):
         pass
 
     def snapshot(self, manager: "manager.SimulationManager"):
-        if manager.current_step % self.interval == 0:
+        if manager.current_step > 0 and manager.current_step % self.interval == 0:
             self.data.append(self.get(manager))
             self.sampling_days.append(manager.current_step)
 
