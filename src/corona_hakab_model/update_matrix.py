@@ -99,7 +99,7 @@ class UpdateMatrixManager:
     def reset_agent(self, connection_type, index):
         self.matrix.reset_mul_row(connection_type, index)
         self.matrix.reset_mul_col(connection_type, index)
-        self.manager.random_connections_factor[index, connection_type] = 1  # TODO: Make sure that's the meaning of "reset"
+        self.manager.random_connections_factor[index, connection_type] = 1
 
     def factor_agent(self, index, connection_type, factor):
         self.matrix.mul_sub_row(connection_type, index, factor)

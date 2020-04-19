@@ -138,8 +138,8 @@ class CirclesGenerator:
                 rand_connections = np.random.exponential(exp_mean, len(agents_id))
 
                 # You can't have more random connections than the number of people (other than you) in the circle
-                # rand_connections = np.clip(rand_connections, a_max=num_of_agents_in_circle - 1)  # TODO: Should we clip?
-                circle.total_random_connections = sum(rand_connections)
+                rand_connections = np.clip(rand_connections, 0, num_of_agents_in_circle - 1)
+                circle.total_random_connections = np.sum(rand_connections)
 
                 self.num_of_random_connections[agents_id, [connection_type] * len(agents_id)] = rand_connections
 
