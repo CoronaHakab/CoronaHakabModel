@@ -9,6 +9,7 @@ from matplotlib import pyplot as plt
 
 import numpy as np
 
+from analyzers.r_effective_calculatation import calculate_r_effective
 from analyzers.state_machine_analysis import extract_state_machine_analysis
 from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
 from consts import Consts
@@ -36,6 +37,9 @@ def main():
 
     if args.sub_command == 'analyze-state-machine':
         extract_state_machine_analysis(vars(args))
+
+    if args.sub_command == 'analyze-r-eff':
+        calculate_r_effective(json_file=args.config_file)
 
     if args.sub_command == 'analyze-matrix':
         analyze_matrix(args)
@@ -86,9 +90,9 @@ def run_simulation(args):
     sm = SimulationManager(
         (
             # "Latent",
-            Supervisable.State.AddedPerDay("Asymptomatic"),
-            Supervisable.State.Current("Asymptomatic"),
-            Supervisable.State.TotalSoFar("Asymptomatic"),
+            #Supervisable.State.AddedPerDay("Asymptomatic"),
+            #Supervisable.State.Current("Asymptomatic"),
+            #Supervisable.State.TotalSoFar("Asymptomatic"),
             # "Silent",
             # "Asymptomatic",
             # "Symptomatic",
@@ -97,31 +101,31 @@ def run_simulation(args):
             # "ICU",
             # "Susceptible",
             # "Recovered",
-            Supervisable.Sum(
-                "Latent",
-                "Latent-Asymp",
-                "Latent-Presymp",
-                "Asymptomatic",
-                "Pre-Symptomatic",
-                "Mild-Condition",
-                "NeedOfCloseMedicalCare",
-                "NeedICU",
-                "ImprovingHealth",
-                "PreRecovered",
-                name="currently sick"
-            ),
+            #Supervisable.Sum(
+            #    "Latent",
+            #    "Latent-Asymp",
+            #    "Latent-Presymp",
+            #    "Asymptomatic",
+            #    "Pre-Symptomatic",
+            #    "Mild-Condition",
+            #    "NeedOfCloseMedicalCare",
+            #    "NeedICU",
+            #    "ImprovingHealth",
+            #    "PreRecovered",
+            #    name="currently sick"
+            #),
             # LambdaValueSupervisable("ever hospitalized", lambda manager: len(manager.medical_machine["Hospitalized"].ever_visited)),
-            LambdaValueSupervisable(
-                "was ever sick",
-                lambda manager: len(manager.agents) - manager.medical_machine["Susceptible"].agent_count,
-            ),
+            #LambdaValueSupervisable(
+            #    "was ever sick",
+            #    lambda manager: len(manager.agents) - manager.medical_machine["Susceptible"].agent_count,
+            #),
             Supervisable.NewCasesCounter(),
-            Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter(), 1),
-            Supervisable.Wrappers.RunningAverage(Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter()), 7),
-            Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter(), 7),
+            #Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter(), 1),
+            #Supervisable.Wrappers.RunningAverage(Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter()), 7),
+            #Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter(), 7),
             # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
-            Supervisable.CurrentInfectedTable(interval=Consts.export_infected_agents_interval),
+            #Supervisable.CurrentInfectedTable(interval=Consts.export_infected_agents_interval),
             # LambdaValueSupervisable("Detected Daily", lambda manager: manager.new_detected_daily),
             # LambdaValueSupervisable("Current Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
             # Supervisable.R0(),

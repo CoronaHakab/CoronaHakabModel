@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from __data__ import __version__
+from project_structure import ANALYZERS_FOLDER
 
 
 def get_simulation_args_parser():
@@ -44,11 +45,6 @@ def get_simulation_args_parser():
     sim.add_argument(
         "-s", "--simulation-parameters", dest="simulation_parameters_path", help="Parameters for simulation engine"
     )
-    state_machine = subparser.add_parser("analyze-state-machine", help="Run stochastic analyzer for the state machine")
-    state_machine.add_argument("--population_size",
-                               dest="population_size",
-                               default="50_000",
-                               help="Folder to save the result of")
     sim.add_argument('--population-data',
                      dest='population_data',
                      default='../../output/population_data.pickle',
@@ -77,6 +73,16 @@ def get_simulation_args_parser():
                      dest='agent_constraints_path',
                      default=None,
                      help='Add constraints to the selection of the initial sick agents, see readme for file format')
+    state_machine = subparser.add_parser("analyze-state-machine", help="Run stochastic analyzer for the state machine")
+    state_machine.add_argument("--population_size",
+                               dest="population_size",
+                               default="50_000",
+                               help="Folder to save the result of the analysis")
+    analyze_r_eff = subparser.add_parser("analyze-r-eff", help="Run stochastic analyzer for the state machine")
+    analyze_r_eff.add_argument("--config-file",
+                               dest="config_file",
+                               default=ANALYZERS_FOLDER/"r_effective_calculation_default_config.json",
+                               help="Input configuration file")
     parser.add_argument('--seed',
                         dest='seed',
                         type=int,
