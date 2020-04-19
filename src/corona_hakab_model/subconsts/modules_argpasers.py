@@ -78,6 +78,13 @@ def get_simulation_args_parser():
                      dest='agent_constraints_path',
                      default=None,
                      help='Add constraints to the selection of the initial sick agents, see readme for file format')
+    sim.add_argument('--disable_sick_randomization',
+                     dest='randomize',
+                     action="store_false",
+                     default=True,
+                     help='makes the first sick patients the first in the list. this makes them more connected than random')
+    sim.set_defaults(feature=True)
+
     parser.add_argument('--seed',
                         dest='seed',
                         type=int,
