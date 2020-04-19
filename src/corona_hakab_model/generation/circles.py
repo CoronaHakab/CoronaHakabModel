@@ -34,7 +34,7 @@ class Circle:
 
 class SocialCircle(Circle):
     __slots__ = ("agents", "connection_type", "guid",
-                 "total_random_connections", "random_connections_strength_factor")
+                 "total_random_connections")
 
     def __init__(self, connection_type: ConnectionTypes):
         super().__init__()
@@ -43,7 +43,6 @@ class SocialCircle(Circle):
         self.connection_type = connection_type
         self.guid = str(uuid.uuid4())
         self.total_random_connections = 0
-        self.random_connections_strength_factor = 0
 
     def add_agent(self, agent):
         super().add_agent(agent)

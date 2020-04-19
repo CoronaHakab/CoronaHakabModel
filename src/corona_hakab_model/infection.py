@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from collections import defaultdict
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, List
 
 import numpy as np
+
 from agent import Agent
+from generation import connection_types
 
 if TYPE_CHECKING:
-    from medical_state import MedicalState
     from manager import SimulationManager
 
 
@@ -53,8 +53,8 @@ class InfectionManager:
     def _infect_random_connections(self):
         connections = self.manager.num_of_random_connections * self.manager.random_connections_factor
         probs_not_infected_from_connection = np.ones_like(connections, dtype=float)
-        for connection_type, all_circs in self.manager.social_circles_by_connection_type.items():
-            for circle in all_circs:
+        for connection_type in connection_types.With_Random_Connections:
+            for circle in self.manager.social_circles_by_connection_type[connection_type]:
                 agents_id = [a.index for a in circle.agents]
 
                 if len(agents_id) == 1:

@@ -111,6 +111,7 @@ class CirclesGenerator:
         self.social_circles_by_agent_index = {}
         self.fill_social_circles_by_agent_index()
 
+        # Random connections in circles TODO: Move to matrix generation
         self.num_of_random_connections = np.zeros((len(self.agents), len(ConnectionTypes)), dtype=float)
         self.random_connections_strength = np.zeros(len(ConnectionTypes), dtype=float)
         self.generate_random_connections()
@@ -138,12 +139,8 @@ class CirclesGenerator:
                 # You can't have more random connections than the number of people (other than you) in the circle
                 # rand_connections = np.clip(rand_connections, a_max=num_of_agents_in_circle - 1)  # TODO: Should we clip?
                 circle.total_random_connections = sum(rand_connections)
-                circle.random_connections_strength_factor = \
-                    self.circles_consts.random_connections_strength_factor[connection_type]
 
                 self.num_of_random_connections[agents_id, [connection_type] * len(agents_id)] = rand_connections
-
-        return self.num_of_random_connections
 
     def create_geographic_circles(self):
         """
