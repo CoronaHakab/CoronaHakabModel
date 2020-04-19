@@ -69,7 +69,7 @@ class InfectionManager:
                 prob = total_infectious_random_connections / circle.total_random_connections
 
                 probs_not_infected_from_connection[(agents_id, [connection_type] * len(agents_id))] = \
-                    1 - prob * circle.random_connections_strength_factor * self.manager.update_matrix_manager.normalize_factor
+                    1 - prob * self.manager.random_connections_strength[connection_type]
 
         not_infected_probs = np.power(probs_not_infected_from_connection, connections)
         prob_infected_in_any_circle = 1 - not_infected_probs.prod(axis=1)
