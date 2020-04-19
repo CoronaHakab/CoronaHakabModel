@@ -90,20 +90,13 @@ class GeographicCircle(Circle):
         """
 
         np.random.shuffle(agents_for_type)
-        # calculate amount of agents for each size group
-        # we'll also use size_num_agents to count how many agents were placed in each size group.
         possible_sizes, probs = self.data_holder.circles_size_distribution_by_connection_type[connection_type]
         circles_size_distribution = rv_discrete(values=(possible_sizes, probs))
-        size_num_agents = {size : 0 for size in possible_sizes}             
-        rolls = np.random.choice(possible_sizes, size=len(agents_for_type), p=probs)
-        for roll in rolls:
-            size_num_agents[roll] += 1
 
         circles = []
 
         while len(agents_for_type) > 0:
             circle_size = circles_size_distribution.rvs()
-
             # if not enough agents, or next circle would be to small, create circle of abnormal size
             if len(agents_for_type) < circle_size + min(possible_sizes):
                 circle_size = len(agents_for_type)
@@ -122,50 +115,6 @@ class GeographicCircle(Circle):
 
         self.connection_type_to_social_circles[connection_type].extend(circles)
         self.all_social_circles.extend(circles)
-
-        '''
-        # populate circles in each size group
-        for size in possible_sizes:
-            # create circles
-            amount_of_circles = max(1, round(size_num_agents[size] / size))
-            circles = [SocialCircle(connection_type) for _ in range(amount_of_circles)]
-            # index is used to go over all circles in the size group s.t. the population is divided as qeually as possible
-            index = 0
-
-            # if the distribution is age dependent, fill adults first.
-            # check if there is a distribution of adults in for the connection_type
-            adult_type_distribution = self.data_holder.adult_distributions.get(connection_type)
-            if adult_type_distribution:
-                # get random amount of adults for each circle according to distribution
-                circles_adult_number = [adult_type_distribution[size].rvs() for _ in range(amount_of_circles)]
-                # devide population according to age
-                adults = [agent for agent in agents_for_type if agent.age > 18]
-                non_adults = [agent for agent in agents_for_type if agent.age <= 18]
-                # place adults where needed, non adults elsewhere, where circles need to be populated
-                while len(adults) > 0 and size_num_agents[size] > 0:
-                    circle = circles[index % len(circles)]
-                    agent = None
-                    # if there are more adults needed, or no more kids, circle gets an adult
-                    if circles_adult_number[index % len(circles)] > circle.agent_count or len(non_adults) == 0:
-                        agent = adults.pop()
-                    else:
-                        agent = non_adults.pop()
-                    circle.add_agent(agent)
-                    agents_for_type.remove(agent)
-                    index += 1
-                    size_num_agents[size] -= 1
-           
-            # fill in the rest of the population 
-            while len(agents_for_type) > 0 and size_num_agents[size] > 0:
-                agent = agents_for_type.pop()
-                circle = circles[index % len(circles)]
-                circle.add_agent(agent)
-                index += 1
-                size_num_agents[size] -= 1
-            
-            self.connection_type_to_social_circles[connection_type].extend(circles)
-            self.all_social_circles.extend(circles)
-        '''
 
     def create_age_dependant_circle(self, connection_type, agents_for_type, size):
         circle = SocialCircle(connection_type)
