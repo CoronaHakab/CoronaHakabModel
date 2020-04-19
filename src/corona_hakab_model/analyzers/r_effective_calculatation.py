@@ -1,3 +1,8 @@
+import json
+from datetime import datetime
+from agent import InitialAgentsConstraints
+from analyzers.state_machine_analysis import monte_carlo_state_machine_analysis
+from project_structure import OUTPUT_FOLDER, ANALYZERS_FOLDER
 from consts import Consts
 from generation.circles_consts import CirclesConsts
 from generation.circles_generator import PopulationData, CirclesGenerator
@@ -23,7 +28,9 @@ def _compute_simulation_new_sick(sm, number_of_step):
     return new_sick_every_day
 
 
-def new_infects_over_time(config=dict()) -> pd.DataFrame:
+def new_infects_over_time(config=None) -> pd.DataFrame:
+    if config is None:
+        config = dict()
 
     simulation_time_slices = config['simulation_time_slices']
 
@@ -46,21 +53,29 @@ def new_infects_over_time(config=dict()) -> pd.DataFrame:
             consts = Consts(**config['consts_config'])
         else:
             consts = Consts()
+        if 'initial_agent_constraints' in config:
+            initial_agent_constraint = InitialAgentsConstraints(config['initial_agent_constraints'])
+        else:
+            initial_agent_constraint = InitialAgentsConstraints()
 
     sim_run_args = get_default_silent_simulation_args()
 
     sm = SimulationManager((),
                            population_data,
                            matrix_data,
+                           inital_agent_constraints=initial_agent_constraint,
                            run_args=sim_run_args,
                            consts=consts)
-    df = pd.DataFrame()
+    max_number_of_days = max(simulation_time_slices.keys())
+    max_loops = max(simulation_time_slices.values())
+    df = pd.DataFrame(columns=range(1, max_number_of_days+1),
+                      index=range(max_loops))
     total_loops = 0
     for number_of_days, number_of_loops in sorted(simulation_time_slices.items(), reverse=True):
         for i in range(total_loops, number_of_loops):
             sm.setup_sick()
             current_run_results = _compute_simulation_new_sick(sm, number_of_days)
-            df = df.append(pd.Series(current_run_results), ignore_index=True)
+            df.iloc[i] = pd.Series(current_run_results)
             sm.reset()
         total_loops += number_of_loops
     return df
@@ -80,7 +95,6 @@ def r_effective_over_time(infections_df, config) -> pd.DataFrame:
     r_effective_df = pd.DataFrame(np.nan,
                                   index=infections_df.index,
                                   columns=r_effective_days)
-
     for i in r_effective_days:
         average_total_infections = infections_df.loc[:, i-interval_length: i-1] @ p_tau_reversed
         r_effective_df.loc[:, i] = infections_df.loc[:, i]/average_total_infections

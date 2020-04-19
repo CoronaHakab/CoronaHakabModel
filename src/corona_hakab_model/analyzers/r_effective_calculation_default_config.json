@@ -4,11 +4,15 @@
                                "40": 100,
                                "60": 50
                                },
+    "r_effective_computation_type": "all",
     "p_tau": [0.019, 0.124, 0.210, 0.214, 0.168,
               0.114, 0.069, 0.039, 0.021, 0.011,
               0.005, 0.003, 0.001, 0.001, 0.001],
+    "monte_carlo_config": {
+      "population_size": 25000
+    },
     "circle_consts_config":{
-                            "population_size": 50000
+                            "population_size": 10000
                            },
     "consts_config":{
                      "initial_infected_count": 100,

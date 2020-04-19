@@ -114,7 +114,6 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
                                   medical_states))
 
     state_counter = Counter({m.name: m.agent_count for m in medical_states})
-    sum_days_to_terminal = 0
     days_passed = 1
     number_terminals_agents = 0
 
@@ -127,11 +126,12 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
         for m in medical_states:
             state_counter[m.name] += m.agent_count
         days_passed += 1
-        sum_days_to_terminal += days_passed * new_terminals
 
     average_state_time_duration, state_duration_expected_time = _get_empirical_state_times(medical_state_machine,
                                                                                            population_size,
                                                                                            state_counter)
+    sum_days_to_terminal = sum({v for (k, v) in average_state_time_duration.items()
+                                if k not in terminal_states})
 
     return dict(population_size=population_size,
                 days_passed=days_passed,
@@ -140,7 +140,7 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
                                         for m in medical_state_machine.states},
                 average_duration_in_state=average_state_time_duration,
                 state_duration_expected_time=state_duration_expected_time,
-                average_time_to_terminal=sum_days_to_terminal/population_size)
+                average_time_to_terminal=sum_days_to_terminal)
 
 
 def extract_state_machine_analysis(configuration):
