@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import matplotlib.pyplot as plt
 import random
 import os.path
 import sys

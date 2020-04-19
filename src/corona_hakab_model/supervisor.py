@@ -14,6 +14,7 @@ from state_machine import StochasticState
 
 import numpy as np
 import pandas as pd
+import os
 
 from typing import TYPE_CHECKING
 
