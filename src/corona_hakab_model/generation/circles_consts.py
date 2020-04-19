@@ -95,11 +95,13 @@ class CirclesConsts(NamedTuple):
     random_connections_dist_mean = {
         ConnectionTypes.Work: 2.2,
         ConnectionTypes.School: 0.25,
+        ConnectionTypes.Kindergarten: 0.25,
         ConnectionTypes.Other: 2.1,
     }
     random_connections_strength_factor = {
         ConnectionTypes.Work: 0.5,
         ConnectionTypes.School: 1.,
+        ConnectionTypes.Kindergarten: 1.,
         ConnectionTypes.Other: 0.6,
     }
     geo_circles_agents_share: List[float] = [0.6, 0.4]
