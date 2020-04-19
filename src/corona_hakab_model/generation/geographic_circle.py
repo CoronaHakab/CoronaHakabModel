@@ -3,8 +3,9 @@ from typing import List
 import numpy as np
 from generation.circles import Circle, SocialCircle
 from generation.circles_consts import GeographicalCircleDataHolder
-from generation.connection_types import ConnectionTypes, In_Zone_types, Multi_Zone_types, Education_Types
-from util import rv_discrete
+from generation.connection_types import ConnectionTypes, In_Zone_types, Multi_Zone_types, Education_Types, \
+    Non_Random_Age_Types
+from util import rv_discrete, lower_bound
 
 
 class GeographicCircle(Circle):
@@ -87,16 +88,42 @@ class GeographicCircle(Circle):
         :param agents_for_type: the agents that will be inserted to the social circles
         :return:
         """
+
         np.random.shuffle(agents_for_type)
         # calculate amount of agents for each size group
         # we'll also use size_num_agents to count how many agents were placed in each size group.
         possible_sizes, probs = self.data_holder.circles_size_distribution_by_connection_type[connection_type]
+        circles_size_distribution = rv_discrete(values=(possible_sizes, probs))
         size_num_agents = {size : 0 for size in possible_sizes}             
         rolls = np.random.choice(possible_sizes, size=len(agents_for_type), p=probs)
         for roll in rolls:
             size_num_agents[roll] += 1
 
+        circles = []
 
+        while len(agents_for_type) > 0:
+            circle_size = circles_size_distribution.rvs()
+
+            # if not enough agents, or next circle would be to small, create circle of abnormal size
+            if len(agents_for_type) < circle_size + min(possible_sizes):
+                circle_size = len(agents_for_type)
+
+            # if the distribution is age dependent, fill with the appropriate age proportions
+            if connection_type in Non_Random_Age_Types:
+                circles.append(self.create_age_dependant_circle(connection_type, agents_for_type, circle_size))
+
+            else:
+                circle = SocialCircle(connection_type)
+                for _ in range(circle_size):
+                    agent = agents_for_type.pop()
+                    assert agent not in circle.agents
+                    circle.add_agent(agent)
+                circles.append(circle)
+
+        self.connection_type_to_social_circles[connection_type].extend(circles)
+        self.all_social_circles.extend(circles)
+
+        '''
         # populate circles in each size group
         for size in possible_sizes:
             # create circles
@@ -104,7 +131,7 @@ class GeographicCircle(Circle):
             circles = [SocialCircle(connection_type) for _ in range(amount_of_circles)]
             # index is used to go over all circles in the size group s.t. the population is divided as qeually as possible
             index = 0
-            
+
             # if the distribution is age dependent, fill adults first.
             # check if there is a distribution of adults in for the connection_type
             adult_type_distribution = self.data_holder.adult_distributions.get(connection_type)
@@ -138,6 +165,43 @@ class GeographicCircle(Circle):
             
             self.connection_type_to_social_circles[connection_type].extend(circles)
             self.all_social_circles.extend(circles)
+        '''
+
+    def create_age_dependant_circle(self, connection_type, agents_for_type, size):
+        circle = SocialCircle(connection_type)
+
+        # if circle size is abnormal, number of adults is taken from the closest smaller possible size
+        possible_sizes, _ = self.data_holder.circles_size_distribution_by_connection_type[connection_type]
+        if size in possible_sizes:
+            adult_type_distribution = self.data_holder.adult_distributions.get(connection_type)[size]
+        else:
+            approx_size = min([psize for psize in possible_sizes if psize < size], key=lambda el: abs(el - size))
+            adult_type_distribution = self.data_holder.adult_distributions.get(connection_type)[approx_size]
+
+        adults = [agent for agent in agents_for_type if agent.age > 18]
+        non_adults = [agent for agent in agents_for_type if agent.age <= 18]
+
+        adult_num = min(round(adult_type_distribution.rvs()), len(adults))
+        child_num = min(size - adult_num, len(non_adults))
+        for _ in range(adult_num):
+            agent = adults.pop()
+            assert agent not in circle.agents
+            circle.add_agent(agent)
+            agents_for_type.remove(agent)
+
+        for _ in range(child_num):
+            agent = non_adults.pop()
+            assert agent not in circle.agents
+            circle.add_agent(agent)
+            agents_for_type.remove(agent)
+
+        # if there is place left in the circle, fill it with agents:
+        while circle.agent_count < size:
+            agent = agents_for_type.pop()
+            assert agent not in circle.agents
+            circle.add_agent(agent)
+
+        return circle
 
     def add_self_agents_to_dict(self, geographic_circle_to_agents_by_connection_types):
         for connection_type in Multi_Zone_types:
