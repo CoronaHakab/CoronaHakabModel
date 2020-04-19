@@ -3,7 +3,7 @@
 
 export WORKDIR=~
 export PROJDIR=${WORKDIR}/proj
-export WORK_BRANCH=paths_fix_3.7.0
+export WORK_BRANCH=develop_linux
 
 # git clone
 cd $WORKDIR

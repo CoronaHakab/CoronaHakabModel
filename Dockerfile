@@ -2,7 +2,7 @@ FROM python:3.8.2-buster
 
 ENV WORKDIR=/app
 ENV PROJDIR=${WORKDIR}/proj
-ENV WORK_BRANCH=paths_fix_3.7.0
+ENV WORK_BRANCH=develop_linux
 
 # git clone
 WORKDIR ${WORKDIR}
