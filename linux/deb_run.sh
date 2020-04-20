@@ -7,6 +7,13 @@ WORK_BRANCH=develop
 GUI_ENABLED=1
 #USE_PIPENV=1
 
+if [ "$USE_PIPENV" ]
+then
+  alias py='pipenv run python'
+else
+  alias py='python3.8'
+fi
+
 # git clone
 cd $WORKDIR
 sudo apt-get update
@@ -52,24 +59,15 @@ fi
 # build parasymbolic_matrix
 sudo apt-get install -y swig
 cd $PROJDIR/src/corona_hakab_model/parasymbolic_matrix/
-pipenv run python build_unix.py
+py build_unix.py
 cd $PROJDIR
 
-if [ "$USE_PIPENV" ]
-  pipenv run python ./src/corona_hakab_model/main.py --help
-else
-  python3.8 ./src/corona_hakab_model/main.py --help
-fi
+py ./src/corona_hakab_model/main.py --help
 
 echo "in order to run the simulation run the following commands:"
 echo "============================================================"
 echo "cd $PROJDIR"
-if [ "$USE_PIPENV" ]
-then
-  echo "pipenv run python ./src/corona_hakab_model/main.py all"
-else
-  echo "python3.8 ./src/corona_hakab_model/main.py all"
-fi
+echo "py ./src/corona_hakab_model/main.py all"
 echo
 echo "To enable Interactive output mode:"
 echo "sed -i 's/INTERACTIVE_MODE = False/INTERACTIVE_MODE = True/' $PROJDIR/src/corona_hakab_model/project_structure.py"
