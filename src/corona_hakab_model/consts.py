@@ -10,11 +10,9 @@ from detection_model.healthcare import DetectionTest
 from generation.connection_types import ConnectionTypes
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
-from numpy.random import random
 from policies_manager import ConditionedPolicy, Policy
 from state_machine import StochasticState, TerminalState
-from util import dist, rv_discrete, upper_bound
-
+from util import dist, rv_discrete, upper_bound, BucketDict
 
 """
 Overview:
@@ -34,11 +32,11 @@ class Consts(NamedTuple):
     total_steps: int = 350
     initial_infected_count: int = 20
     export_infected_agents_interval = 50
-    
+
     # Size of population to estimate expected time for each state
     population_size_for_state_machine_analysis: int = 25_000
 
-      # Tsvika: Currently the distribution is selected based on the number of input parameters.
+    # Tsvika: Currently the distribution is selected based on the number of input parameters.
     # Think we should do something more readable later on.
     # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
     # disease states transition lengths distributions
@@ -79,9 +77,9 @@ class Consts(NamedTuple):
     # [0.013,0.016,0.025,0.035,0.045,0.053,0.061,0.065,0.069,0.069,0.065,0.063,0.058,0.053,0.056,0.041,0.040,0.033,
     # 0.030,0.025,0.020,0.015,0.015,0.015,0.010,0.010]))
     # infections ratios
-    pre_symptomatic_infection_ratio: float = 0.75
-    mild_condition_infection_ratio: float = 0.40
-    silent_infection_ratio: float = 0.3
+    pre_symptomatic_infection_ratio: BucketDict = BucketDict({10: 0.75})
+    mild_condition_infection_ratio: BucketDict = BucketDict({10: 0.40})
+    silent_infection_ratio: BucketDict = BucketDict({10: 0.3})
     # base r0 of the disease
     r0: float = 2.4
 
@@ -98,38 +96,38 @@ class Consts(NamedTuple):
     pre_recovered_test_willingness: float = 0.5
     recovered_test_willingness: float = 0.1
     detection_pool: List[DetectionSettings] = [
-                                              DetectionSettings(
-                                                  name="hospital",
-                                                  detection_test=DetectionTest(detection_prob=0.98,
-                                                                               false_alarm_prob=0.,
-                                                                               time_until_result=3),
-                                                  daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
-                                                  testing_gap_after_positive_test=2,
-                                                  testing_gap_after_negative_test=1,
-                                                  testing_priorities=[
-                                                      DetectionPriority(
-                                                          lambda agent: (agent.medical_state.name == "Symptomatic" and
-                                                                         agent not in agent.manager.tested_positive_vector),
-                                                          max_tests=100),
-                                                      DetectionPriority(
-                                                          lambda agent: agent.medical_state.name == "Recovered"),
-                                                  ]),
+        DetectionSettings(
+            name="hospital",
+            detection_test=DetectionTest(detection_prob=0.98,
+                                         false_alarm_prob=0.,
+                                         time_until_result=3),
+            daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
+            testing_gap_after_positive_test=2,
+            testing_gap_after_negative_test=1,
+            testing_priorities=[
+                DetectionPriority(
+                    lambda agent: (agent.medical_state.name == "Symptomatic" and
+                                   agent not in agent.manager.tested_positive_vector),
+                    max_tests=100),
+                DetectionPriority(
+                    lambda agent: agent.medical_state.name == "Recovered"),
+            ]),
 
-                                              DetectionSettings(
-                                                  name="street",
-                                                  detection_test=DetectionTest(detection_prob=0.92,
-                                                                               false_alarm_prob=0.,
-                                                                               time_until_result=5),
-                                                  daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
-                                                  testing_gap_after_positive_test=3,
-                                                  testing_gap_after_negative_test=1,
-                                                  testing_priorities=[
-                                                      DetectionPriority(
-                                                          lambda agent: agent.medical_state.name == "Symptomatic"),
-                                                      DetectionPriority(
-                                                          lambda agent: agent.medical_state.name == "Recovered"),
-                                                  ]),
-                                          ]
+        DetectionSettings(
+            name="street",
+            detection_test=DetectionTest(detection_prob=0.92,
+                                         false_alarm_prob=0.,
+                                         time_until_result=5),
+            daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
+            testing_gap_after_positive_test=3,
+            testing_gap_after_negative_test=1,
+            testing_priorities=[
+                DetectionPriority(
+                    lambda agent: agent.medical_state.name == "Symptomatic"),
+                DetectionPriority(
+                    lambda agent: agent.medical_state.name == "Recovered"),
+            ]),
+    ]
     should_isolate_positive_detected = False
     # --policies params--
     change_policies: bool = False

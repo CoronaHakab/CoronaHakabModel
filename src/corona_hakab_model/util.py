@@ -1,6 +1,8 @@
 from abc import abstractmethod
+from collections import OrderedDict
 from typing import Generic, List, Protocol, TypeVar
 
+import numpy as np
 from scipy.stats import binom, randint, rv_discrete
 
 
@@ -62,7 +64,7 @@ class Queue(Generic[T]):
         if new_size < len(self.queued):
             raise NotImplementedError
         new_array = []
-        new_array.extend(self.queued[self.next_ind :])
+        new_array.extend(self.queued[self.next_ind:])
         new_array.extend(self.queued[: self.next_ind])
         new_array.extend([[] for _ in range(new_size - len(self.queued))])
 
@@ -93,3 +95,22 @@ class Queue(Generic[T]):
         if self.next_ind == len(self.queued):
             self.next_ind = 0
         return ret
+
+
+class BucketDict(OrderedDict):
+    """
+    This class supports missing values if there is a key larger than requested.
+    """
+
+    def __missing__(self, key):
+        if not self.keys():
+            return 0
+
+        for dict_key in self.keys():
+            if key <= dict_key:
+                return self[dict_key]
+        return self[dict_key]
+
+    @property
+    def mean_val(self):
+        return np.array(list(self.values())).mean() if self.keys() else 0

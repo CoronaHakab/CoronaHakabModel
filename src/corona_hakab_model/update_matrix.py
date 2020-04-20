@@ -69,7 +69,7 @@ class UpdateMatrixManager:
             states_time = machine_state_statistics['state_duration_expected_time']
             total_contagious_probability = 0
             for state in self.manager.medical_machine.states:
-                total_contagious_probability += states_time[state.name] * state.contagiousness
+                total_contagious_probability += states_time[state.name] * state.contagiousness.mean_val
             beta = self.consts.r0 / total_contagious_probability
 
             # saves this for the effective r0 graph
