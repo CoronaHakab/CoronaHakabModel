@@ -79,7 +79,7 @@ class Consts(NamedTuple):
     # infections ratios, See bucket dict for more info on how to use.
     pre_symptomatic_infection_ratio: BucketDict = BucketDict({10: 0.75, 20: 0.75})  # x <= 10 then key is 10,
     mild_condition_infection_ratio: BucketDict = BucketDict({10: 0.40})  # x<=20 then key is 20,
-    latent_infection_ratio: BucketDict = BucketDict({0: 0})   # if x greater than biggest key, x is biggest key
+    latent_infection_ratio: BucketDict = BucketDict({0: 0})  # if x greater than biggest key, x is biggest key
     latent_presymp_infection_ratio: BucketDict = BucketDict({0: 0})
     latent_asymp_infection_ratio: BucketDict = BucketDict({0: 0})
     asymptomatic_infection_ratio: BucketDict = BucketDict({0: 0})
@@ -135,10 +135,10 @@ class Consts(NamedTuple):
                     lambda agent: agent.medical_state.name == "Recovered"),
             ]),
     ]
-    should_isolate_positive_detected = False
-    isolate_after_num_day = 1  # will be in isolation the next day
-    p_will_obey_isolation = 1.0  # 100% will obey the isolation
-    isolation_factor = 0.0  # reduce 100%, meaning mult by 0
+    should_isolate_positive_detected: bool = False
+    isolate_after_num_day: int = 1  # will be in isolation the next day
+    p_will_obey_isolation: float = 1.0  # 100% will obey the isolation
+    isolation_factor: float = 0.0  # reduce 100%, meaning mult by 0
 
     # --policies params--
     change_policies: bool = False
