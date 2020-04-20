@@ -147,6 +147,9 @@
             ]),
     ],
     "should_isolate_positive_detected": False,
+    "isolate_after_num_day": 1,  # will be in isolation the next day.
+    "p_will_obey_isolation": 1.0,  # 100% will obey the isolation.
+    "isolation_factor": 0.0,  # reduce agent's relations strength by a factor
     # --policies params--
     "change_policies": False,
     # a dictionary of day:([ConnectionTypes], message). on each day, keeps only the given connection types opened
