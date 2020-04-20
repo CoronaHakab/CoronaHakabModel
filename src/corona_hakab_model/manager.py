@@ -151,7 +151,7 @@ class SimulationManager:
 
     def isolate_agents(self):
         # those who had the detection test before isolate_after_num_day days exactly
-        can_be_isolated = self.current_step - self.date_of_last_test == self.consts.isolate_after_num_day
+        can_be_isolated = (self.current_step - self.date_of_last_test) == self.consts.isolate_after_num_day
         # last test was positive and was the first one
         tested_positive_once = self.tested_positive_vector & (self.tested_positive_vector_counter == 1)
         remaining = np.array(self.agents)[can_be_isolated & tested_positive_once]  # get those agents
@@ -160,7 +160,8 @@ class SimulationManager:
 
         for agent in will_obey_isolation:
             self.agents_in_isolation[agent.index] = True  # keep track about who is in isolation
-            self.update_matrix_manager.change_agent_relations_by_factor(agent, self.consts.isolation_factor)  # change the matrix
+            self.update_matrix_manager.change_agent_relations_by_factor(agent,
+                                                                        self.consts.isolation_factor)  # change the matrix
 
     def setup_sick(self):
         """"

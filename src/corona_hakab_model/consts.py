@@ -136,9 +136,9 @@ class Consts(NamedTuple):
             ]),
     ]
     should_isolate_positive_detected: bool = False
-    isolate_after_num_day: int = 1  # will be in isolation the next day
-    p_will_obey_isolation: float = 1.0  # 100% will obey the isolation
-    isolation_factor: float = 0.0  # reduce 100%, meaning mult by 0
+    isolate_after_num_day: int = 1  # will be in isolation the next day.
+    p_will_obey_isolation: float = 1.0  # 100% will obey the isolation.
+    isolation_factor: float = 0.0  # reduce agent's relations strength by a factor.
 
     # --policies params--
     change_policies: bool = False

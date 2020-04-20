@@ -47,9 +47,9 @@
     # [0.013,0.016,0.025,0.035,0.045,0.053,0.061,0.065,0.069,0.069,0.065,0.063,0.058,0.053,0.056,0.041,0.040,0.033,
     # 0.030,0.025,0.020,0.015,0.015,0.015,0.010,0.010]))
     # infections ratios, See bucket dict for more info on how to use.
-    "pre_symptomatic_infection_ratio": BucketDict({10: 0.75, 20: 0.75}), # x <= 10 then key is 10,
-    "mild_condition_infection_ratio": BucketDict({10: 0.40}), # x<=20 then key is 20,
-    "silent_infection_ratio": BucketDict({10: 0.3}), # if x greater than biggest key, x is biggest key
+    "pre_symptomatic_infection_ratio": BucketDict({10: 0.75, 20: 0.75}),  # x <= 10 then key is 10,
+    "mild_condition_infection_ratio": BucketDict({10: 0.40}),  # x<=20 then key is 20,
+    "silent_infection_ratio": BucketDict({10: 0.3}),  # if x greater than biggest key, x is biggest key
     # base r0 of the disease
     "r0": 2.4,
 
@@ -66,40 +66,42 @@
     "pre_recovered_test_willingness": 0.5,
     "recovered_test_willingness": 0.1,
     "detection_pool": [
-    DetectionSettings(
-        name="hospital",
-        detection_test=DetectionTest(detection_prob=0.98,
-                                     false_alarm_prob=0.,
-                                     time_until_result=3),
-        daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
-        testing_gap_after_positive_test=2,
-        testing_gap_after_negative_test=1,
-        testing_priorities=[
-            DetectionPriority(
-                lambda agent: (agent.medical_state.name == "Symptomatic" and
-                               agent not in agent.manager.tested_positive_vector),
-                max_tests=100),
-            DetectionPriority(
-                lambda agent: agent.medical_state.name == "Recovered"),
-        ]),
+        DetectionSettings(
+            name="hospital",
+            detection_test=DetectionTest(detection_prob=0.98,
+                                         false_alarm_prob=0.,
+                                         time_until_result=3),
+            daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
+            testing_gap_after_positive_test=2,
+            testing_gap_after_negative_test=1,
+            testing_priorities=[
+                DetectionPriority(
+                    lambda agent: (agent.medical_state.name == "Symptomatic" and
+                                   agent not in agent.manager.tested_positive_vector),
+                    max_tests=100),
+                DetectionPriority(
+                    lambda agent: agent.medical_state.name == "Recovered"),
+            ]),
 
-    DetectionSettings(
-        name="street",
-        detection_test=DetectionTest(detection_prob=0.92,
-                                     false_alarm_prob=0.,
-                                     time_until_result=5),
-        daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
-        testing_gap_after_positive_test=3,
-        testing_gap_after_negative_test=1,
-        testing_priorities=[
-            DetectionPriority(
-                lambda agent: agent.medical_state.name == "Symptomatic"),
-            DetectionPriority(
-                lambda agent: agent.medical_state.name == "Recovered"),
-        ]),
+        DetectionSettings(
+            name="street",
+            detection_test=DetectionTest(detection_prob=0.92,
+                                         false_alarm_prob=0.,
+                                         time_until_result=5),
+            daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
+            testing_gap_after_positive_test=3,
+            testing_gap_after_negative_test=1,
+            testing_priorities=[
+                DetectionPriority(
+                    lambda agent: agent.medical_state.name == "Symptomatic"),
+                DetectionPriority(
+                    lambda agent: agent.medical_state.name == "Recovered"),
+            ]),
     ],
     "should_isolate_positive_detected": False,
-    # --policies params--
+    "isolate_after_num_day": 1,  # will be in isolation the next day.
+    "p_will_obey_isolation": 1.0,  # 100% will obey the isolation.
+    "isolation_factor": 0.0,  # reduce agent's relations strength by a factor.    # --policies params--
     "change_policies": False,
     # a dictionary of day:([ConnectionTypes], message). on each day, keeps only the given connection types opened
     "policies_changes": {
@@ -115,44 +117,44 @@
     # each policy changes the multiplication factor of a specific circle.
     # each policy is activated only if a list of terms is fulfilled.
     "connection_type_to_conditioned_policy": {
-    ConnectionTypes.School: [
-        ConditionedPolicy(
-            activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
-            policy=Policy(0, [lambda circle: random() > 0]),
-            message="closing all schools",
-        ),
-        ConditionedPolicy(
-            activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
-            policy=Policy(1, [lambda circle: random() > 1]),
-            active=True,
-            message="opening all schools",
-        ),
-    ],
-    ConnectionTypes.Kindergarten: [
-        ConditionedPolicy(
-            activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
-            policy=Policy(0, [lambda circle: random() > 0]),
-            message="closing all kindergartens",
-        ),
-        ConditionedPolicy(
-            activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
-            policy=Policy(1, [lambda circle: random() > 1]),
-            active=True,
-            message="opening all kindergartens",
-        ),
-    ],
-    ConnectionTypes.Work: [
-        ConditionedPolicy(
-            activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
-            policy=Policy(0, [lambda circle: random() > 0]),
-            message="closing all workplaces",
-        ),
-        ConditionedPolicy(
-            activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
-            policy=Policy(0, [lambda circle: random() > 1]),
-            active=True,
-            message="opening all workplaces",
-        ),
-    ],
+        ConnectionTypes.School: [
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
+                policy=Policy(0, [lambda circle: random() > 0]),
+                message="closing all schools",
+            ),
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
+                policy=Policy(1, [lambda circle: random() > 1]),
+                active=True,
+                message="opening all schools",
+            ),
+        ],
+        ConnectionTypes.Kindergarten: [
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
+                policy=Policy(0, [lambda circle: random() > 0]),
+                message="closing all kindergartens",
+            ),
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
+                policy=Policy(1, [lambda circle: random() > 1]),
+                active=True,
+                message="opening all kindergartens",
+            ),
+        ],
+        ConnectionTypes.Work: [
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
+                policy=Policy(0, [lambda circle: random() > 0]),
+                message="closing all workplaces",
+            ),
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
+                policy=Policy(0, [lambda circle: random() > 1]),
+                active=True,
+                message="opening all workplaces",
+            ),
+        ],
     },
 }
