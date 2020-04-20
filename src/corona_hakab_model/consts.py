@@ -33,6 +33,9 @@ class Consts(NamedTuple):
     initial_infected_count: int = 20
     export_infected_agents_interval = 50
 
+    # Export statistics regarding the circles affected by activating a policy
+    export_activated_policies_stats = True
+
     # Size of population to estimate expected time for each state
     population_size_for_state_machine_analysis: int = 25_000
 
