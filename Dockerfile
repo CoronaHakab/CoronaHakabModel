@@ -3,6 +3,7 @@ FROM python:3.8.2-buster
 ENV WORKDIR=/app
 ENV PROJDIR=${WORKDIR}/proj
 ENV WORK_BRANCH=develop_linux
+ARG GUI_ENABLED=1
 
 # git clone
 WORKDIR ${WORKDIR}
@@ -14,7 +15,15 @@ RUN git clone https://github.com/CoronaHakab/CoronaHakabModel.git ${PROJDIR}
 WORKDIR ${PROJDIR}
 
 RUN git checkout -b ${WORK_BRANCH}
-RUN sed -i.bak '/pyside2/d' Pipfile
+
+RUN if [ "x$GUI_ENABLED" = "x" ] ; \
+    then \
+        echo GUI Disabled && \
+        sed -i.bak '/pyside2/d' Pipfile ; \
+    else \
+        echo GUI Enabled && \
+        sudo apt-get -y install python3-pyqt5 ; \
+    fi
 
 # install the project dependencies
 RUN pip3.8 install --upgrade pip

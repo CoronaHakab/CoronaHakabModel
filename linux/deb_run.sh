@@ -4,6 +4,7 @@
 export WORKDIR=~
 export PROJDIR=${WORKDIR}/proj
 export WORK_BRANCH=develop_linux
+export GUI_ENABLED=1
 
 # git clone
 cd $WORKDIR
@@ -15,7 +16,14 @@ git clone https://github.com/CoronaHakab/CoronaHakabModel.git $PROJDIR
 cd $PROJDIR
 
 git checkout $WORK_BRANCH
-sed -i.bak '/pyside2/d' Pipfile
+if [ -z "$GUI_ENABLED" ]
+then
+      echo GUI Disabled
+      sed -i.bak '/pyside2/d' Pipfile
+else
+      echo GUI Enabled
+      sudo apt-get -y install python3-pyqt5
+fi
 
 # install the project dependencies
 sudo pip3.8 install --upgrade pip
