@@ -143,7 +143,8 @@ class SimulationManager:
             agent.set_test_result(test_result)
 
         # TODO: Remove healthy agents from isolation?
-        self.isolate_agents()
+        if self.consts.should_isolate_positive_detected:
+            self.isolate_agents()
 
         for new_test in new_tests:
             new_test.agent.set_test_start()
