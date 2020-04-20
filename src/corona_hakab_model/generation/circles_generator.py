@@ -2,6 +2,7 @@ import pickle
 import sys
 from typing import List, Dict
 import os.path
+from project_structure import OUTPUT_FOLDER
 
 import numpy as np
 
@@ -61,7 +62,7 @@ class PopulationData:
 class CirclesGenerator:
     # todo organize all path fields in a single file
     # import/export variables
-    EXPORT_OUTPUT_DIR = "../../output/"
+    EXPORT_OUTPUT_DIR = OUTPUT_FOLDER
     EXPORT_FILE_NAME = "population_data.pickle"
 
     # todo split consts into generation_consts, simulation_consts, and plot_consts
