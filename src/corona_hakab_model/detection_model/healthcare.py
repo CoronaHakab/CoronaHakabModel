@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, NamedTuple
+from typing import TYPE_CHECKING, List, NamedTuple, Dict
 
 import numpy as np
 
 from agent import Agent
 from detection_model.detection_testing_types import DetectionSettings
+from medical_state import MedicalState
 from util import Queue
 
 if TYPE_CHECKING:
@@ -26,17 +27,13 @@ class PendingTestResults(Queue[PendingTestResult]):
 
 
 class DetectionTest:
-    def __init__(self, detection_prob, false_alarm_prob, time_until_result):
-        self.detection_prob = detection_prob
-        self.false_alarm_prob = false_alarm_prob
+    def __init__(self, state_to_detection_prop: Dict[MedicalState, float], time_until_result):
+        self.state_to_detection_prop = state_to_detection_prop
         self.time_until_result = time_until_result
 
     def test(self, agent: Agent):
-        if agent.medical_state.detectable:
-            test_result = np.random.rand() < self.detection_prob
-        else:
-            test_result = np.random.rand() < self.false_alarm_prob
-
+        detection_prob = self.state_to_detection_prop[agent.medical_state.name]
+        test_result = np.random.rand() < detection_prob
         pending_result = PendingTestResult(agent, test_result, self.time_until_result)
         return pending_result
 
