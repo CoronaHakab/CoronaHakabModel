@@ -2,7 +2,7 @@ FROM python:3.8.2-buster
 
 ENV WORKDIR=/app
 ENV PROJDIR=${WORKDIR}/proj
-ENV WORK_BRANCH=develop_linux
+ENV WORK_BRANCH=develop
 ARG GUI_ENABLED=1
 
 # git clone
