@@ -12,6 +12,7 @@ class PolicyManager:
         self.update_matrix_manager = manager.update_matrix_manager
         self.consts = manager.consts
         self.logger = manager.logger
+        self.daily_affected_circles = None
 
     def perform_policies(self):
         """
@@ -19,6 +20,9 @@ class PolicyManager:
         checks if there is a new policy to act upon. if so, active it
         :return:
         """
+        # Initialize list of daily affected circles
+        self.daily_affected_circles = None
+
         # checks for a matrices summing change policy
         if self.consts.change_policies and self.manager.current_step in self.consts.policies_changes:
             self.logger.info("changing policy")
@@ -43,7 +47,24 @@ class PolicyManager:
             # going through each policy activator.
             for conditioned_policy in conditioned_policies:
                 # check if temp is satisfied
-                self.update_matrix_manager.check_and_apply(con_type, circles, conditioned_policy, manager=self.manager)
+                activating_policy, affected_circles = self.update_matrix_manager.check_and_apply(
+                    con_type, circles, conditioned_policy, manager=self.manager)
+                # Append affected circles to the daily affected circles
+                if activating_policy:
+                    self.update_daily_affected_circles(affected_circles, conditioned_policy)
+        # Queue new report, if policy activation statistics are required
+        if self.consts.export_activated_policies_stats and self.daily_affected_circles is not None:
+            self.manager.queue_report("policy_activation_stats", self.daily_affected_circles)
+
+    def update_daily_affected_circles(self, affected_circles, conditioned_policy):
+        if self.daily_affected_circles is None:
+            self.daily_affected_circles = {
+                'policy_type': [], 'circle_size': [], 'circle_kind': [], 'circle_connection_type': []
+            }
+        self.daily_affected_circles['policy_type'] += [conditioned_policy.message] * len(affected_circles)
+        self.daily_affected_circles['circle_size'] += [c.agent_count for c in affected_circles]
+        self.daily_affected_circles['circle_kind'] += [c.kind for c in affected_circles]
+        self.daily_affected_circles['circle_connection_type'] += [str(c.connection_type) for c in affected_circles]
 
     def add_message_to_manager(self, message: str):
         if message == "":
