@@ -10,7 +10,6 @@ from generation.connection_types import ConnectionTypes
 from policies_manager import ConditionedPolicy
 
 if TYPE_CHECKING:
-    from medical_state import MedicalState
     from manager import SimulationManager
 
 
@@ -108,7 +107,8 @@ class UpdateMatrixManager:
 
     def reset_policies_by_connection_type(self, connection_type):
         for i in range(self.size):
-            self.reset_agent(connection_type, i)
+            if not self.manager.isolate_agents()[i]:
+                self.reset_agent(connection_type, i)
 
         # letting all conditioned policies acting upon this connection type know they are canceled
         for conditioned_policy in self.consts.connection_type_to_conditioned_policy[connection_type]:
@@ -154,5 +154,7 @@ class UpdateMatrixManager:
         for rows_nonzero_columns in submatrixes_rows_nonzero_columns:
             for row_index, nonzero_columns in enumerate(rows_nonzero_columns):
                 for column_index in nonzero_columns:
-                    assert self.matrix.get(row_index, column_index) == self.matrix.get(column_index, row_index), "Matrix is not symmetric"
-                    assert 1 >= self.matrix.get(row_index, column_index) >= 0, "Some values in the matrix are not probabilities"
+                    assert self.matrix.get(row_index, column_index) == self.matrix.get(column_index,
+                                                                                       row_index), "Matrix is not symmetric"
+                    assert 1 >= self.matrix.get(row_index,
+                                                column_index) >= 0, "Some values in the matrix are not probabilities"
