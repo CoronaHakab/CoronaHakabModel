@@ -22,21 +22,25 @@ class CirclesConsts(NamedTuple):
             "ages": [10, 40, 70],
             "age_prob": [0.30, 0.45, 0.25],
             "teachers_workforce_ratio": 0.04,  # ratio of teachers out of workforce
+            "kindergarten_workforce_ratio": 0.004,  # ratio of kindergarten workers out of workforce
             "connection_type_prob_by_age_index": [
                 {
                     ConnectionTypes.Work: 0,
-                    ConnectionTypes.School: 0.95,
+                    ConnectionTypes.Kindergarten: 0.1,
+                    ConnectionTypes.School: 0.85,
                     ConnectionTypes.Family: 1.0,
                     ConnectionTypes.Other: 1.0,
                 },
                 {
                     ConnectionTypes.Work: 0.9,
+                    ConnectionTypes.Kindergarten: 0,
                     ConnectionTypes.School: 0,
                     ConnectionTypes.Family: 1.0,
                     ConnectionTypes.Other: 1.0,
                 },
                 {
                     ConnectionTypes.Work: 0.25,
+                    ConnectionTypes.Kindergarten: 0,
                     ConnectionTypes.School: 0,
                     ConnectionTypes.Family: 1.0,
                     ConnectionTypes.Other: 1.0,
@@ -45,6 +49,7 @@ class CirclesConsts(NamedTuple):
             "circle_size_distribution_by_connection_type": {
                 ConnectionTypes.School: ([100, 500, 1000, 1500], [0.03, 0.45, 0.35, 0.17]),
                 ConnectionTypes.Work: ([1, 2, 10, 40, 300, 500], [0.1, 0.1, 0.2, 0.2, 0.2, 0.2]),
+                ConnectionTypes.Kindergarten: ([10, 20], [0.5, 0.5]),
                 ConnectionTypes.Family: ([1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081]),
                 ConnectionTypes.Other: ([100_000], [1.0]),
             },
@@ -54,21 +59,25 @@ class CirclesConsts(NamedTuple):
             "ages": [10, 40, 70],
             "age_prob": [0.30, 0.45, 0.25],
             "teachers_workforce_ratio": 0.04,  # ratio of teachers out of workforce
+            "kindergarten_workforce_ratio": 0.004,  # ratio of kindergarten workers out of workforce
             "connection_type_prob_by_age_index": [
                 {
                     ConnectionTypes.Work: 0,
-                    ConnectionTypes.School: 0.95,
+                    ConnectionTypes.Kindergarten: 0.1,
+                    ConnectionTypes.School: 0.85,
                     ConnectionTypes.Family: 1.0,
                     ConnectionTypes.Other: 1.0,
                 },
                 {
                     ConnectionTypes.Work: 0.9,
+                    ConnectionTypes.Kindergarten: 0,
                     ConnectionTypes.School: 0,
                     ConnectionTypes.Family: 1.0,
                     ConnectionTypes.Other: 1.0,
                 },
                 {
                     ConnectionTypes.Work: 0.25,
+                    ConnectionTypes.Kindergarten: 0,
                     ConnectionTypes.School: 0,
                     ConnectionTypes.Family: 1.0,
                     ConnectionTypes.Other: 1.0,
@@ -77,16 +86,31 @@ class CirclesConsts(NamedTuple):
             "circle_size_distribution_by_connection_type": {
                 ConnectionTypes.School: ([100, 500, 1000, 1500], [0.03, 0.45, 0.35, 0.17]),
                 ConnectionTypes.Work: ([1, 2, 10, 40, 300, 500], [0.1, 0.1, 0.2, 0.2, 0.2, 0.2]),
+                ConnectionTypes.Kindergarten: ([10, 20], [0.5, 0.5]),
                 ConnectionTypes.Family: ([1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081]),
                 ConnectionTypes.Other: ([100_000], [1.0]),
             },
         },
     ]
+    random_connections_dist_mean = {
+        ConnectionTypes.Work: 2.2,
+        ConnectionTypes.School: 0.25,
+        ConnectionTypes.Kindergarten: 0.25,
+        ConnectionTypes.Other: 2.1,
+    }
+    random_connections_strength_factor = {
+        ConnectionTypes.Work: 0.5,
+        ConnectionTypes.School: 1.,
+        ConnectionTypes.Kindergarten: 1.,
+        ConnectionTypes.Other: 0.6,
+    }
     geo_circles_agents_share: List[float] = [0.6, 0.4]
     multi_zone_connection_type_to_geo_circle_probability: List = [
         {ConnectionTypes.Work: {"north": 0.7, "south": 0.3}},
         {ConnectionTypes.Work: {"north": 0.2, "south": 0.8}},
     ]
+
+
 
     @classmethod
     def from_file(cls, param_path):
@@ -119,7 +143,8 @@ class CirclesConsts(NamedTuple):
                 self.get_connection_types_prob_by_age(geo_circle),
                 self.multi_zone_connection_type_to_geo_circle_probability[i],
                 self.get_required_adult_distributions(geo_circle),
-                geo_circle["teachers_workforce_ratio"]
+                geo_circle["teachers_workforce_ratio"],
+                geo_circle["kindergarten_workforce_ratio"]
             )
             for i, geo_circle in enumerate(self.geo_circles)
         ]
@@ -144,21 +169,36 @@ class CirclesConsts(NamedTuple):
         in the circle.  
         """
         all_students = 0
+        kindergarten_children = 0
         all_teachers = 0
+        kindergarten_workers = 0
         for i in range(len(geo_circle["ages"])):
             if geo_circle["ages"][i] <= 18:
                 all_students += geo_circle["age_prob"][i] * geo_circle["connection_type_prob_by_age_index"][i][
                     ConnectionTypes.School]
+                kindergarten_children += geo_circle["age_prob"][i] * geo_circle[
+                    "connection_type_prob_by_age_index"][i][ConnectionTypes.Kindergarten]
             else:
                 all_teachers += geo_circle["age_prob"][i] * geo_circle["connection_type_prob_by_age_index"][i][
                     ConnectionTypes.Work] * geo_circle["teachers_workforce_ratio"]
+                kindergarten_workers += geo_circle["age_prob"][i] * geo_circle[
+                    "connection_type_prob_by_age_index"][i][ConnectionTypes.Work] * geo_circle[
+                    "kindergarten_workforce_ratio"]
+
         # teacher to student ratio is the part of the school-going population that are teachers.
         # it is used to calculate how many teachers are needed in each school (according to school size)
         if all_students > 0:
             teacher_to_student_ratio = all_teachers / all_students
         else:
             teacher_to_student_ratio = 1
+
+        # equivalently for kindergartens
+        if kindergarten_children > 0:
+            kindergarten_worker_to_child_ratio = kindergarten_workers / kindergarten_children
+        else:
+            kindergarten_worker_to_child_ratio = 1
         school_sizes = geo_circle["circle_size_distribution_by_connection_type"][ConnectionTypes.School][0]
+        kindergarten_sizes = geo_circle["circle_size_distribution_by_connection_type"][ConnectionTypes.Kindergarten][0]
 
         family_sizes = geo_circle["circle_size_distribution_by_connection_type"][ConnectionTypes.Family][0]
         family_distributions = {size: randint(1, 2) for size in family_sizes if size == 1}
@@ -170,6 +210,9 @@ class CirclesConsts(NamedTuple):
             ConnectionTypes.School: {school_size: randint(round(school_size * teacher_to_student_ratio),
                                                           round(school_size * teacher_to_student_ratio) + 1) for
                                      school_size in school_sizes},
+            ConnectionTypes.Kindergarten: {kindergarten_size: randint(round(
+                kindergarten_size * kindergarten_worker_to_child_ratio), round(
+                kindergarten_size * kindergarten_worker_to_child_ratio)+1) for kindergarten_size in kindergarten_sizes},
             ConnectionTypes.Family: family_distributions
         }
 
@@ -184,7 +227,8 @@ class GeographicalCircleDataHolder:
         "circles_size_distribution_by_connection_type",
         "multi_zone_connection_type_to_geo_circle_probability",
         "adult_distributions",
-        "teachers_workforce_ratio"
+        "teachers_workforce_ratio",
+        "kindergarten_workforce_ratio"
     )
 
     # todo define how social circles logics should be represented
@@ -197,7 +241,8 @@ class GeographicalCircleDataHolder:
             connection_types_prob_by_age,
             multi_zone_connection_type_to_geo_circle_probability,
             adult_distributions,
-            teachers_workforce_ratio
+            teachers_workforce_ratio,
+            kindergarten_workforce_ratio
     ):
         self.name = name
         self.agents_share = agents_share
@@ -207,3 +252,4 @@ class GeographicalCircleDataHolder:
         self.multi_zone_connection_type_to_geo_circle_probability = multi_zone_connection_type_to_geo_circle_probability
         self.adult_distributions = adult_distributions
         self.teachers_workforce_ratio = teachers_workforce_ratio
+        self.kindergarten_workforce_ratio = kindergarten_workforce_ratio
