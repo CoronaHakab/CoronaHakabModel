@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import TYPE_CHECKING, List, NamedTuple, Dict
 
 import numpy as np
@@ -28,7 +29,7 @@ class PendingTestResults(Queue[PendingTestResult]):
 
 class DetectionTest:
     def __init__(self, state_to_detection_prop: Dict[MedicalState, float], time_until_result):
-        self.state_to_detection_prop = state_to_detection_prop
+        self.state_to_detection_prop = deepcopy(state_to_detection_prop)
         self.time_until_result = time_until_result
 
     def test(self, agent: Agent):
