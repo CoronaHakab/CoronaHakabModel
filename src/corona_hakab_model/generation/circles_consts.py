@@ -92,13 +92,13 @@ class CirclesConsts(NamedTuple):
             },
         },
     ]
-    random_connections_dist_mean = {
+    random_connections_dist_mean: Dict = {
         ConnectionTypes.Work: 2.2,
         ConnectionTypes.School: 0.25,
         ConnectionTypes.Kindergarten: 0.25,
         ConnectionTypes.Other: 2.1,
     }
-    random_connections_strength_factor = {
+    random_connections_strength_factor: Dict = {
         ConnectionTypes.Work: 0.5,
         ConnectionTypes.School: 1.,
         ConnectionTypes.Kindergarten: 1.,

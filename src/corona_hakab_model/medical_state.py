@@ -27,10 +27,10 @@ class SusceptibleState(MedicalState, ABC):
 
 class ContagiousState(MedicalState, ABC):
     susceptible = False
-    detectable = True
 
-    def __init__(self, *args, contagiousness: BucketDict, test_willingness: float, **kwargs):
+    def __init__(self, *args, detectable: bool, contagiousness: BucketDict, test_willingness: float, **kwargs):
         super().__init__(*args, **kwargs)
+        self.detectable = detectable
         self.test_willingness = test_willingness
         self.contagiousness = contagiousness
 
