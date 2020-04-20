@@ -6,6 +6,7 @@ import numpy as np
 
 from agent import Agent
 from generation import connection_types
+from generation.connection_types import ConnectionTypes
 
 if TYPE_CHECKING:
     from manager import SimulationManager
@@ -42,12 +43,25 @@ class InfectionManager:
 
         # v = [True if an agent can infect other agents in this time step]
         v = np.random.random(len(self.manager.agents)) < self.manager.contagiousness_vector
-
+    
         # u = mat dot_product v (log of the probability that an agent will get infected)
         u = self.manager.matrix.prob_any(v)
         # calculate the infections boolean vector
 
         infections = self.manager.susceptible_vector & (np.random.random(u.shape) < u)
+        
+        u0 = []
+        connection_types_in_use = self.manager.update_matrix_manager.get_connections_policy()
+        for connection_type_submatrix_factor in ConnectionTypes:
+            new_factors = connection_types_in_use.copy()
+            for connection_type in ConnectionTypes:
+                if connection_type != connection_type_submatrix_factor:
+                    new_factors.remove(connection_type)
+            self.manager.update_matrix_manager.change_connections_policy(new_factors, normalize=False)
+            u0.append(self.manager.matrix.prob_any(v))
+            
+        self.manager.update_matrix_manager.change_connections_policy(connection_types_in_use, normalize=False)
+        a = 1
         return infections
 
     def _infect_random_connections(self):

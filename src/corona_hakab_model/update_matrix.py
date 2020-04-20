@@ -53,6 +53,7 @@ class UpdateMatrixManager:
         # todo unpack more important information
         self.normalize_factor = None
         self.total_contagious_probability = None
+        self.current_policy = [connection_type for connection_type in ConnectionTypes]
         self.normalize()
         self.validate_matrix()
 
@@ -87,14 +88,20 @@ class UpdateMatrixManager:
 
         self.matrix *= self.normalize_factor  # now each entry in W is such that bd=R0
 
-    def change_connections_policy(self, connection_types_to_use: Iterable[ConnectionTypes]):
+    def change_connections_policy(self, connection_types_to_use: Iterable[ConnectionTypes], normalize=True):
         self.logger.info(f"changing policy. keeping all matrices of types: {connection_types_to_use}")
+        self.current_policy = connection_types_to_use
         factors = np.zeros(self.depth, dtype=np.float32)
         for connection_type in connection_types_to_use:
             ind = connection_type.value
             factors[ind] = 1
+        
         self.matrix.set_factors(factors)
-        self.normalize()
+        if normalize:
+            self.normalize()
+
+    def get_connections_policy(self):
+        return self.current_policy
 
     def reset_agent(self, connection_type, index):
         self.matrix.reset_mul_row(connection_type, index)
