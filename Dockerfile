@@ -22,7 +22,7 @@ RUN if [ "x$GUI_ENABLED" = "x" ] ; \
         sed -i.bak '/pyside2/d' Pipfile ; \
     else \
         echo GUI Enabled && \
-        sudo apt-get -y install python3-pyqt5 ; \
+        apt-get -y install python3-pyqt5 ; \
     fi
 
 # install the project dependencies
@@ -39,9 +39,3 @@ RUN cd ${PROJDIR}/src/corona_hakab_model/parasymbolic_matrix/ \
     && pipenv run python build_unix.py
 
 CMD pipenv run python ./src/corona_hakab_model/main.py --help
-
-#CMD git pull \
-#    && pipenv run python ./src/corona_hakab_model/main.py --help
-#    && pipenv run python ./src/corona_hakab_model/main.py all
-#    && pipenv run python ./src/corona_hakab_model/main.py generate \
-#    && pipenv run python ./src/corona_hakab_model/main.py simulate
