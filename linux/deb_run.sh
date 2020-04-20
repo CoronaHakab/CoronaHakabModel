@@ -40,7 +40,7 @@ pipenv run python build_unix.py
 cd $PROJDIR
 
 pipenv run python ./src/corona_hakab_model/main.py --help
-pipenv run python ./src/corona_hakab_model/main.py all
+#pipenv run python ./src/corona_hakab_model/main.py all
 
 echo "in order to run the simulation run the following commands:"
 echo "============================================================"
