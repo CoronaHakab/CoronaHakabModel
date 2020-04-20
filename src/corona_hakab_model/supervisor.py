@@ -36,6 +36,7 @@ class SimulationProgression:
         self.manager = manager
 
         self.time_vector = []
+        self.queued_reports = []
 
     def snapshot(self, manager):
         t = self.manager.current_step
@@ -55,7 +56,17 @@ class SimulationProgression:
         value_supervisables = [s for s in self.supervisables if isinstance(s, ValueSupervisable)]
 
         # Output each tabular sample to a new csv file
-        # (all samples of a given supervisable are gathered in a new subfolder)
+        self.dump_tabular_supervisables(tabular_supervisables)
+
+        self.dump_queued_reports()
+
+        all_data = dict([s.publish() for s in value_supervisables])
+
+        df = pd.DataFrame(all_data, index=self.time_vector)
+        df.to_csv(file_name)
+        return df
+
+    def dump_tabular_supervisables(self, tabular_supervisables):
         for s in tabular_supervisables:
             day_to_table_dict = s.publish()
             for day, table in day_to_table_dict.items():
@@ -63,11 +74,17 @@ class SimulationProgression:
                 df = pd.DataFrame(table)
                 df.to_csv(sample_file_name)
 
-        all_data = dict([s.publish() for s in value_supervisables])
+    # export each queued report to a csv file.
+    # The name of each csv consists of the report's type and sampling day
+    def dump_queued_reports(self):
+        for day, report_type, report_dict in self.queued_reports:
+            report_file_name = SIM_OUTPUT_FOLDER / f"{report_type} {day}.csv"
+            df = pd.DataFrame(report_dict)
+            df.to_csv(report_file_name)
 
-        df = pd.DataFrame(all_data, index=self.time_vector)
-        df.to_csv(file_name)
-        return df
+    # Queue trigger-based reports, each report will be exported to a csv file
+    def queue_report(self, current_step, report_type, df):
+        self.queued_reports.append((current_step, report_type, df))
 
 
 class Supervisable(ABC):
