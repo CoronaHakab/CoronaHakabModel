@@ -285,53 +285,63 @@ class Consts(NamedTuple):
         susceptible = SusceptibleTerminalState("Susceptible", test_willingness=self.susceptible_test_willingness)
         latent = ContagiousStochasticState(
             "Latent",
+            detectable=False,
             contagiousness=self.latent_infection_ratio,
             test_willingness=self.latent_test_willingness)
         latent_presymp = ContagiousStochasticState(
             "Latent-Presymp",
+            detectable=False,
             contagiousness=self.latent_presymp_infection_ratio,
             test_willingness=self.latent_test_willingness
         )
         latent_asymp = ContagiousStochasticState(
             "Latent-Asymp",
+            detectable=False,
             contagiousness=self.latent_asymp_infection_ratio,
             test_willingness=self.latent_test_willingness
         )
         asymptomatic = ContagiousStochasticState(
             "Asymptomatic",
+            detectable=True,
             contagiousness=self.asymptomatic_infection_ratio,
             test_willingness=self.asymptomatic_test_willingness
         )
         pre_symptomatic = ContagiousStochasticState(
             "Pre-Symptomatic",
+            detectable=True,
             contagiousness=self.pre_symptomatic_infection_ratio,
             test_willingness=self.pre_symptomatic_test_willingness,
         )
         mild_condition = ContagiousStochasticState(
             "Mild-Condition",
+            detectable=True,
             contagiousness=self.mild_condition_infection_ratio,
             test_willingness=self.mild_condition_test_willingness,
         )
         need_close_medical_care = ContagiousStochasticState(
             "NeedOfCloseMedicalCare",
+            detectable=True,
             contagiousness=self.need_close_medical_care_infection_ratio,
             test_willingness=self.need_close_medical_care_test_willingness,
         )
 
         need_icu = ContagiousStochasticState(
             "NeedICU",
+            detectable=True,
             contagiousness=self.need_icu_infection_ratio,
             test_willingness=self.need_icu_test_willingness
         )
 
         improving_health = ContagiousStochasticState(
             "ImprovingHealth",
+            detectable=True,
             contagiousness=self.improving_health_infection_ratio,
             test_willingness=self.improving_health_test_willingness
         )
 
         pre_recovered = ContagiousStochasticState(
             "PreRecovered",
+            detectable=True,
             contagiousness=self.pre_recovered_infection_ratio,
             test_willingness=self.pre_recovered_test_willingness
         )
