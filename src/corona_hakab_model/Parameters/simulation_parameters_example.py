@@ -49,7 +49,6 @@
     # infections ratios, See bucket dict for more info on how to use.
     "pre_symptomatic_infection_ratio": BucketDict({10: 0.75, 20: 0.75}), # x <= 10 then key is 10,
     "mild_condition_infection_ratio": BucketDict({10: 0.40}), # x<=20 then key is 20,
-    "silent_infection_ratio": BucketDict({10: 0.3}), # if x greater than biggest key, x is biggest key
     # base r0 of the disease
     "r0": 2.4,
 
