@@ -39,7 +39,7 @@ class Agent:
         self.manager.tested_positive_vector[self.index] = test_result
         self.manager.tested_vector[self.index] = True
         if test_result:
-            self.manager.ever_tested_positive_vector[self.index] = True
+            self.manager.tested_positive_vector_counter[self.index] += 1
 
     def set_medical_state_no_inform(self, new_state: MedicalState):
         self.medical_state = new_state

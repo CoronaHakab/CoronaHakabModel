@@ -130,8 +130,8 @@ class Consts(NamedTuple):
     ]
     should_isolate_positive_detected = False
     isolate_after_num_day = 1  # will be in isolation the next day
-    p_will_obey_isolation = 1  # 100% will obey the isolation
-    p_reduce_relations_by_factor = 1  # reduce 100%, meaning mult by 0
+    p_will_obey_isolation = 1.0  # 100% will obey the isolation
+    isolation_factor = 0.0  # reduce 100%, meaning mult by 0
 
     # --policies params--
     change_policies: bool = False

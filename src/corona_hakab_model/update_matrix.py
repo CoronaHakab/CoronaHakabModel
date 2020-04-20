@@ -145,8 +145,7 @@ class UpdateMatrixManager:
             # adding the message
             self.manager.policy_manager.add_message_to_manager(conditioned_policy.message)
 
-    def apply_full_isolation_on_agent(self, agent):
-        factor = 0  # full isolation
+    def change_agent_relations_by_factor(self, agent, factor):
         for connection_type in ConnectionTypes:
             self.factor_agent(agent.index, connection_type, factor)
 
