@@ -2,9 +2,8 @@ FROM python:3.8.2-buster
 
 ENV WORKDIR=/app
 ENV PROJDIR=${WORKDIR}/proj
-
-# change this to develop once docker branch is merged this needs to be deleted
-ENV WORKBRANCH=develop
+ENV WORK_BRANCH=develop_linux
+ARG GUI_ENABLED=1
 
 # git clone
 WORKDIR ${WORKDIR}
@@ -14,7 +13,17 @@ RUN apt-get install -y git
 RUN git clone https://github.com/CoronaHakab/CoronaHakabModel.git ${PROJDIR}
 
 WORKDIR ${PROJDIR}
-RUN git checkout ${WORKBRANCH}
+
+RUN git checkout -b ${WORK_BRANCH}
+
+RUN if [ "x$GUI_ENABLED" = "x" ] ; \
+    then \
+        echo GUI Disabled && \
+        sed -i.bak '/pyside2/d' Pipfile ; \
+    else \
+        echo GUI Enabled && \
+        apt-get -y install python3-pyqt5 ; \
+    fi
 
 # install the project dependencies
 RUN pip3.8 install --upgrade pip
@@ -29,10 +38,4 @@ RUN apt-get install -y swig
 RUN cd ${PROJDIR}/src/corona_hakab_model/parasymbolic_matrix/ \
     && pipenv run python build_unix.py
 
-#RUN mkdir output
-
-CMD git pull \
-    && cd ./src/corona_hakab_model/ \
-    && pipenv run python main.py --help \
-    && pipenv run python main.py generate \
-    && pipenv run python main.py simulate
+CMD pipenv run python ./src/corona_hakab_model/main.py --help
