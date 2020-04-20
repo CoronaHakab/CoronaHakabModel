@@ -1,10 +1,14 @@
 import pickle
 import sys
-from typing import List
+from typing import List, Dict
 import os.path
+from project_structure import OUTPUT_FOLDER
+
+import numpy as np
 
 from agent import Agent
-from corona_hakab_model_data.__data__ import __version__
+from __data__ import __version__
+from generation import connection_types
 from generation.circles import SocialCircle
 from generation.circles_consts import CirclesConsts
 from generation.connection_types import ConnectionTypes, Multi_Zone_types, Whole_Population_types
@@ -16,7 +20,6 @@ sys.setrecursionlimit(5000)
 
 
 class PopulationData:
-
     __slots__ = (
         "version",
         "agents",
@@ -24,6 +27,8 @@ class PopulationData:
         "social_circles_by_connection_type",
         "geographic_circle_by_agent_index",
         "social_circles_by_agent_index",
+        "num_of_random_connections",
+        "random_connections_strength"
     )
 
     def __init__(self):
@@ -31,15 +36,17 @@ class PopulationData:
 
         self.agents = []
         self.geographic_circles: List[GeographicCircle] = []
-        self.social_circles_by_connection_type = {}
+        self.social_circles_by_connection_type: Dict[ConnectionTypes, List[SocialCircle]] = {}
         self.geographic_circle_by_agent_index = {}
         self.social_circles_by_agent_index = {}
+        self.num_of_random_connections: np.ndarray = np.array([])
+        self.random_connections_strength: np.ndarray = np.array([])
 
     def export(self, export_path, file_name: str):
         if not file_name.endswith(".pickle"):
             file_name += ".pickle"
 
-        with open(os.path.join(export_path,file_name), "wb") as export_file:
+        with open(os.path.join(export_path, file_name), "wb") as export_file:
             pickle.dump(self, export_file)
 
     @staticmethod
@@ -53,20 +60,19 @@ class PopulationData:
 
 
 class CirclesGenerator:
-
     # todo organize all path fields in a single file
     # import/export variables
-    EXPORT_OUTPUT_DIR = "../../output/"
+    EXPORT_OUTPUT_DIR = OUTPUT_FOLDER
     EXPORT_FILE_NAME = "population_data.pickle"
 
     # todo split consts into generation_consts, simulation_consts, and plot_consts
+
     def __init__(
-        self, circles_consts: CirclesConsts,
+            self, circles_consts: CirclesConsts,
     ):
         self.circles_consts = circles_consts
         self.population_data = PopulationData()
         self.agents = [Agent(index) for index in range(self.circles_consts.population_size)]
-
         # create geographic circles, and allocate each with agents
         self.geographic_circles: List[GeographicCircle] = []
         self.create_geographic_circles()
@@ -96,7 +102,8 @@ class CirclesGenerator:
                 )
 
         # fills self's social circles by connection types from all geographic circles
-        self.social_circles_by_connection_type = {connection_type: [] for connection_type in ConnectionTypes}
+        self.social_circles_by_connection_type: Dict[ConnectionTypes, List[SocialCircle]] =\
+            {connection_type: [] for connection_type in ConnectionTypes}
         self.fill_social_circles()
 
         # create whole population circles
@@ -106,7 +113,36 @@ class CirclesGenerator:
         self.social_circles_by_agent_index = {}
         self.fill_social_circles_by_agent_index()
 
+        # Random connections in circles TODO: Move to matrix generation
+        self.num_of_random_connections = np.zeros((len(self.agents), len(ConnectionTypes)), dtype=float)
+        self.random_connections_strength = np.zeros(len(ConnectionTypes), dtype=float)
+        self.generate_random_connections()
+
         self._fill_population_data()
+
+    def generate_random_connections(self):
+        for connection_type in connection_types.With_Random_Connections:
+            exp_mean = self.circles_consts.random_connections_dist_mean[connection_type]
+
+            if connection_type in self.circles_consts.random_connections_strength_factor:
+                self.random_connections_strength[connection_type] = self.circles_consts.random_connections_strength_factor[connection_type]
+
+            for circle in self.social_circles_by_connection_type[connection_type]:
+                num_of_agents_in_circle = len(circle.agents)
+                if num_of_agents_in_circle == 1:
+                    # No random connections
+                    continue
+
+                agents_id = [a.index for a in circle.agents]
+
+                # Sample from exponential distribution
+                rand_connections = np.random.exponential(exp_mean, len(agents_id))
+
+                # You can't have more random connections than the number of people (other than you) in the circle
+                rand_connections = np.clip(rand_connections, 0, num_of_agents_in_circle - 1)
+                circle.total_random_connections = np.sum(rand_connections)
+
+                self.num_of_random_connections[agents_id, [connection_type] * len(agents_id)] = rand_connections
 
     def create_geographic_circles(self):
         """
@@ -159,7 +195,10 @@ class CirclesGenerator:
     def create_whole_population_circles(self):
         for connection_type in Whole_Population_types:
             social_circle = SocialCircle(connection_type)
-            social_circle.add_many(self.agents)
+            agents = []
+            for geo_circle in self.geographic_circles:
+                agents.extend(geo_circle.connection_type_to_agents[connection_type])
+            social_circle.add_many(agents)
             self.social_circles_by_connection_type[connection_type].append(social_circle)
 
     def fill_social_circles_by_agent_index(self):
@@ -179,6 +218,8 @@ class CirclesGenerator:
         self.population_data.geographic_circles = self.geographic_circles
         self.population_data.geographic_circle_by_agent_index = self.geographic_circle_by_agent_index
         self.population_data.social_circles_by_agent_index = self.social_circles_by_agent_index
+        self.population_data.num_of_random_connections = self.num_of_random_connections
+        self.population_data.random_connections_strength = self.random_connections_strength
 
     def export(self):
         # export population data using pickle

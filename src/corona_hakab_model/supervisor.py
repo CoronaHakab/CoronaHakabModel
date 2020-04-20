@@ -2,21 +2,26 @@
 
 from __future__ import annotations
 
-import os
 from datetime import datetime
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from typing import Any, Callable, List, NamedTuple, Sequence, Union
+from typing import Any, Callable, List, NamedTuple, Sequence, Union, Dict
 
+from project_structure import SIM_OUTPUT_FOLDER
+from pathlib import Path
 import manager
+from state_machine import StochasticState
+
 import numpy as np
 import pandas as pd
+import os
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from state_machine import State
 
+from histogram import TimeHistograms
 
 class SimulationProgression:
     """
@@ -43,12 +48,22 @@ class SimulationProgression:
             s.snapshot(manager)
 
     def dump(self, filename=None):
+        file_name = Path(filename) if filename else SIM_OUTPUT_FOLDER / (datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
+        file_name.parent.mkdir(parents=True, exist_ok=True)
 
-        output_folder = os.path.join(os.path.split(os.path.dirname(os.path.realpath(__file__)))[0], "output")
-        file_name = filename or os.path.join(output_folder, datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
-        # TODO: Switch ^ to use pathlib
+        tabular_supervisables = [s for s in self.supervisables if isinstance(s, TabularSupervisable)]
+        value_supervisables = [s for s in self.supervisables if isinstance(s, ValueSupervisable)]
 
-        all_data = dict([s.publish() for s in self.supervisables])
+        # Output each tabular sample to a new csv file
+        # (all samples of a given supervisable are gathered in a new subfolder)
+        for s in tabular_supervisables:
+            day_to_table_dict = s.publish()
+            for day, table in day_to_table_dict.items():
+                sample_file_name = SIM_OUTPUT_FOLDER / f"{s.name()} {day}.csv"
+                df = pd.DataFrame(table)
+                df.to_csv(sample_file_name)
+
+        all_data = dict([s.publish() for s in value_supervisables])
 
         df = pd.DataFrame(all_data, index=self.time_vector)
         df.to_csv(file_name)
@@ -188,6 +203,14 @@ class Supervisable(ABC):
         def __call__(self, manager):
             return _NewInfectedCount()
 
+    class CurrentInfectedTable:
+        def __init__(self, *args, **kwargs):
+            self.args = args
+            self.kwargs = kwargs
+
+        def __call__(self, manager):
+            return _CurrentInfectedTable(*self.args, **self.kwargs)
+
     class GrowthFactor:
         def __init__(self, sum_supervisor: "Sum", new_infected_supervisor: "NewCasesCounter"):
             self.new_infected_supervisor = new_infected_supervisor
@@ -198,6 +221,13 @@ class Supervisable(ABC):
                 Supervisable.coerce(self.new_infected_supervisor, m), Supervisable.coerce(self.sum_supervisor, m)
             )
 
+    class TimeBasedHistograms:
+        def __init__(self):
+            pass
+
+        def __call__(self, manager):
+            return _TimeBasedHistograms()
+
     class SupervisiblesLambda(NamedTuple):
         supervisiables: Sequence
         func: Callable
@@ -206,6 +236,7 @@ class Supervisable(ABC):
         def __call__(self, m):
             return _PostProcessSupervisor([Supervisable.coerce(s, m) for s in self.supervisiables], self.func,
                                           self.name)
+
 
 
 SupervisableMaker = Callable[[Any], Supervisable]
@@ -224,6 +255,28 @@ class ValueSupervisable(Supervisable):
 
     def publish(self):
         return self.name(), np.array(self.data)
+
+
+class TabularSupervisable(Supervisable):
+    def __init__(self, interval: int):
+        self.data = []
+        self.sampling_days = []
+        self.interval = interval
+
+    def names(self):
+        return [f"t0 +{d} days" for d in self.sampling_days]
+
+    @abstractmethod
+    def get(self, manager: "manager.SimulationManager"):
+        pass
+
+    def snapshot(self, manager: "manager.SimulationManager"):
+        if manager.current_step % self.interval == 0:
+            self.data.append(self.get(manager))
+            self.sampling_days.append(manager.current_step)
+
+    def publish(self):
+        return {name_i: data_i for name_i, data_i in zip(self.names(), self.data)}
 
 
 class LambdaValueSupervisable(ValueSupervisable):
@@ -262,6 +315,31 @@ class _StateTotalSoFarSupervisable(ValueSupervisable):
 
     def name(self) -> str:
         return self.__name
+
+
+class _CurrentInfectedTable(TabularSupervisable):
+    def __init__(self, interval):
+        super().__init__(interval)
+        self.sick_states = None
+
+    def get(self, manager) -> Dict[str, List]:
+        if self.sick_states is None:
+            medical_states = manager.medical_machine.states_by_name.values()
+            self.sick_states = [s for s in medical_states if isinstance(s, StochasticState)]
+
+        agent_ids = []
+        medical_status = []
+
+        for state in self.sick_states:
+            agent_ids += [agent.index for agent in state.agents]
+            medical_status += [state.name] * state.agent_count
+        return {
+            "agent_id" : agent_ids,
+            "medical_status" : medical_status
+        }
+
+    def name(self) -> str:
+        return "infected_table"
 
 
 class _DelayedSupervisable(ValueSupervisable):
@@ -419,6 +497,22 @@ class _GrowthFactor(ValueSupervisable):
 
     def name(self) -> str:
         return "growth factor"
+
+
+class _TimeBasedHistograms(Supervisable):
+    def __init__(self):
+        self._name = 'time-based histograms'
+        self.histograms = TimeHistograms()
+
+    def name(self):
+        return self._name
+
+    def snapshot(self, manager: "manager.SimulationManager"):
+        matrix = manager.matrix.get_scipy_sparse()
+        self.histograms.update_all_histograms(matrix)
+
+    def publish(self):
+        return {self.name(): self.histograms.get()}
 
 
 class _PostProcessSupervisor(ValueSupervisable):

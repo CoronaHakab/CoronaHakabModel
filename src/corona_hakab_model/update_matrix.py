@@ -1,10 +1,17 @@
-from typing import Any, Callable, Iterable
+from __future__ import annotations
+
+from typing import Any, Callable, Iterable, TYPE_CHECKING
 
 import numpy as np
-from agent import Agent
+
+from analyzers.state_machine_analysis import monte_carlo_state_machine_analysis
 from generation.circles import SocialCircle
 from generation.connection_types import ConnectionTypes
 from policies_manager import ConditionedPolicy
+
+if TYPE_CHECKING:
+    from medical_state import MedicalState
+    from manager import SimulationManager
 
 
 class Policy:
@@ -34,7 +41,7 @@ class UpdateMatrixManager:
     Manages the "Update Matrix" stage of the simulation.
     """
 
-    def __init__(self, manager: "SimulationManager"):  # noqa: F821 - todo how to fix it?
+    def __init__(self, manager: SimulationManager):  # noqa: F821 - todo how to fix it?
         self.manager = manager
         # unpacking commonly used information from manager
         self.matrix = manager.matrix
@@ -47,6 +54,7 @@ class UpdateMatrixManager:
         self.normalize_factor = None
         self.total_contagious_probability = None
         self.normalize()
+        self.validate_matrix()
 
     def normalize(self):
         """
@@ -56,17 +64,26 @@ class UpdateMatrixManager:
         self.logger.info(f"normalizing matrix")
         if self.normalize_factor is None:
             # updates r0 to fit the contagious length and ratio.
-            states_time = self.consts.average_time_in_each_state()
+            population_size_for_mc = self.consts.population_size_for_state_machine_analysis
+            machine_state_statistics = monte_carlo_state_machine_analysis(dict(population_size=population_size_for_mc))
+            states_time = machine_state_statistics['state_duration_expected_time']
             total_contagious_probability = 0
-            for state, time_in_state in states_time.items():
-                total_contagious_probability += time_in_state * state.contagiousness
+            for state in self.manager.medical_machine.states:
+                total_contagious_probability += states_time[state.name] * state.contagiousness.mean_val
             beta = self.consts.r0 / total_contagious_probability
 
             # saves this for the effective r0 graph
             self.total_contagious_probability = total_contagious_probability
 
+            # Random connections
+            random_total = np.dot(self.manager.num_of_random_connections.sum(0),
+                                  self.manager.random_connections_strength)
+
             # this factor should be calculated once when the matrix is full, and be left un-changed for the rest of the run.
-            self.normalize_factor = (beta * self.size) / (self.matrix.total())
+            self.normalize_factor = (beta * self.size) / (self.matrix.total() + random_total)
+
+            # Normalize random connections (only once!)
+            self.manager.random_connections_strength *= self.normalize_factor
 
         self.matrix *= self.normalize_factor  # now each entry in W is such that bd=R0
 
@@ -79,10 +96,19 @@ class UpdateMatrixManager:
         self.matrix.set_factors(factors)
         self.normalize()
 
+    def reset_agent(self, connection_type, index):
+        self.matrix.reset_mul_row(connection_type, index)
+        self.matrix.reset_mul_col(connection_type, index)
+        self.manager.random_connections_factor[index, connection_type] = 1
+
+    def factor_agent(self, index, connection_type, factor):
+        self.matrix.mul_sub_row(connection_type, index, factor)
+        self.matrix.mul_sub_col(connection_type, index, factor)
+        self.manager.random_connections_factor[index, connection_type] *= factor
+
     def reset_policies_by_connection_type(self, connection_type):
         for i in range(self.size):
-            self.matrix.reset_mul_row(connection_type, i)
-            self.matrix.reset_mul_col(connection_type, i)
+            self.reset_agent(connection_type, i)
 
         # letting all conditioned policies acting upon this connection type know they are canceled
         for conditioned_policy in self.consts.connection_type_to_conditioned_policy[connection_type]:
@@ -102,15 +128,14 @@ class UpdateMatrixManager:
             connection_type = circle.connection_type
             factor = policy.factor
             for agent in circle.agents:
-                self.matrix.mul_sub_row(connection_type, agent.index, factor)
-                self.matrix.mul_sub_col(connection_type, agent.index, factor)
+                self.factor_agent(agent.index, connection_type, factor)
 
     def check_and_apply(
-        self,
-        con_type: ConnectionTypes,
-        circles: Iterable[SocialCircle],
-        conditioned_policy: ConditionedPolicy,
-        **activating_condition_kwargs,
+            self,
+            con_type: ConnectionTypes,
+            circles: Iterable[SocialCircle],
+            conditioned_policy: ConditionedPolicy,
+            **activating_condition_kwargs,
     ):
         if (not conditioned_policy.active) and conditioned_policy.activating_condition(activating_condition_kwargs):
             self.logger.info("activating policy on circles")
@@ -119,3 +144,16 @@ class UpdateMatrixManager:
             conditioned_policy.active = True
             # adding the message
             self.manager.policy_manager.add_message_to_manager(conditioned_policy.message)
+
+    def apply_full_isolation_on_agent(self, agent):
+        factor = 0  # full isolation
+        for connection_type in ConnectionTypes:
+            self.factor_agent(agent.index, connection_type, factor)
+
+    def validate_matrix(self):
+        submatrixes_rows_nonzero_columns = self.matrix.non_zero_columns()
+        for rows_nonzero_columns in submatrixes_rows_nonzero_columns:
+            for row_index, nonzero_columns in enumerate(rows_nonzero_columns):
+                for column_index in nonzero_columns:
+                    assert self.matrix.get(row_index, column_index) == self.matrix.get(column_index, row_index), "Matrix is not symmetric"
+                    assert 1 >= self.matrix.get(row_index, column_index) >= 0, "Some values in the matrix are not probabilities"
