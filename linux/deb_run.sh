@@ -39,5 +39,16 @@ cd $PROJDIR/src/corona_hakab_model/parasymbolic_matrix/
 pipenv run python build_unix.py
 cd $PROJDIR
 
-pipenv run python $PROJDIR/src/corona_hakab_model/main.py --help
-pipenv run python $PROJDIR/src/corona_hakab_model/main.py all
+pipenv run python ./src/corona_hakab_model/main.py --help
+pipenv run python ./src/corona_hakab_model/main.py all
+
+echo "in order to run the simulation run the following commands:"
+echo "============================================================"
+echo "cd $PROJDIR"
+echo "pipenv run python ./src/corona_hakab_model/main.py all"
+echo
+echo "To enable Interactive output mode:"
+echo "sed -i 's/INTERACTIVE_MODE = False/INTERACTIVE_MODE = True/' $PROJDIR/src/corona_hakab_model/project_structure.py"
+echo
+echo "To disable Interactive output mode:"
+echo "sed -i 's/INTERACTIVE_MODE = True/INTERACTIVE_MODE = False/' $PROJDIR/src/corona_hakab_model/project_structure.py"

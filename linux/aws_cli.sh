@@ -4,4 +4,6 @@ unzip awscliv2.zip
 sudo ./aws/install
 alias aws=/usr/local/bin/aws
 aws --version
-# aws configure
+
+echo "to configure aws run the follwing command:"
+echo "aws configure"
