@@ -115,6 +115,8 @@ class UpdateMatrixManager:
             conditioned_policy.active = False
 
     def apply_policy_on_circles(self, policy: Policy, circles: Iterable[SocialCircle]):
+        affected_circles = []
+
         # for now, we will not update the matrix at all
         for circle in circles:
             # check if circle is relevent to conditions
@@ -125,10 +127,13 @@ class UpdateMatrixManager:
                 # some condition returned False - skip circle
                 continue
 
+            affected_circles.append(circle)
             connection_type = circle.connection_type
             factor = policy.factor
             for agent in circle.agents:
                 self.factor_agent(agent.index, connection_type, factor)
+
+        return affected_circles
 
     def check_and_apply(
             self,
@@ -137,13 +142,17 @@ class UpdateMatrixManager:
             conditioned_policy: ConditionedPolicy,
             **activating_condition_kwargs,
     ):
-        if (not conditioned_policy.active) and conditioned_policy.activating_condition(activating_condition_kwargs):
+        affected_circles = []  # list of circles affected by activating the policy
+        activating_policy = \
+            (not conditioned_policy.active) and conditioned_policy.activating_condition(activating_condition_kwargs)
+        if activating_policy:
             self.logger.info("activating policy on circles")
             self.reset_policies_by_connection_type(con_type)
-            self.apply_policy_on_circles(conditioned_policy.policy, circles)
+            affected_circles = self.apply_policy_on_circles(conditioned_policy.policy, circles)
             conditioned_policy.active = True
             # adding the message
             self.manager.policy_manager.add_message_to_manager(conditioned_policy.message)
+        return activating_policy, affected_circles
 
     def apply_full_isolation_on_agent(self, agent):
         factor = 0  # full isolation
