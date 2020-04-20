@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from dataclasses import dataclass
+from project_structure import OUTPUT_FOLDER
 import numpy as np
 import pathlib
 import json
@@ -88,8 +89,8 @@ if __name__ == "__main__":
     parser.add_argument("-o",
                         "--output-folder",
                         dest="output_folder_path",
-                        default='../../output/generated_parameters',
-                        help="Output folder - default is  ../../output/generated_parameters")
+                        default=OUTPUT_FOLDER / 'generated_parameters',
+                        help="Output folder - default is  {}".format(OUTPUT_FOLDER / "generated_parameters"))
     args = parser.parse_args()
 
     MovingParametersGenerator.generate_moving_parameters(args.input_file_path, args.moving_parameters_file_path,

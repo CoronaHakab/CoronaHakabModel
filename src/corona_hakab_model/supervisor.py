@@ -7,13 +7,14 @@ from abc import ABC, abstractmethod
 from functools import lru_cache
 from typing import Any, Callable, List, NamedTuple, Sequence, Union, Dict
 
-from project_structure import SIM_OUTPUT_FOLDER, OUTPUT_FOLDER
+from project_structure import SIM_OUTPUT_FOLDER
 from pathlib import Path
 import manager
 from state_machine import StochasticState
 
 import numpy as np
 import pandas as pd
+import os
 
 from typing import TYPE_CHECKING
 
@@ -47,11 +48,8 @@ class SimulationProgression:
             s.snapshot(manager)
 
     def dump(self, filename=None):
-        file_name = Path(filename) if filename else Path(SIM_OUTPUT_FOLDER) / (datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
+        file_name = Path(filename) if filename else SIM_OUTPUT_FOLDER / (datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
         file_name.parent.mkdir(parents=True, exist_ok=True)
-
-        file_name = filename or OUTPUT_FOLDER / (datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
-        # TODO: Switch ^ to use pathlib
 
         tabular_supervisables = [s for s in self.supervisables if isinstance(s, TabularSupervisable)]
         value_supervisables = [s for s in self.supervisables if isinstance(s, ValueSupervisable)]
@@ -61,7 +59,7 @@ class SimulationProgression:
         for s in tabular_supervisables:
             day_to_table_dict = s.publish()
             for day, table in day_to_table_dict.items():
-                sample_file_name = Path(OUTPUT_FOLDER / f"{s.name()} {day}.csv")
+                sample_file_name = SIM_OUTPUT_FOLDER / f"{s.name()} {day}.csv"
                 df = pd.DataFrame(table)
                 df.to_csv(sample_file_name)
 

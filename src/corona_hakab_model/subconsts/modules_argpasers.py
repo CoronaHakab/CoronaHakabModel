@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from __data__ import __version__
+from project_structure import OUTPUT_FOLDER
 from project_structure import ANALYZERS_FOLDER
 
 
@@ -30,7 +31,7 @@ def get_simulation_args_parser():
     gen.add_argument("-o",
                      "--output-folder",
                      dest="output_folder",
-                     default='../../output',
+                     default=OUTPUT_FOLDER,
                      help="output folder if not using --consts-folder or --master-folder")
     gen.add_argument("--consts-folder",
                      dest="consts_folder",
@@ -47,24 +48,24 @@ def get_simulation_args_parser():
     )
     sim.add_argument('--population-data',
                      dest='population_data',
-                     default='../../output/population_data.pickle',
+                     default=OUTPUT_FOLDER / 'population_data.pickle',
                      help='Previously exported population data file to use in the simulation')
     sim.add_argument('--matrix-data',
                      dest='matrix_data',
-                     default='../../output/matrix_data.parasymbolic',
+                     default=OUTPUT_FOLDER / 'matrix_data.parasymbolic',
                      help='Previously exported matrix data file to use in the simulation')
     sim.add_argument('--initial_sick',
                      dest='initial_sick_agents_path',
-                     default='../../output/initial_sick.csv',
+                     default=OUTPUT_FOLDER / 'initial_sick.csv',
                      help='Output csv file for initial sick agents - after setup of simulation')
     sim.add_argument('--all_sick',
                      dest='all_sick_agents_path',
-                     default='../../output/all_sick.csv',
+                     default=OUTPUT_FOLDER / 'all_sick.csv',
                      help='Output csv file for all sick agents - at the end of the simulation run')
     sim.add_argument('--output',
                      dest='output',
                      default='',
-                     help='Filepath to resulting csv. Defaults to ../../output/(timestamp).csv')
+                     help='Filepath to resulting csv. Defaults to {}'.format(OUTPUT_FOLDER/'(timestamp).csv'))
     sim.add_argument('--figure-path',
                      dest='figure_path',
                      default='',
@@ -73,6 +74,13 @@ def get_simulation_args_parser():
                      dest='agent_constraints_path',
                      default=None,
                      help='Add constraints to the selection of the initial sick agents, see readme for file format')
+    sim.add_argument('--disable_sick_randomization',
+                     dest='randomize',
+                     action="store_false",
+                     default=True,
+                     help='makes the first sick patients the first in the list. this makes them more connected than random')
+    sim.set_defaults(feature=True)
+
     state_machine = subparser.add_parser("analyze-state-machine", help="Run stochastic analyzer for the state machine")
     state_machine.add_argument("--population_size",
                                dest="population_size",

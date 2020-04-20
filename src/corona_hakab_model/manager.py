@@ -1,5 +1,7 @@
 import logging
 from collections import defaultdict
+
+from random import shuffle
 import numpy as np
 from typing import Callable, Iterable, List, Union
 import infection
@@ -45,6 +47,8 @@ class SimulationManager:
         self.social_circles_by_connection_type = population_data.social_circles_by_connection_type
         self.geographic_circle_by_agent_index = population_data.geographic_circle_by_agent_index
         self.social_circles_by_agent_index = population_data.social_circles_by_agent_index
+        self.num_of_random_connections = population_data.num_of_random_connections
+        self.random_connections_strength = population_data.random_connections_strength
 
         self.matrix_type = matrix_data.matrix_type
         self.matrix = matrix_data.matrix
@@ -66,6 +70,7 @@ class SimulationManager:
         self.simulation_progression.snapshot(self)
 
     def reset(self):
+        self.random_connections_factor = np.ones_like(self.num_of_random_connections, dtype=float)
         self.matrix.set_factors([1] * self.depth)
         self.consts.medical_state_machine.cache_clear()  # In order to get the new medical_state_machine
         self.medical_machine = self.consts.medical_state_machine()
@@ -166,13 +171,21 @@ class SimulationManager:
         """
         agents_to_infect = []
         agent_index = 0
+        agent_permutation = list(range(len(self.agents)))
+
+        if self.run_args.randomize:
+            self.logger.info("creating permutation")
+            shuffle(agent_permutation) #this is somewhat expensive for large sets, but imho it's worth it.
+            self.logger.info("finished permuting")
+        else:
+            self.logger.info("running without permutation")
         if self.initial_agent_constraints.constraints is not None\
                 and len(self.initial_agent_constraints.constraints) != self.consts.initial_infected_count:
             raise ValueError("Constraints file row number must match number of sick agents in simulation")
         while len(agents_to_infect) < self.consts.initial_infected_count:
             if agent_index == len(self.agents):
                 raise ValueError("Initial sick agents over-constrained, couldn't find compatible agents")
-            temp_agent = self.agents[agent_index]
+            temp_agent = self.agents[agent_permutation[agent_index]]
             agent_index += 1
             if self.initial_agent_constraints.constraints is None:
                 agents_to_infect.append(temp_agent)

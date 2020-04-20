@@ -1,11 +1,12 @@
 from abc import ABC
 
 from state_machine import State  # , StochasticState, TerminalState
+from util import BucketDict
 
 
 class MedicalState(State, ABC):
     susceptible: bool
-    contagiousness: float
+    contagiousness: BucketDict
     test_willingness: float
     detectable: bool
 
@@ -18,26 +19,27 @@ class SusceptibleState(MedicalState, ABC):
         super().__init__(*args, **kwargs)
         self.test_willingness = test_willingness
 
-    contagiousness = 0
+        self.contagiousness = BucketDict()
+
     susceptible = True
     detectable = False
 
 
 class ContagiousState(MedicalState, ABC):
     susceptible = False
-    detectable = True
 
-    def __init__(self, *args, contagiousness: float, test_willingness: float, **kwargs):
+    def __init__(self, *args, detectable: bool, contagiousness: BucketDict, test_willingness: float, **kwargs):
         super().__init__(*args, **kwargs)
+        self.detectable = detectable
         self.test_willingness = test_willingness
         self.contagiousness = contagiousness
 
 
 class ImmuneState(MedicalState, ABC):
     susceptible = False
-    contagiousness = 0
 
     def __init__(self, *args, detectable: bool, test_willingness: float, **kwargs):
         super().__init__(*args, **kwargs)
         self.test_willingness = test_willingness
         self.detectable = detectable
+        self.contagiousness = BucketDict()

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import matplotlib.pyplot as plt
 import random
 import os.path
 import sys
@@ -90,9 +89,9 @@ def run_simulation(args):
     sm = SimulationManager(
         (
             # "Latent",
-            #Supervisable.State.AddedPerDay("Asymptomatic"),
-            #Supervisable.State.Current("Asymptomatic"),
-            #Supervisable.State.TotalSoFar("Asymptomatic"),
+            Supervisable.State.AddedPerDay("Asymptomatic"),
+            Supervisable.State.Current("Asymptomatic"),
+            Supervisable.State.TotalSoFar("Asymptomatic"),
             # "Silent",
             # "Asymptomatic",
             # "Symptomatic",
@@ -101,31 +100,32 @@ def run_simulation(args):
             # "ICU",
             # "Susceptible",
             # "Recovered",
-            #Supervisable.Sum(
-            #    "Latent",
-            #    "Latent-Asymp",
-            #    "Latent-Presymp",
-            #    "Asymptomatic",
-            #    "Pre-Symptomatic",
-            #    "Mild-Condition",
-            #    "NeedOfCloseMedicalCare",
-            #    "NeedICU",
-            #    "ImprovingHealth",
-            #    "PreRecovered",
-            #    name="currently sick"
-            #),
+            Supervisable.Sum(
+                "Latent",
+                "Latent-Asymp",
+                "Latent-Presymp",
+                "Asymptomatic",
+                "Pre-Symptomatic",
+                "Mild-Condition",
+                "NeedOfCloseMedicalCare",
+                "NeedICU",
+                "ImprovingHealth",
+                "PreRecovered",
+                name="currently sick"
+            ),
             # LambdaValueSupervisable("ever hospitalized", lambda manager: len(manager.medical_machine["Hospitalized"].ever_visited)),
-            #LambdaValueSupervisable(
-            #    "was ever sick",
-            #    lambda manager: len(manager.agents) - manager.medical_machine["Susceptible"].agent_count,
-            #),
+            LambdaValueSupervisable(
+                "was ever sick",
+                lambda manager: len(manager.agents) - manager.medical_machine["Susceptible"].agent_count,
+            ),
             Supervisable.NewCasesCounter(),
-            #Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter(), 1),
-            #Supervisable.Wrappers.RunningAverage(Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter()), 7),
-            #Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter(), 7),
+            Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter(), 1),
+            Supervisable.Wrappers.RunningAverage(Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter()), 7),
+            Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter(), 7),
             # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
             #Supervisable.CurrentInfectedTable(interval=Consts.export_infected_agents_interval),
+            Supervisable.CurrentInfectedTable(interval=consts.export_infected_agents_interval),
             # LambdaValueSupervisable("Detected Daily", lambda manager: manager.new_detected_daily),
             # LambdaValueSupervisable("Current Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
             # Supervisable.R0(),

@@ -24,15 +24,18 @@ class MatrixConsts(NamedTuple):
         ConnectionTypes.Family: 3,
         ConnectionTypes.Work: 0.66,
         ConnectionTypes.School: 1,
+        ConnectionTypes.Kindergarten: 1,
         ConnectionTypes.Other: 0.23,
     }
     daily_connections_amount_by_connection_type: Dict = {
         ConnectionTypes.School: 6,
+        ConnectionTypes.Kindergarten: 6,
         ConnectionTypes.Work: 5.6,
         ConnectionTypes.Other: 0.4,
     }
     weekly_connections_amount_by_connection_type: Dict = {
         ConnectionTypes.School: 12.6,
+        ConnectionTypes.Kindergarten: 12.6,
         ConnectionTypes.Work: 12.6,
         ConnectionTypes.Other: 6,
     }

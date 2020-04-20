@@ -23,6 +23,7 @@ from generation.node import Node
 from bsa.parasym import write_parasym, read_parasym
 from bsa.scipy_sparse import read_scipy_sparse
 import project_structure
+from project_structure import OUTPUT_FOLDER
 
 
 class MatrixData:
@@ -375,7 +376,7 @@ class MatrixGenerator:
 
             agent_id_pool.difference_update(to_remove)
 
-    def export_matrix_data(self,export_dir='..\..\output',export_filename='matrix.bsa'):
+    def export_matrix_data(self,export_dir=OUTPUT_FOLDER,export_filename='matrix.bsa'):
         self.matrix_data.export(os.path.join(export_dir,export_filename))
 
     @staticmethod
