@@ -27,6 +27,20 @@ Usage:
 
 # TODO split into a couple of files. one for each aspect of the simulation
 class Consts(NamedTuple):
+    # medical states
+    LATENT = "Latent"
+    SUSCEPTIBLE = "Susceptible"
+    RECOVERED = "Recovered"
+    DECEASED = "Deceased"
+    PRE_RECOVERED = "PreRecovered"
+    IMPROVING_HEALTH = "ImprovingHealth"
+    NEED_ICU = "NeedICU"
+    NEED_OF_CLOSE_MEDICAL_CARE = "NeedOfCloseMedicalCare"
+    MILD_CONDITION = "Mild-Condition"
+    PRE_SYMPTOMATIC = "Pre-Symptomatic"
+    ASYMPTOMATIC = "Asymptomatic"
+    LATENT_ASYMP = "Latent-Asymp"
+    LATENT_PRESYMP = "Latent-Presymp"
     # attributes and default values:
 
     total_steps: int = 350
@@ -105,9 +119,21 @@ class Consts(NamedTuple):
     detection_pool: List[DetectionSettings] = [
         DetectionSettings(
             name="hospital",
-            detection_test=DetectionTest(detection_prob=0.98,
-                                         false_alarm_prob=0.,
-                                         time_until_result=3),
+            detection_test=DetectionTest({
+                SUSCEPTIBLE: 0.,
+                LATENT: .98,
+                RECOVERED: 0.,
+                DECEASED: 0.,
+                PRE_RECOVERED: .98,
+                IMPROVING_HEALTH: .98,
+                NEED_ICU: .98,
+                NEED_OF_CLOSE_MEDICAL_CARE: .98,
+                MILD_CONDITION: .98,
+                PRE_SYMPTOMATIC: .98,
+                ASYMPTOMATIC: .98,
+                LATENT_ASYMP: .98,
+                LATENT_PRESYMP: .98
+            }, time_until_result=3),
             daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
             testing_gap_after_positive_test=2,
             testing_gap_after_negative_test=1,
@@ -122,9 +148,21 @@ class Consts(NamedTuple):
 
         DetectionSettings(
             name="street",
-            detection_test=DetectionTest(detection_prob=0.92,
-                                         false_alarm_prob=0.,
-                                         time_until_result=5),
+            detection_test=DetectionTest({
+                SUSCEPTIBLE: 0.,
+                LATENT: .92,
+                RECOVERED: 0.,
+                DECEASED: 0.,
+                PRE_RECOVERED: .92,
+                IMPROVING_HEALTH: .92,
+                NEED_ICU: .92,
+                NEED_OF_CLOSE_MEDICAL_CARE: .92,
+                MILD_CONDITION: .92,
+                PRE_SYMPTOMATIC: .92,
+                ASYMPTOMATIC: .92,
+                LATENT_ASYMP: .92,
+                LATENT_PRESYMP: .92
+            }, time_until_result=5),
             daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
             testing_gap_after_positive_test=3,
             testing_gap_after_negative_test=1,
@@ -293,74 +331,75 @@ class Consts(NamedTuple):
         # latent-asymp - will have the durations of latent, summed by each day
         # probability for each is same as probability from latent to presymp and asymp
 
-        susceptible = SusceptibleTerminalState("Susceptible", test_willingness=self.susceptible_test_willingness)
+        susceptible = SusceptibleTerminalState(self.SUSCEPTIBLE, test_willingness=self.susceptible_test_willingness)
         latent = ContagiousStochasticState(
-            "Latent",
+            self.LATENT,
             detectable=False,
             contagiousness=self.latent_infection_ratio,
             test_willingness=self.latent_test_willingness)
         latent_presymp = ContagiousStochasticState(
-            "Latent-Presymp",
+            self.LATENT_PRESYMP,
             detectable=False,
             contagiousness=self.latent_presymp_infection_ratio,
             test_willingness=self.latent_test_willingness
         )
         latent_asymp = ContagiousStochasticState(
-            "Latent-Asymp",
+            self.LATENT_ASYMP,
             detectable=False,
             contagiousness=self.latent_asymp_infection_ratio,
             test_willingness=self.latent_test_willingness
         )
         asymptomatic = ContagiousStochasticState(
-            "Asymptomatic",
+            self.ASYMPTOMATIC,
             detectable=True,
             contagiousness=self.asymptomatic_infection_ratio,
             test_willingness=self.asymptomatic_test_willingness
         )
         pre_symptomatic = ContagiousStochasticState(
-            "Pre-Symptomatic",
+            self.PRE_SYMPTOMATIC,
             detectable=True,
             contagiousness=self.pre_symptomatic_infection_ratio,
             test_willingness=self.pre_symptomatic_test_willingness,
         )
         mild_condition = ContagiousStochasticState(
-            "Mild-Condition",
+            self.MILD_CONDITION,
             detectable=True,
             contagiousness=self.mild_condition_infection_ratio,
             test_willingness=self.mild_condition_test_willingness,
         )
         need_close_medical_care = ContagiousStochasticState(
-            "NeedOfCloseMedicalCare",
+            self.NEED_OF_CLOSE_MEDICAL_CARE,
             detectable=True,
             contagiousness=self.need_close_medical_care_infection_ratio,
             test_willingness=self.need_close_medical_care_test_willingness,
         )
 
         need_icu = ContagiousStochasticState(
-            "NeedICU",
+            self.NEED_ICU,
             detectable=True,
             contagiousness=self.need_icu_infection_ratio,
             test_willingness=self.need_icu_test_willingness
         )
 
         improving_health = ContagiousStochasticState(
-            "ImprovingHealth",
+            self.IMPROVING_HEALTH,
             detectable=True,
             contagiousness=self.improving_health_infection_ratio,
             test_willingness=self.improving_health_test_willingness
         )
 
         pre_recovered = ContagiousStochasticState(
-            "PreRecovered",
+            self.PRE_RECOVERED,
             detectable=True,
             contagiousness=self.pre_recovered_infection_ratio,
             test_willingness=self.pre_recovered_test_willingness
         )
 
         deceased = ImmuneTerminalState(
-            "Deceased", detectable=False, test_willingness=0
+            self.DECEASED, detectable=False, test_willingness=0
         )  # Won't be tested so detectability isn't relevant
-        recovered = ImmuneTerminalState("Recovered", detectable=False, test_willingness=self.recovered_test_willingness)
+        recovered = ImmuneTerminalState(self.RECOVERED, detectable=False,
+                                        test_willingness=self.recovered_test_willingness)
 
         ret = MedicalStateMachine(susceptible, latent)
 

@@ -1,4 +1,18 @@
 {
+    # medical states
+    "LATENT": "Latent",
+    "SUSCEPTIBLE": "Susceptible",
+    "RECOVERED": "Recovered",
+    "DECEASED": "Deceased",
+    "PRE_RECOVERED": "PreRecovered",
+    "IMPROVING_HEALTH": "ImprovingHealth",
+    "NEED_ICU": "NeedICU",
+    "NEED_OF_CLOSE_MEDICAL_CARE": "NeedOfCloseMedicalCare",
+    "MILD_CONDITION": "Mild-Condition",
+    "PRE_SYMPTOMATIC": "Pre-Symptomatic",
+    "ASYMPTOMATIC": "Asymptomatic",
+    "LATENT_ASYMP": "Latent-Asymp",
+    "LATENT_PRESYMP": "Latent-Presymp",
     "total_steps": 350,
     "initial_infected_count": 20,
     "export_infected_agents_interval": 50,
@@ -75,16 +89,30 @@
     "detection_pool": [
         DetectionSettings(
             name="hospital",
-            detection_test=DetectionTest(detection_prob=0.98,
-                                         false_alarm_prob=0.,
-                                         time_until_result=3),
-            daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
+            detection_test=DetectionTest({
+                SUSCEPTIBLE: 0.,
+                LATENT: .98,
+                RECOVERED: 0.,
+                DECEASED: 0.,
+                PRE_RECOVERED: .98,
+                IMPROVING_HEALTH: .98,
+                NEED_ICU: .98,
+                NEED_OF_CLOSE_MEDICAL_CARE: .98,
+                MILD_CONDITION: .98,
+                PRE_SYMPTOMATIC: .98,
+                ASYMPTOMATIC: .98,
+                LATENT_ASYMP: .98,
+                LATENT_PRESYMP: .98
+            }, time_until_result=3),
+            daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000,
+                                         50: 5000},
             testing_gap_after_positive_test=2,
             testing_gap_after_negative_test=1,
             testing_priorities=[
                 DetectionPriority(
-                    lambda agent: (agent.medical_state.name == "Symptomatic" and
-                                   agent not in agent.manager.tested_positive_vector),
+                    lambda agent: (
+                            agent.medical_state.name == "Symptomatic" and
+                            agent not in agent.manager.tested_positive_vector),
                     max_tests=100),
                 DetectionPriority(
                     lambda agent: agent.medical_state.name == "Recovered"),
@@ -92,10 +120,23 @@
 
         DetectionSettings(
             name="street",
-            detection_test=DetectionTest(detection_prob=0.92,
-                                         false_alarm_prob=0.,
-                                         time_until_result=5),
-            daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
+            detection_test=DetectionTest({
+                SUSCEPTIBLE: 0.,
+                LATENT: .92,
+                RECOVERED: 0.,
+                DECEASED: 0.,
+                PRE_RECOVERED: .92,
+                IMPROVING_HEALTH: .92,
+                NEED_ICU: .92,
+                NEED_OF_CLOSE_MEDICAL_CARE: .92,
+                MILD_CONDITION: .92,
+                PRE_SYMPTOMATIC: .92,
+                ASYMPTOMATIC: .92,
+                LATENT_ASYMP: .92,
+                LATENT_PRESYMP: .92
+            }, time_until_result=5),
+            daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500,
+                                         50: 7000},
             testing_gap_after_positive_test=3,
             testing_gap_after_negative_test=1,
             testing_priorities=[
@@ -106,9 +147,7 @@
             ]),
     ],
     "should_isolate_positive_detected": False,
-    "isolate_after_num_day": 1,  # will be in isolation the next day.
-    "p_will_obey_isolation": 1.0,  # 100% will obey the isolation.
-    "isolation_factor": 0.0,  # reduce agent's relations strength by a factor.    # --policies params--
+    # --policies params--
     "change_policies": False,
     # a dictionary of day:([ConnectionTypes], message). on each day, keeps only the given connection types opened
     "policies_changes": {
