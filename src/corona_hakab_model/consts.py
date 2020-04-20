@@ -45,7 +45,7 @@ class Consts(NamedTuple):
 
     total_steps: int = 350
     initial_infected_count: int = 20
-    export_infected_agents_interval = 50
+    export_infected_agents_interval: int = 50
 
     # Size of population to estimate expected time for each state
     population_size_for_state_machine_analysis: int = 25_000
@@ -93,7 +93,14 @@ class Consts(NamedTuple):
     # infections ratios, See bucket dict for more info on how to use.
     pre_symptomatic_infection_ratio: BucketDict = BucketDict({10: 0.75, 20: 0.75})  # x <= 10 then key is 10,
     mild_condition_infection_ratio: BucketDict = BucketDict({10: 0.40})  # x<=20 then key is 20,
-    silent_infection_ratio: BucketDict = BucketDict({10: 0.3})  # if x greater than biggest key, x is biggest key
+    latent_infection_ratio: BucketDict = BucketDict({0: 0})   # if x greater than biggest key, x is biggest key
+    latent_presymp_infection_ratio: BucketDict = BucketDict({0: 0})
+    latent_asymp_infection_ratio: BucketDict = BucketDict({0: 0})
+    asymptomatic_infection_ratio: BucketDict = BucketDict({0: 0})
+    need_close_medical_care_infection_ratio: BucketDict = BucketDict({0: 0})
+    need_icu_infection_ratio: BucketDict = BucketDict({0: 0})
+    improving_health_infection_ratio: BucketDict = BucketDict({0: 0})
+    pre_recovered_infection_ratio: BucketDict = BucketDict({0: 0})
     # base r0 of the disease
     r0: float = 2.4
 
@@ -166,7 +173,7 @@ class Consts(NamedTuple):
                     lambda agent: agent.medical_state.name == "Recovered"),
             ]),
     ]
-    should_isolate_positive_detected = False
+    should_isolate_positive_detected: bool = False
     # --policies params--
     change_policies: bool = False
     # a dictionary of day:([ConnectionTypes], message). on each day, keeps only the given connection types opened
@@ -240,9 +247,16 @@ class Consts(NamedTuple):
             "__builtins__": None,
             "dist": dist,
             "rv_discrete": rv_discrete,
+            "DetectionSettings": DetectionSettings,
+            "DetectionPriority": DetectionPriority,
             "DetectionTest": DetectionTest,
             "ConditionedPolicy": ConditionedPolicy,
             "ConnectionTypes": ConnectionTypes,
+            "Policy": Policy,
+            "random": random,
+            "np": np,
+            "BucketDict": BucketDict,
+            "len": len,
         }
 
         parameters = eval(data, expressions)
@@ -313,54 +327,67 @@ class Consts(NamedTuple):
         # latent-asymp - will have the durations of latent, summed by each day
         # probability for each is same as probability from latent to presymp and asymp
 
-        susceptible = SusceptibleTerminalState(self.SUSCEPTIBLE, test_willingness=self.susceptible_test_willingness)
-        latent = ImmuneStochasticState(self.LATENT, detectable=False, test_willingness=self.latent_test_willingness)
-        latent_presymp = ImmuneStochasticState(
-            self.LATENT_PRESYMP,
+        susceptible = SusceptibleTerminalState("Susceptible", test_willingness=self.susceptible_test_willingness)
+        latent = ContagiousStochasticState(
+            "Latent",
             detectable=False,
+            contagiousness=self.latent_infection_ratio,
+            test_willingness=self.latent_test_willingness)
+        latent_presymp = ContagiousStochasticState(
+            "Latent-Presymp",
+            detectable=False,
+            contagiousness=self.latent_presymp_infection_ratio,
             test_willingness=self.latent_test_willingness
         )
-        latent_asymp = ImmuneStochasticState(
-            self.LATENT_ASYMP,
+        latent_asymp = ContagiousStochasticState(
+            "Latent-Asymp",
             detectable=False,
+            contagiousness=self.latent_asymp_infection_ratio,
             test_willingness=self.latent_test_willingness
         )
-        asymptomatic = ImmuneStochasticState(
-            self.ASYMPTOMATIC,
+        asymptomatic = ContagiousStochasticState(
+            "Asymptomatic",
             detectable=True,
+            contagiousness=self.asymptomatic_infection_ratio,
             test_willingness=self.asymptomatic_test_willingness
         )
         pre_symptomatic = ContagiousStochasticState(
-            self.PRE_SYMPTOMATIC,
+            "Pre-Symptomatic",
+            detectable=True,
             contagiousness=self.pre_symptomatic_infection_ratio,
             test_willingness=self.pre_symptomatic_test_willingness,
         )
         mild_condition = ContagiousStochasticState(
-            self.MILD_CONDITION,
+            "Mild-Condition",
+            detectable=True,
             contagiousness=self.mild_condition_infection_ratio,
             test_willingness=self.mild_condition_test_willingness,
         )
-        need_close_medical_care = ImmuneStochasticState(
-            self.NEED_OF_CLOSE_MEDICAL_CARE,
-            test_willingness=self.need_close_medical_care_test_willingness,
+        need_close_medical_care = ContagiousStochasticState(
+            "NeedOfCloseMedicalCare",
             detectable=True,
+            contagiousness=self.need_close_medical_care_infection_ratio,
+            test_willingness=self.need_close_medical_care_test_willingness,
         )
 
-        need_icu = ImmuneStochasticState(
-            self.NEED_ICU,
+        need_icu = ContagiousStochasticState(
+            "NeedICU",
             detectable=True,
+            contagiousness=self.need_icu_infection_ratio,
             test_willingness=self.need_icu_test_willingness
         )
 
-        improving_health = ImmuneStochasticState(
-            self.IMPROVING_HEALTH,
+        improving_health = ContagiousStochasticState(
+            "ImprovingHealth",
             detectable=True,
+            contagiousness=self.improving_health_infection_ratio,
             test_willingness=self.improving_health_test_willingness
         )
 
-        pre_recovered = ImmuneStochasticState(
-            self.PRE_RECOVERED,
+        pre_recovered = ContagiousStochasticState(
+            "PreRecovered",
             detectable=True,
+            contagiousness=self.pre_recovered_infection_ratio,
             test_willingness=self.pre_recovered_test_willingness
         )
 
