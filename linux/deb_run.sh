@@ -3,7 +3,7 @@
 
 export WORKDIR=~
 export PROJDIR=${WORKDIR}/proj
-export WORK_BRANCH=develop_linux
+export WORK_BRANCH=develop
 export GUI_ENABLED=1
 
 # git clone
