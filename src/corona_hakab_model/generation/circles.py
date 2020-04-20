@@ -1,12 +1,22 @@
+from __future__ import annotations
+
+from typing import Set, TYPE_CHECKING
+
 from generation.connection_types import ConnectionTypes
 from dataclasses import dataclass
 import pandas as pd
 import uuid
 
+if TYPE_CHECKING:
+    from agent import Agent
+
+
+
+
 class Circle:
     __slots__ = "kind", "agent_count"
 
-    def __init__(self,):
+    def __init__(self, ):
         self.agent_count = 0
 
     def add_many(self, agents):
@@ -21,15 +31,18 @@ class Circle:
     def remove_agent(self, agent):
         self.agent_count -= 1
 
+
 class SocialCircle(Circle):
-    __slots__ = ("agents", "connection_type", "guid")
+    __slots__ = ("agents", "connection_type", "guid",
+                 "total_random_connections")
 
     def __init__(self, connection_type: ConnectionTypes):
         super().__init__()
         self.kind = "social circle"
-        self.agents = set()
+        self.agents: Set[Agent] = set()
         self.connection_type = connection_type
         self.guid = str(uuid.uuid4())
+        self.total_random_connections = 0
 
     def add_agent(self, agent):
         super().add_agent(agent)
@@ -59,6 +72,7 @@ class SocialCircle(Circle):
     def get_snapshot(self):
         return SocialCircleSnapshot(self.connection_type.name, len(self.agents), self.guid)
 
+
 @dataclass
 class SocialCircleSnapshot:
     type: str
@@ -67,12 +81,12 @@ class SocialCircleSnapshot:
 
 
 class SocialCircleConstraint:
-    def __init__(self,min_members,max_members,connection_type):
+    def __init__(self, min_members, max_members, connection_type):
         self.min_members = min_members
         self.max_members = max_members
         self.connection_type = connection_type
 
-    def meets_constraint(self,agent):
+    def meets_constraint(self, agent):
         """
 
         :param agent: an AgentSnapshot that we want to check if it's social circles meet the constraint

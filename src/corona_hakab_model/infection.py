@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from collections import defaultdict
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, List
 
 import numpy as np
+
 from agent import Agent
+from generation import connection_types
 
 if TYPE_CHECKING:
-    from medical_state import MedicalState
     from manager import SimulationManager
 
 
@@ -21,9 +21,15 @@ class InfectionManager:
 
     def infection_step(self) -> List[Agent]:
         # perform infection
-        return self._perform_infection()
+        regular_infections = self._perform_infection()
+        random_infections = self._infect_random_connections()
 
-    def _perform_infection(self) -> List[Agent]:
+        all_infections = regular_infections | random_infections
+
+        infected_agents = [self.manager.agents[i] for i in np.flatnonzero(all_infections)]
+        return infected_agents
+
+    def _perform_infection(self):
         """
         perform the infection stage by multiply matrix with infected vector and try to infect agents.
 
@@ -42,14 +48,31 @@ class InfectionManager:
         # calculate the infections boolean vector
 
         infections = self.manager.susceptible_vector & (np.random.random(u.shape) < u)
-        infected_indices = np.flatnonzero(infections)
+        return infections
 
-        # new_infected: dict -
-        # key = medical state (currently only susceptible state which an agent can be infected)
-        # value = list of agents
-        new_infected = list()
-        for index in infected_indices:
-            agent = self.manager.agents[index]
-            new_infected.append(agent)
+    def _infect_random_connections(self):
+        connections = self.manager.num_of_random_connections * self.manager.random_connections_factor
+        probs_not_infected_from_connection = np.ones_like(connections, dtype=float)
+        for connection_type in connection_types.With_Random_Connections:
+            for circle in self.manager.social_circles_by_connection_type[connection_type]:
+                agents_id = [a.index for a in circle.agents]
 
-        return new_infected
+                if len(agents_id) == 1:
+                    # One-Agent circle, you can't randomly meet yourself..
+                    continue
+
+                total_infectious_random_connections = np.dot(
+                    self.manager.contagiousness_vector[(agents_id,)],
+                    connections[(agents_id, [connection_type] * len(agents_id))],
+                )
+
+                prob = total_infectious_random_connections / circle.total_random_connections
+
+                probs_not_infected_from_connection[(agents_id, [connection_type] * len(agents_id))] = \
+                    1 - prob * self.manager.random_connections_strength[connection_type]
+
+        not_infected_probs = np.power(probs_not_infected_from_connection, connections)
+        prob_infected_in_any_circle = 1 - not_infected_probs.prod(axis=1)
+        infections = self.manager.susceptible_vector & \
+                     (np.random.random(len(self.manager.agents)) < prob_infected_in_any_circle)
+        return infections
