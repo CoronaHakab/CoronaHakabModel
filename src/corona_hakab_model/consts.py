@@ -31,7 +31,7 @@ class Consts(NamedTuple):
 
     total_steps: int = 350
     initial_infected_count: int = 20
-    export_infected_agents_interval = 50
+    export_infected_agents_interval: int = 50
 
     # Size of population to estimate expected time for each state
     population_size_for_state_machine_analysis: int = 25_000
@@ -128,7 +128,7 @@ class Consts(NamedTuple):
                     lambda agent: agent.medical_state.name == "Recovered"),
             ]),
     ]
-    should_isolate_positive_detected = False
+    should_isolate_positive_detected: bool = False
     # --policies params--
     change_policies: bool = False
     # a dictionary of day:([ConnectionTypes], message). on each day, keeps only the given connection types opened
@@ -202,9 +202,16 @@ class Consts(NamedTuple):
             "__builtins__": None,
             "dist": dist,
             "rv_discrete": rv_discrete,
+            "DetectionSettings": DetectionSettings,
+            "DetectionPriority": DetectionPriority,
             "DetectionTest": DetectionTest,
             "ConditionedPolicy": ConditionedPolicy,
             "ConnectionTypes": ConnectionTypes,
+            "Policy": Policy,
+            "random": random,
+            "np": np,
+            "BucketDict": BucketDict,
+            "len": len,
         }
 
         parameters = eval(data, expressions)
