@@ -79,6 +79,7 @@ class Consts(NamedTuple):
     # infections ratios, See bucket dict for more info on how to use.
     pre_symptomatic_infection_ratio: BucketDict = BucketDict({10: 0.75, 20: 0.75})  # x <= 10 then key is 10,
     mild_condition_infection_ratio: BucketDict = BucketDict({10: 0.40})  # x<=20 then key is 20,
+
     latent_infection_ratio: BucketDict = BucketDict({0: 0})   # if x greater than biggest key, x is biggest key
     latent_presymp_infection_ratio: BucketDict = BucketDict({0: 0})
     latent_asymp_infection_ratio: BucketDict = BucketDict({0: 0})
@@ -87,6 +88,7 @@ class Consts(NamedTuple):
     need_icu_infection_ratio: BucketDict = BucketDict({0: 0})
     improving_health_infection_ratio: BucketDict = BucketDict({0: 0})
     pre_recovered_infection_ratio: BucketDict = BucketDict({0: 0})
+
     # base r0 of the disease
     r0: float = 2.4
 
