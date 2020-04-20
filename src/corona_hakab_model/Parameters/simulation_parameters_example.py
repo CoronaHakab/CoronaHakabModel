@@ -47,9 +47,16 @@
     # [0.013,0.016,0.025,0.035,0.045,0.053,0.061,0.065,0.069,0.069,0.065,0.063,0.058,0.053,0.056,0.041,0.040,0.033,
     # 0.030,0.025,0.020,0.015,0.015,0.015,0.010,0.010]))
     # infections ratios, See bucket dict for more info on how to use.
-    "pre_symptomatic_infection_ratio": BucketDict({10: 0.75, 20: 0.75}),  # x <= 10 then key is 10,
-    "mild_condition_infection_ratio": BucketDict({10: 0.40}),  # x<=20 then key is 20,
-    "silent_infection_ratio": BucketDict({10: 0.3}),  # if x greater than biggest key, x is biggest key
+    "pre_symptomatic_infection_ratio": BucketDict({10: 0.75, 20: 0.75}), # x <= 10 then key is 10,
+    "mild_condition_infection_ratio": BucketDict({10: 0.40}), # x<=20 then key is 20,
+    "latent_infection_ratio": BucketDict({0: 0}),  # if x greater than biggest key, x is biggest key
+    "latent_presymp_infection_ratio": BucketDict({0: 0}),
+    "latent_asymp_infection_ratio": BucketDict({0: 0}),
+    "asymptomatic_infection_ratio": BucketDict({0: 0}),
+    "need_close_medical_care_infection_ratio": BucketDict({0: 0}),
+    "need_icu_infection_ratio": BucketDict({0: 0}),
+    "improving_health_infection_ratio": BucketDict({0: 0}),
+    "pre_recovered_infection_ratio": BucketDict({0: 0}),
     # base r0 of the disease
     "r0": 2.4,
 
