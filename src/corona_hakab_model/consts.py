@@ -12,7 +12,7 @@ from medical_state import ContagiousState, ImmuneState, MedicalState, Susceptibl
 from medical_state_machine import MedicalStateMachine
 from policies_manager import ConditionedPolicy, Policy
 from state_machine import StochasticState, TerminalState
-from util import dist, rv_discrete, upper_bound
+from util import dist, rv_discrete, upper_bound, BucketDict
 
 """
 Overview:
@@ -31,7 +31,7 @@ class Consts(NamedTuple):
 
     total_steps: int = 350
     initial_infected_count: int = 20
-    export_infected_agents_interval = 50
+    export_infected_agents_interval: int = 50
 
     # Size of population to estimate expected time for each state
     population_size_for_state_machine_analysis: int = 25_000
@@ -76,10 +76,17 @@ class Consts(NamedTuple):
     # [10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35],
     # [0.013,0.016,0.025,0.035,0.045,0.053,0.061,0.065,0.069,0.069,0.065,0.063,0.058,0.053,0.056,0.041,0.040,0.033,
     # 0.030,0.025,0.020,0.015,0.015,0.015,0.010,0.010]))
-    # infections ratios
-    pre_symptomatic_infection_ratio: float = 0.75
-    mild_condition_infection_ratio: float = 0.40
-    silent_infection_ratio: float = 0.3
+    # infections ratios, See bucket dict for more info on how to use.
+    pre_symptomatic_infection_ratio: BucketDict = BucketDict({10: 0.75, 20: 0.75})  # x <= 10 then key is 10,
+    mild_condition_infection_ratio: BucketDict = BucketDict({10: 0.40})  # x<=20 then key is 20,
+    latent_infection_ratio: BucketDict = BucketDict({0: 0})   # if x greater than biggest key, x is biggest key
+    latent_presymp_infection_ratio: BucketDict = BucketDict({0: 0})
+    latent_asymp_infection_ratio: BucketDict = BucketDict({0: 0})
+    asymptomatic_infection_ratio: BucketDict = BucketDict({0: 0})
+    need_close_medical_care_infection_ratio: BucketDict = BucketDict({0: 0})
+    need_icu_infection_ratio: BucketDict = BucketDict({0: 0})
+    improving_health_infection_ratio: BucketDict = BucketDict({0: 0})
+    pre_recovered_infection_ratio: BucketDict = BucketDict({0: 0})
     # base r0 of the disease
     r0: float = 2.4
 
@@ -206,9 +213,16 @@ class Consts(NamedTuple):
             "__builtins__": None,
             "dist": dist,
             "rv_discrete": rv_discrete,
+            "DetectionSettings": DetectionSettings,
+            "DetectionPriority": DetectionPriority,
             "DetectionTest": DetectionTest,
             "ConditionedPolicy": ConditionedPolicy,
             "ConnectionTypes": ConnectionTypes,
+            "Policy": Policy,
+            "random": random,
+            "np": np,
+            "BucketDict": BucketDict,
+            "len": len,
         }
 
         parameters = eval(data, expressions)
@@ -280,53 +294,66 @@ class Consts(NamedTuple):
         # probability for each is same as probability from latent to presymp and asymp
 
         susceptible = SusceptibleTerminalState("Susceptible", test_willingness=self.susceptible_test_willingness)
-        latent = ImmuneStochasticState("Latent", detectable=False, test_willingness=self.latent_test_willingness)
-        latent_presymp = ImmuneStochasticState(
+        latent = ContagiousStochasticState(
+            "Latent",
+            detectable=False,
+            contagiousness=self.latent_infection_ratio,
+            test_willingness=self.latent_test_willingness)
+        latent_presymp = ContagiousStochasticState(
             "Latent-Presymp",
             detectable=False,
+            contagiousness=self.latent_presymp_infection_ratio,
             test_willingness=self.latent_test_willingness
         )
-        latent_asymp = ImmuneStochasticState(
+        latent_asymp = ContagiousStochasticState(
             "Latent-Asymp",
             detectable=False,
+            contagiousness=self.latent_asymp_infection_ratio,
             test_willingness=self.latent_test_willingness
         )
-        asymptomatic = ImmuneStochasticState(
+        asymptomatic = ContagiousStochasticState(
             "Asymptomatic",
             detectable=True,
+            contagiousness=self.asymptomatic_infection_ratio,
             test_willingness=self.asymptomatic_test_willingness
         )
         pre_symptomatic = ContagiousStochasticState(
             "Pre-Symptomatic",
+            detectable=True,
             contagiousness=self.pre_symptomatic_infection_ratio,
             test_willingness=self.pre_symptomatic_test_willingness,
         )
         mild_condition = ContagiousStochasticState(
             "Mild-Condition",
+            detectable=True,
             contagiousness=self.mild_condition_infection_ratio,
             test_willingness=self.mild_condition_test_willingness,
         )
-        need_close_medical_care = ImmuneStochasticState(
+        need_close_medical_care = ContagiousStochasticState(
             "NeedOfCloseMedicalCare",
-            test_willingness=self.need_close_medical_care_test_willingness,
             detectable=True,
+            contagiousness=self.need_close_medical_care_infection_ratio,
+            test_willingness=self.need_close_medical_care_test_willingness,
         )
 
-        need_icu = ImmuneStochasticState(
+        need_icu = ContagiousStochasticState(
             "NeedICU",
             detectable=True,
+            contagiousness=self.need_icu_infection_ratio,
             test_willingness=self.need_icu_test_willingness
         )
 
-        improving_health = ImmuneStochasticState(
+        improving_health = ContagiousStochasticState(
             "ImprovingHealth",
             detectable=True,
+            contagiousness=self.improving_health_infection_ratio,
             test_willingness=self.improving_health_test_willingness
         )
 
-        pre_recovered = ImmuneStochasticState(
+        pre_recovered = ContagiousStochasticState(
             "PreRecovered",
             detectable=True,
+            contagiousness=self.pre_recovered_infection_ratio,
             test_willingness=self.pre_recovered_test_willingness
         )
 
