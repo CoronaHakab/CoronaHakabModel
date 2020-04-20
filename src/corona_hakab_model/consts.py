@@ -28,19 +28,19 @@ Usage:
 # TODO split into a couple of files. one for each aspect of the simulation
 class Consts(NamedTuple):
     # medical states
-    LATENT = "Latent"
-    SUSCEPTIBLE = "Susceptible"
-    RECOVERED = "Recovered"
-    DECEASED = "Deceased"
-    PRE_RECOVERED = "PreRecovered"
-    IMPROVING_HEALTH = "ImprovingHealth"
-    NEED_ICU = "NeedICU"
-    NEED_OF_CLOSE_MEDICAL_CARE = "NeedOfCloseMedicalCare"
-    MILD_CONDITION = "Mild-Condition"
-    PRE_SYMPTOMATIC = "Pre-Symptomatic"
-    ASYMPTOMATIC = "Asymptomatic"
-    LATENT_ASYMP = "Latent-Asymp"
-    LATENT_PRESYMP = "Latent-Presymp"
+    LATENT: str = "Latent"
+    SUSCEPTIBLE: str = "Susceptible"
+    RECOVERED: str = "Recovered"
+    DECEASED: str = "Deceased"
+    PRE_RECOVERED: str = "PreRecovered"
+    IMPROVING_HEALTH: str = "ImprovingHealth"
+    NEED_ICU: str = "NeedICU"
+    NEED_OF_CLOSE_MEDICAL_CARE: str = "NeedOfCloseMedicalCare"
+    MILD_CONDITION: str = "Mild-Condition"
+    PRE_SYMPTOMATIC: str = "Pre-Symptomatic"
+    ASYMPTOMATIC: str = "Asymptomatic"
+    LATENT_ASYMP: str = "Latent-Asymp"
+    LATENT_PRESYMP: str = "Latent-Presymp"
     # attributes and default values:
 
     total_steps: int = 350
