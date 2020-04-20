@@ -59,8 +59,7 @@ class InfectionManager:
         infections = self.manager.susceptible_vector & (np.random.random(u.shape) < u)
         
         infected_indices = np.flatnonzero(infections)
-        nonzero_columns = self.manager.matrix.non_zero_columns()
-        return {self.manager.agents[agent_index] : self._get_infection_info(agent_index, nonzero_columns, v) for agent_index in infected_indices}
+        return {self.manager.agents[agent_index] : self._get_infection_info(agent_index, v) for agent_index in infected_indices}
         
     def _infect_random_connections(self) -> Dict[Agent, InfectionInfo]:
         connections = self.manager.num_of_random_connections * self.manager.random_connections_factor
@@ -92,11 +91,12 @@ class InfectionManager:
         return {self.manager.agents[agent_index] : self._get_random_infection_info(agent_index, 1 - not_infected_probs[agent_index])
                 for agent_index in infected_indices}
     
-    def _get_infection_info(self, agent_index, non_zero_columns, possible_infectors):
+    def _get_infection_info(self, agent_index, possible_infectors):
         infection_cases = []
         infection_probabilities = []
+        non_zero_column = self.manager.matrix.non_zero_column(agent_index.item())
         for connection_type in connection_types.ConnectionTypes:
-            possible_cases = [other_index for other_index in non_zero_columns[connection_type][agent_index] if possible_infectors[other_index]]
+            possible_cases = [other_index for other_index in non_zero_column[int(connection_type)] if possible_infectors[other_index]]
             for infector_index in possible_cases:
                 infection_cases.append(InfectionInfo(
                     self.manager.agents[infector_index],
