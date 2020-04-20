@@ -64,7 +64,7 @@ class PolicyManager:
         self.daily_affected_circles['policy_type'] += [conditioned_policy.message] * len(affected_circles)
         self.daily_affected_circles['circle_size'] += [c.agent_count for c in affected_circles]
         self.daily_affected_circles['circle_kind'] += [c.kind for c in affected_circles]
-        self.daily_affected_circles['circle_connection_type'] += [str(c.connection_type) for c in affected_circles]
+        self.daily_affected_circles['circle_connection_type'] += [c.connection_type.name for c in affected_circles]
 
     def add_message_to_manager(self, message: str):
         if message == "":
