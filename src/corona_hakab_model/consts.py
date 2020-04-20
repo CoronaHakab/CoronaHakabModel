@@ -76,10 +76,10 @@ class Consts(NamedTuple):
     # [10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35],
     # [0.013,0.016,0.025,0.035,0.045,0.053,0.061,0.065,0.069,0.069,0.065,0.063,0.058,0.053,0.056,0.041,0.040,0.033,
     # 0.030,0.025,0.020,0.015,0.015,0.015,0.010,0.010]))
-    # infections ratios
-    pre_symptomatic_infection_ratio: BucketDict = BucketDict({10: 0.75})
-    mild_condition_infection_ratio: BucketDict = BucketDict({10: 0.40})
-    silent_infection_ratio: BucketDict = BucketDict({10: 0.3})
+    # infections ratios, See bucket dict for more info on how to use.
+    pre_symptomatic_infection_ratio: BucketDict = BucketDict({10: 0.75, 20: 0.75})  # x <= 10 then key is 10,
+    mild_condition_infection_ratio: BucketDict = BucketDict({10: 0.40})  # x<=20 then key is 20,
+    silent_infection_ratio: BucketDict = BucketDict({10: 0.3})  # if x greater than biggest key, x is biggest key
     # base r0 of the disease
     r0: float = 2.4
 

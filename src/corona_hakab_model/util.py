@@ -100,6 +100,12 @@ class Queue(Generic[T]):
 class BucketDict(OrderedDict):
     """
     This class supports missing values if there is a key larger than requested.
+    for example: dict is {1:1,5:5,10:10}
+    then:
+     x<=1 return 1
+     1<x<=5 return 5
+     5<x<=10 return 10
+     10<x return 10
     """
 
     def __missing__(self, key):
@@ -113,4 +119,5 @@ class BucketDict(OrderedDict):
 
     @property
     def mean_val(self):
+        # TODO maybe need to consider age distribution in mean calculation. or wait until monte carlo normalize..
         return np.array(list(self.values())).mean() if self.keys() else 0
