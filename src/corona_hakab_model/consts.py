@@ -10,11 +10,9 @@ from detection_model.healthcare import DetectionTest
 from generation.connection_types import ConnectionTypes
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
-from numpy.random import random
 from policies_manager import ConditionedPolicy, Policy
 from state_machine import StochasticState, TerminalState
 from util import dist, rv_discrete, upper_bound
-
 
 """
 Overview:
@@ -34,11 +32,11 @@ class Consts(NamedTuple):
     total_steps: int = 350
     initial_infected_count: int = 20
     export_infected_agents_interval = 50
-    
+
     # Size of population to estimate expected time for each state
     population_size_for_state_machine_analysis: int = 25_000
 
-      # Tsvika: Currently the distribution is selected based on the number of input parameters.
+    # Tsvika: Currently the distribution is selected based on the number of input parameters.
     # Think we should do something more readable later on.
     # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
     # disease states transition lengths distributions
@@ -98,39 +96,43 @@ class Consts(NamedTuple):
     pre_recovered_test_willingness: float = 0.5
     recovered_test_willingness: float = 0.1
     detection_pool: List[DetectionSettings] = [
-                                              DetectionSettings(
-                                                  name="hospital",
-                                                  detection_test=DetectionTest(detection_prob=0.98,
-                                                                               false_alarm_prob=0.,
-                                                                               time_until_result=3),
-                                                  daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
-                                                  testing_gap_after_positive_test=2,
-                                                  testing_gap_after_negative_test=1,
-                                                  testing_priorities=[
-                                                      DetectionPriority(
-                                                          lambda agent: (agent.medical_state.name == "Symptomatic" and
-                                                                         agent not in agent.manager.tested_positive_vector),
-                                                          max_tests=100),
-                                                      DetectionPriority(
-                                                          lambda agent: agent.medical_state.name == "Recovered"),
-                                                  ]),
+        DetectionSettings(
+            name="hospital",
+            detection_test=DetectionTest(detection_prob=0.98,
+                                         false_alarm_prob=0.,
+                                         time_until_result=3),
+            daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
+            testing_gap_after_positive_test=2,
+            testing_gap_after_negative_test=1,
+            testing_priorities=[
+                DetectionPriority(
+                    lambda agent: (agent.medical_state.name == "Symptomatic" and
+                                   agent not in agent.manager.tested_positive_vector),
+                    max_tests=100),
+                DetectionPriority(
+                    lambda agent: agent.medical_state.name == "Recovered"),
+            ]),
 
-                                              DetectionSettings(
-                                                  name="street",
-                                                  detection_test=DetectionTest(detection_prob=0.92,
-                                                                               false_alarm_prob=0.,
-                                                                               time_until_result=5),
-                                                  daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
-                                                  testing_gap_after_positive_test=3,
-                                                  testing_gap_after_negative_test=1,
-                                                  testing_priorities=[
-                                                      DetectionPriority(
-                                                          lambda agent: agent.medical_state.name == "Symptomatic"),
-                                                      DetectionPriority(
-                                                          lambda agent: agent.medical_state.name == "Recovered"),
-                                                  ]),
-                                          ]
+        DetectionSettings(
+            name="street",
+            detection_test=DetectionTest(detection_prob=0.92,
+                                         false_alarm_prob=0.,
+                                         time_until_result=5),
+            daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
+            testing_gap_after_positive_test=3,
+            testing_gap_after_negative_test=1,
+            testing_priorities=[
+                DetectionPriority(
+                    lambda agent: agent.medical_state.name == "Symptomatic"),
+                DetectionPriority(
+                    lambda agent: agent.medical_state.name == "Recovered"),
+            ]),
+    ]
     should_isolate_positive_detected = False
+    isolate_after_num_day = 1  # will be in isolation the next day
+    p_will_obey_isolation = 1  # 100% will obey the isolation
+    p_reduce_relations_by_factor = 1  # reduce 100%, meaning mult by 0
+
     # --policies params--
     change_policies: bool = False
     # a dictionary of day:([ConnectionTypes], message). on each day, keeps only the given connection types opened
