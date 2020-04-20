@@ -78,7 +78,7 @@ class SimulationProgression:
     # The name of each csv consists of the report's type and sampling day
     def dump_queued_reports(self):
         for day, report_type, report_dict in self.queued_reports:
-            report_file_name = SIM_OUTPUT_FOLDER / f"{report_type} {day}.csv"
+            report_file_name = SIM_OUTPUT_FOLDER / f"{report_type} day {day}.csv"
             df = pd.DataFrame(report_dict)
             df.to_csv(report_file_name)
 
@@ -281,7 +281,7 @@ class TabularSupervisable(Supervisable):
         self.interval = interval
 
     def names(self):
-        return [f"t0 +{d} days" for d in self.sampling_days]
+        return [f"day {d}" for d in self.sampling_days]
 
     @abstractmethod
     def get(self, manager: "manager.SimulationManager"):

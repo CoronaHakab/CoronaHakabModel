@@ -2,7 +2,7 @@ import subprocess
 from pathlib import Path
 from time import time
 from warnings import warn
-from project_structure import MODEL_FOLDER
+from project_structure import SOURCE_FOLDER
 
 import yappi
 from manager import SimulationManager
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     sm.run()
 
     stats = yappi.get_func_stats()
-    dest_path = MODEL_FOLDER / "profilings/callgrind.out." + str(int(time()))
+    dest_path = SOURCE_FOLDER / "profilings/callgrind.out." + str(int(time()))
     stats.save(dest_path, "CALLGRIND")
 
     if not qcachegrind_path:
