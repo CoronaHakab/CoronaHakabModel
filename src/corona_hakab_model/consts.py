@@ -1,6 +1,6 @@
 from functools import lru_cache
 from itertools import count
-from typing import Dict, List, NamedTuple
+from typing import Dict, List, NamedTuple, Union
 
 import numpy as np
 from numpy.random import random
@@ -27,11 +27,25 @@ Usage:
 
 # TODO split into a couple of files. one for each aspect of the simulation
 class Consts(NamedTuple):
+    # medical states
+    LATENT: str = "Latent"
+    SUSCEPTIBLE: str = "Susceptible"
+    RECOVERED: str = "Recovered"
+    DECEASED: str = "Deceased"
+    PRE_RECOVERED: str = "PreRecovered"
+    IMPROVING_HEALTH: str = "ImprovingHealth"
+    NEED_ICU: str = "NeedICU"
+    NEED_OF_CLOSE_MEDICAL_CARE: str = "NeedOfCloseMedicalCare"
+    MILD_CONDITION: str = "Mild-Condition"
+    PRE_SYMPTOMATIC: str = "Pre-Symptomatic"
+    ASYMPTOMATIC: str = "Asymptomatic"
+    LATENT_ASYMP: str = "Latent-Asymp"
+    LATENT_PRESYMP: str = "Latent-Presymp"
     # attributes and default values:
 
     total_steps: int = 350
     initial_infected_count: int = 20
-    export_infected_agents_interval = 50
+    export_infected_agents_interval: int = 50
 
     # Size of population to estimate expected time for each state
     population_size_for_state_machine_analysis: int = 25_000
@@ -76,10 +90,35 @@ class Consts(NamedTuple):
     # [10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35],
     # [0.013,0.016,0.025,0.035,0.045,0.053,0.061,0.065,0.069,0.069,0.065,0.063,0.058,0.053,0.056,0.041,0.040,0.033,
     # 0.030,0.025,0.020,0.015,0.015,0.015,0.010,0.010]))
+    # state machine transfer probabilities
+    # probability of '...' equals (1 - all other transfers)
+    # it should always come last after all other transition probabilities were defined
+    latent_to_asymptomatic_prob: Union[float, type(...)] = 0.3
+    latent_to_pre_symptomatic_prob: Union[float, type(...)] = ...
+    pre_symptomatic_to_mild_condition_prob: Union[float, type(...)] = ...
+    mild_to_close_medical_care_prob: Union[float, type(...)] = 0.2375
+    mild_to_need_icu_prob: Union[float, type(...)] = 0.0324
+    mild_to_pre_recovered_prob: Union[float, type(...)] = ...
+    close_medical_care_to_icu_prob: Union[float, type(...)] = 0.26
+    close_medical_care_to_mild_prob: Union[float, type(...)] = ...
+    need_icu_to_deceased_prob: Union[float, type(...)] = 0.0227
+    need_icu_to_improving_prob: Union[float, type(...)] = ...
+    improving_to_need_icu_prob: Union[float, type(...)] = 0.22
+    improving_to_pre_recovered_prob: Union[float, type(...)] = 0.39
+    improving_to_mild_condition_prob: Union[float, type(...)] = ...
+    pre_recovered_to_recovered_prob: Union[float, type(...)] = ...
+    asymptomatic_to_recovered_prob: Union[float, type(...)] = ...
     # infections ratios, See bucket dict for more info on how to use.
     pre_symptomatic_infection_ratio: BucketDict = BucketDict({10: 0.75, 20: 0.75})  # x <= 10 then key is 10,
     mild_condition_infection_ratio: BucketDict = BucketDict({10: 0.40})  # x<=20 then key is 20,
-    silent_infection_ratio: BucketDict = BucketDict({10: 0.3})  # if x greater than biggest key, x is biggest key
+    latent_infection_ratio: BucketDict = BucketDict({0: 0})   # if x greater than biggest key, x is biggest key
+    latent_presymp_infection_ratio: BucketDict = BucketDict({0: 0})
+    latent_asymp_infection_ratio: BucketDict = BucketDict({0: 0})
+    asymptomatic_infection_ratio: BucketDict = BucketDict({0: 0})
+    need_close_medical_care_infection_ratio: BucketDict = BucketDict({0: 0})
+    need_icu_infection_ratio: BucketDict = BucketDict({0: 0})
+    improving_health_infection_ratio: BucketDict = BucketDict({0: 0})
+    pre_recovered_infection_ratio: BucketDict = BucketDict({0: 0})
     # base r0 of the disease
     r0: float = 2.4
 
@@ -98,9 +137,21 @@ class Consts(NamedTuple):
     detection_pool: List[DetectionSettings] = [
         DetectionSettings(
             name="hospital",
-            detection_test=DetectionTest(detection_prob=0.98,
-                                         false_alarm_prob=0.,
-                                         time_until_result=3),
+            detection_test=DetectionTest({
+                SUSCEPTIBLE: 0.,
+                LATENT: .98,
+                RECOVERED: 0.,
+                DECEASED: 0.,
+                PRE_RECOVERED: .98,
+                IMPROVING_HEALTH: .98,
+                NEED_ICU: .98,
+                NEED_OF_CLOSE_MEDICAL_CARE: .98,
+                MILD_CONDITION: .98,
+                PRE_SYMPTOMATIC: .98,
+                ASYMPTOMATIC: .98,
+                LATENT_ASYMP: .98,
+                LATENT_PRESYMP: .98
+            }, time_until_result=3),
             daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
             testing_gap_after_positive_test=2,
             testing_gap_after_negative_test=1,
@@ -115,9 +166,21 @@ class Consts(NamedTuple):
 
         DetectionSettings(
             name="street",
-            detection_test=DetectionTest(detection_prob=0.92,
-                                         false_alarm_prob=0.,
-                                         time_until_result=5),
+            detection_test=DetectionTest({
+                SUSCEPTIBLE: 0.,
+                LATENT: .92,
+                RECOVERED: 0.,
+                DECEASED: 0.,
+                PRE_RECOVERED: .92,
+                IMPROVING_HEALTH: .92,
+                NEED_ICU: .92,
+                NEED_OF_CLOSE_MEDICAL_CARE: .92,
+                MILD_CONDITION: .92,
+                PRE_SYMPTOMATIC: .92,
+                ASYMPTOMATIC: .92,
+                LATENT_ASYMP: .92,
+                LATENT_PRESYMP: .92
+            }, time_until_result=5),
             daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
             testing_gap_after_positive_test=3,
             testing_gap_after_negative_test=1,
@@ -128,7 +191,7 @@ class Consts(NamedTuple):
                     lambda agent: agent.medical_state.name == "Recovered"),
             ]),
     ]
-    should_isolate_positive_detected = False
+    should_isolate_positive_detected: bool = False
     # --policies params--
     change_policies: bool = False
     # a dictionary of day:([ConnectionTypes], message). on each day, keeps only the given connection types opened
@@ -202,9 +265,16 @@ class Consts(NamedTuple):
             "__builtins__": None,
             "dist": dist,
             "rv_discrete": rv_discrete,
+            "DetectionSettings": DetectionSettings,
+            "DetectionPriority": DetectionPriority,
             "DetectionTest": DetectionTest,
             "ConditionedPolicy": ConditionedPolicy,
             "ConnectionTypes": ConnectionTypes,
+            "Policy": Policy,
+            "random": random,
+            "np": np,
+            "BucketDict": BucketDict,
+            "len": len,
         }
 
         parameters = eval(data, expressions)
@@ -275,73 +345,87 @@ class Consts(NamedTuple):
         # latent-asymp - will have the durations of latent, summed by each day
         # probability for each is same as probability from latent to presymp and asymp
 
-        susceptible = SusceptibleTerminalState("Susceptible", test_willingness=self.susceptible_test_willingness)
-        latent = ImmuneStochasticState("Latent", detectable=False, test_willingness=self.latent_test_willingness)
-        latent_presymp = ImmuneStochasticState(
-            "Latent-Presymp",
+        susceptible = SusceptibleTerminalState(self.SUSCEPTIBLE, test_willingness=self.susceptible_test_willingness)
+        latent = ContagiousStochasticState(
+            self.LATENT,
             detectable=False,
+            contagiousness=self.latent_infection_ratio,
+            test_willingness=self.latent_test_willingness)
+        latent_presymp = ContagiousStochasticState(
+            self.LATENT_PRESYMP,
+            detectable=False,
+            contagiousness=self.latent_presymp_infection_ratio,
             test_willingness=self.latent_test_willingness
         )
-        latent_asymp = ImmuneStochasticState(
-            "Latent-Asymp",
+        latent_asymp = ContagiousStochasticState(
+            self.LATENT_ASYMP,
             detectable=False,
+            contagiousness=self.latent_asymp_infection_ratio,
             test_willingness=self.latent_test_willingness
         )
-        asymptomatic = ImmuneStochasticState(
-            "Asymptomatic",
+        asymptomatic = ContagiousStochasticState(
+            self.ASYMPTOMATIC,
             detectable=True,
+            contagiousness=self.asymptomatic_infection_ratio,
             test_willingness=self.asymptomatic_test_willingness
         )
         pre_symptomatic = ContagiousStochasticState(
-            "Pre-Symptomatic",
+            self.PRE_SYMPTOMATIC,
+            detectable=True,
             contagiousness=self.pre_symptomatic_infection_ratio,
             test_willingness=self.pre_symptomatic_test_willingness,
         )
         mild_condition = ContagiousStochasticState(
-            "Mild-Condition",
+            self.MILD_CONDITION,
+            detectable=True,
             contagiousness=self.mild_condition_infection_ratio,
             test_willingness=self.mild_condition_test_willingness,
         )
-        need_close_medical_care = ImmuneStochasticState(
-            "NeedOfCloseMedicalCare",
-            test_willingness=self.need_close_medical_care_test_willingness,
+        need_close_medical_care = ContagiousStochasticState(
+            self.NEED_OF_CLOSE_MEDICAL_CARE,
             detectable=True,
+            contagiousness=self.need_close_medical_care_infection_ratio,
+            test_willingness=self.need_close_medical_care_test_willingness,
         )
 
-        need_icu = ImmuneStochasticState(
-            "NeedICU",
+        need_icu = ContagiousStochasticState(
+            self.NEED_ICU,
             detectable=True,
+            contagiousness=self.need_icu_infection_ratio,
             test_willingness=self.need_icu_test_willingness
         )
 
-        improving_health = ImmuneStochasticState(
-            "ImprovingHealth",
+        improving_health = ContagiousStochasticState(
+            self.IMPROVING_HEALTH,
             detectable=True,
+            contagiousness=self.improving_health_infection_ratio,
             test_willingness=self.improving_health_test_willingness
         )
 
-        pre_recovered = ImmuneStochasticState(
-            "PreRecovered",
+        pre_recovered = ContagiousStochasticState(
+            self.PRE_RECOVERED,
             detectable=True,
+            contagiousness=self.pre_recovered_infection_ratio,
             test_willingness=self.pre_recovered_test_willingness
         )
 
         deceased = ImmuneTerminalState(
-            "Deceased", detectable=False, test_willingness=0
+            self.DECEASED, detectable=False, test_willingness=0
         )  # Won't be tested so detectability isn't relevant
-        recovered = ImmuneTerminalState("Recovered", detectable=False, test_willingness=self.recovered_test_willingness)
+        recovered = ImmuneTerminalState(self.RECOVERED, detectable=False,
+                                        test_willingness=self.recovered_test_willingness)
 
         ret = MedicalStateMachine(susceptible, latent)
 
         latent.add_transfer(
             latent_asymp,
             duration=dist(1),
-            probability=0.3
+            probability=self.latent_to_asymptomatic_prob
         )
         latent.add_transfer(
             latent_presymp,
             duration=dist(1),
-            probability=...
+            probability=self.latent_to_pre_symptomatic_prob
         )
 
         latent_presymp.add_transfer(
@@ -359,73 +443,73 @@ class Consts(NamedTuple):
         pre_symptomatic.add_transfer(
             mild_condition,
             duration=self.pre_symptomatic_to_mild_condition_days,
-            probability=...
+            probability=self.pre_symptomatic_to_mild_condition_prob
         )
 
         mild_condition.add_transfer(
             need_close_medical_care,
             duration=self.mild_to_close_medical_care_days,
-            probability=0.2375,
+            probability=self.mild_to_close_medical_care_prob
         )
         mild_condition.add_transfer(
             need_icu,
             duration=self.mild_to_need_icu_days,
-            probability=0.0324
+            probability=self.mild_to_need_icu_prob
         )
         mild_condition.add_transfer(
             pre_recovered,
             duration=self.mild_to_pre_recovered_days,
-            probability=...
+            probability=self.mild_to_pre_recovered_prob
         )
 
         need_close_medical_care.add_transfer(
             need_icu,
             duration=self.close_medical_care_to_icu_days,
-            probability=0.26
+            probability=self.close_medical_care_to_icu_prob
         )
         need_close_medical_care.add_transfer(
             mild_condition,
             duration=self.close_medical_care_to_mild_days,
-            probability=...
+            probability=self.close_medical_care_to_mild_prob
         )
 
         need_icu.add_transfer(
             deceased,
             self.need_icu_to_deceased_days,
-            probability=0.0227
+            probability=self.need_icu_to_deceased_prob
         )
         need_icu.add_transfer(
             improving_health,
             self.need_icu_to_improving_days,
-            probability=...
+            probability=self.need_icu_to_improving_prob
         )
 
         improving_health.add_transfer(
             need_icu,
             duration=self.improving_to_need_icu_days,
-            probability=0.22
+            probability=self.improving_to_need_icu_prob
         )
         improving_health.add_transfer(
             pre_recovered,
             duration=self.improving_to_pre_recovered_days,
-            probability=0.39
+            probability=self.improving_to_pre_recovered_prob
         )
         improving_health.add_transfer(
             mild_condition,
             duration=self.improving_to_mild_condition_days,
-            probability=...
+            probability=self.improving_to_mild_condition_prob
         )
 
         pre_recovered.add_transfer(
             recovered,
             duration=self.pre_recovered_to_recovered_days,
-            probability=...
+            probability=self.pre_recovered_to_recovered_prob
         )
 
         asymptomatic.add_transfer(
             recovered,
             duration=self.asymptomatic_to_recovered_days,
-            probability=...
+            probability=self.asymptomatic_to_recovered_prob
         )
 
         return ret

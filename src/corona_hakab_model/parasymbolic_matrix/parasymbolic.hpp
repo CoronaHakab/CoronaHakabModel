@@ -43,6 +43,7 @@ class CoffedSparseMatrix: public BareSparseMatrix{
         virtual ~CoffedSparseMatrix();
 
         std::vector<std::vector<size_t>> non_zero_columns();
+        std::vector<size_t> non_zero_column(size_t row_num);
 };
 
 class FastSparseMatrix{
@@ -94,4 +95,5 @@ class ParasymbolicMatrix{
         void set_calc_lock(bool value);
         virtual ~ParasymbolicMatrix();
         std::vector<std::vector<std::vector<size_t>>> non_zero_columns();
+        std::vector<std::vector<size_t>> non_zero_column(size_t row_num);
 };

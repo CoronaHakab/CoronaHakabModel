@@ -143,6 +143,16 @@ std::vector<std::vector<size_t>> CoffedSparseMatrix::non_zero_columns(){
     return ret;
 }
 
+std::vector<size_t> CoffedSparseMatrix::non_zero_column(size_t row_num){
+    std::vector<size_t> ret;
+    auto& row = rows[row_num];
+    ret.reserve(row.size());
+    for (auto it = row.cbegin(); it != row.cend(); it++){
+        ret.push_back(it->first);
+    }
+    return ret;
+}
+
 CoffedSparseMatrix::~CoffedSparseMatrix(){
     delete[] row_coefficients;
     delete[] col_coefficients;
@@ -400,6 +410,16 @@ std::vector<std::vector<std::vector<size_t>>> ParasymbolicMatrix::non_zero_colum
     for (auto c = 0; c < component_count; c++){
         ret.push_back(
             components[c]->non_zero_columns()
+        );
+    }
+    return ret;
+}
+
+std::vector<std::vector<size_t>> ParasymbolicMatrix::non_zero_column(size_t row_num){
+    std::vector<std::vector<size_t>> ret;
+    for (auto c = 0; c < component_count; c++){
+        ret.push_back(
+            components[c]->non_zero_column(row_num)
         );
     }
     return ret;
