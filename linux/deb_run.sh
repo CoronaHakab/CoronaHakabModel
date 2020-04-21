@@ -64,13 +64,13 @@ cd $PROJDIR
 
 py ./src/corona_hakab_model/main.py --help
 
+sed -i 's/INTERACTIVE_MODE = False/INTERACTIVE_MODE = True/' $PROJDIR/src/corona_hakab_model/project_structure.py
+
 echo "in order to run the simulation run the following commands:"
 echo "============================================================"
 echo "cd $PROJDIR"
 echo "py ./src/corona_hakab_model/main.py all"
 echo
-echo "To enable Interactive output mode:"
-echo "sed -i 's/INTERACTIVE_MODE = False/INTERACTIVE_MODE = True/' $PROJDIR/src/corona_hakab_model/project_structure.py"
-echo
 echo "To disable Interactive output mode:"
 echo "sed -i 's/INTERACTIVE_MODE = True/INTERACTIVE_MODE = False/' $PROJDIR/src/corona_hakab_model/project_structure.py"
+
