@@ -36,7 +36,6 @@ class SimulationProgression:
         self.manager = manager
 
         self.time_vector = []
-        self.queued_reports = []
 
     def snapshot(self, manager):
         t = self.manager.current_step
@@ -56,17 +55,6 @@ class SimulationProgression:
         value_supervisables = [s for s in self.supervisables if isinstance(s, ValueSupervisable)]
 
         # Output each tabular sample to a new csv file
-        self.dump_tabular_supervisables(tabular_supervisables)
-
-        self.dump_queued_reports()
-
-        all_data = dict([s.publish() for s in value_supervisables])
-
-        df = pd.DataFrame(all_data, index=self.time_vector)
-        df.to_csv(file_name)
-        return df
-
-    def dump_tabular_supervisables(self, tabular_supervisables):
         for s in tabular_supervisables:
             day_to_table_dict = s.publish()
             for day, table in day_to_table_dict.items():
@@ -74,17 +62,11 @@ class SimulationProgression:
                 df = pd.DataFrame(table)
                 df.to_csv(sample_file_name)
 
-    # export each queued report to a csv file.
-    # The name of each csv consists of the report's type and sampling day
-    def dump_queued_reports(self):
-        for day, report_type, report_dict in self.queued_reports:
-            report_file_name = SIM_OUTPUT_FOLDER / f"{report_type} day {day}.csv"
-            df = pd.DataFrame(report_dict)
-            df.to_csv(report_file_name)
+        all_data = dict([s.publish() for s in value_supervisables])
 
-    # Queue trigger-based reports, each report will be exported to a csv file
-    def queue_report(self, current_step, report_type, df):
-        self.queued_reports.append((current_step, report_type, df))
+        df = pd.DataFrame(all_data, index=self.time_vector)
+        df.to_csv(file_name)
+        return df
 
 
 class Supervisable(ABC):
@@ -228,6 +210,13 @@ class Supervisable(ABC):
         def __call__(self, manager):
             return _CurrentInfectedTable(*self.args, **self.kwargs)
 
+    class AppliedPolicyReportSupervisable:
+        def __init__(self):
+            pass
+
+        def __call__(self, manager):
+            return _AppliedPolicyReportSupervisable()
+
     class GrowthFactor:
         def __init__(self, sum_supervisor: "Sum", new_infected_supervisor: "NewCasesCounter"):
             self.new_infected_supervisor = new_infected_supervisor
@@ -275,10 +264,10 @@ class ValueSupervisable(Supervisable):
 
 
 class TabularSupervisable(Supervisable):
-    def __init__(self, interval: int):
+    def __init__(self, filter_fn: Callable[["manager.SimulationManager"], bool] = None):
         self.data = []
         self.sampling_days = []
-        self.interval = interval
+        self.filter = filter_fn
 
     def names(self):
         return [f"day {d}" for d in self.sampling_days]
@@ -288,12 +277,49 @@ class TabularSupervisable(Supervisable):
         pass
 
     def snapshot(self, manager: "manager.SimulationManager"):
-        if manager.current_step % self.interval == 0:
+        if self.filter is None or self.filter(manager):
             self.data.append(self.get(manager))
             self.sampling_days.append(manager.current_step)
 
     def publish(self):
         return {name_i: data_i for name_i, data_i in zip(self.names(), self.data)}
+
+
+class PeriodicReportSupervisable(TabularSupervisable):
+    def __init__(self, interval):
+        super().__init__(lambda manager: manager.current_step % interval == 0)
+
+    @abstractmethod
+    def get(self, manager: "manager.SimulationManager"):
+        pass
+
+
+class _AppliedPolicyReportSupervisable(TabularSupervisable):
+    def __init__(self):
+        super().__init__(_AppliedPolicyReportSupervisable.applied_policy_filter)
+
+    @staticmethod
+    def applied_policy_filter(manager: "manager.SimulationManager"):
+        return manager.policy_manager.daily_affected_circles is not None
+
+    def name(self) -> str:
+        return "policy_activation_stats"
+
+    def get(self, manager: "manager.SimulationManager"):
+        policy_message_to_circles_dict = manager.policy_manager.daily_affected_circles
+        affected_circles_report = {
+            'policy_type': [], 'circle_size': [], 'circle_kind': [], 'circle_connection_type': []
+        }
+        for message, circles in policy_message_to_circles_dict.items():
+            self.update_affected_circles_report(affected_circles_report, circles, message)
+        return affected_circles_report
+
+    @staticmethod
+    def update_affected_circles_report(affected_circles_report, affected_circles, conditioned_policy_message):
+        affected_circles_report['policy_type'] += [conditioned_policy_message] * len(affected_circles)
+        affected_circles_report['circle_size'] += [c.agent_count for c in affected_circles]
+        affected_circles_report['circle_kind'] += [c.kind for c in affected_circles]
+        affected_circles_report['circle_connection_type'] += [c.connection_type.name for c in affected_circles]
 
 
 class LambdaValueSupervisable(ValueSupervisable):
@@ -334,7 +360,7 @@ class _StateTotalSoFarSupervisable(ValueSupervisable):
         return self.__name
 
 
-class _CurrentInfectedTable(TabularSupervisable):
+class _CurrentInfectedTable(PeriodicReportSupervisable):
     def __init__(self, interval):
         super().__init__(interval)
         self.sick_states = None

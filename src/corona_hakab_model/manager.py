@@ -217,9 +217,5 @@ class SimulationManager:
     def dump(self, **kwargs):
         return self.simulation_progression.dump(**kwargs)
 
-    # Queue trigger-based reports in the SimulationProgression object
-    def queue_report(self, report_type, df):
-        self.simulation_progression.queue_report(self.current_step, report_type, df)
-
     def __str__(self):
         return f"<SimulationManager: SIZE_OF_POPULATION={len(self.agents)}, " f"STEPS_TO_RUN={self.consts.total_steps}>"
