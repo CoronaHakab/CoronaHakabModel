@@ -126,7 +126,8 @@ def _sim_r_effective_calc_by_type(infect_statistics, config, file_suffix):
         else:
             raise NotImplementedError
         file_prefix = config["r_effective_computation_type"]
-        r_effective_over_time.to_csv(OUTPUT_FOLDER /
+        OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
+        OUTPUT_FOLDER.r_effective_over_time.to_csv(OUTPUT_FOLDER /
                                      (f"{file_prefix}_"
                                       f"multiple_run_r_eff_over_time_"
                                       f"{file_suffix}"))

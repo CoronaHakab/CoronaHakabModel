@@ -87,8 +87,16 @@ if __name__ == "__main__":
                         help="Path to resulting age histogram. Prioritized over directory if both given")
     parser.add_argument("-c", "--circle", dest="circle", type=str, default='',
                         help="Path to resulting circle histogram. Prioritized over directory if both given")
-    parser.add_argument("--no-view",dest='view',default=True,action='store_false',help="Skip viewing the generated histograms.")
-    parser.add_argument("--no-save",dest='save',default=True,action='store_false',help="Skip saving the resulting CSV")
+    parser.add_argument("--no-view",
+                        dest='view',
+                        default=True,
+                        action='store_false',
+                        help="Skip viewing the generated histograms.")
+    parser.add_argument("--no-save",
+                        dest='save',
+                        default=True,
+                        action='store_false',
+                        help="Skip saving the resulting CSV")
     args = parser.parse_args()
     directory = Path(args.directory or project_structure.OUTPUT_FOLDER)
     pop_file_path = args.population or directory / "population_data.pickle"
