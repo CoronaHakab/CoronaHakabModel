@@ -14,11 +14,13 @@ from consts import Consts
 from generation.circles_generator import PopulationData
 from generation.generation_manager import GenerationManger
 from generation.matrix_generator import MatrixData
+from generation.connection_types import ConnectionTypes
 from manager import SimulationManager
 from agent import InitialAgentsConstraints
 from subconsts.modules_argpasers import get_simulation_args_parser
 from supervisor import LambdaValueSupervisable, Supervisable
 from analyzers import matrix_analysis
+
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -85,9 +87,9 @@ def run_simulation(args):
     sm = SimulationManager(
         (
             # "Latent",
-            Supervisable.State.AddedPerDay("Asymptomatic"),
-            Supervisable.State.Current("Asymptomatic"),
-            Supervisable.State.TotalSoFar("Asymptomatic"),
+            Supervisable.State.AddedPerDay("AsymptomaticBegin"),
+            Supervisable.State.Current("AsymptomaticBegin"),
+            Supervisable.State.TotalSoFar("AsymptomaticBegin"),
             # "Silent",
             # "Asymptomatic",
             # "Symptomatic",
@@ -100,7 +102,8 @@ def run_simulation(args):
                 "Latent",
                 "Latent-Asymp",
                 "Latent-Presymp",
-                "Asymptomatic",
+                "AsymptomaticBegin",
+                "AsymptomaticEnd",
                 "Pre-Symptomatic",
                 "Mild-Condition",
                 "NeedOfCloseMedicalCare",
@@ -120,11 +123,27 @@ def run_simulation(args):
             Supervisable.Wrappers.Growth(Supervisable.NewCasesCounter(), 7),
             # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
-            Supervisable.CurrentInfectedTable(interval=Consts.export_infected_agents_interval),
+            Supervisable.CurrentInfectedTable(interval=consts.export_infected_agents_interval),
             # LambdaValueSupervisable("Detected Daily", lambda manager: manager.new_detected_daily),
             # LambdaValueSupervisable("Current Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
             # Supervisable.R0(),
             # Supervisable.Delayed("Symptomatic", 3),
+            LambdaValueSupervisable("daily infected by work", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Work]),
+            LambdaValueSupervisable("daily infected by school", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.School]),
+            LambdaValueSupervisable("daily infected by other", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Other]),
+            LambdaValueSupervisable("daily infected by family", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Family]),
+            LambdaValueSupervisable("daily infected by kindergarten", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Kindergarten]),
+            LambdaValueSupervisable("daily infections from Latent infector", lambda manager: manager.new_sick_by_infector_medical_state["Latent"]),
+            LambdaValueSupervisable("daily infections from Latent-Asymp infector", lambda manager: manager.new_sick_by_infector_medical_state["PreRecovered"]),
+            LambdaValueSupervisable("daily infections from Latent-Presymp infector", lambda manager: manager.new_sick_by_infector_medical_state["Latent-Asymp"]),
+            LambdaValueSupervisable("daily infections from AsymptomaticBegin infector", lambda manager: manager.new_sick_by_infector_medical_state["AsymptomaticBegin"]),
+            LambdaValueSupervisable("daily infections from AsymptomaticEnd infector", lambda manager: manager.new_sick_by_infector_medical_state["AsymptomaticEnd"]),
+            LambdaValueSupervisable("daily infections from Pre-Symptomatic infector", lambda manager: manager.new_sick_by_infector_medical_state["Pre-Symptomatic"]),
+            LambdaValueSupervisable("daily infections from Mild-Condition infector", lambda manager: manager.new_sick_by_infector_medical_state["Mild-Condition"]),
+            LambdaValueSupervisable("daily infections from NeedOfCloseMedicalCare infector", lambda manager: manager.new_sick_by_infector_medical_state["NeedOfCloseMedicalCare"]),
+            LambdaValueSupervisable("daily infections from NeedICU infector", lambda manager: manager.new_sick_by_infector_medical_state["NeedICU"]),
+            LambdaValueSupervisable("daily infections from ImprovingHealth infector", lambda manager: manager.new_sick_by_infector_medical_state["ImprovingHealth"]),
+            LambdaValueSupervisable("daily infections from PreRecovered infector", lambda manager: manager.new_sick_by_infector_medical_state["PreRecovered"]),
         ),
         population_data,
         matrix_data,
@@ -135,7 +154,7 @@ def run_simulation(args):
     print(sm)
     sm.run()
     df: pd.DataFrame = sm.dump(filename=args.output)
-    df.plot()
+    df.iloc[:, :-16].plot()
     if args.figure_path:
         if not os.path.splitext(args.figure_path)[1]:
             args.figure_path = args.figure_path+'.png'
@@ -144,36 +163,10 @@ def run_simulation(args):
         plt.show()
 
 
-def set_seeds(seed=0):
+def set_seeds(seed=0):  
     seed = seed or None
     np.random.seed(seed)
     random.seed(seed)
-
-
-def compare_simulations_example():
-    sm1 = SimulationManager(
-        (
-            Supervisable.Sum(
-                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", "Recovered", "Deceased"
-            ),
-            "Symptomatic",
-            "Recovered",
-        ),
-        consts=Consts(r0=1.5),
-    )
-    sm1.run()
-
-    sm2 = SimulationManager(
-        (
-            Supervisable.Sum(
-                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", "Recovered", "Deceased"
-            ),
-            "Symptomatic",
-            "Recovered",
-        ),
-        consts=Consts(r0=1.8),
-    )
-    sm2.run()
 
 
 def analyze_matrix(args):

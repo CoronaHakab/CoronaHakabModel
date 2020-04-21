@@ -10,7 +10,6 @@ class ConnectionTypes(IntEnum):
     Family = 3
     Other = 4
 
-
 # used for circles generation
 In_Zone_types = [ConnectionTypes.School, ConnectionTypes.Kindergarten, ConnectionTypes.Family]
 Multi_Zone_types = [ConnectionTypes.Work]
