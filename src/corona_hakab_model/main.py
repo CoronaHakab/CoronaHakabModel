@@ -132,6 +132,7 @@ def run_simulation(args):
             LambdaValueSupervisable("daily infected by other", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Other]),
             LambdaValueSupervisable("daily infected by family", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Family]),
             LambdaValueSupervisable("daily infected by kindergarten", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Kindergarten]),
+            LambdaValueSupervisable("daily infected by synagogue", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Synagogue]),
             LambdaValueSupervisable("daily infections from Latent infector", lambda manager: manager.new_sick_by_infector_medical_state["Latent"]),
             LambdaValueSupervisable("daily infections from Latent-Asymp infector", lambda manager: manager.new_sick_by_infector_medical_state["PreRecovered"]),
             LambdaValueSupervisable("daily infections from Latent-Presymp infector", lambda manager: manager.new_sick_by_infector_medical_state["Latent-Asymp"]),
@@ -152,7 +153,7 @@ def run_simulation(args):
     print(sm)
     sm.run()
     df: pd.DataFrame = sm.dump(filename=args.output)
-    df.iloc[:, :-15].plot()
+    df.iloc[:, :-16].plot()
     if args.figure_path:
         if not os.path.splitext(args.figure_path)[1]:
             args.figure_path = args.figure_path+'.png'

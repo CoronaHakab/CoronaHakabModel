@@ -22,5 +22,5 @@ With_Random_Connections = [ConnectionTypes.Work, ConnectionTypes.School, Connect
 
 # used for matrices generations
 Connect_To_All_types = [ConnectionTypes.Family]
-Random_Clustered_types = [ConnectionTypes.Work, ConnectionTypes.School, ConnectionTypes.Kindergarten, ConnectionTypes.School, ConnectionTypes.Synagogue]
+Random_Clustered_types = [ConnectionTypes.Work, ConnectionTypes.School, ConnectionTypes.Kindergarten, ConnectionTypes.Synagogue]
 Geographic_Clustered_types = [ConnectionTypes.Other]

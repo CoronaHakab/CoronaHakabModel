@@ -169,7 +169,7 @@
     # --policies params--
     "change_policies": False,
     # a dictionary of day:([ConnectionTypes], message). on each day, keeps only the given connection types opened
-    policies_changes: Dict[int, tuple] = {
+    "policies_changes": {
         40: ([ConnectionTypes.Family, ConnectionTypes.Other], "closing schools, kindergartens, synagogues and works"),
         70: ([ConnectionTypes.Family, ConnectionTypes.Other, ConnectionTypes.School, ConnectionTypes.Kindergarten, ConnectionTypes.Synagogue],
              "opening schools, kindergartens and synagogues"),
