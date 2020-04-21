@@ -5,7 +5,7 @@ from typing import Any, Callable, Iterable, TYPE_CHECKING
 import numpy as np
 
 from analyzers.state_machine_analysis import monte_carlo_state_machine_analysis
-from generation.circles import SocialCircle
+from generation.circles import SocialCircle, Circle
 from generation.connection_types import ConnectionTypes
 from policies_manager import ConditionedPolicy, Policy, PolicyByCircles
 
@@ -92,7 +92,7 @@ class UpdateMatrixManager:
         for conditioned_policy in self.consts.connection_type_to_conditioned_policy[connection_type]:
             conditioned_policy.active = False
 
-    def apply_policy_on_circles(self, policy: Policy, circles: Iterable[SocialCircle]):
+    def apply_policy_on_circles(self, policy: Policy, circles: Iterable[SocialCircle], mask=None):
         # for now, we will not update the matrix at all
         for circle in circles:
             # check if circle is relevent to conditions
@@ -105,7 +105,11 @@ class UpdateMatrixManager:
 
             connection_type = circle.connection_type
             factor = policy.factor
+
             for agent in circle.agents:
+                # filter agents to apply factor on
+                if mask and (not mask[agent.index]):
+                    continue
                 self.factor_agent(agent.index, connection_type, factor)
 
     def check_and_apply(
@@ -115,13 +119,30 @@ class UpdateMatrixManager:
             conditioned_policy: ConditionedPolicy,
             **activating_condition_kwargs,
     ):
-        if (not conditioned_policy.active) and conditioned_policy.activating_condition(activating_condition_kwargs):
-            self.logger.info("activating policy on circles")
-            self.reset_policies_by_connection_type(con_type)
-            self.apply_policy_on_circles(conditioned_policy.policy, circles)
-            conditioned_policy.active = True
-            # adding the message
-            self.manager.policy_manager.add_message_to_manager(conditioned_policy.message)
+        if not conditioned_policy.active:
+            condition_params = {key: value(activating_condition_kwargs) for key, value in conditioned_policy.condition_params.items()}
+            if conditioned_policy.circle_filter:
+                # check and apply condintion for each circle_filter
+                for circle_instance in conditioned_policy.circle_filter.get_circles():
+                    mask = [circle_instance.uuid == x.uuid for x in self.manager.geographic_circle_by_agent_index.values()]
+                    filtered_condition_params = {key: value[mask] for key, value in condition_params.items()}
+                    if conditioned_policy.activating_condition(filtered_condition_params):
+                        self.apply(con_type, circles, conditioned_policy.policy, mask=mask)
+                        conditioned_policy.active = True
+                        # adding the message
+                        self.manager.policy_manager.add_message_to_manager(conditioned_policy.message)
+
+            elif conditioned_policy.activating_condition(condition_params):
+                self.apply(con_type, circles, conditioned_policy.policy)
+                conditioned_policy.active = True
+                # adding the message
+                self.manager.policy_manager.add_message_to_manager(conditioned_policy.message)
+
+
+    def apply(self, con_type: ConnectionTypes, circles: Iterable[SocialCircle], policy: Policy, mask=None):
+        self.logger.info("activating policy on circles")
+        self.reset_policies_by_connection_type(con_type)
+        self.apply_policy_on_circles(policy, circles, mask)
 
     def change_agent_relations_by_factor(self, agent, factor):
         for connection_type in ConnectionTypes:
