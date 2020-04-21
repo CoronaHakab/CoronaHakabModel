@@ -222,8 +222,10 @@ class Consts(NamedTuple):
     connection_type_to_conditioned_policy: Dict[ConnectionTypes, List[ConditionedPolicy]] = {
         ConnectionTypes.School: [
             ConditionedPolicy(
-                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
+                condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
+                activating_condition=lambda condition_params: len(np.flatnonzero(condition_params["contagiousness_vector"])) > 1000,
                 policy=Policy(0, [lambda circle: random() > 0]),
+                circle_filter=GeographicCircle,
                 message="closing all schools",
             ),
             ConditionedPolicy(

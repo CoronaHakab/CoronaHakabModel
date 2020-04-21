@@ -2,7 +2,7 @@ import logging
 from typing import Any, Callable, Iterable, List
 
 import numpy as np
-from generation.circles import SocialCircle
+from generation.circles import Circle, SocialCircle
 from generation.connection_types import ConnectionTypes
 
 
@@ -82,10 +82,13 @@ class ConditionedPolicy:
     this class contains a policy that is supposed to run when a given condition is satisfied.
     """
 
-    __slots__ = "activating_condition", "policy", "active", "message"
+    __slots__ = "condition_params", "activating_condition", "policy", "circle_filter", "active", "message"
 
-    def __init__(self, activating_condition: Callable[[Any], bool], policy: Policy, active=False, message=""):
+    def __init__(self, condition_params: Callable[[Any], Any], activating_condition: Callable[[Any], bool],
+                 policy: Policy, circle_filter=None, active=False, message=""):
+        self.condition_params = condition_params
         self.activating_condition = activating_condition
         self.policy = policy
+        self.circle_filter = circle_filter
         self.active = active
         self.message = message
