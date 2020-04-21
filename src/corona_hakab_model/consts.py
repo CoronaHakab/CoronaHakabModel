@@ -374,11 +374,17 @@ class Consts(NamedTuple):
             contagiousness=self.latent_asymp_infection_ratio,
             test_willingness=self.latent_test_willingness
         )
-        asymptomatic = ContagiousStochasticState(
-            self.ASYMPTOMATIC,
+        asymptomatic_begin = ContagiousStochasticState(
+            self.ASYMPTOMATIC_BEGIN,
             detectable=True,
-            contagiousness=self.asymptomatic_infection_ratio,
-            test_willingness=self.asymptomatic_test_willingness
+            contagiousness=self.asymptomatic_begin_infection_ratio,
+            test_willingness=self.asymptomatic_begin_test_willingness
+        )
+        asymptomatic_end = ContagiousStochasticState(
+            self.ASYMPTOMATIC_END,
+            detectable=True,
+            contagiousness=self.asymptomatic_end_infection_ratio,
+            test_willingness=self.asymptomatic_end_test_willingness
         )
         pre_symptomatic = ContagiousStochasticState(
             self.PRE_SYMPTOMATIC,
@@ -431,12 +437,12 @@ class Consts(NamedTuple):
         latent.add_transfer(
             latent_asymp,
             duration=dist(1),
-            probability=0.3
+            probability=self.latent_to_asymptomatic_begin_prob
         )
         latent.add_transfer(
             latent_presymp,
             duration=dist(1),
-            probability=...
+            probability=self.latent_to_pre_symptomatic_prob
         )
 
         latent_presymp.add_transfer(
@@ -446,81 +452,87 @@ class Consts(NamedTuple):
         )
 
         latent_asymp.add_transfer(
-            asymptomatic,
-            duration=self.latent_to_asymptomatic_days,
+            asymptomatic_begin,
+            duration=self.latent_to_asymptomatic_begin_days,
             probability=...
+        )
+
+        asymptomatic_begin.add_transfer(
+            asymptomatic_end,
+            duration=self.asymptomatic_begin_to_asymptomatic_end_days,
+            probability=self.asymptomatic_begin_to_asymptomatic_end_prob
         )
 
         pre_symptomatic.add_transfer(
             mild_condition,
             duration=self.pre_symptomatic_to_mild_condition_days,
-            probability=...
+            probability=self.pre_symptomatic_to_mild_condition_prob
         )
 
         mild_condition.add_transfer(
             need_close_medical_care,
             duration=self.mild_to_close_medical_care_days,
-            probability=0.2375,
+            probability=self.mild_to_close_medical_care_prob
         )
         mild_condition.add_transfer(
             need_icu,
             duration=self.mild_to_need_icu_days,
-            probability=0.0324
+            probability=self.mild_to_need_icu_prob
         )
         mild_condition.add_transfer(
             pre_recovered,
             duration=self.mild_to_pre_recovered_days,
-            probability=...
+            probability=self.mild_to_pre_recovered_prob
         )
 
         need_close_medical_care.add_transfer(
             need_icu,
             duration=self.close_medical_care_to_icu_days,
-            probability=0.26
+            probability=self.close_medical_care_to_icu_prob
         )
         need_close_medical_care.add_transfer(
             mild_condition,
             duration=self.close_medical_care_to_mild_days,
-            probability=...
+            probability=self.close_medical_care_to_mild_prob
         )
 
         need_icu.add_transfer(
             deceased,
             self.need_icu_to_deceased_days,
-            probability=0.0227
+            probability=self.need_icu_to_deceased_prob
         )
         need_icu.add_transfer(
             improving_health,
             self.need_icu_to_improving_days,
-            probability=...
+            probability=self.need_icu_to_improving_prob
         )
 
         improving_health.add_transfer(
             need_icu,
             duration=self.improving_to_need_icu_days,
-            probability=0.22
+            probability=self.improving_to_need_icu_prob
         )
         improving_health.add_transfer(
             pre_recovered,
             duration=self.improving_to_pre_recovered_days,
-            probability=0.39
+            probability=self.improving_to_pre_recovered_prob
         )
         improving_health.add_transfer(
             mild_condition,
             duration=self.improving_to_mild_condition_days,
-            probability=...
+            probability=self.improving_to_mild_condition_prob
         )
 
         pre_recovered.add_transfer(
             recovered,
             duration=self.pre_recovered_to_recovered_days,
-            probability=...
+            probability=self.pre_recovered_to_recovered_prob
         )
 
-        asymptomatic.add_transfer(
+        asymptomatic_end.add_transfer(
             recovered,
-            duration=self.asymptomatic_to_recovered_days,
-            probability=...
+            duration=self.asymptomatic_end_to_recovered_days,
+            probability=self.asymptomatic_end_to_recovered_prob
         )
 
         return ret
