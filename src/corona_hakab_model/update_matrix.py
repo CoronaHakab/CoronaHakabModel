@@ -7,32 +7,10 @@ import numpy as np
 from analyzers.state_machine_analysis import monte_carlo_state_machine_analysis
 from generation.circles import SocialCircle
 from generation.connection_types import ConnectionTypes
-from policies_manager import ConditionedPolicy
+from policies_manager import ConditionedPolicy, Policy, PolicyByCircles
 
 if TYPE_CHECKING:
     from manager import SimulationManager
-
-
-class Policy:
-    """
-    This represents a policy. 
-    """
-
-    def __init__(self, connection_change_factor: float, conditions: Iterable[Callable[[Any], bool]]):
-        self.factor = connection_change_factor
-        self.conditions = conditions
-
-    def check_applies(self, arg):
-        applies = True
-        for condition in self.conditions:
-            applies = applies and condition(arg)
-        return applies
-
-
-class PolicyByCircles:
-    def __init__(self, policy: Policy, circles: Iterable[SocialCircle]):
-        self.circles = circles
-        self.policy = policy
 
 
 class UpdateMatrixManager:
