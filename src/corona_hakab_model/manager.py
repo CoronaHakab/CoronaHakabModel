@@ -88,6 +88,8 @@ class SimulationManager:
         self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers],
                                                             self)
         self.update_matrix_manager = update_matrix.UpdateMatrixManager(self)
+        if run_args.validate_matrix:
+            self.update_matrix_manager.validate_matrix()
         self.infection_manager = infection.InfectionManager(self)
         self.healthcare_manager = healthcare.HealthcareManager(self)
         self.medical_state_manager = MedicalStateManager(self)
