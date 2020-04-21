@@ -19,6 +19,7 @@ from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from state_machine import PendingTransfers
 from supervisor import Supervisable, SimulationProgression
+from generation.connection_types import ConnectionTypes
 
 
 class SimulationManager:
@@ -101,6 +102,19 @@ class SimulationManager:
         self.sick_agents = SickAgents()
 
         self.new_sick_counter = 0
+        self.new_sick_by_infection_method = {connection_type : 0 for connection_type in ConnectionTypes}
+        self.new_sick_by_infector_medical_state = {
+                "Latent" : 0,
+                "Latent-Asymp" : 0,
+                "Latent-Presymp" : 0,
+                "Asymptomatic" : 0,
+                "Pre-Symptomatic" : 0,
+                "Mild-Condition" : 0,
+                "NeedOfCloseMedicalCare" : 0,
+                "NeedICU" : 0,
+                "ImprovingHealth" : 0,
+                "PreRecovered" : 0
+        }
         self.new_detected_daily = 0
 
         self.logger.info("Created new simulation.")
@@ -119,13 +133,17 @@ class SimulationManager:
         # progress tests and isolate the detected agents (update the matrix)
         self.progress_tests_and_isolation(new_tests)
 
+        self.new_sick_by_infection_method = {connection_type : 0 for connection_type in ConnectionTypes}
+        self.new_sick_by_infector_medical_state = {k : 0 for k in self.new_sick_by_infector_medical_state.keys()}
         # run infection
-        new_sick = self.infection_manager.infection_step()
-        for agent in new_sick:
+        new_infection_cases = self.infection_manager.infection_step()
+        for agent, new_infection_case in new_infection_cases.items():
             self.sick_agents.add_agent(agent.get_snapshot())
-
+            self.new_sick_by_infection_method[new_infection_case.connection_type] += 1
+            self.new_sick_by_infector_medical_state[new_infection_case.infector_agent.medical_state.name] += 1
+        
         # progress transfers
-        medical_machine_step_result = self.medical_state_manager.step(new_sick)
+        medical_machine_step_result = self.medical_state_manager.step(new_infection_cases.keys())
         self.new_sick_counter = medical_machine_step_result['new_sick']
 
         self.current_step += 1

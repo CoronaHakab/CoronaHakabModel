@@ -11,7 +11,6 @@ class ConnectionTypes(IntEnum):
     Synagogue = 4
     Other = 5
 
-
 # used for circles generation
 In_Zone_types = [ConnectionTypes.School, ConnectionTypes.Kindergarten, ConnectionTypes.Family, ConnectionTypes.Synagogue]
 Multi_Zone_types = [ConnectionTypes.Work]
