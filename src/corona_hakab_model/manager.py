@@ -1,12 +1,10 @@
 import logging
 from collections import defaultdict
-
 from random import shuffle
-from typing import Callable, Dict, Iterable, List, Union
-import infection
-import update_matrix
-import numpy as np
 from typing import Callable, Iterable, List, Union
+
+import numpy as np
+
 import infection
 import update_matrix
 from agent import SickAgents, InitialAgentsConstraints
@@ -77,9 +75,10 @@ class SimulationManager:
         self.tested_vector = np.zeros(len(self.agents), dtype=bool)
         self.tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
         self.ever_tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
+        self.agents_in_isolation = np.zeros(len(self.agents), dtype=bool)
         self.date_of_last_test = np.zeros(len(self.agents), dtype=int)
         self.pending_test_results = PendingTestResults()
-
+        self.step_to_isolate_agent = np.full(len(self.agents), -1, dtype=int)  # full of null step
         # initializing agents to current simulation
         for agent in self.agents:
             agent.add_to_simulation(self, initial_state)
@@ -158,20 +157,30 @@ class SimulationManager:
             if test_result:
                 if not self.ever_tested_positive_vector[agent.index]:
                     # TODO: awful late night implementation, improve ASAP
+                    # set isolation date
+                    self.step_to_isolate_agent[agent.index] = self.current_step + self.consts.isolate_after_num_day
                     self.new_detected_daily += 1
-                # if tested positive then isolate agent
-                if self.consts.should_isolate_positive_detected:
-                    self.update_matrix_manager.apply_full_isolation_on_agent(agent)
 
             agent.set_test_result(test_result)
 
-        # TODO send the detected agents to the selected kind of isolation
-        # TODO: Track isolated agents
         # TODO: Remove healthy agents from isolation?
+        if self.consts.should_isolate_positive_detected:
+            self.isolate_agents()
 
         for new_test in new_tests:
             new_test.agent.set_test_start()
             self.pending_test_results.append(new_test)
+
+    def isolate_agents(self):
+        can_be_isolated = self.step_to_isolate_agent == self.current_step  # this is the day to isolate them
+        remaining = np.array(self.agents)[can_be_isolated]  # get those agents
+        num_of_obedients = round(self.consts.p_will_obey_isolation * len(remaining))  # get number of agents to sample
+        will_obey_isolation = np.random.choice(remaining, num_of_obedients, replace=False)  # sample those who will obey
+
+        for agent in will_obey_isolation:
+            self.agents_in_isolation[agent.index] = True  # keep track about who is in isolation
+            self.update_matrix_manager.change_agent_relations_by_factor(agent,
+                                                                        self.consts.isolation_factor)  # change the matrix
 
     def setup_sick(self):
         """"
@@ -183,11 +192,11 @@ class SimulationManager:
 
         if self.run_args.randomize:
             self.logger.info("creating permutation")
-            shuffle(agent_permutation) #this is somewhat expensive for large sets, but imho it's worth it.
+            shuffle(agent_permutation)  # this is somewhat expensive for large sets, but imho it's worth it.
             self.logger.info("finished permuting")
         else:
             self.logger.info("running without permutation")
-        if self.initial_agent_constraints.constraints is not None\
+        if self.initial_agent_constraints.constraints is not None \
                 and len(self.initial_agent_constraints.constraints) != self.consts.initial_infected_count:
             raise ValueError("Constraints file row number must match number of sick agents in simulation")
         while len(agents_to_infect) < self.consts.initial_infected_count:
