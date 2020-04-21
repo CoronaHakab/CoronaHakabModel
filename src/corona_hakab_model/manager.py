@@ -73,11 +73,11 @@ class SimulationManager:
         self.test_willingness_vector = np.zeros(len(self.agents), dtype=float)
         self.tested_vector = np.zeros(len(self.agents), dtype=bool)
         self.tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
-        self.tested_positive_vector_counter = np.zeros(len(self.agents), dtype=int)
+        self.ever_tested_positive = np.zeros(len(self.agents), dtype=bool)
         self.agents_in_isolation = np.zeros(len(self.agents), dtype=bool)
         self.date_of_last_test = np.zeros(len(self.agents), dtype=int)
         self.pending_test_results = PendingTestResults()
-
+        self.step_to_isolate_agent = np.full(len(self.agents), -1, dtype=int)  # full of null step
         # initializing agents to current simulation
         for agent in self.agents:
             agent.add_to_simulation(self, initial_state)
@@ -136,8 +136,10 @@ class SimulationManager:
         new_results = self.pending_test_results.advance()
         for agent, test_result, _ in new_results:
             if test_result:
-                if not self.tested_positive_vector_counter[agent.index]:
+                if not self.ever_tested_positive[agent.index]:
                     # TODO: awful late night implementation, improve ASAP
+                    # set isolation date
+                    self.step_to_isolate_agent[agent.index] = self.current_step + self.consts.isolate_after_num_day
                     self.new_detected_daily += 1
 
             agent.set_test_result(test_result)
@@ -151,11 +153,8 @@ class SimulationManager:
             self.pending_test_results.append(new_test)
 
     def isolate_agents(self):
-        # those who had the detection test before isolate_after_num_day days exactly
-        can_be_isolated = (self.current_step - self.date_of_last_test) == self.consts.isolate_after_num_day
-        # last test was positive and was the first one
-        tested_positive_once = self.tested_positive_vector & (self.tested_positive_vector_counter == 1)
-        remaining = np.array(self.agents)[can_be_isolated & tested_positive_once]  # get those agents
+        can_be_isolated = self.step_to_isolate_agent == self.current_step  # this is the day to isolate them
+        remaining = np.array(self.agents)[can_be_isolated]  # get those agents
         num_of_obedients = round(self.consts.p_will_obey_isolation * len(remaining))  # get number of agents to sample
         will_obey_isolation = np.random.choice(remaining, num_of_obedients, replace=False)  # sample those who will obey
 
