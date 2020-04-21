@@ -74,7 +74,7 @@ class SimulationManager:
         self.test_willingness_vector = np.zeros(len(self.agents), dtype=float)
         self.tested_vector = np.zeros(len(self.agents), dtype=bool)
         self.tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
-        self.ever_tested_positive = np.zeros(len(self.agents), dtype=bool)
+        self.ever_tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
         self.agents_in_isolation = np.zeros(len(self.agents), dtype=bool)
         self.date_of_last_test = np.zeros(len(self.agents), dtype=int)
         self.pending_test_results = PendingTestResults()
@@ -155,7 +155,7 @@ class SimulationManager:
         new_results = self.pending_test_results.advance()
         for agent, test_result, _ in new_results:
             if test_result:
-                if not self.ever_tested_positive[agent.index]:
+                if not self.ever_tested_positive_vector[agent.index]:
                     # TODO: awful late night implementation, improve ASAP
                     # set isolation date
                     self.step_to_isolate_agent[agent.index] = self.current_step + self.consts.isolate_after_num_day
