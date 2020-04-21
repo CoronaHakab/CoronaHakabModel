@@ -1,5 +1,5 @@
 link_base=https://raw.githubusercontent.com/CoronaHakab/CoronaHakabModel/develop/linux/
-file_links=(deb_install_python3.8.sh aws_cli.sh deb_run.sh)
+file_links=(deb_install_python3.8.sh deb_run.sh aws_cli.sh)
 
 SECONDS=0
 for f in "${file_links[@]}"; do
