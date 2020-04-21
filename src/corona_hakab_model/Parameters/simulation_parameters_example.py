@@ -169,12 +169,12 @@
     # --policies params--
     "change_policies": False,
     # a dictionary of day:([ConnectionTypes], message). on each day, keeps only the given connection types opened
-    "policies_changes": {
-        40: ([ConnectionTypes.Family, ConnectionTypes.Other], "closing schools, kindergartens and works"),
-        70: ([ConnectionTypes.Family, ConnectionTypes.Other, ConnectionTypes.School, ConnectionTypes.Kindergarten],
-             "opening schools and kindergartens"),
+    policies_changes: Dict[int, tuple] = {
+        40: ([ConnectionTypes.Family, ConnectionTypes.Other], "closing schools, kindergartens, synagogues and works"),
+        70: ([ConnectionTypes.Family, ConnectionTypes.Other, ConnectionTypes.School, ConnectionTypes.Kindergarten, ConnectionTypes.Synagogue],
+             "opening schools, kindergartens and synagogues"),
         100: (ConnectionTypes, "opening works"),
-    },
+    }
     # policies acting on a specific connection type, when a term is satisfied
     "partial_opening_active": True,
     # each connection type gets a list of conditioned policies.
@@ -219,6 +219,19 @@
                 policy=Policy(0, [lambda circle: random() > 1]),
                 active=True,
                 message="opening all workplaces",
+            ),
+        ],
+		ConnectionTypes.Synagogue: [
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
+                policy=Policy(0, [lambda circle: random() > 0]),
+                message="closing all synagogues",
+            ),
+            ConditionedPolicy(
+                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
+                policy=Policy(1, [lambda circle: random() > 1]),
+                active=True,
+                message="opening all synagogues",
             ),
         ],
     },
