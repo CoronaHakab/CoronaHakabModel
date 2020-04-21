@@ -14,10 +14,13 @@ if TYPE_CHECKING:
 
 
 class Circle:
-    __slots__ = "kind", "agent_count"
+    __slots__ = "kind", "agent_count", "uuid"
+    _instances = set()
 
     def __init__(self, ):
+        self.uuid = uuid.uuid4() 
         self.agent_count = 0
+        self._instances.add(self)
 
     def add_many(self, agents):
         self.agent_count += len(agents)
@@ -30,6 +33,10 @@ class Circle:
 
     def remove_agent(self, agent):
         self.agent_count -= 1
+    
+    @classmethod
+    def get_circles(cls):
+        return filter(lambda x: isinstance(x, cls), cls._instances)
 
 
 class SocialCircle(Circle):
