@@ -107,7 +107,7 @@ class UpdateMatrixManager:
 
     def reset_policies_by_connection_type(self, connection_type):
         for i in range(self.size):
-            if not self.manager.isolate_agents()[i]:
+            if not self.manager.agents_in_isolation[i]:
                 self.reset_agent(connection_type, i)
 
         # letting all conditioned policies acting upon this connection type know they are canceled
