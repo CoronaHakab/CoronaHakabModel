@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Callable, Iterable, List
+from typing import Any, Callable, Iterable, List, Dict
 
 import numpy as np
 from generation.circles import SocialCircle
@@ -12,7 +12,8 @@ class PolicyManager:
         self.update_matrix_manager = manager.update_matrix_manager
         self.consts = manager.consts
         self.logger = manager.logger
-        self.daily_affected_circles = None  # Dict(policy_id => Circle[])
+        # For each applied policy, save a list of affected circles
+        self.daily_affected_circles: Dict[str, List[SocialCircle]] = None
 
     def perform_policies(self):
         """
