@@ -80,7 +80,7 @@ class SocialCircle(Circle):
         return SocialCircleSnapshot(self.connection_type.name, len(self.agents), self.guid)
 
 
-@dataclass
+@dataclass(frozen=True, eq=True)
 class SocialCircleSnapshot:
     type: str
     num_members: int
@@ -115,3 +115,8 @@ class SocialCircleConstraint:
             if not has_circle:
                 constraint_met = False
         return constraint_met
+
+@dataclass(frozen=True, eq=True)
+class CircleFilter:
+    circle: Circle
+    options: List[Any]

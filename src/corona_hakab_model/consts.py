@@ -8,7 +8,6 @@ from numpy.random import random
 from detection_model.detection_testing_types import DetectionSettings, DetectionPriority
 from detection_model.healthcare import DetectionTest
 from generation.connection_types import ConnectionTypes
-from generation.geographic_circle import GeographicCircle
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
 from generation.circles import CircleFilter
