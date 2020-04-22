@@ -153,7 +153,19 @@ def run_simulation(args):
     print(sm)
     sm.run()
     df: pd.DataFrame = sm.dump(filename=args.output)
-    df.iloc[:, :-16].plot()
+    df[[
+        'New Asymptomatic',
+        'Asymptomatic',
+        'Asymptomatic So Far',
+        'currently sick', 
+        'was ever sick', 
+        'new infected', 
+        'new infected - 1 days growth',
+        'new infected - 1 days growth - 7 days running average',
+        'new infected - 7 days growth'
+    ]].plot()
+                
+
     if args.figure_path:
         if not os.path.splitext(args.figure_path)[1]:
             args.figure_path = args.figure_path+'.png'
