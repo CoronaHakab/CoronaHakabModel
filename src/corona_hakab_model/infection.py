@@ -94,6 +94,9 @@ class InfectionManager:
                 for agent_index in infected_indices}
 
     def _get_infection_info(self, agent_index: int, possible_infectors: np.ndarray):
+        if not self.manager.consts.backtrack_infection_sources:
+            return None
+
         infection_cases = []
         infection_probabilities = []
         non_zero_column = self.manager.matrix.non_zero_column(agent_index)
@@ -111,6 +114,9 @@ class InfectionManager:
         return np.random.choice(infection_cases, p=infection_probabilities)
 
     def _get_random_infection_info(self, agent_id: int, infection_probs: np.ndarray):
+        if not self.manager.consts.backtrack_infection_sources:
+            return None
+        
         # determine infection method
         connection_type = np.random.choice(len(infection_probs), p=infection_probs / np.sum(infection_probs))
 

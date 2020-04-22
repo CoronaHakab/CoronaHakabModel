@@ -127,6 +127,8 @@ class SimulationManager:
         run one step
         """
         # checks if there is a policy to active.
+
+
         self.policy_manager.perform_policies()
 
         # run tests
@@ -136,13 +138,15 @@ class SimulationManager:
         self.progress_tests_and_isolation(new_tests)
 
         self.new_sick_by_infection_method = {connection_type : 0 for connection_type in ConnectionTypes}
-        self.new_sick_by_infector_medical_state = {k : 0 for k in self.new_sick_by_infector_medical_state.keys()}
+        self.new_sick_by_infector_medical_state = defaultdict(int)
         # run infection
         new_infection_cases = self.infection_manager.infection_step()
         for agent, new_infection_case in new_infection_cases.items():
             self.sick_agents.add_agent(agent.get_snapshot())
-            self.new_sick_by_infection_method[new_infection_case.connection_type] += 1
-            self.new_sick_by_infector_medical_state[new_infection_case.infector_agent.medical_state.name] += 1
+
+            if self.consts.backtrack_infection_sources:
+                self.new_sick_by_infection_method[new_infection_case.connection_type] += 1
+                self.new_sick_by_infector_medical_state[new_infection_case.infector_agent.medical_state.name] += 1
         
         # progress transfers
         medical_machine_step_result = self.medical_state_manager.step(new_infection_cases.keys())
