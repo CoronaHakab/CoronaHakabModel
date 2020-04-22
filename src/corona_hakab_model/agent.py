@@ -68,9 +68,6 @@ class Agent:
             social_circle_snapshots.append(social_circle.get_snapshot())
         return AgentSnapshot(self.index, self.age, geographic_circle_name, social_circle_snapshots)
 
-    def is_adult(self):
-        return self.age > 18
-
 
 @dataclass
 class AgentSnapshot:

@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 
 import numpy as np
 
+from analyzers.fit_to_graph import compare_real_to_simulation
 from analyzers.state_machine_analysis import extract_state_machine_analysis
 from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
 from consts import Consts
@@ -40,6 +41,12 @@ def main():
 
     if args.sub_command == 'analyze-matrix':
         analyze_matrix(args)
+
+    if args.sub_command == 'shift-real-life':
+        sys.argv = sys.argv[1:]
+        assert len(sys.argv) == 3, f"Gave {len(sys.argv)} parameters. Needs to give 2 parameters as input"
+        compare_real_to_simulation(sys.argv[1],
+                                   sys.argv[2])
 
     if args.sub_command == 'generate':
         generate_data(args)
@@ -87,9 +94,9 @@ def run_simulation(args):
     sm = SimulationManager(
         (
             # "Latent",
-            Supervisable.State.AddedPerDay("Asymptomatic"),
-            Supervisable.State.Current("Asymptomatic"),
-            Supervisable.State.TotalSoFar("Asymptomatic"),
+            Supervisable.State.AddedPerDay("AsymptomaticBegin"),
+            Supervisable.State.Current("AsymptomaticBegin"),
+            Supervisable.State.TotalSoFar("AsymptomaticBegin"),
             # "Silent",
             # "Asymptomatic",
             # "Symptomatic",
@@ -102,7 +109,8 @@ def run_simulation(args):
                 "Latent",
                 "Latent-Asymp",
                 "Latent-Presymp",
-                "Asymptomatic",
+                "AsymptomaticBegin",
+                "AsymptomaticEnd",
                 "Pre-Symptomatic",
                 "Mild-Condition",
                 "NeedOfCloseMedicalCare",
@@ -136,7 +144,8 @@ def run_simulation(args):
             LambdaValueSupervisable("daily infections from Latent infector", lambda manager: manager.new_sick_by_infector_medical_state["Latent"]),
             LambdaValueSupervisable("daily infections from Latent-Asymp infector", lambda manager: manager.new_sick_by_infector_medical_state["PreRecovered"]),
             LambdaValueSupervisable("daily infections from Latent-Presymp infector", lambda manager: manager.new_sick_by_infector_medical_state["Latent-Asymp"]),
-            LambdaValueSupervisable("daily infections from Asymptomatic infector", lambda manager: manager.new_sick_by_infector_medical_state["Asymptomatic"]),
+            LambdaValueSupervisable("daily infections from AsymptomaticBegin infector", lambda manager: manager.new_sick_by_infector_medical_state["AsymptomaticBegin"]),
+            LambdaValueSupervisable("daily infections from AsymptomaticEnd infector", lambda manager: manager.new_sick_by_infector_medical_state["AsymptomaticEnd"]),
             LambdaValueSupervisable("daily infections from Pre-Symptomatic infector", lambda manager: manager.new_sick_by_infector_medical_state["Pre-Symptomatic"]),
             LambdaValueSupervisable("daily infections from Mild-Condition infector", lambda manager: manager.new_sick_by_infector_medical_state["Mild-Condition"]),
             LambdaValueSupervisable("daily infections from NeedOfCloseMedicalCare infector", lambda manager: manager.new_sick_by_infector_medical_state["NeedOfCloseMedicalCare"]),
@@ -164,8 +173,6 @@ def run_simulation(args):
         'new infected - 1 days growth - 7 days running average',
         'new infected - 7 days growth'
     ]].plot()
-                
-
     if args.figure_path:
         if not os.path.splitext(args.figure_path)[1]:
             args.figure_path = args.figure_path+'.png'
@@ -178,32 +185,6 @@ def set_seeds(seed=0):
     seed = seed or None
     np.random.seed(seed)
     random.seed(seed)
-
-
-def compare_simulations_example():
-    sm1 = SimulationManager(
-        (
-            Supervisable.Sum(
-                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", "Recovered", "Deceased"
-            ),
-            "Symptomatic",
-            "Recovered",
-        ),
-        consts=Consts(r0=1.5),
-    )
-    sm1.run()
-
-    sm2 = SimulationManager(
-        (
-            Supervisable.Sum(
-                "Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized", "Recovered", "Deceased"
-            ),
-            "Symptomatic",
-            "Recovered",
-        ),
-        consts=Consts(r0=1.8),
-    )
-    sm2.run()
 
 
 def analyze_matrix(args):

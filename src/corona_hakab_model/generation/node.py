@@ -1,4 +1,4 @@
-from random import sample
+from random import choice
 
 
 class Node:
@@ -9,13 +9,13 @@ class Node:
         self.connected = set()
 
     def add_connections(self, new):
-        try:
-            self.connected.add(new)
-        except TypeError:
+        if isinstance(new, list):
             self.connected.update(new)
+        else:
+            self.connected.add(new)
 
     def pop_random(self) -> "Node":
-        to_pop = sample(self.connected, 1)[0]
+        to_pop = choice(list(self.connected))
         self.connected.remove(to_pop)
         return to_pop
 

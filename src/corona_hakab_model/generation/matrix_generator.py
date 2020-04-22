@@ -1,7 +1,7 @@
 import logging
 import math
 from itertools import islice
-from random import random, sample
+from random import random, choice, sample
 from typing import List
 import os.path
 
@@ -142,6 +142,9 @@ class MatrixGenerator:
 
     def _create_fully_connected_circles_matrix(self, con_type: ConnectionTypes, circles: List[SocialCircle], depth):
         connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
+        if connection_strength == 0:
+            return
+
         for circle in circles:
             ids = np.array([a.index for a in circle.agents])
             vals = np.full_like(ids, connection_strength, dtype=np.float32)
@@ -187,6 +190,9 @@ class MatrixGenerator:
         connections = [[] for _ in self.agents]
         # gets data from matrix consts
         connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
+        if connection_strength == 0:
+            return
+
         daily_connections_float = self.matrix_consts.daily_connections_amount_by_connection_type[con_type]
         weekly_connections_float = self.matrix_consts.weekly_connections_amount_by_connection_type[con_type]
         total_connections_float = daily_connections_float + weekly_connections_float
@@ -234,7 +240,7 @@ class MatrixGenerator:
             for node in islice(nodes, con_amount, None):
                 connections_amount = connections_amounts.__next__()
                 # selects the first node to attach to randomly
-                rand_node = sample(inserted_nodes, 1)[0]
+                rand_node = choice(list(inserted_nodes))
                 inserted_nodes.remove(rand_node)
 
                 # adds a connection between the nodes
@@ -269,12 +275,18 @@ class MatrixGenerator:
         for agent, conns in zip(self.agents, connections):
             conns = np.array(conns)
             conns.sort()
-            # rolls for each connection, whether it is daily or weekly
-            daily_share = daily_connections_float / total_connections_float
-            weekly_share = weekly_connections_float / total_connections_float
-            strengthes = np.random.choice(
-                [connection_strength, connection_strength / 7], size=len(conns), p=[daily_share, weekly_share]
-            )
+
+            if total_connections_float == 0:
+                strengthes = np.array([0] * len(conns))
+            else:
+                # rolls for each connection, whether it is daily or weekly
+                daily_share = daily_connections_float / total_connections_float
+                weekly_share = weekly_connections_float / total_connections_float
+
+                strengthes = np.random.choice(
+                    [connection_strength, connection_strength / 7], size=len(conns), p=[daily_share, weekly_share]
+                )
+
             # check if some strengths were determined earlier
             for conn in conns:
                 known_strength = known_strengths.get((conn, agent.index), None)
@@ -292,6 +304,9 @@ class MatrixGenerator:
         connections = [[] for _ in self.agents]
         # gets data from matrix consts
         connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
+        if connection_strength == 0:
+            return
+
         daily_connections_float = self.matrix_consts.daily_connections_amount_by_connection_type[con_type]
         weekly_connections_float = self.matrix_consts.weekly_connections_amount_by_connection_type[con_type]
         total_connections_float = daily_connections_float + weekly_connections_float
@@ -311,13 +326,13 @@ class MatrixGenerator:
             if len(agents) == 0:
                 continue
             # insert first node
-            first_node = sample(nodes, 1)[0]
-            connected_nodes = set([first_node])
+            first_node = choice(list(nodes))
+            connected_nodes = {first_node}
             nodes.remove(first_node)
             # go over other nodes in circle
             for node in nodes:
                 # first find a random node. Should never fail as we have inserted a node before.
-                first_connection = sample(connected_nodes, 1)[0]
+                first_connection = choice(list(connected_nodes))
 
                 num_connections = connections_amounts.__next__()
                 # fill connections other than first_connection
@@ -327,7 +342,7 @@ class MatrixGenerator:
                         possible_nodes = first_connection.connected
                     else:
                         # connect with a node NOT from the first_connection's connections
-                        possible_nodes = connected_nodes.difference(set([first_connection])).difference(
+                        possible_nodes = connected_nodes.difference({first_connection}).difference(
                             first_connection.connected
                         )
 
@@ -336,11 +351,11 @@ class MatrixGenerator:
 
                     # edge cases - take any node. this takes care of both sides of previous IF failing.
                     if len(possible_nodes) == 0:
-                        possible_nodes = connected_nodes.difference(set([first_connection])).difference(node.connected)
+                        possible_nodes = connected_nodes.difference({first_connection}).difference(node.connected)
                         if len(possible_nodes) == 0:
                             break
 
-                    random_friend = sample(possible_nodes, 1)[0]
+                    random_friend = choice(list(possible_nodes))
                     Node.connect(random_friend, node)
                 # connect to bff here to prevent self-selection in bff's friends
                 Node.connect(first_connection, node)
@@ -356,15 +371,17 @@ class MatrixGenerator:
         for agent, conns in zip(self.agents, connections):
             conns = np.array(conns)
             conns.sort()
-            # rolls for each connection, whether it is daily or weekly
-            strengthes = np.random.choice(
-                [connection_strength, connection_strength / 7],
-                size=len(conns),
-                p=[
-                    daily_connections_float / total_connections_float,
-                    weekly_connections_float / total_connections_float,
-                ],
-            )
+
+            if total_connections_float == 0:
+                strengthes = np.array([0] * len(conns))
+            else:
+                # rolls for each connection, whether it is daily or weekly
+                daily_share = daily_connections_float / total_connections_float
+                weekly_share = weekly_connections_float / total_connections_float
+                strengthes = np.random.choice(
+                    [connection_strength, connection_strength / 7], size=len(conns), p=[daily_share, weekly_share],
+                )
+
             # check if some strengths were determined earlier
             for conn in conns:
                 known_strength = known_strengths.get((conn, agent.index), None)
@@ -373,7 +390,7 @@ class MatrixGenerator:
                     del known_strengths[(conn, agent.index)]
                 else:
                     # connection is new. store the strength for future use
-                    known_strengths[(agent.index, conn)] = strengthes[np.where(conns==conn)] 
+                    known_strengths[(agent.index, conn)] = strengthes[np.where(conns==conn)]
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
 
@@ -398,7 +415,7 @@ class MatrixGenerator:
             current_agent_id = agent_id_pool.pop()
 
             rc = min(remaining_contacts[current_agent_id], len(agent_id_pool))
-            conns = np.array(sample(agent_id_pool, rc))
+            conns = sample(list(agent_id_pool), rc)
             connections[current_agent_id].extend(conns)
             for other_agent_id in conns:
                 connections[other_agent_id].append(current_agent_id)
@@ -422,6 +439,10 @@ class MatrixGenerator:
         :param shape: amount of wanted rolls
         :return: numpy array of ints, each is either floor or ceil
         """
+        if x.is_integer():
+            return np.array([x] * shape)
+
         floor_prob = math.ceil(x) - x
         ceil_prob = x - math.floor(x)
+
         return np.random.choice([math.floor(x), math.ceil(x)], size=shape, p=[floor_prob, ceil_prob])
