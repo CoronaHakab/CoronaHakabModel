@@ -320,7 +320,7 @@ class MatrixGenerator:
                         if len(possible_nodes) == 0:
                             break
 
-                    random_friend = choice(possible_nodes)
+                    random_friend = choice(list(possible_nodes))
                     Node.connect(random_friend, node)
                 # connect to bff here to prevent self-selection in bff's friends
                 Node.connect(first_connection, node)
