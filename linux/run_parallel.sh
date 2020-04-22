@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 num_of_runs=$1
 shift
 
