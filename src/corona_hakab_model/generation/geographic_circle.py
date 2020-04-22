@@ -91,14 +91,19 @@ class GeographicCircle(Circle):
         # calculate amount of agents for each size group
         # we'll also use size_num_agents to count how many agents were placed in each size group.
         possible_sizes, probs = self.data_holder.circles_size_distribution_by_connection_type[connection_type]
-        size_num_agents = {size : 0 for size in possible_sizes}             
+        if len(possible_sizes) == 0 and len(probs) == 0:
+            return
+
+        size_num_agents = {size: 0 for size in possible_sizes}
         rolls = np.random.choice(possible_sizes, size=len(agents_for_type), p=probs)
         for roll in rolls:
             size_num_agents[roll] += 1
 
-
         # populate circles in each size group
         for size in possible_sizes:
+            if size_num_agents[size] == 0:
+                continue
+
             # create circles
             amount_of_circles = max(1, round(size_num_agents[size] / size))
             circles = [SocialCircle(connection_type) for _ in range(amount_of_circles)]
