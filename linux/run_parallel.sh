@@ -12,3 +12,5 @@ for ((i=0; i< $num_of_runs - 1; i++))
 do
    grep "OUTPUT FOLDER" "${i}_log.tmp"
    rm -f "${i}_log.tmp"
+done
+echo Done
