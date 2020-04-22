@@ -138,6 +138,9 @@ class MatrixGenerator:
 
     def _create_fully_connected_circles_matrix(self, con_type: ConnectionTypes, circles: List[SocialCircle], depth):
         connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
+        if connection_strength == 0:
+            return
+
         for circle in circles:
             ids = np.array([a.index for a in circle.agents])
             vals = np.full_like(ids, connection_strength, dtype=np.float32)
@@ -152,6 +155,9 @@ class MatrixGenerator:
         connections = [[] for _ in self.agents]
         # gets data from matrix consts
         connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
+        if connection_strength == 0:
+            return
+
         daily_connections_float = self.matrix_consts.daily_connections_amount_by_connection_type[con_type]
         weekly_connections_float = self.matrix_consts.weekly_connections_amount_by_connection_type[con_type]
         total_connections_float = daily_connections_float + weekly_connections_float
@@ -263,6 +269,9 @@ class MatrixGenerator:
         connections = [[] for _ in self.agents]
         # gets data from matrix consts
         connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
+        if connection_strength == 0:
+            return
+
         daily_connections_float = self.matrix_consts.daily_connections_amount_by_connection_type[con_type]
         weekly_connections_float = self.matrix_consts.weekly_connections_amount_by_connection_type[con_type]
         total_connections_float = daily_connections_float + weekly_connections_float
