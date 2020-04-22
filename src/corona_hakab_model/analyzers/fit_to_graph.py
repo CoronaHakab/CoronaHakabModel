@@ -24,7 +24,7 @@ def get_difference_over_time(real_df,
         compare_now_values = current_compare_point.loc[:, fitted_column_to_fit].values
         origin_now_values = real_df.loc[:, real_column_to_fit].values
         diff = compare_now_values - origin_now_values
-        pivots_results[i] = (abs(sum(diff)))
+        pivots_results[i] = (sum(abs(diff)))
     return pivots_results
 
 
