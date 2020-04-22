@@ -161,13 +161,10 @@ class CirclesGenerator:
         # making sure all agents shares sum up to one. if not, normalize them
         share_factor = 1.0 / sum([geo_circle.data_holder.agents_share for geo_circle in self.geographic_circles])
         # creating a dist for selecting a geographic circle for each agent
-        circle_selection = rv_discrete(
-            values=(
-                range(len(self.geographic_circles)),
-                [geo_circle.data_holder.agents_share * share_factor for geo_circle in self.geographic_circles],
-            )
+        rolls = np.random.choice(
+            np.arange(len(self.geographic_circles)), size=len(self.agents),
+            p=[geo_circle.data_holder.agents_share * share_factor for geo_circle in self.geographic_circles]
         )
-        rolls = circle_selection.rvs(size=len(self.agents))
         for agent, roll in zip(self.agents, rolls):
             selected_geo_circle = self.geographic_circles[roll]
             selected_geo_circle.add_agent(agent)
