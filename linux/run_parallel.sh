@@ -1,5 +1,5 @@
 !/bin/bash
-num_of_runs="$1"
+num_of_runs=$1
 shift
 
 for ((i=0; i< $num_of_runs - 1; i++))
