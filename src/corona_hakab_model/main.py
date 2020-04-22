@@ -43,7 +43,8 @@ def main():
         analyze_matrix(args)
 
     if args.sub_command == 'shift-real-life':
-        assert sys.argv == 3, "Needs to give 2 parameters as input"
+        sys.argv = sys.argv[1:]
+        assert len(sys.argv) == 3, f"Gave {len(sys.argv)} parameters. Needs to give 2 parameters as input"
         compare_real_to_simulation(sys.argv[1],
                                    sys.argv[2])
 
