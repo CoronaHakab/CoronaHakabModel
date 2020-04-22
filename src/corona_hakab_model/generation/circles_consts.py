@@ -54,7 +54,7 @@ class CirclesConsts(NamedTuple):
                 ConnectionTypes.Work: ([1, 2, 10, 40, 300, 500], [0.1, 0.1, 0.2, 0.2, 0.2, 0.2]),
                 ConnectionTypes.Kindergarten: ([10, 20], [0.5, 0.5]),
                 ConnectionTypes.Family: ([1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081]),
-                ConnectionTypes.Synagogue: ([15, 50, 150], [0.3, 0.4, 0.3]),
+                ConnectionTypes.Synagogue: ([40], [1]),
                 ConnectionTypes.Other: ([100_000], [1.0]),
             },
         },
@@ -95,7 +95,7 @@ class CirclesConsts(NamedTuple):
                 ConnectionTypes.Work: ([1, 2, 10, 40, 300, 500], [0.1, 0.1, 0.2, 0.2, 0.2, 0.2]),
                 ConnectionTypes.Kindergarten: ([10, 20], [0.5, 0.5]),
                 ConnectionTypes.Family: ([1, 2, 3, 4, 5, 6, 7], [0.095, 0.227, 0.167, 0.184, 0.165, 0.081, 0.081]),
-                ConnectionTypes.Synagogue: ([15, 50, 150], [0.3, 0.4, 0.3]),
+                ConnectionTypes.Synagogue: ([40], [1]),
                 ConnectionTypes.Other: ([100_000], [1.0]),
             },
         },
@@ -104,14 +104,12 @@ class CirclesConsts(NamedTuple):
         ConnectionTypes.Work: 2.2,
         ConnectionTypes.School: 0.25,
         ConnectionTypes.Kindergarten: 0.25,
-        ConnectionTypes.Synagogue: 0.5,
         ConnectionTypes.Other: 2.1,
     }
     random_connections_strength_factor: Dict = {
         ConnectionTypes.Work: 0.5,
         ConnectionTypes.School: 1.,
         ConnectionTypes.Kindergarten: 1.,
-        ConnectionTypes.Synagogue: 0.5,
         ConnectionTypes.Other: 0.6,
     }
     geo_circles_agents_share: List[float] = [0.6, 0.4]
