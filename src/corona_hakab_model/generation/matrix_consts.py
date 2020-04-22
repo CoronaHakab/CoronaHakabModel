@@ -42,6 +42,9 @@ class MatrixConsts(NamedTuple):
         ConnectionTypes.Synagogue: 5,
         ConnectionTypes.Other: 6,
     }
+    synagogue_atendees_weekly_basis = 0.5
+    synagogue_daily_time = 1.5
+    synagogue_weekend_time = 3
 
     clustering_switching_point: Tuple = (50,)
     community_triad_probability: Tuple = (1,)

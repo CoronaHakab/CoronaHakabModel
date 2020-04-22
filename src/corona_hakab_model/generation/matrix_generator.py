@@ -17,7 +17,7 @@ from generation.connection_types import (
     ConnectionTypes,
     Geographic_Clustered_types,
     Random_Clustered_types,
-)
+    Religous_types)
 from generation.matrix_consts import MatrixConsts
 from generation.node import Node
 from bsa.parasym import write_parasym, read_parasym
@@ -122,6 +122,10 @@ class MatrixGenerator:
                     self._create_community_clustered_circles_matrix(
                         con_type, self.social_circles_by_connection_type[con_type], current_depth
                     )
+                elif con_type in Religous_types:
+                    self._create_religous_calender_circles_matrix(
+                        con_type, self.social_circles_by_connection_type[con_type], current_depth
+                    )
                 current_depth += 1
 
         # current patch since matrix is un-serializable
@@ -146,7 +150,38 @@ class MatrixGenerator:
                 vals[i] = 0
                 self.matrix[depth, int(row), ids] = vals
                 vals[i] = temp
-
+    
+    def _create_religous_calender_circles_matrix(self, con_type: ConnectionTypes, circles: List[SocialCircle], depth):
+        connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
+        weekend_connection_strength = connection_strength*(self.matrix_consts.synagogue_weekend_time/self.matrix_consts.synagogue_daily_time)/7
+        weekend_atendee_strength = weekend_connection_strength
+        daily_atendee_strength = (6*connection_strength + weekend_connection_strength)/7
+        
+        for circle in circles:
+            agent_indices = [agent.index for agent in circle.agents]
+            agent_indices.sort()
+            weekly_agents = np.random.choice(agent_indices, size=math.floor(len(agent_indices)/2))
+            weekly_agents.sort()
+            # create strength vectors 
+            weekly_agents_strengths = np.array([weekend_atendee_strength]*(len(agent_indices)-1))
+            daily_agents_strenths = [weekend_atendee_strength]*(len(agent_indices))
+            for i, agent_index in enumerate(agent_indices):
+                if agent_index not in weekly_agents:
+                    daily_agents_strenths[i] = daily_atendee_strength
+            # update matrix
+            for i, agent_index in enumerate(agent_indices):
+                if agent_index in weekly_agents:
+                    agent_indices.pop(i)
+                    self.matrix[depth, agent_index, np.array(agent_indices)] = np.array(weekly_agents_strengths, dtype=np.float32)
+                    agent_indices.insert(i, agent_index)
+                else:
+                    agent_indices.pop(i)
+                    connection_strength = daily_agents_strenths.pop(i)
+                    self.matrix[depth, agent_index, np.array(agent_indices)] = np.array(daily_agents_strenths, dtype=np.float32)
+                    daily_agents_strenths.insert(i, connection_strength)
+                    agent_indices.insert(i, agent_index)
+            
+            
     def _create_random_clustered_circles_matrix(self, con_type: ConnectionTypes, circles: List[SocialCircle], depth):
         # the new connections will be saved here
         connections = [[] for _ in self.agents]
