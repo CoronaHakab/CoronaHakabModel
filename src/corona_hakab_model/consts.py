@@ -11,6 +11,7 @@ from generation.connection_types import ConnectionTypes
 from generation.geographic_circle import GeographicCircle
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
+from generation.circles import CircleFilter
 from policies_manager import ConditionedPolicy, Policy
 from state_machine import StochasticState, TerminalState
 from util import dist, rv_discrete, upper_bound, BucketDict
@@ -225,7 +226,7 @@ class Consts(NamedTuple):
                 condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
                 activating_condition=lambda condition_params: len(np.flatnonzero(condition_params["contagiousness_vector"])) > 1000,
                 policy=Policy(0, [lambda circle: random() > 0]),
-                circle_filter=GeographicCircle,
+                circle_filter=CircleFilter(circle="GeographicCircle", options=["north", "south"]),
                 message="closing all schools",
             ),
             ConditionedPolicy(
