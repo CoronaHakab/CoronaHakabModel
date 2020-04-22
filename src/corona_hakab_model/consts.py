@@ -223,13 +223,14 @@ class Consts(NamedTuple):
         ConnectionTypes.School: [
             ConditionedPolicy(
                 condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
-                activating_condition=lambda condition_params: len(np.flatnonzero(condition_params["contagiousness_vector"])) > 1000,
+                activating_condition=lambda condition_params: np.sum(condition_params["contagiousness_vector"]) > 1000,
                 policy=Policy(0, [lambda circle: random() > 0]),
-                circle_filter=CircleFilter(circle="GeographicCircle", options=["north", "south"]),
+                # circle_filter=CircleFilter(circle="GeographicCircle", options=["north", "south"]),
                 message="closing all schools",
             ),
             ConditionedPolicy(
-                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
+                condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
+                activating_condition=lambda condition_params: np.sum(condition_params["contagiousness_vector"]) < 500,
                 policy=Policy(1, [lambda circle: random() > 1]),
                 active=True,
                 message="opening all schools",
@@ -237,12 +238,14 @@ class Consts(NamedTuple):
         ],
         ConnectionTypes.Kindergarten: [
             ConditionedPolicy(
-                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
+                condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
+                activating_condition=lambda condition_params: np.sum(condition_params["contagiousness_vector"]) > 1000,
                 policy=Policy(0, [lambda circle: random() > 0]),
                 message="closing all kindergartens",
             ),
             ConditionedPolicy(
-                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
+                condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
+                activating_condition=lambda condition_params: np.sum(condition_params["contagiousness_vector"]) < 500,
                 policy=Policy(1, [lambda circle: random() > 1]),
                 active=True,
                 message="opening all kindergartens",
@@ -250,12 +253,14 @@ class Consts(NamedTuple):
         ],
         ConnectionTypes.Work: [
             ConditionedPolicy(
-                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) > 1000,
+                condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
+                activating_condition=lambda condition_params: np.sum(condition_params["contagiousness_vector"]) > 1000,
                 policy=Policy(0, [lambda circle: random() > 0]),
                 message="closing all workplaces",
             ),
             ConditionedPolicy(
-                activating_condition=lambda kwargs: len(np.flatnonzero(kwargs["manager"].contagiousness_vector)) < 500,
+                condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
+                activating_condition=lambda condition_params: np.sum(condition_params["contagiousness_vector"]) < 500,
                 policy=Policy(0, [lambda circle: random() > 1]),
                 active=True,
                 message="opening all workplaces",
