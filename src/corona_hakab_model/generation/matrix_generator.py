@@ -1,7 +1,7 @@
 import logging
 import math
 from itertools import islice
-from random import random, sample
+from random import random, choice, sample
 from typing import List
 import os.path
 
@@ -205,7 +205,7 @@ class MatrixGenerator:
             for node in islice(nodes, con_amount, None):
                 connections_amount = connections_amounts.__next__()
                 # selects the first node to attach to randomly
-                rand_node = sample(inserted_nodes, 1)[0]
+                rand_node = choice(list(inserted_nodes))
                 inserted_nodes.remove(rand_node)
 
                 # adds a connection between the nodes
@@ -291,13 +291,13 @@ class MatrixGenerator:
             if len(agents) == 0:
                 continue
             # insert first node
-            first_node = sample(nodes, 1)[0]
-            connected_nodes = set([first_node])
+            first_node = choice(list(nodes))
+            connected_nodes = {first_node}
             nodes.remove(first_node)
             # go over other nodes in circle
             for node in nodes:
                 # first find a random node. Should never fail as we have inserted a node before.
-                first_connection = sample(connected_nodes, 1)[0]
+                first_connection = choice(list(connected_nodes))
 
                 num_connections = connections_amounts.__next__()
                 # fill connections other than first_connection
@@ -307,7 +307,7 @@ class MatrixGenerator:
                         possible_nodes = first_connection.connected
                     else:
                         # connect with a node NOT from the first_connection's connections
-                        possible_nodes = connected_nodes.difference(set([first_connection])).difference(
+                        possible_nodes = connected_nodes.difference({first_connection}).difference(
                             first_connection.connected
                         )
 
@@ -316,11 +316,11 @@ class MatrixGenerator:
 
                     # edge cases - take any node. this takes care of both sides of previous IF failing.
                     if len(possible_nodes) == 0:
-                        possible_nodes = connected_nodes.difference(set([first_connection])).difference(node.connected)
+                        possible_nodes = connected_nodes.difference({first_connection}).difference(node.connected)
                         if len(possible_nodes) == 0:
                             break
 
-                    random_friend = sample(possible_nodes, 1)[0]
+                    random_friend = choice(possible_nodes)
                     Node.connect(random_friend, node)
                 # connect to bff here to prevent self-selection in bff's friends
                 Node.connect(first_connection, node)
@@ -380,7 +380,7 @@ class MatrixGenerator:
             current_agent_id = agent_id_pool.pop()
 
             rc = min(remaining_contacts[current_agent_id], len(agent_id_pool))
-            conns = np.array(sample(agent_id_pool, rc))
+            conns = sample(list(agent_id_pool), rc)
             connections[current_agent_id].extend(conns)
             for other_agent_id in conns:
                 connections[other_agent_id].append(current_agent_id)
