@@ -35,7 +35,7 @@ class GeographicCircle(Circle):
         Iterates over each agent. Generates it's age by a given age distribution (self.data_holder.age_distribution).
         For each agent, iterates over each connection type, and rolls whether it has this type of connection or not.
         Gets this probabilities from self.data_holder.connection_types_prob_by_age.
-        It allows choosing whether some one goes to work, to school, to kindergarten or to none of those.
+        It allows choosing whether some one goes to work, to school, to kindergarten, to a synagogue, or to none of those.
         :return:
         """
         ages = iter(self.data_holder.age_distribution.rvs(size=len(self.agents)))

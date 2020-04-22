@@ -133,6 +133,7 @@ def run_simulation(args):
             LambdaValueSupervisable("daily infected by other", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Other]),
             LambdaValueSupervisable("daily infected by family", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Family]),
             LambdaValueSupervisable("daily infected by kindergarten", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Kindergarten]),
+            LambdaValueSupervisable("daily infected by synagogue", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Synagogue]),
             LambdaValueSupervisable("daily infections from Latent infector", lambda manager: manager.new_sick_by_infector_medical_state["Latent"]),
             LambdaValueSupervisable("daily infections from Latent-Asymp infector", lambda manager: manager.new_sick_by_infector_medical_state["PreRecovered"]),
             LambdaValueSupervisable("daily infections from Latent-Presymp infector", lambda manager: manager.new_sick_by_infector_medical_state["Latent-Asymp"]),
