@@ -20,7 +20,7 @@ class Agent:
     This class represents a person in our doomed world.
     """
 
-    __slots__ = ("index", "medical_state", "manager", "age", "is_religous")
+    __slots__ = ("index", "medical_state", "manager", "age")
 
     # todo note that this changed to fit generation. should update simulation manager accordingly
     def __init__(self, index):
@@ -29,7 +29,6 @@ class Agent:
         # don't know if this is necessary
         self.manager: SimulationManager = None
         self.medical_state: MedicalState = None
-        self.is_religous = False
 
     def add_to_simulation(self, manager: SimulationManager, initial_state: MedicalState):
         self.manager = manager

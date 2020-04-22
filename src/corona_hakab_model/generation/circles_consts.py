@@ -33,7 +33,6 @@ class CirclesConsts(NamedTuple):
                     ConnectionTypes.Kindergarten: 0.1,
                     ConnectionTypes.School: 0.85,
                     ConnectionTypes.Family: 1.0,
-                    ConnectionTypes.Synagogue: 0.14,
                     ConnectionTypes.Other: 1.0,
                 },
                 {
@@ -41,7 +40,6 @@ class CirclesConsts(NamedTuple):
                     ConnectionTypes.Kindergarten: 0,
                     ConnectionTypes.School: 0,
                     ConnectionTypes.Family: 1.0,
-                    ConnectionTypes.Synagogue: 0.15,
                     ConnectionTypes.Other: 1.0,
                 },
                 {
@@ -49,7 +47,6 @@ class CirclesConsts(NamedTuple):
                     ConnectionTypes.Kindergarten: 0,
                     ConnectionTypes.School: 0,
                     ConnectionTypes.Family: 1.0,
-                    ConnectionTypes.Synagogue: 0.15,
                     ConnectionTypes.Other: 1.0,
                 },
             ],
@@ -74,7 +71,6 @@ class CirclesConsts(NamedTuple):
                     ConnectionTypes.Kindergarten: 0.1,
                     ConnectionTypes.School: 0.85,
                     ConnectionTypes.Family: 1.0,
-                    ConnectionTypes.Synagogue: 0.14,
                     ConnectionTypes.Other: 1.0,
                 },
                 {
@@ -82,7 +78,6 @@ class CirclesConsts(NamedTuple):
                     ConnectionTypes.Kindergarten: 0,
                     ConnectionTypes.School: 0,
                     ConnectionTypes.Family: 1.0,
-                    ConnectionTypes.Synagogue: 0.15,
                     ConnectionTypes.Other: 1.0,
                 },
                 {
@@ -90,7 +85,6 @@ class CirclesConsts(NamedTuple):
                     ConnectionTypes.Kindergarten: 0,
                     ConnectionTypes.School: 0,
                     ConnectionTypes.Family: 1.0,
-                    ConnectionTypes.Synagogue: 0.15,
                     ConnectionTypes.Other: 1.0,
                 },
             ],

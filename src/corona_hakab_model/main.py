@@ -163,9 +163,9 @@ def run_simulation(args):
     sm.run()
     df: pd.DataFrame = sm.dump(filename=args.output)
     df[[
-        'New Asymptomatic',
-        'Asymptomatic',
-        'Asymptomatic So Far',
+        'New AsymptomaticBegin',
+        'AsymptomaticBegin',
+        'AsymptomaticBegin So Far',
         'currently sick', 
         'was ever sick', 
         'new infected', 

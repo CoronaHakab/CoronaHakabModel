@@ -83,8 +83,12 @@ class GeographicCircle(Circle):
                     agent_connection_types.append(education_type)
 
             # handle other connection types. This single FOR condition contains words "connection" and "type" 9 times
-            for connection_type in [connection_type for connection_type in ConnectionTypes if connection_type not in [
-                ConnectionTypes.School, ConnectionTypes.Work, ConnectionTypes.Kindergarten]]:
+            for connection_type in ConnectionTypes:
+                if connection_type in [ConnectionTypes.School, ConnectionTypes.Work, ConnectionTypes.Kindergarten]:
+                    continue
+                if connection_type in Religous_types:
+                    # decided for entire family, not for individual agents
+                    continue
 
                 if np.random.random() < self.data_holder.connection_types_prob_by_age[age][connection_type]:
                     agent_connection_types.append(connection_type)
@@ -92,19 +96,11 @@ class GeographicCircle(Circle):
             for connection_type in agent_connection_types:
                 self.connection_type_to_agents[connection_type].append(agent)
 
-    def create_inner_social_circles(self):
-        self.create_families()      
+    def create_single_agent_inner_social_circles(self):   
         for connection_type in In_Zone_types:
-            if connection_type != ConnectionTypes.Family:
-                if connection_type in Religous_types:
-                    agents_for_type = []
-                    for circle in self.connection_type_to_social_circles[ConnectionTypes.Family]:
-                        # if one is religous, family is religous
-                        if next(iter(circle.agents)).is_religous:
-                            agents_for_type.extend(circle.agents)
-                else:
-                    agents_for_type = self.connection_type_to_agents[connection_type]
-                self.create_social_circles_by_type(connection_type, agents_for_type)
+            if connection_type == ConnectionTypes.Family:
+                continue
+            self.create_social_circles_by_type(connection_type, self.connection_type_to_agents[connection_type])
 
     def create_families(self):
         self.create_social_circles_by_type(
@@ -115,10 +111,9 @@ class GeographicCircle(Circle):
         # because of the way circles are created, some families have more then the max in the consts, and this causes an out of range
         max_family_size = self.data_holder.circles_size_distribution_by_connection_type[ConnectionTypes.Family][0][-1]
         for i, family in enumerate(self.connection_type_to_social_circles[ConnectionTypes.Family]):
-            if is_religous[i] < self.data_holder.religousness_by_family_size[min(family.agent_count, max_family_size)-1]:
-                for agent in family.agents:
-                    agent.is_religous = True
-                    
+            family_size = min(family.agent_count, max_family_size)
+            if is_religous[i] < self.data_holder.religousness_by_family_size[family_size-1]:
+                self.connection_type_to_agents[ConnectionTypes.Synagogue].extend(family.agents)    
 
     def create_social_circles_by_type(self, connection_type: ConnectionTypes, agents_for_type: List["Agent"]):
         """
@@ -151,7 +146,6 @@ class GeographicCircle(Circle):
             circles = [SocialCircle(connection_type) for _ in range(amount_of_circles)]
             # index is used to go over all circles in the size group s.t. the population is divided as qeually as possible
             index = 0
-
             # if the distribution is age dependent, fill adults first.
             # check if there is a distribution of adults in for the connection_type
             adult_type_distribution = self.data_holder.adult_distributions.get(connection_type)

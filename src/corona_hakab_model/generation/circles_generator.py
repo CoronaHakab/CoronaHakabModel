@@ -91,7 +91,8 @@ class CirclesGenerator:
         # set up each geographic circle
         for geo_circle in self.geographic_circles:
             geo_circle.generate_agents_ages_and_connections_types()
-            geo_circle.create_inner_social_circles()
+            geo_circle.create_families()
+            geo_circle.create_single_agent_inner_social_circles()
             geo_circle.add_self_agents_to_dict(geographic_circle_to_agents_by_connection_types)
 
         # create multi-geographical social circles, and allocate agents
