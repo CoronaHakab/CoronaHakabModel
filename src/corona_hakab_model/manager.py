@@ -142,8 +142,10 @@ class SimulationManager:
         new_infection_cases = self.infection_manager.infection_step()
         for agent, new_infection_case in new_infection_cases.items():
             self.sick_agents.add_agent(agent.get_snapshot())
-            self.new_sick_by_infection_method[new_infection_case.connection_type] += 1
-            self.new_sick_by_infector_medical_state[new_infection_case.infector_agent.medical_state.name] += 1
+
+            if self.consts.backtrack_infection_sources:
+                self.new_sick_by_infection_method[new_infection_case.connection_type] += 1
+                self.new_sick_by_infector_medical_state[new_infection_case.infector_agent.medical_state.name] += 1
         
         # progress transfers
         medical_machine_step_result = self.medical_state_manager.step(new_infection_cases.keys())

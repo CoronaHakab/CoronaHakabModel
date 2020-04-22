@@ -52,7 +52,7 @@ class Consts(NamedTuple):
     population_size_for_state_machine_analysis: int = 25_000
 
     # Backtrack infection sources?
-    backtrack_infection_sources = False
+    backtrack_infection_sources: bool = False
 
     # Tsvika: Currently the distribution is selected based on the number of input parameters.
     # Think we should do something more readable later on.

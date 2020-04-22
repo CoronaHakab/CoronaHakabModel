@@ -22,6 +22,9 @@
     # Size of population to estimate expected time for each state
     "population_size_for_state_machine_analysis": 25_000,
 
+    # Backtrack infection sources?
+    "backtrack_infection_sources": False,
+
     # Tsvika: Currently the distribution is selected based on the number of input parameters.
     # Think we should do something more readable later on.
     # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
