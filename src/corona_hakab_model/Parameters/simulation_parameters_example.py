@@ -199,7 +199,7 @@
                 message="closing all schools",
             ),
             ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector) < 500,
+                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) < 500,
                 policy=Policy(1, [lambda circle: False]),
                 active=True,
                 message="opening all schools",
@@ -207,12 +207,12 @@
         ],
         ConnectionTypes.Kindergarten: [
             ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector) > 1000,
+                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
                 policy=Policy(0, [lambda circle: True]),
                 message="closing all kindergartens",
             ),
             ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector) < 500,
+                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) < 500,
                 policy=Policy(1, [lambda circle: False]),
                 active=True,
                 message="opening all kindergartens",
@@ -220,12 +220,12 @@
         ],
         ConnectionTypes.Work: [
             ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector) > 1000,
+                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
                 policy=Policy(0, [lambda circle: True]),
                 message="closing all workplaces",
             ),
             ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector) < 500,
+                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) < 500,
                 policy=Policy(0, [lambda circle: False]),
                 active=True,
                 message="opening all workplaces",

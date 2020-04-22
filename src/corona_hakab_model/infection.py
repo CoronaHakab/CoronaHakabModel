@@ -93,7 +93,7 @@ class InfectionManager:
                 for agent_index in infected_indices}
     
     def _get_infection_info(self, agent_index, possible_infectors):
-        if not self.manager.consts.backtrack_infection_sources:  # PATCHY AS FUCK
+        if not self.manager.consts.backtrack_infection_sources:
             return None
 
         infection_cases = []
@@ -113,7 +113,7 @@ class InfectionManager:
         return infection_cases[np.random.choice(len(infection_cases), p=infection_probabilities)]  
     
     def _get_random_infection_info(self, agent_id, infection_probs):
-        if not self.manager.consts.backtrack_infection_sources:  # PATCHY AS FUCK
+        if not self.manager.consts.backtrack_infection_sources:
             return None
 
         # determine infection method
