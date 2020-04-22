@@ -45,6 +45,10 @@ def get_simulation_args_parser():
     sim.add_argument(
         "-s", "--simulation-parameters", dest="simulation_parameters_path", help="Parameters for simulation engine"
     )
+    compare_to_csv = subparser.add_parser("shift-real-life", help="First input is real life csv with "
+                                                                  "statistics and seconds is simulation output."
+                                                                  " Shifts the real life statistics so "
+                                                                  "its time will best fit to simulation")
     state_machine = subparser.add_parser("analyze-state-machine", help="Run stochastic analyzer for the state machine")
     state_machine.add_argument("--population_size",
                                dest="population_size",

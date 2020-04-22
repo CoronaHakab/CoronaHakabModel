@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 
 import numpy as np
 
+from analyzers.fit_to_graph import compare_real_to_simulation
 from analyzers.state_machine_analysis import extract_state_machine_analysis
 from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
 from consts import Consts
@@ -40,6 +41,11 @@ def main():
 
     if args.sub_command == 'analyze-matrix':
         analyze_matrix(args)
+
+    if args.sub_command == 'shift-real-life':
+        assert sys.argv == 3, "Needs to give 2 parameters as input"
+        compare_real_to_simulation(sys.argv[1],
+                                   sys.argv[2])
 
     if args.sub_command == 'generate':
         generate_data(args)
