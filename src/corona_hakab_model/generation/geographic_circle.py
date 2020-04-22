@@ -3,7 +3,8 @@ from typing import List
 import numpy as np
 from generation.circles import Circle, SocialCircle
 from generation.circles_consts import GeographicalCircleDataHolder
-from generation.connection_types import ConnectionTypes, In_Zone_types, Multi_Zone_types, Education_Types
+from generation.connection_types import ConnectionTypes, In_Zone_types, Multi_Zone_types, Education_Types,\
+    Religous_types
 from util import rv_discrete
 
 
@@ -74,9 +75,32 @@ class GeographicCircle(Circle):
                 self.connection_type_to_agents[connection_type].append(agent)
             
     def create_inner_social_circles(self):
-        # todo notice that family connection types doesnt notice between ages
+        self.create_families()      
         for connection_type in In_Zone_types:
-            self.create_social_circles_by_type(connection_type, self.connection_type_to_agents[connection_type])
+            if connection_type != ConnectionTypes.Family:
+                if connection_type in Religous_types:
+                    agents_for_type = []
+                    for circle in self.connection_type_to_social_circles[ConnectionTypes.Family]:
+                        # if one is religous, family is religous
+                        if next(iter(circle.agents)).is_religous:
+                            agents_for_type.extend(circle.agents)
+                else:
+                    agents_for_type = self.connection_type_to_agents[connection_type]
+                self.create_social_circles_by_type(connection_type, agents_for_type)
+
+    def create_families(self):
+        self.create_social_circles_by_type(
+            ConnectionTypes.Family, 
+            self.connection_type_to_agents[ConnectionTypes.Family])
+        
+        is_religous = np.random.random(size=len(self.connection_type_to_social_circles[ConnectionTypes.Family]))
+        # because of the way circles are created, some families have more then the max in the consts, and this causes an out of range
+        max_family_size = self.data_holder.circles_size_distribution_by_connection_type[ConnectionTypes.Family][0][-1]
+        for i, family in enumerate(self.connection_type_to_social_circles[ConnectionTypes.Family]):
+            if is_religous[i] < self.data_holder.religousness_by_family_size[min(family.agent_count, max_family_size)-1]:
+                for agent in family.agents:
+                    agent.is_religous = True
+                    
 
     def create_social_circles_by_type(self, connection_type: ConnectionTypes, agents_for_type: List["Agent"]):
         """

@@ -119,6 +119,7 @@ class CirclesConsts(NamedTuple):
         {ConnectionTypes.Work: {"north": 0.7, "south": 0.3}},
         {ConnectionTypes.Work: {"north": 0.2, "south": 0.8}},
     ]
+    religousness_by_family_size_distribution = [0.1, 0.2, 0.2, 0.2, 0.3, 0.7, 1]
 
 
 
@@ -153,6 +154,7 @@ class CirclesConsts(NamedTuple):
                 self.get_connection_types_prob_by_age(geo_circle),
                 self.multi_zone_connection_type_to_geo_circle_probability[i],
                 self.get_required_adult_distributions(geo_circle),
+                self.religousness_by_family_size_distribution,
                 geo_circle["teachers_workforce_ratio"],
                 geo_circle["kindergarten_workforce_ratio"]
             )
@@ -226,7 +228,6 @@ class CirclesConsts(NamedTuple):
             ConnectionTypes.Family: family_distributions
         }
 
-
 class GeographicalCircleDataHolder:
     __slots__ = (
         "name",
@@ -237,6 +238,7 @@ class GeographicalCircleDataHolder:
         "circles_size_distribution_by_connection_type",
         "multi_zone_connection_type_to_geo_circle_probability",
         "adult_distributions",
+        "religousness_by_family_size",
         "teachers_workforce_ratio",
         "kindergarten_workforce_ratio"
     )
@@ -251,6 +253,7 @@ class GeographicalCircleDataHolder:
             connection_types_prob_by_age,
             multi_zone_connection_type_to_geo_circle_probability,
             adult_distributions,
+            religousness_by_family_size,
             teachers_workforce_ratio,
             kindergarten_workforce_ratio
     ):
@@ -261,5 +264,6 @@ class GeographicalCircleDataHolder:
         self.circles_size_distribution_by_connection_type = circles_size_distribution_by_connection_type
         self.multi_zone_connection_type_to_geo_circle_probability = multi_zone_connection_type_to_geo_circle_probability
         self.adult_distributions = adult_distributions
+        self.religousness_by_family_size = religousness_by_family_size
         self.teachers_workforce_ratio = teachers_workforce_ratio
         self.kindergarten_workforce_ratio = kindergarten_workforce_ratio
