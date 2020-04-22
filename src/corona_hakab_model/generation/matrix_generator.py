@@ -138,6 +138,9 @@ class MatrixGenerator:
 
     def _create_fully_connected_circles_matrix(self, con_type: ConnectionTypes, circles: List[SocialCircle], depth):
         connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
+        if connection_strength == 0:
+            return
+
         for circle in circles:
             ids = np.array([a.index for a in circle.agents])
             vals = np.full_like(ids, connection_strength, dtype=np.float32)
@@ -152,6 +155,9 @@ class MatrixGenerator:
         connections = [[] for _ in self.agents]
         # gets data from matrix consts
         connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
+        if connection_strength == 0:
+            return
+
         daily_connections_float = self.matrix_consts.daily_connections_amount_by_connection_type[con_type]
         weekly_connections_float = self.matrix_consts.weekly_connections_amount_by_connection_type[con_type]
         total_connections_float = daily_connections_float + weekly_connections_float
@@ -234,12 +240,18 @@ class MatrixGenerator:
         for agent, conns in zip(self.agents, connections):
             conns = np.array(conns)
             conns.sort()
-            # rolls for each connection, whether it is daily or weekly
-            daily_share = daily_connections_float / total_connections_float
-            weekly_share = weekly_connections_float / total_connections_float
-            strengthes = np.random.choice(
-                [connection_strength, connection_strength / 7], size=len(conns), p=[daily_share, weekly_share]
-            )
+
+            if total_connections_float == 0:
+                strengthes = np.array([0] * len(conns))
+            else:
+                # rolls for each connection, whether it is daily or weekly
+                daily_share = daily_connections_float / total_connections_float
+                weekly_share = weekly_connections_float / total_connections_float
+
+                strengthes = np.random.choice(
+                    [connection_strength, connection_strength / 7], size=len(conns), p=[daily_share, weekly_share]
+                )
+
             # check if some strengths were determined earlier
             for conn in conns:
                 known_strength = known_strengths.get((conn, agent.index), None)
@@ -257,6 +269,9 @@ class MatrixGenerator:
         connections = [[] for _ in self.agents]
         # gets data from matrix consts
         connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
+        if connection_strength == 0:
+            return
+
         daily_connections_float = self.matrix_consts.daily_connections_amount_by_connection_type[con_type]
         weekly_connections_float = self.matrix_consts.weekly_connections_amount_by_connection_type[con_type]
         total_connections_float = daily_connections_float + weekly_connections_float
@@ -321,15 +336,17 @@ class MatrixGenerator:
         for agent, conns in zip(self.agents, connections):
             conns = np.array(conns)
             conns.sort()
-            # rolls for each connection, whether it is daily or weekly
-            strengthes = np.random.choice(
-                [connection_strength, connection_strength / 7],
-                size=len(conns),
-                p=[
-                    daily_connections_float / total_connections_float,
-                    weekly_connections_float / total_connections_float,
-                ],
-            )
+
+            if total_connections_float == 0:
+                strengthes = np.array([0] * len(conns))
+            else:
+                # rolls for each connection, whether it is daily or weekly
+                daily_share = daily_connections_float / total_connections_float
+                weekly_share = weekly_connections_float / total_connections_float
+                strengthes = np.random.choice(
+                    [connection_strength, connection_strength / 7], size=len(conns), p=[daily_share, weekly_share],
+                )
+
             # check if some strengths were determined earlier
             for conn in conns:
                 known_strength = known_strengths.get((conn, agent.index), None)
@@ -338,7 +355,7 @@ class MatrixGenerator:
                     del known_strengths[(conn, agent.index)]
                 else:
                     # connection is new. store the strength for future use
-                    known_strengths[(agent.index, conn)] = strengthes[np.where(conns==conn)] 
+                    known_strengths[(agent.index, conn)] = strengthes[np.where(conns==conn)]
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
 
@@ -387,6 +404,10 @@ class MatrixGenerator:
         :param shape: amount of wanted rolls
         :return: numpy array of ints, each is either floor or ceil
         """
+        if x.is_integer():
+            return np.array([x] * shape)
+
         floor_prob = math.ceil(x) - x
         ceil_prob = x - math.floor(x)
+
         return np.random.choice([math.floor(x), math.ceil(x)], size=shape, p=[floor_prob, ceil_prob])
