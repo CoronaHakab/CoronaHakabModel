@@ -86,6 +86,7 @@ class ConditionedPolicy:
 
     def __init__(self, condition_params: Callable[[Any], Any], activating_condition: Callable[[Any], bool],
                  policy: Policy, circle_filter=None, active=False, message=""):
+        # conditioned param must return a numpy array with size equivalent to number of agents
         self.condition_params = condition_params
         self.activating_condition = activating_condition
         self.policy = policy
