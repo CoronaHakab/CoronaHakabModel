@@ -100,6 +100,10 @@
     - The module implements both specific and generic methods to allow the user flexibility
 - To run the module first run the simulation few times, you can do that from the file main.py
 - For examples of usage of the module run python src/corona_hakab_model/analyzers/example_script.py, the script plots  a few graphs and demonstrates the usage of the functions.
+### Compare outputs of simulation to real life
+- This still does not compare real life example to simulation.
+- This module shifts the real time csv to best fit inputed simulation output.
+- To use run **python main.py shift-real-life** with first argument as csv to compare to, second argument simulation output
 ### Population Analyser
 - The population analyser reads a population data file (generated with the simulator, usually "population_data.pickle") and outputs a histogram of population ages, and social circles sizes by type.
 - to use, run **python generation_analysis\population_analysis.py**
