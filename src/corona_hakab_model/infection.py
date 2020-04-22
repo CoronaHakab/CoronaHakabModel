@@ -7,6 +7,7 @@ import numpy as np
 from agent import Agent
 from generation import connection_types
 import agent
+from generation.connection_types import ConnectionTypes
 
 if TYPE_CHECKING:
     from manager import SimulationManager
@@ -92,6 +93,8 @@ class InfectionManager:
                 for agent_index in infected_indices}
     
     def _get_infection_info(self, agent_index, possible_infectors):
+        if not self.manager.consts.backtrack_infection_sources:  # PATCHY AS FUCK
+            return InfectionInfo(self.manager.agents[agent_index], ConnectionTypes.Other)
         infection_cases = []
         infection_probabilities = []
         non_zero_column = self.manager.matrix.non_zero_column(agent_index.item())
@@ -109,6 +112,8 @@ class InfectionManager:
         return infection_cases[np.random.choice(len(infection_cases), p=infection_probabilities)]  
     
     def _get_random_infection_info(self, agent_id, infection_probs):
+        if not self.manager.consts.backtrack_infection_sources:  # PATCHY AS FUCK
+            return InfectionInfo(self.manager.agents[agent_id], ConnectionTypes.Other)
         # determine infection method
         connection_type = np.random.choice(len(infection_probs), p=infection_probs/sum(infection_probs))
         
