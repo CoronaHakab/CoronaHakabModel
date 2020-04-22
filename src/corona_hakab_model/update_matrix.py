@@ -1,11 +1,12 @@
 from __future__ import annotations
-
+from functools import lru_cache
 from typing import Any, Callable, Iterable, TYPE_CHECKING
 
 import numpy as np
 
 from analyzers.state_machine_analysis import monte_carlo_state_machine_analysis
-from generation.circles import SocialCircle, Circle
+from generation.circles import SocialCircle, CircleFilter
+from generation.geographic_circle import GeographicCircle
 from generation.connection_types import ConnectionTypes
 from policies_manager import ConditionedPolicy, Policy, PolicyByCircles
 
@@ -123,8 +124,11 @@ class UpdateMatrixManager:
             condition_params = {key: value(activating_condition_kwargs) for key, value in conditioned_policy.condition_params.items()}
             if conditioned_policy.circle_filter:
                 # check and apply condintion for each circle_filter
-                for circle_instance in conditioned_policy.circle_filter.get_circles():
-                    mask = [circle_instance.uuid == x.uuid for x in self.manager.geographic_circle_by_agent_index.values()]
+                for circle_option in conditioned_policy.circle_filter.options:
+                    mask = get_filter_mask(conditioned_policy.circle_filter.circle, circle_option, self.manager)
+                    assert all(len(mask) == len(value) for value in condition_params.values()), \
+                             "Condition param size must be equivalent to the number of agents"
+
                     filtered_condition_params = {key: value[mask] for key, value in condition_params.items()}
                     if conditioned_policy.activating_condition(filtered_condition_params):
                         self.apply(con_type, circles, conditioned_policy.policy, mask=mask)
@@ -157,3 +161,11 @@ class UpdateMatrixManager:
                                                                                        row_index), "Matrix is not symmetric"
                     assert 1 >= self.matrix.get(row_index,
                                                 column_index) >= 0, "Some values in the matrix are not probabilities"
+@lru_cache
+def get_filter_mask(cirlce_name: str, option: str, manager):
+    if cirlce_name == GeographicCircle.__name__:
+        return [option == agent.get_snapshot().geographic_circle for agent in manager.agents]
+    if cirlce_name == SocialCircle.__name__:
+        return [any(option == social_circle.type 
+                    for social_circle in agent.get_snapshot().social_circles)
+                            for agent in manager.agents]
