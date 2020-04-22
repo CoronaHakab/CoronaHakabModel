@@ -2,7 +2,7 @@ import logging
 from typing import Any, Callable, Iterable, List
 
 import numpy as np
-from generation.circles import Circle, SocialCircle
+from generation.circles import SocialCircle
 from generation.connection_types import ConnectionTypes
 
 
