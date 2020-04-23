@@ -48,7 +48,8 @@ class SimulationProgression:
             s.snapshot(manager)
 
     def dump(self, filename=None):
-        file_name = Path(filename) if filename else SIM_OUTPUT_FOLDER / ("final_results.csv")
+        file_name = Path(filename) if filename else SIM_OUTPUT_FOLDER
+        file_name = file_name / "final_results.csv"
         file_name.parent.mkdir(parents=True, exist_ok=True)
 
         tabular_supervisables = [s for s in self.supervisables if isinstance(s, TabularSupervisable)]
