@@ -53,13 +53,7 @@ class InfectionManager:
         # u = mat dot_product v (log of the probability that an agent will get infected)
         u = self.manager.matrix.prob_any(v)
 
-        # TODO: REMOVE THIS SHIT
-        if self.manager.consts.social_distancing_start_time < self.manager.current_step < \
-                self.manager.consts.social_distancing_start_end:
-            decay_factor = self.manager.consts.social_distancing_factor ** (
-                    self.manager.current_step - self.manager.consts.social_distancing_start_time + 1
-            )
-            u *= decay_factor
+        u *= self.manager.social_distancing_current_factor  # TODO: Remove
 
         # calculate the infections boolean vector
         infections = self.manager.susceptible_vector & (np.random.random(u.shape) < u)
@@ -69,15 +63,7 @@ class InfectionManager:
                 infected_indices}
 
     def _infect_random_connections(self) -> Dict[Agent, InfectionInfo]:
-        factor = np.copy(self.manager.random_connections_factor)
-
-        # TODO: REMOVE THIS SHIT
-        if self.manager.consts.social_distancing_start_time < self.manager.current_step < \
-                self.manager.consts.social_distancing_start_end:
-            decay_factor = self.manager.consts.social_distancing_factor ** (
-                    self.manager.current_step - self.manager.consts.social_distancing_start_time + 1
-            )
-            factor *= decay_factor
+        factor = np.copy(self.manager.random_connections_factor) * self.manager.social_distancing_current_factor
 
         connections = self.manager.num_of_random_connections * factor
         probs_not_infected_from_connection = np.ones_like(connections, dtype=float)

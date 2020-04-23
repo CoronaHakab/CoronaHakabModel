@@ -96,6 +96,7 @@ class SimulationManager:
         self.policy_manager = PolicyManager(self)
 
         self.current_step = 0
+        self.social_distancing_current_factor = 1
 
         # initializing data for supervising
         # dict(day:int -> message:string) saving policies messages
@@ -130,6 +131,11 @@ class SimulationManager:
 
 
         self.policy_manager.perform_policies()
+
+        # TODO: REMOVE THIS SHIT
+        if self.consts.social_distancing_start_time < self.current_step < \
+                self.consts.social_distancing_start_end:
+            self.social_distancing_current_factor *= self.consts.social_distancing_factor
 
         # run tests
         new_tests = self.healthcare_manager.testing_step()
