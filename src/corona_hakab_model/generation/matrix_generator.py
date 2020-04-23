@@ -405,7 +405,7 @@ class MatrixGenerator:
         :return: numpy array of ints, each is either floor or ceil
         """
         if x.is_integer():
-            return np.array([x] * shape)
+            return np.array([int(x)] * shape)
 
         floor_prob = math.ceil(x) - x
         ceil_prob = x - math.floor(x)
