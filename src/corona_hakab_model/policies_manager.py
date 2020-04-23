@@ -13,7 +13,7 @@ class PolicyManager:
         self.consts = manager.consts
         self.logger = manager.logger
         # For each applied policy, save a list of affected circles
-        self.daily_affected_circles: Dict[str, List[SocialCircle]] = None
+        self.daily_affected_circles: Dict[ConditionedPolicy, List[SocialCircle]] = None
 
     def perform_policies(self):
         """
@@ -57,9 +57,9 @@ class PolicyManager:
     def update_daily_affected_circles(self, affected_circles, conditioned_policy):
         if self.daily_affected_circles is None:
             self.daily_affected_circles = {}
-        if conditioned_policy.message not in self.daily_affected_circles:
-            self.daily_affected_circles[conditioned_policy.message] = []
-        self.daily_affected_circles[conditioned_policy.message] += affected_circles
+        if conditioned_policy not in self.daily_affected_circles:
+            self.daily_affected_circles[conditioned_policy] = []
+        self.daily_affected_circles[conditioned_policy] += affected_circles
 
     def add_message_to_manager(self, message: str):
         if message == "":

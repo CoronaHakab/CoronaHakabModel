@@ -306,17 +306,17 @@ class _AppliedPolicyReportSupervisable(TabularSupervisable):
         return "policy_activation_stats"
 
     def get(self, manager: "manager.SimulationManager"):
-        policy_message_to_circles_dict = manager.policy_manager.daily_affected_circles
+        conditioned_policy_to_circles_dict = manager.policy_manager.daily_affected_circles
         affected_circles_report = {
             'policy_type': [], 'circle_size': [], 'circle_kind': [], 'circle_connection_type': []
         }
-        for message, circles in policy_message_to_circles_dict.items():
-            self.update_affected_circles_report(affected_circles_report, circles, message)
+        for policy, circles in conditioned_policy_to_circles_dict.items():
+            _AppliedPolicyReportSupervisable.update_affected_circles_report(affected_circles_report, circles, policy)
         return affected_circles_report
 
     @staticmethod
-    def update_affected_circles_report(affected_circles_report, affected_circles, conditioned_policy_message):
-        affected_circles_report['policy_type'] += [conditioned_policy_message] * len(affected_circles)
+    def update_affected_circles_report(affected_circles_report, affected_circles, conditioned_policy):
+        affected_circles_report['policy_type'] += [conditioned_policy.message] * len(affected_circles)
         affected_circles_report['circle_size'] += [c.agent_count for c in affected_circles]
         affected_circles_report['circle_kind'] += [c.kind for c in affected_circles]
         affected_circles_report['circle_connection_type'] += [c.connection_type.name for c in affected_circles]
