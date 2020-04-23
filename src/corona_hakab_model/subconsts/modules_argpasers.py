@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 from __data__ import __version__
-from project_structure import OUTPUT_FOLDER
+from project_structure import OUTPUT_FOLDER, SIM_OUTPUT_FOLDER
 
 
 def get_simulation_args_parser():
@@ -70,7 +70,7 @@ def get_simulation_args_parser():
                      help='Output csv file for all sick agents - at the end of the simulation run')
     sim.add_argument('--output',
                      dest='output',
-                     default='',
+                     default=SIM_OUTPUT_FOLDER,
                      help='Filepath to resulting csv. Defaults to {}'.format(OUTPUT_FOLDER/'(timestamp).csv'))
     sim.add_argument('--figure-path',
                      dest='figure_path',

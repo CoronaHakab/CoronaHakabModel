@@ -7,7 +7,6 @@ from abc import ABC, abstractmethod
 from functools import lru_cache
 from typing import Any, Callable, List, NamedTuple, Sequence, Union, Dict
 
-from project_structure import SIM_OUTPUT_FOLDER
 from pathlib import Path
 import manager
 from state_machine import StochasticState
@@ -47,9 +46,8 @@ class SimulationProgression:
         for s in self.supervisables:
             s.snapshot(manager)
 
-    def dump(self, filename=None):
-        file_name = Path(filename) if filename else SIM_OUTPUT_FOLDER
-        file_name = file_name / "final_results.csv"
+    def dump(self, filename):
+        file_name = Path(filename) / "final_results.csv"
         file_name.parent.mkdir(parents=True, exist_ok=True)
 
         tabular_supervisables = [s for s in self.supervisables if isinstance(s, TabularSupervisable)]
