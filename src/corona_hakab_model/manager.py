@@ -133,8 +133,7 @@ class SimulationManager:
         self.policy_manager.perform_policies()
 
         # TODO: REMOVE THIS SHIT
-        if self.consts.social_distancing_start_time < self.current_step < \
-                self.consts.social_distancing_start_end:
+        if self.consts.social_distancing_start_time <= self.current_step <= self.consts.social_distancing_start_end:
             self.social_distancing_current_factor *= self.consts.social_distancing_factor
 
         # run tests
