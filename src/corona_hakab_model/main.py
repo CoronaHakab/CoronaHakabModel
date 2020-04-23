@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import random
 import os.path
+from pathlib import Path
 import sys
 from matplotlib import pyplot as plt
 
@@ -67,6 +68,9 @@ def main():
 
 def generate_data(args):
     print(args)
+
+    Path(args.output_folder).mkdir(parents=True, exist_ok=True)
+
     if args.consts_folder:
         generate_from_folder(args.consts_folder)
         return
@@ -83,6 +87,10 @@ def generate_data(args):
 
 
 def run_simulation(args):
+    print(args)
+
+    Path(args.output).mkdir(parents=True, exist_ok=True)
+
     matrix_data = MatrixData.import_matrix_data(args.matrix_data)
     population_data = PopulationData.import_population_data(args.population_data)
     initial_agent_constraints = InitialAgentsConstraints(args.agent_constraints_path)
