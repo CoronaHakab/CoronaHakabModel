@@ -14,7 +14,7 @@ do
    echo "Running iteration ${i} in the background"
 done
 echo "Running iteration ${i}, it might take a while..."
-python3.8 ./src/corona_hakab_model/main.py simulate --population-data "${output_folder}/population_data.pickle" --matrix-data "${output_folder}/matrix_data.parasymbolic" -s $simulation_consts "${output_folder}/${i}"
+python3.8 ./src/corona_hakab_model/main.py simulate --population-data "${output_folder}/population_data.pickle" --matrix-data "${output_folder}/matrix_data.parasymbolic" -s $simulation_consts --output "${output_folder}/${i}"
 echo "Finished iteration ${1}"
 echo "Other outputs folders:"
 for ((i=0; i< $num_of_runs - 1; i++))
