@@ -16,9 +16,7 @@ EXPORT_MATRIX_FILE = "raw_matrix_connection_type_{}.csv"
 
 # create output directories
 EXPORT_HISTOGRAM_DIR = Path(project_structure.OUTPUT_FOLDER / "matrix_analysis" / "histogram_analysis")
-EXPORT_HISTOGRAM_DIR.mkdir(parents=True, exist_ok=True)
 EXPORT_MATRIX_DIR = Path(project_structure.OUTPUT_FOLDER / "matrix_analysis" / "raw_matrices")
-EXPORT_MATRIX_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def import_matrix_data(matrix_data_path):
@@ -57,6 +55,7 @@ def export_matrix_to_csv(connection_matrix, conn_name):
     connections = sorted(connections)
 
     headers = ['agent', 'connection', 'value']
+    EXPORT_MATRIX_DIR.mkdir(parents=True, exist_ok=True)
     export_file_path = EXPORT_MATRIX_DIR / EXPORT_MATRIX_FILE.format(conn_name)
     with open(export_file_path, 'w', newline='') as matrix_file:
         csv_writer = csv.writer(matrix_file, delimiter=',')
@@ -104,6 +103,7 @@ def export_histograms(histograms):
 def export_histogram_to_csv(name, histogram, bins, average_value, median_value):
     headers = ['number  of connections', 'count', 'average', 'median']
     values = zip_longest(bins.tolist(), histogram.tolist(), [average_value], [median_value])
+    EXPORT_HISTOGRAM_DIR.mkdir(parents=True, exist_ok=True)
     export_file_path = EXPORT_HISTOGRAM_DIR / EXPORT_HISTOGRAM_FILE.format(name)
     with open(export_file_path, 'w', newline='') as histogram_file:
         csv_writer = csv.writer(histogram_file, delimiter=',')

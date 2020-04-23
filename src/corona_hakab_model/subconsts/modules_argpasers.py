@@ -64,11 +64,9 @@ def get_simulation_args_parser():
                      help='Previously exported matrix data file to use in the simulation')
     sim.add_argument('--initial_sick',
                      dest='initial_sick_agents_path',
-                     default=OUTPUT_FOLDER / 'initial_sick.csv',
                      help='Output csv file for initial sick agents - after setup of simulation')
     sim.add_argument('--all_sick',
                      dest='all_sick_agents_path',
-                     default=OUTPUT_FOLDER / 'all_sick.csv',
                      help='Output csv file for all sick agents - at the end of the simulation run')
     sim.add_argument('--output',
                      dest='output',
