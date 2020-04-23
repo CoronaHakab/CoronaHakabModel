@@ -45,6 +45,10 @@ def get_simulation_args_parser():
     sim.add_argument(
         "-s", "--simulation-parameters", dest="simulation_parameters_path", help="Parameters for simulation engine"
     )
+    compare_to_csv = subparser.add_parser("shift-real-life", help="First input is real life csv with "
+                                                                  "statistics and seconds is simulation output."
+                                                                  " Shifts the real life statistics so "
+                                                                  "its time will best fit to simulation")
     state_machine = subparser.add_parser("analyze-state-machine", help="Run stochastic analyzer for the state machine")
     state_machine.add_argument("--population_size",
                                dest="population_size",
@@ -82,9 +86,14 @@ def get_simulation_args_parser():
                      dest='randomize',
                      action="store_false",
                      default=True,
-                     help='makes the first sick patients the first in the list. this makes them more connected than random')
+                     help="Makes the first sick patients the first in the list."
+                          " This makes them more connected than random")
+    sim.add_argument('--validate-matrix',
+                     dest='validate_matrix',
+                     action='store_true',
+                     default=False,
+                     help='Validates if the matrix generated is symmetric and all the inputs are probabilities')
     sim.set_defaults(feature=True)
-
     parser.add_argument('--seed',
                         dest='seed',
                         type=int,

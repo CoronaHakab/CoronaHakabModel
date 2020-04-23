@@ -52,6 +52,9 @@ class Consts(NamedTuple):
     # Size of population to estimate expected time for each state
     population_size_for_state_machine_analysis: int = 25_000
 
+    # Backtrack infection sources?
+    backtrack_infection_sources: bool = False
+
     # Tsvika: Currently the distribution is selected based on the number of input parameters.
     # Think we should do something more readable later on.
     # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
@@ -223,15 +226,15 @@ class Consts(NamedTuple):
         ConnectionTypes.School: [
             ConditionedPolicy(
                 condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
-                activating_condition=lambda condition_params: np.sum(condition_params["contagiousness_vector"]) > 1000,
-                policy=Policy(0, [lambda circle: random() > 0]),
+                activating_condition=lambda condition_params: np.count_nonzero(condition_params["contagiousness_vector"] > 0) > 1000,
+                policy=Policy(0, [lambda circle: True]),
                 # circle_filter=CircleFilter(circle="GeographicCircle", options=["north", "south"]),
                 message="closing all schools",
             ),
             ConditionedPolicy(
                 condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
-                activating_condition=lambda condition_params: np.sum(condition_params["contagiousness_vector"]) < 500,
-                policy=Policy(1, [lambda circle: random() > 1]),
+                activating_condition=lambda condition_params: np.count_nonzero(condition_params["contagiousness_vector"] > 0) < 500,
+                policy=Policy(1, [lambda circle: False]),
                 active=True,
                 message="opening all schools",
             ),
@@ -239,14 +242,14 @@ class Consts(NamedTuple):
         ConnectionTypes.Kindergarten: [
             ConditionedPolicy(
                 condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
-                activating_condition=lambda condition_params: np.sum(condition_params["contagiousness_vector"]) > 1000,
-                policy=Policy(0, [lambda circle: random() > 0]),
+                activating_condition=lambda condition_params: np.count_nonzero(condition_params["contagiousness_vector"] > 0) > 1000,
+                policy=Policy(0, [lambda circle: True]),
                 message="closing all kindergartens",
             ),
             ConditionedPolicy(
                 condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
-                activating_condition=lambda condition_params: np.sum(condition_params["contagiousness_vector"]) < 500,
-                policy=Policy(1, [lambda circle: random() > 1]),
+                activating_condition=lambda condition_params: np.count_nonzero(condition_params["contagiousness_vector"] > 0) < 500,
+                policy=Policy(1, [lambda circle: False]),
                 active=True,
                 message="opening all kindergartens",
             ),
@@ -254,14 +257,14 @@ class Consts(NamedTuple):
         ConnectionTypes.Work: [
             ConditionedPolicy(
                 condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
-                activating_condition=lambda condition_params: np.sum(condition_params["contagiousness_vector"]) > 1000,
-                policy=Policy(0, [lambda circle: random() > 0]),
+                activating_condition=lambda condition_params: np.count_nonzero(condition_params["contagiousness_vector"] > 0) > 1000,
+                policy=Policy(0, [lambda circle: True]),
                 message="closing all workplaces",
             ),
             ConditionedPolicy(
                 condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
-                activating_condition=lambda condition_params: np.sum(condition_params["contagiousness_vector"]) < 500,
-                policy=Policy(0, [lambda circle: random() > 1]),
+                activating_condition=lambda condition_params: np.count_nonzero(condition_params["contagiousness_vector"] > 0) < 500,
+                policy=Policy(0, [lambda circle: False]),
                 active=True,
                 message="opening all workplaces",
             ),

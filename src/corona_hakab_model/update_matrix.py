@@ -32,7 +32,6 @@ class UpdateMatrixManager:
         self.normalize_factor = None
         self.total_contagious_probability = None
         self.normalize()
-        self.validate_matrix()
 
     def normalize(self):
         """
