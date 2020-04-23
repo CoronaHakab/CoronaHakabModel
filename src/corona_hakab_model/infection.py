@@ -47,12 +47,19 @@ class InfectionManager:
             if rand() < v[i]
                 agents[i].infect
         """
-
         # v = [True if an agent can infect other agents in this time step]
         v = np.random.random(len(self.manager.agents)) < self.manager.contagiousness_vector
 
         # u = mat dot_product v (log of the probability that an agent will get infected)
         u = self.manager.matrix.prob_any(v)
+
+        # TODO: REMOVE THIS SHIT
+        if self.manager.consts.social_distancing_start_time < self.manager.current_step < \
+                self.manager.consts.social_distancing_start_end:
+            decay_factor = self.manager.consts.social_distancing_factor ** (
+                    self.manager.current_step - self.manager.consts.social_distancing_start_time + 1
+            )
+            u *= decay_factor
 
         # calculate the infections boolean vector
         infections = self.manager.susceptible_vector & (np.random.random(u.shape) < u)
@@ -62,7 +69,17 @@ class InfectionManager:
                 infected_indices}
 
     def _infect_random_connections(self) -> Dict[Agent, InfectionInfo]:
-        connections = self.manager.num_of_random_connections * self.manager.random_connections_factor
+        factor = np.copy(self.manager.random_connections_factor)
+
+        # TODO: REMOVE THIS SHIT
+        if self.manager.consts.social_distancing_start_time < self.manager.current_step < \
+                self.manager.consts.social_distancing_start_end:
+            decay_factor = self.manager.consts.social_distancing_factor ** (
+                    self.manager.current_step - self.manager.consts.social_distancing_start_time + 1
+            )
+            factor *= decay_factor
+
+        connections = self.manager.num_of_random_connections * factor
         probs_not_infected_from_connection = np.ones_like(connections, dtype=float)
 
         for connection_type in connection_types.With_Random_Connections:
@@ -116,7 +133,7 @@ class InfectionManager:
     def _get_random_infection_info(self, agent_id: int, infection_probs: np.ndarray):
         if not self.manager.consts.backtrack_infection_sources:
             return None
-        
+
         # determine infection method
         connection_type = np.random.choice(len(infection_probs), p=infection_probs / np.sum(infection_probs))
 

@@ -48,6 +48,10 @@ class Consts(NamedTuple):
     initial_infected_count: int = 20
     export_infected_agents_interval: int = 50
 
+    social_distancing_start_time: int = 15
+    social_distancing_start_end: int = 20
+    social_distancing_factor: float = 0.9
+
     # Size of population to estimate expected time for each state
     population_size_for_state_machine_analysis: int = 25_000
 
@@ -117,7 +121,7 @@ class Consts(NamedTuple):
     # infections ratios, See bucket dict for more info on how to use.
     pre_symptomatic_infection_ratio: BucketDict = BucketDict({10: 1, 20: 1})  # x <= 10 then key is 10,
     asymptomatic_begin_infection_ratio: BucketDict = BucketDict({10: 1})
-    latent_infection_ratio: BucketDict = BucketDict({0: 0})   # if x greater than biggest key, x is biggest key
+    latent_infection_ratio: BucketDict = BucketDict({0: 0})  # if x greater than biggest key, x is biggest key
     mild_condition_infection_ratio: BucketDict = BucketDict({0: 0})
     latent_presymp_infection_ratio: BucketDict = BucketDict({0: 0})
     latent_asymp_infection_ratio: BucketDict = BucketDict({0: 0})
@@ -224,7 +228,8 @@ class Consts(NamedTuple):
     connection_type_to_conditioned_policy: Dict[ConnectionTypes, List[ConditionedPolicy]] = {
         ConnectionTypes.School: [
             ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
+                activating_condition=lambda kwargs: np.count_nonzero(
+                    kwargs["manager"].contagiousness_vector > 0) > 1000,
                 policy=Policy(0, [lambda circle: True]),
                 message="closing all schools",
             ),
@@ -237,7 +242,8 @@ class Consts(NamedTuple):
         ],
         ConnectionTypes.Kindergarten: [
             ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
+                activating_condition=lambda kwargs: np.count_nonzero(
+                    kwargs["manager"].contagiousness_vector > 0) > 1000,
                 policy=Policy(0, [lambda circle: True]),
                 message="closing all kindergartens",
             ),
@@ -250,7 +256,8 @@ class Consts(NamedTuple):
         ],
         ConnectionTypes.Work: [
             ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
+                activating_condition=lambda kwargs: np.count_nonzero(
+                    kwargs["manager"].contagiousness_vector > 0) > 1000,
                 policy=Policy(0, [lambda circle: True]),
                 message="closing all workplaces",
             ),
