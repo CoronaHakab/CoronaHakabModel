@@ -108,3 +108,9 @@ class SocialCircleConstraint:
             if not has_circle:
                 constraint_met = False
         return constraint_met
+
+
+@dataclass(frozen=True, eq=True)
+class CircleFilter:
+    circle: Circle
+    options: List[Any]

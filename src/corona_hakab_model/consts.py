@@ -10,6 +10,7 @@ from detection_model.healthcare import DetectionTest
 from generation.connection_types import ConnectionTypes
 from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
+from generation.circles import CircleFilter
 from policies_manager import ConditionedPolicy, Policy
 from state_machine import StochasticState, TerminalState
 from util import dist, rv_discrete, upper_bound, BucketDict
@@ -224,12 +225,15 @@ class Consts(NamedTuple):
     connection_type_to_conditioned_policy: Dict[ConnectionTypes, List[ConditionedPolicy]] = {
         ConnectionTypes.School: [
             ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
+                condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
+                activating_condition=lambda condition_params: np.count_nonzero(condition_params["contagiousness_vector"] > 0) > 1000,
                 policy=Policy(0, [lambda circle: True]),
+                # circle_filter=CircleFilter(circle="GeographicCircle", options=["north", "south"]),
                 message="closing all schools",
             ),
             ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) < 500,
+                condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
+                activating_condition=lambda condition_params: np.count_nonzero(condition_params["contagiousness_vector"] > 0) < 500,
                 policy=Policy(1, [lambda circle: False]),
                 active=True,
                 message="opening all schools",
@@ -237,12 +241,14 @@ class Consts(NamedTuple):
         ],
         ConnectionTypes.Kindergarten: [
             ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
+                condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
+                activating_condition=lambda condition_params: np.count_nonzero(condition_params["contagiousness_vector"] > 0) > 1000,
                 policy=Policy(0, [lambda circle: True]),
                 message="closing all kindergartens",
             ),
             ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) < 500,
+                condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
+                activating_condition=lambda condition_params: np.count_nonzero(condition_params["contagiousness_vector"] > 0) < 500,
                 policy=Policy(1, [lambda circle: False]),
                 active=True,
                 message="opening all kindergartens",
@@ -250,12 +256,14 @@ class Consts(NamedTuple):
         ],
         ConnectionTypes.Work: [
             ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
+                condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
+                activating_condition=lambda condition_params: np.count_nonzero(condition_params["contagiousness_vector"] > 0) > 1000,
                 policy=Policy(0, [lambda circle: True]),
                 message="closing all workplaces",
             ),
             ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) < 500,
+                condition_params={"contagiousness_vector": lambda kwargs: kwargs["manager"].contagiousness_vector},
+                activating_condition=lambda condition_params: np.count_nonzero(condition_params["contagiousness_vector"] > 0) < 500,
                 policy=Policy(0, [lambda circle: False]),
                 active=True,
                 message="opening all workplaces",

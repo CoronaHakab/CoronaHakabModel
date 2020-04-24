@@ -1,38 +1,17 @@
 from __future__ import annotations
-
+from functools import lru_cache
 from typing import Any, Callable, Iterable, TYPE_CHECKING
 
 import numpy as np
 
 from analyzers.state_machine_analysis import monte_carlo_state_machine_analysis
-from generation.circles import SocialCircle
+from generation.circles import SocialCircle, CircleFilter
+from generation.geographic_circle import GeographicCircle
 from generation.connection_types import ConnectionTypes
-from policies_manager import ConditionedPolicy
+from policies_manager import ConditionedPolicy, Policy, PolicyByCircles
 
 if TYPE_CHECKING:
     from manager import SimulationManager
-
-
-class Policy:
-    """
-    This represents a policy. 
-    """
-
-    def __init__(self, connection_change_factor: float, conditions: Iterable[Callable[[Any], bool]]):
-        self.factor = connection_change_factor
-        self.conditions = conditions
-
-    def check_applies(self, arg):
-        applies = True
-        for condition in self.conditions:
-            applies = applies and condition(arg)
-        return applies
-
-
-class PolicyByCircles:
-    def __init__(self, policy: Policy, circles: Iterable[SocialCircle]):
-        self.circles = circles
-        self.policy = policy
 
 
 class UpdateMatrixManager:
@@ -113,7 +92,7 @@ class UpdateMatrixManager:
         for conditioned_policy in self.consts.connection_type_to_conditioned_policy[connection_type]:
             conditioned_policy.active = False
 
-    def apply_policy_on_circles(self, policy: Policy, circles: Iterable[SocialCircle]):
+    def apply_policy_on_circles(self, policy: Policy, circles: Iterable[SocialCircle], mask=None):
         # for now, we will not update the matrix at all
         for circle in circles:
             # check if circle is relevent to conditions
@@ -126,7 +105,11 @@ class UpdateMatrixManager:
 
             connection_type = circle.connection_type
             factor = policy.factor
+
             for agent in circle.agents:
+                # filter agents to apply factor on
+                if mask and (not mask[agent.index]):
+                    continue
                 self.factor_agent(agent.index, connection_type, factor)
 
     def check_and_apply(
@@ -136,13 +119,33 @@ class UpdateMatrixManager:
             conditioned_policy: ConditionedPolicy,
             **activating_condition_kwargs,
     ):
-        if (not conditioned_policy.active) and conditioned_policy.activating_condition(activating_condition_kwargs):
-            self.logger.info("activating policy on circles")
-            self.reset_policies_by_connection_type(con_type)
-            self.apply_policy_on_circles(conditioned_policy.policy, circles)
-            conditioned_policy.active = True
-            # adding the message
-            self.manager.policy_manager.add_message_to_manager(conditioned_policy.message)
+        if not conditioned_policy.active:
+            condition_params = {key: value(activating_condition_kwargs) for key, value in conditioned_policy.condition_params.items()}
+            if conditioned_policy.circle_filter:
+                # check and apply condintion for each circle_filter
+                for circle_option in conditioned_policy.circle_filter.options:
+                    mask = get_filter_mask(conditioned_policy.circle_filter.circle, circle_option, self.manager)
+                    assert all(len(mask) == len(value) for value in condition_params.values()), \
+                             "Condition param size must be equivalent to the number of agents"
+
+                    filtered_condition_params = {key: value[mask] for key, value in condition_params.items()}
+                    if conditioned_policy.activating_condition(filtered_condition_params):
+                        self.apply(con_type, circles, conditioned_policy.policy, mask=mask)
+                        conditioned_policy.active = True
+                        # adding the message
+                        self.manager.policy_manager.add_message_to_manager(conditioned_policy.message)
+
+            elif conditioned_policy.activating_condition(condition_params):
+                self.apply(con_type, circles, conditioned_policy.policy)
+                conditioned_policy.active = True
+                # adding the message
+                self.manager.policy_manager.add_message_to_manager(conditioned_policy.message)
+
+
+    def apply(self, con_type: ConnectionTypes, circles: Iterable[SocialCircle], policy: Policy, mask=None):
+        self.logger.info("activating policy on circles")
+        self.reset_policies_by_connection_type(con_type)
+        self.apply_policy_on_circles(policy, circles, mask)
 
     def change_agent_relations_by_factor(self, agent, factor):
         for connection_type in ConnectionTypes:
@@ -157,3 +160,11 @@ class UpdateMatrixManager:
                                                                                        row_index), "Matrix is not symmetric"
                     assert 1 >= self.matrix.get(row_index,
                                                 column_index) >= 0, "Some values in the matrix are not probabilities"
+@lru_cache
+def get_filter_mask(cirlce_name: str, option: str, manager):
+    if cirlce_name == GeographicCircle.__name__:
+        return [option == agent.get_snapshot().geographic_circle for agent in manager.agents]
+    if cirlce_name == SocialCircle.__name__:
+        return [any(option == social_circle.type 
+                    for social_circle in agent.get_snapshot().social_circles)
+                            for agent in manager.agents]
