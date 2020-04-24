@@ -2,7 +2,7 @@ import logging
 import math
 from itertools import islice
 from random import random, choice, sample
-from typing import List
+from typing import List, Dict
 import os.path
 
 import bsa.universal
@@ -18,11 +18,10 @@ from generation.connection_types import (
     Geographic_Clustered_types,
     Random_Clustered_types,
 )
-from generation.matrix_consts import MatrixConsts
+from generation.matrix_consts import MatrixConsts, ConnectionTypeData
 from generation.node import Node
 from bsa.parasym import write_parasym, read_parasym
 from bsa.scipy_sparse import read_scipy_sparse
-import project_structure
 from project_structure import OUTPUT_FOLDER
 
 
@@ -30,7 +29,7 @@ class MatrixData:
     __slots__ = ("matrix_type", "matrix", "depth")
 
     # import/export variables
-    IMPORT_MATRIX_PATH = os.path.join(project_structure.OUTPUT_FOLDER, "matrix_data")
+    IMPORT_MATRIX_PATH = os.path.join(OUTPUT_FOLDER, "matrix_data")
 
     def __init__(self):
         self.matrix_type = None
@@ -99,7 +98,10 @@ class MatrixGenerator:
         self._unpack_population_data(population_data)
         self.size = len(self.agents)
         self.depth = len(ConnectionTypes)
+        self.connection_types_data: Dict[ConnectionTypes, ConnectionTypeData] = {
+            con_type: matrix_consts.get_connection_type_data(con_type) for con_type in ConnectionTypes}
 
+        # TODO can we remove this? don't think we really support scipy matrices anymore
         CoronaMatrix = corona_matrix.get_corona_matrix_class(matrix_consts.use_parasymbolic_matrix)
         self.logger.info("Using CoronaMatrix of type {}".format(CoronaMatrix.__name__))
         self.matrix = CoronaMatrix(self.size, self.depth)
@@ -109,18 +111,19 @@ class MatrixGenerator:
             # todo switch the depth logic, to get a connection type instead of int depth
             current_depth = 0
 
-            for con_type in ConnectionTypes:
+            for con_type, con_type_data in self.connection_types_data.items():
                 if con_type in Connect_To_All_types:
                     self._create_fully_connected_circles_matrix(
-                        con_type, self.social_circles_by_connection_type[con_type], current_depth
+                        con_type_data, self.social_circles_by_connection_type[con_type], current_depth
                     )
                 elif con_type in Random_Clustered_types:
-                    self._create_random_clustered_circles_matrix(
-                        con_type, self.social_circles_by_connection_type[con_type], current_depth
+                    self._create_scale_free_graph(
+                        con_type_data, self.social_circles_by_connection_type[con_type], current_depth
                     )
+                # TODO note that this currently does the same as scale free graph
                 elif con_type in Geographic_Clustered_types:
-                    self._create_community_clustered_circles_matrix(
-                        con_type, self.social_circles_by_connection_type[con_type], current_depth
+                    self._create_geographically_clustered_scale_free_graph(
+                        con_type_data, self.social_circles_by_connection_type[con_type], current_depth
                     )
                 current_depth += 1
 
@@ -136,8 +139,31 @@ class MatrixGenerator:
         self.geographic_circle_by_agent_index = population_data.geographic_circle_by_agent_index
         self.social_circles_by_agent_index = population_data.social_circles_by_agent_index
 
-    def _create_fully_connected_circles_matrix(self, con_type: ConnectionTypes, circles: List[SocialCircle], depth):
-        connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
+    def _add_layer(self, con_type_data: ConnectionTypeData, connections: List[List[int]], depth: int):
+        # insert all connections to matrix
+        # we need to remember the strengths so the connection will be symmetric
+        known_strengths = {}
+        for agent, conns in zip(self.agents, connections):
+            conns = np.array(conns)
+            conns.sort()
+
+            strengthes = con_type_data.get_strengths(len(conns))
+
+            # check if some strengths were determined earlier
+            for conn in conns:
+                known_strength = known_strengths.get((conn, agent.index), None)
+                if known_strength != None:
+                    strengthes[np.where(conns==conn)] = known_strength
+                    del known_strengths[(conn, agent.index)]
+                else:
+                    # connection is new. store the strength for future use
+                    known_strengths[(agent.index, conn)] = strengthes[np.where(conns==conn)]
+
+            v = np.full_like(conns, strengthes, dtype=np.float32)
+            self.matrix[depth, agent.index, conns] = v
+
+    def _create_fully_connected_circles_matrix(self, con_type_data: ConnectionTypeData, circles: List[SocialCircle], depth):
+        connection_strength = con_type_data.connection_strength
         if connection_strength == 0:
             return
 
@@ -150,20 +176,16 @@ class MatrixGenerator:
                 self.matrix[depth, int(row), ids] = vals
                 vals[i] = temp
 
-    def _create_random_clustered_circles_matrix(self, con_type: ConnectionTypes, circles: List[SocialCircle], depth):
+    def _create_scale_free_graph(self, con_type_data: ConnectionTypeData, circles: List[SocialCircle], depth):
         # the new connections will be saved here
         connections = [[] for _ in self.agents]
         # gets data from matrix consts
-        connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
+        connection_strength = con_type_data.connection_strength
         if connection_strength == 0:
             return
 
-        daily_connections_float = self.matrix_consts.daily_connections_amount_by_connection_type[con_type]
-        weekly_connections_float = self.matrix_consts.weekly_connections_amount_by_connection_type[con_type]
-        total_connections_float = daily_connections_float + weekly_connections_float
-
         # adding all super small circles, into one circle, and randomly create connections inside it
-        super_small_circles_combined = SocialCircle(con_type)
+        super_small_circles_combined = SocialCircle(con_type_data.connection_type)
 
         for circle in circles:
             agents = circle.agents
@@ -172,116 +194,77 @@ class MatrixGenerator:
 
             # the number of nodes. writes it for simplicity
             n = len(indexes)
-            connections_amounts = iter(
-                self.random_round(((daily_connections_float + weekly_connections_float) / 2), shape=n)
-            )
+            connections_amounts = con_type_data.get_rounded_connections_amount(shape=n)
+
             # saves the already-inserted nodes
-            inserted_nodes = set()
             np.random.shuffle(nodes)
-            con_amount = math.ceil((daily_connections_float + weekly_connections_float) / 2) + 1
+            initial_con_amount = math.ceil(con_type_data.total_connections_amount) + 1
 
             # checks, if the circle is too small for any algorithm. if so adds to super small circle
-            if con_amount > n:
+            if n < initial_con_amount:
                 super_small_circles_combined.add_many(circle.agents)
                 continue
 
             # checks, if the circle is too small for normal clustering
-            if n < self.matrix_consts.clustering_switching_point[0]:
-                self._add_small_circle_connections(circle, connections, total_connections_float)
+            if n < self.matrix_consts.clustering_switching_point:
+                self._add_small_circle_connections(circle, connections, con_type_data.total_connections_amount)
                 continue
 
+            connected_nodes = set()
+
             # manually generate the minimum required connections
-            for i in range(con_amount):
-                other_nodes = nodes[0:con_amount]
+            for i in range(initial_con_amount):
+                other_nodes = nodes[0:initial_con_amount]
                 other_nodes.pop(i)
                 nodes[i].add_connections(other_nodes)
-                inserted_nodes.add(nodes[i])
-
-                # add the newly made connections to the connections list. note that this is one directional,
-                # but the other direction will be added when adding the other's connections
-                connections[nodes[i].index].extend([node.index for node in other_nodes])
+                connected_nodes.add(nodes[i])
 
             # add the rest of the nodes, one at a time
-            for node in islice(nodes, con_amount, None):
-                connections_amount = connections_amounts.__next__()
+            for node, num_connections in zip(islice(nodes, initial_con_amount, None), connections_amounts):
                 # selects the first node to attach to randomly
-                rand_node = choice(list(inserted_nodes))
-                inserted_nodes.remove(rand_node)
+                first_connection = choice(list(connected_nodes))
+                # fill connections other than first_connection
+                while len(node.connected) < num_connections - 1:
+                    if random() < con_type_data.triad_p:
+                        # close the triad with a node from first_connection's connections
+                        possible_nodes = first_connection.connected
+                    else:
+                        # connect with a node, which is not first connection
+                        possible_nodes = connected_nodes.difference({[first_connection]})
 
-                # adds a connection between the nodes
-                connections[node.index].append(rand_node.index)
-                connections[rand_node.index].append(node.index)
+                    # prevent connecting a connected node
+                    possible_nodes = possible_nodes.difference(node.connected)
 
-                # todo change this to use p, and not only p = 1
-                # randomly choose the rest of the connections from rand_node connections.
-                nodes_to_return = []
-                for _ in range(connections_amount - 1):
-                    # randomly choose a node from rand_node connections
-                    new_rand = rand_node.pop_random()
-                    nodes_to_return.append(new_rand)
-                    Node.connect(node, new_rand)
+                    # TODO remove?
+                    # edge cases - take any node. this takes care of both sides of previous IF failing.
+                    if len(possible_nodes) == 0:
+                        possible_nodes = connected_nodes.difference({first_connection}).difference(node.connected)
+                        if len(possible_nodes) == 0:
+                            break
 
-                    # add connection to connections list
-                    connections[node.index].append(new_rand.index)
-                    connections[new_rand.index].append(node.index)
-                # connect current node with rand node. note that this only happens here to not pick yourself later on
-                Node.connect(node, rand_node)
-                # return the popped nodes back to rand_node connections, and rand node back to already inserted list
-                rand_node.add_connections(nodes_to_return)
-                inserted_nodes.add(rand_node)
-                inserted_nodes.add(node)
+                    random_friend = choice(list(possible_nodes))
+                    Node.connect(random_friend, node)
+                # connect to bff here to prevent self-selection in bff's friends
+                Node.connect(first_connection, node)
+                connected_nodes.add(node)
+
+            for connected_node in nodes:
+                connections[connected_node.index].extend([other_node.index for other_node in connected_node.connected])
 
         # adding connections between all super small circles
-        self._add_small_circle_connections(super_small_circles_combined, connections, total_connections_float)
+        self._add_small_circle_connections(super_small_circles_combined, connections, con_type_data.total_connections_amount)
 
-        # insert all connections to matrix
-        # we need to remember the strengths so the connection will be symmetric
-        known_strengths = {}
-        for agent, conns in zip(self.agents, connections):
-            conns = np.array(conns)
-            conns.sort()
+        # insert connections to matrix
+        self._add_layer(con_type_data, connections, depth)
 
-            if total_connections_float == 0:
-                strengthes = np.array([0] * len(conns))
-            else:
-                # rolls for each connection, whether it is daily or weekly
-                daily_share = daily_connections_float / total_connections_float
-                weekly_share = weekly_connections_float / total_connections_float
-
-                strengthes = np.random.choice(
-                    [connection_strength, connection_strength / 7], size=len(conns), p=[daily_share, weekly_share]
-                )
-
-            # check if some strengths were determined earlier
-            for conn in conns:
-                known_strength = known_strengths.get((conn, agent.index), None)
-                if known_strength != None:
-                    strengthes[np.where(conns==conn)] = known_strength
-                    del known_strengths[(conn, agent.index)]
-                else:
-                    # connection is new. store the strength for future use
-                    known_strengths[(agent.index, conn)] = strengthes[np.where(conns==conn)] 
-            v = np.full_like(conns, strengthes, dtype=np.float32)
-            self.matrix[depth, agent.index, conns] = v
-
-    def _create_community_clustered_circles_matrix(self, con_type: ConnectionTypes, circles: List[SocialCircle], depth):
+    # TODO right now doesn't cluster based on geographic circles
+    def _create_geographically_clustered_scale_free_graph(self, con_type_data: ConnectionTypeData, circles: List[SocialCircle], depth):
         # the new connections will be saved here
         connections = [[] for _ in self.agents]
         # gets data from matrix consts
-        connection_strength = self.matrix_consts.connection_type_to_connection_strength[con_type]
+        connection_strength = con_type_data.connection_strength
         if connection_strength == 0:
             return
-
-        daily_connections_float = self.matrix_consts.daily_connections_amount_by_connection_type[con_type]
-        weekly_connections_float = self.matrix_consts.weekly_connections_amount_by_connection_type[con_type]
-        total_connections_float = daily_connections_float + weekly_connections_float
-
-        # the number of nodes. writes it for simplicity
-        connections_amounts = iter(
-            MatrixGenerator.random_round(
-                ((daily_connections_float + weekly_connections_float) / 2), shape=len(self.agents)
-            )
-        )
 
         for circle in circles:
             agents = circle.agents
@@ -290,26 +273,28 @@ class MatrixGenerator:
 
             if len(agents) == 0:
                 continue
+
+            # the number of nodes. writes it for simplicity
+            n = len(indexes)
+            connections_amounts = con_type_data.get_rounded_connections_amount(shape=n)
+
             # insert first node
             first_node = choice(list(nodes))
             connected_nodes = {first_node}
             nodes.remove(first_node)
             # go over other nodes in circle
-            for node in nodes:
+            for node, num_connections in zip(nodes, connections_amounts):
                 # first find a random node. Should never fail as we have inserted a node before.
                 first_connection = choice(list(connected_nodes))
 
-                num_connections = connections_amounts.__next__()
                 # fill connections other than first_connection
                 while len(node.connected) < num_connections - 1:
-                    if random() < self.matrix_consts.community_triad_probability[0]:
+                    if random() < con_type_data.triad_p:
                         # close the triad with a node from first_connection's connections
                         possible_nodes = first_connection.connected
                     else:
-                        # connect with a node NOT from the first_connection's connections
-                        possible_nodes = connected_nodes.difference({first_connection}).difference(
-                            first_connection.connected
-                        )
+                        # connect with a node, which is not first connection
+                        possible_nodes = connected_nodes.difference({first_connection})
 
                     # prevent connecting a connected node
                     possible_nodes = possible_nodes.difference(node.connected)
@@ -331,35 +316,9 @@ class MatrixGenerator:
                 connections[connected_node.index].extend([other_node.index for other_node in connected_node.connected])
 
         # insert all connections to matrix
-        # we need to remember the strengths so the connection will be symmetric
-        known_strengths = {}
-        for agent, conns in zip(self.agents, connections):
-            conns = np.array(conns)
-            conns.sort()
+        self._add_layer(con_type_data, connections, depth)
 
-            if total_connections_float == 0:
-                strengthes = np.array([0] * len(conns))
-            else:
-                # rolls for each connection, whether it is daily or weekly
-                daily_share = daily_connections_float / total_connections_float
-                weekly_share = weekly_connections_float / total_connections_float
-                strengthes = np.random.choice(
-                    [connection_strength, connection_strength / 7], size=len(conns), p=[daily_share, weekly_share],
-                )
-
-            # check if some strengths were determined earlier
-            for conn in conns:
-                known_strength = known_strengths.get((conn, agent.index), None)
-                if known_strength != None:
-                    strengthes[np.where(conns==conn)] = known_strength
-                    del known_strengths[(conn, agent.index)]
-                else:
-                    # connection is new. store the strength for future use
-                    known_strengths[(agent.index, conn)] = strengthes[np.where(conns==conn)]
-            v = np.full_like(conns, strengthes, dtype=np.float32)
-            self.matrix[depth, agent.index, conns] = v
-
-    # todo when the amount of people in the circle is vary small, needs different solution
+    # TODO rename - erdos reny algorithm
     def _add_small_circle_connections(self, circle: SocialCircle, connections: List[List], scale_factor: float):
         """
         used to create the connections for circles too small for the clustering algorithm.
@@ -395,19 +354,3 @@ class MatrixGenerator:
 
     def export_matrix_data(self,export_dir=OUTPUT_FOLDER,export_filename='matrix.bsa'):
         self.matrix_data.export(os.path.join(export_dir,export_filename))
-
-    @staticmethod
-    def random_round(x: float, shape: int = 1):
-        """
-        randomly chooses between floor and ceil such that the average will be x
-        :param x: a float
-        :param shape: amount of wanted rolls
-        :return: numpy array of ints, each is either floor or ceil
-        """
-        if x.is_integer():
-            return np.array([int(x)] * shape)
-
-        floor_prob = math.ceil(x) - x
-        ceil_prob = x - math.floor(x)
-
-        return np.random.choice([math.floor(x), math.ceil(x)], size=shape, p=[floor_prob, ceil_prob])
