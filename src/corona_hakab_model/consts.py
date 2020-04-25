@@ -289,6 +289,7 @@ class Consts(NamedTuple):
             "np": np,
             "BucketDict": BucketDict,
             "len": len,
+            "get_numpy_uniform_dist": get_numpy_uniform_dist
         }
 
         parameters = eval(data, expressions)

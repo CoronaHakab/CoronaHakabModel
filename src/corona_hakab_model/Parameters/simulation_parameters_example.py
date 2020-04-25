@@ -1,3 +1,5 @@
+from util import get_numpy_uniform_dist
+
 {
     # medical states
     "LATENT": "Latent",
@@ -131,7 +133,7 @@
                 "AsymptomaticEnd": .98,
                 "Latent-Asymp": .98,
                 "Latent-Presymp": .98
-            }, time_until_result=3),
+            }, time_dist_until_result=get_numpy_uniform_dist(3)),  # Constant distribution
             daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000,
                                          50: 5000},
             testing_gap_after_positive_test=2,
@@ -163,7 +165,7 @@
                 "AsymptomaticEnd": .92,
                 "Latent-Asymp": .92,
                 "Latent-Presymp": .92
-            }, time_until_result=5),
+            }, time_dist_until_result=get_numpy_uniform_dist(5)),  # Constant distribution
             daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500,
                                          50: 7000},
             testing_gap_after_positive_test=3,

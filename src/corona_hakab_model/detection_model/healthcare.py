@@ -34,8 +34,8 @@ class DetectionTest:
         self.state_to_detection_prop = deepcopy(state_to_detection_prop)
         self.time_dist_until_result = time_dist_until_result
 
-    def get_times_to_get_results(self, number_of_agents=None):
-        if number_of_agents is None or number_of_agents == 1:
+    def get_times_to_get_results(self, number_of_agents=1):
+        if number_of_agents == 1:
             return self.time_dist_until_result()
         return self.time_dist_until_result(size=number_of_agents)
 

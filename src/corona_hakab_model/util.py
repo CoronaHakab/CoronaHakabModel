@@ -32,7 +32,16 @@ def upper_bound(d):
     return d.b + d.kwds.get("loc", 0)
 
 
-def get_numpy_uniform_dist(u_bound, l_bound=None):
+def get_numpy_uniform_dist(a=None, b=None):
+    assert a is not None and b is None\
+        , "Uniform distribution must have at least one parameter."
+    if b is None:
+        u_bound = a
+        l_bound = b
+    else:
+        u_bound = b
+        l_bound = a
+
     if l_bound:
         range_to_choose_from = list(range(l_bound, u_bound))
     else:
