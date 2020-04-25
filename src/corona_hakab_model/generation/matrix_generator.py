@@ -230,19 +230,17 @@ class MatrixGenerator:
                         possible_nodes = first_connection.connected
                     else:
                         # connect with a node, which is not first connection
-                        possible_nodes = connected_nodes.difference({[first_connection]})
+                        possible_nodes = connected_nodes
 
                     # prevent connecting a connected node
-                    possible_nodes = possible_nodes.difference(node.connected)
-
-                    # TODO remove?
-                    # edge cases - take any node. this takes care of both sides of previous IF failing.
-                    if len(possible_nodes) == 0:
-                        possible_nodes = connected_nodes.difference({first_connection}).difference(node.connected)
-                        if len(possible_nodes) == 0:
-                            break
-
-                    random_friend = choice(list(possible_nodes))
+                    if len(possible_nodes) - len(node.connected) > 100:  # TODO 100 is made up. should be optimized
+                        possible_list = list(possible_nodes)
+                        random_friend = choice(possible_list)
+                        while random_friend in node.connected:
+                            random_friend = choice(possible_list)
+                    else:
+                        possible_nodes = possible_nodes.difference(node.connected).difference({first_connection})
+                        random_friend = choice(list(possible_nodes))
                     Node.connect(random_friend, node)
                 # connect to bff here to prevent self-selection in bff's friends
                 Node.connect(first_connection, node)
@@ -278,12 +276,18 @@ class MatrixGenerator:
             n = len(indexes)
             connections_amounts = con_type_data.get_rounded_connections_amount(shape=n)
 
-            # insert first node
-            first_node = choice(list(nodes))
-            connected_nodes = {first_node}
-            nodes.remove(first_node)
-            # go over other nodes in circle
-            for node, num_connections in zip(nodes, connections_amounts):
+            connected_nodes = set()
+
+            # manually generate the minimum required connections
+            initial_con_amount = math.ceil(con_type_data.total_connections_amount) + 1
+            for i in range(initial_con_amount):
+                other_nodes = nodes[0:initial_con_amount]
+                other_nodes.pop(i)
+                nodes[i].add_connections(other_nodes)
+                connected_nodes.add(nodes[i])
+
+            # add the rest of the nodes, one at a time
+            for node, num_connections in zip(islice(nodes, initial_con_amount, None), connections_amounts):
                 # first find a random node. Should never fail as we have inserted a node before.
                 first_connection = choice(list(connected_nodes))
 
@@ -294,24 +298,22 @@ class MatrixGenerator:
                         possible_nodes = first_connection.connected
                     else:
                         # connect with a node, which is not first connection
-                        possible_nodes = connected_nodes.difference({first_connection})
+                        possible_nodes = connected_nodes
 
                     # prevent connecting a connected node
-                    possible_nodes = possible_nodes.difference(node.connected)
-
-                    # edge cases - take any node. this takes care of both sides of previous IF failing.
-                    if len(possible_nodes) == 0:
-                        possible_nodes = connected_nodes.difference({first_connection}).difference(node.connected)
-                        if len(possible_nodes) == 0:
-                            break
-
-                    random_friend = choice(list(possible_nodes))
+                    if len(possible_nodes) - len(node.connected) > 100:  # TODO 100 is made up. should be optimized
+                        possible_list = list(possible_nodes)
+                        random_friend = choice(possible_list)
+                        while random_friend in node.connected:
+                            random_friend = choice(possible_list)
+                    else:
+                        possible_nodes = possible_nodes.difference(node.connected).difference({first_connection})
+                        random_friend = choice(list(possible_nodes))
                     Node.connect(random_friend, node)
                 # connect to bff here to prevent self-selection in bff's friends
                 Node.connect(first_connection, node)
                 connected_nodes.add(node)
 
-            nodes.append(first_node)
             for connected_node in nodes:
                 connections[connected_node.index].extend([other_node.index for other_node in connected_node.connected])
 
