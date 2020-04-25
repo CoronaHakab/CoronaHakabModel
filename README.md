@@ -106,10 +106,10 @@
 - To use run **python main.py shift-real-life** with first argument as csv to compare to, second argument simulation output
 ### Population Analyser
 - The population analyser reads a population data file (generated with the simulator, usually "population_data.pickle") and outputs a histogram of population ages, and social circles sizes by type.
-- to use, run **python generation_analysis\population_analysis.py**
+- to use, run **python analyzers\population_analysis.py**
 - Most commonly, you will use the **[-d|--directory]** option to specify the directory to read. The directory is expected to contain a file named "population_data.pickle"
 - You can also specify the input population data file using **[-p|--population]**, and output files using **--circle** and **--age**.
-- As with all runnables, additional help can be found by running **python generation_analysis\population_analysis.py --help**
+- As with all runnables, additional help can be found by running **python analyzers\population_analysis.py --help**
 ### State Machine Analyser
 - The state machine analyzer get a population size, and uses it as a way to average results of the state machine of all the agents.
 - To use run **python main.py analyze-state-machine**
