@@ -40,6 +40,6 @@ class GenerationManger:
     def import_circles_and_create_matrices(self):
         pass
 
-    def save_to_folder(self,folder):
-        self.matrix_data.export(os.path.join(folder,'matrix_data'))
-        self.population_data.export(folder,'population_data')
+    def save_to_folder(self, folder):
+        self.matrix_data.export(os.path.join(folder, 'matrix_data'))
+        self.population_data.export(folder, 'population_data')
