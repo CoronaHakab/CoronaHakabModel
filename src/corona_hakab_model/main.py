@@ -169,6 +169,8 @@ def run_simulation(args):
     print(sm)
     sm.run()
     df: pd.DataFrame = sm.dump(filename=args.output)
+    # using parent since args.output gives the sim_records folder
+    consts.export(export_path=Path(args.output).parent, file_name="simulation_consts.json")
     df.iloc[:, :-16].plot()
     if args.figure_path:
         if not os.path.splitext(args.figure_path)[1]:
