@@ -111,7 +111,7 @@ class ConnectionTypeData:
         assert self.daily_connections_amount is not None and self.weekly_connections_amount is not None, \
             "rolled daily or weekly connection on a type without daily or weekly connections"
         total_connections = self.total_connections_amount
-        if total_connections.is_integer():
+        if total_connections % 1 == 0:
             return np.array([int(total_connections)] * shape)
 
         floor_prob = math.ceil(total_connections) - total_connections
