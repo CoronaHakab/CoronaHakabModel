@@ -1,5 +1,3 @@
-from util import get_numpy_uniform_dist
-
 {
     # medical states
     "LATENT": "Latent",
