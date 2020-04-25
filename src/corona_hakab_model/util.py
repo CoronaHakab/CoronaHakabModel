@@ -32,6 +32,14 @@ def upper_bound(d):
     return d.b + d.kwds.get("loc", 0)
 
 
+def get_numpy_uniform_dist(u_bound, l_bound=None):
+    if l_bound:
+        range_to_choose_from = list(range(l_bound, u_bound))
+    else:
+        range_to_choose_from = [u_bound]
+    return lambda size=None: np.random.choice(range_to_choose_from, size=size)
+
+
 def parse_str_to_num(val):
     try:
         return int(val)
