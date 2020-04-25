@@ -166,10 +166,8 @@ class InfectionManager:
             agent_connection_type_circle = [circle for circle in self.manager.social_circles_by_agent_index[agent_id]
                                             if circle.connection_type == connection_type][0]
             agent_geo_circle = [geo_circle for geo_circle in self.manager.geographic_circles
-                                for circle in geo_circle.connection_type_to_social_circles[connection_type]
-                                if circle.guid == agent_connection_type_circle.guid][0]
-            infectious_circles = \
-                [circle for circle in agent_geo_circle.connection_type_to_social_circles[connection_type]]
+                                if agent_connection_type_circle in geo_circle.connection_type_to_social_circles[connection_type]][0]
+            infectious_circles = [circle for circle in agent_geo_circle.connection_type_to_social_circles[connection_type]]
             agents_id = [agent.index for circle in infectious_circles for agent in circle.agents]
 
         connections = self.manager.num_of_random_connections * self.manager.random_connections_factor
