@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-import math
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from functools import cached_property
 from typing import Collection, Dict, Generic, Iterable, List, NamedTuple, Optional, Set, Tuple, TypeVar, Union
 
 import numpy as np
 from agent import Agent, TrackingCircle
 from scipy.stats import rv_discrete
-from util import Queue, upper_bound, lower_bound
+from util import Queue
 
 
 class PendingTransfer(NamedTuple):

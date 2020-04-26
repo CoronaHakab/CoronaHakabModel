@@ -1,23 +1,25 @@
 from abc import abstractmethod
 from collections import OrderedDict
 from typing import Generic, List, Protocol, TypeVar
-
+from functools import partial
 import numpy as np
 
 
 def dist(*args):
     def const_dist(a):
-        return get_numpy_uniform_dist(a=a)
+        return partial(get_numpy_uniform_dist(a=a))
 
     def uniform_dist(a, b):
-        return get_numpy_uniform_dist(a=a, b=b)
+        return partial(get_numpy_uniform_dist(a=a, b=b))
 
     def off_binom(a, c, b):
         # todo I have no idea what this distribution supposedly represents, we're gonna pretend it's
         #  an offset-binomial whose mean is c and call it a day
-        return lambda size=None: np.random.binomial(n=b - a,
-                                                    p=(c - a) / (b - a),
-                                                    size=size) + a
+        n = b-a
+        p = (c-a)/(b-a)
+        return partial(lambda size=None: np.random.binomial(n=n,
+                                                            p=p,
+                                                            size=size) + a)
 
     if len(args) == 1:
         return const_dist(*args)
@@ -26,10 +28,6 @@ def dist(*args):
     if len(args) == 3:
         return off_binom(*args)
     raise TypeError
-
-
-def upper_bound(d):
-    return d.b + d.kwds.get("loc", 0)
 
 
 def get_numpy_uniform_dist(a, b=None):
@@ -51,10 +49,6 @@ def parse_str_to_num(val):
         return int(val)
     except ValueError:
         return float(val)
-
-
-def lower_bound(d):
-    return d.a + d.kwds.get("loc", 0)
 
 
 class HasDuration(Protocol):

@@ -36,7 +36,7 @@ class DetectionTest:
 
     def get_times_to_get_results(self, number_of_agents=1):
         if number_of_agents == 1:
-            return self.time_dist_until_result()
+            return self.time_dist_until_result(None)
         return self.time_dist_until_result(size=number_of_agents)
 
     def test(self, agent: Agent):
