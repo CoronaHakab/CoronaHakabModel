@@ -67,7 +67,10 @@ class InfectionManager:
         probs_not_infected_from_random_connection = self._get_probs_not_infected_from_random_connection(connections)
         probs_not_infected_from_geo_random_connection = self._get_probs_not_infected_from_geo_random_connection(connections)
 
-        # values should be between 0-1
+        # every agent can have up to one value for each connection type from both vectors.
+        # so, if he has a value for a connection type in one vector,
+        # the value for the same connection type in the other vector will be 1.
+        # adding both vectors and subtracting 1 will preserve the value that was set in the vector.
         probs_not_infected_from_connection = (probs_not_infected_from_random_connection + probs_not_infected_from_geo_random_connection) - 1
 
         not_infected_probs = np.power(probs_not_infected_from_connection, connections)
