@@ -35,7 +35,7 @@ def upper_bound(d):
 def get_numpy_uniform_dist(a, b=None):
     """
     :param a: lower bound of an interval
-    :param b: upper bound if the interval. If b=None than we have discrete distribution.
+    :param b: upper bound of the interval. If b=None than we have discrete distribution.
     :return: Return a distribution that gets number of elements to sample. If b=None this is a discrete distribution.
              O/w this is uniform distribution over [a,b]
     """
