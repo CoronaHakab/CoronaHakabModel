@@ -44,7 +44,7 @@ class MatrixConsts(NamedTuple):
         ConnectionTypes.Other: 6,
     }
 
-    clustering_switching_point: int = 50 # TODO should this remain this way
+    clustering_switching_point: int = 50  # TODO should this remain this way
     community_triad_probability: Dict = {
         ConnectionTypes.Other: 1,
         ConnectionTypes.Work: 1,

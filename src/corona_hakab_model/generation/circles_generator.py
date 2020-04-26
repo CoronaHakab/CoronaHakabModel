@@ -121,7 +121,7 @@ class CirclesGenerator:
         self._fill_population_data()
 
     def generate_random_connections(self):
-        for connection_type in connection_types.With_Random_Connections:
+        for connection_type in connection_types.With_Random_Connections + connection_types.With_Geo_Random_Connections:
             exp_mean = self.circles_consts.random_connections_dist_mean[connection_type]
 
             if connection_type in self.circles_consts.random_connections_strength_factor:

@@ -128,7 +128,6 @@ class SimulationManager:
         """
         # checks if there is a policy to active.
 
-
         self.policy_manager.perform_policies()
 
         # run tests
