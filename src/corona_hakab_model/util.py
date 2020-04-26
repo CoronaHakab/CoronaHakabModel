@@ -3,28 +3,28 @@ from collections import OrderedDict
 from typing import Generic, List, Protocol, TypeVar
 
 import numpy as np
-from scipy.stats import binom, randint, rv_discrete
 
 
 def dist(*args):
     def const_dist(a):
-        return rv_discrete(name="const", values=([a], [1]))()
+        return get_numpy_uniform_dist(a=a)
 
     def uniform_dist(a, b):
-        return randint(a, b + 1)
+        return get_numpy_uniform_dist(a=a, b=b)
 
-    def trig(a, c, b):
+    def off_binom(a, c, b):
         # todo I have no idea what this distribution supposedly represents, we're gonna pretend it's
-        #  an offset-binomial and call it a day
-
-        return binom(b - a, (c - a) / (b - a), loc=a)
+        #  an offset-binomial whose mean is c and call it a day
+        return lambda size=None: np.random.binomial(n=b - a,
+                                                    p=(c - a) / (b - a),
+                                                    size=size) + a
 
     if len(args) == 1:
         return const_dist(*args)
     if len(args) == 2:
         return uniform_dist(*args)
     if len(args) == 3:
-        return trig(*args)
+        return off_binom(*args)
     raise TypeError
 
 

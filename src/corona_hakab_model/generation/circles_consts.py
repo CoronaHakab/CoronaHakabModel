@@ -3,7 +3,7 @@ from typing import Dict, List, NamedTuple
 from scipy.stats import rv_discrete
 
 from generation.connection_types import ConnectionTypes
-from util import randint
+from scipy.stats import randint
 import numpy as np
 
 """
@@ -113,7 +113,6 @@ class CirclesConsts(NamedTuple):
         {ConnectionTypes.Work: {"north": 0.7, "south": 0.3}},
         {ConnectionTypes.Work: {"north": 0.2, "south": 0.8}},
     ]
-
 
 
     @classmethod

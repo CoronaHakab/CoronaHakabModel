@@ -13,7 +13,6 @@ from generation.circles import SocialCircle
 from generation.circles_consts import CirclesConsts
 from generation.connection_types import ConnectionTypes, Multi_Zone_types, Whole_Population_types
 from generation.geographic_circle import GeographicCircle
-from util import rv_discrete
 
 # for exporting with pickle (/serializing) - set a high recursion rate
 sys.setrecursionlimit(5000)

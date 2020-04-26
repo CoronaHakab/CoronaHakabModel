@@ -8,11 +8,11 @@ from numpy.random import random
 from detection_model.detection_testing_types import DetectionSettings, DetectionPriority
 from detection_model.healthcare import DetectionTest
 from generation.connection_types import ConnectionTypes
-from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
+from medical_state import ContagiousState, ImmuneState, SusceptibleState
 from medical_state_machine import MedicalStateMachine
 from policies_manager import ConditionedPolicy, Policy
 from state_machine import StochasticState, TerminalState
-from util import dist, rv_discrete, upper_bound, BucketDict, get_numpy_uniform_dist
+from util import dist, BucketDict, get_numpy_uniform_dist
 
 """
 Overview:
@@ -58,39 +58,48 @@ class Consts(NamedTuple):
     # Think we should do something more readable later on.
     # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
     # disease states transition lengths distributions
-    latent_to_pre_symptomatic_days: rv_discrete = dist(1, 5, 10)
+#    latent_to_pre_symptomatic_days: BucketDict = BucketDict({
+#                                                  8: dist(1, 5, 10),  # Binomial distribution for ages<=8
+#                                                  40: dist(1, 5, 10),
+#                                                  70: dist(1, 5, 10)})
+    latent_to_pre_symptomatic_days = dist(1, 5, 10)
     # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10],
     # [0.022,0.052,0.082,0.158,0.234,0.158,0.152,0.082,0.04,0.02]))
-    latent_to_asymptomatic_begin_days: rv_discrete = dist(1, 5, 11)
+#    latent_to_asymptomatic_begin_days: BucketDict = BucketDict({
+#                                                                 8: dist(1, 5, 11),
+#                                                                 40: dist(1, 5, 11),
+#                                                                 70: dist(1, 5, 11)})
+
+    latent_to_asymptomatic_begin_days = dist(1, 5, 11)
     # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11],
     # [0.02,0.05,0.08,0.15,0.22,0.15,0.15,0.08,0.05,0.03,0.02]))
-    asymptomatic_begin_to_asymptomatic_end_days: rv_discrete = dist(1, 5)
-    pre_symptomatic_to_mild_condition_days: rv_discrete = dist(1, 5)
-    mild_to_close_medical_care_days: rv_discrete = dist(3, 11)
+    asymptomatic_begin_to_asymptomatic_end_days = dist(1, 5)
+    pre_symptomatic_to_mild_condition_days = dist(1, 5)
+    mild_to_close_medical_care_days = dist(3, 11)
     # Actual distribution: rv_discrete(values=([3,4,5,6,7,8,9,10,11,12],
     # [0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.01]))
-    mild_to_need_icu_days: rv_discrete = dist(6, 13, 29)
+    mild_to_need_icu_days = dist(6, 13, 29)
     # Actual distribution: rv_discrete(values=([6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29],
     # [0.012,0.019,0.032,0.046,0.059,0.069,0.076,0.078,0.076,0.072,0.066,0.060,0.053,0.046,0.040,0.035,0.030,0.028,0.026,0.022,0.020,0.015,0.010,0.010]))
-    mild_to_pre_recovered_days: rv_discrete = dist(1, 16, 26)
+    mild_to_pre_recovered_days = dist(1, 16, 26)
     # Actual distribution: rv_discrete(values=(
     # [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28],
     # [0.001,0.001,0.001,0.001,0.001,0.002,0.004,0.008,0.013,0.022,0.032,0.046,0.06,0.075,0.088,0.097,0.1,0.098,0.088,0.075,0.06,0.046,0.032,0.022,0.013,0.008,0.004,0.002]))
-    close_medical_care_to_icu_days: rv_discrete = dist(10, 12, 14)
-    close_medical_care_to_mild_days: rv_discrete = dist(8, 10, 12)
-    need_icu_to_deceased_days: rv_discrete = dist(1, 3, 20)
+    close_medical_care_to_icu_days = dist(10, 12, 14)
+    close_medical_care_to_mild_days = dist(8, 10, 12)
+    need_icu_to_deceased_days = dist(1, 3, 20)
     # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
     # [0.030,0.102,0.126,0.112,0.090,0.080,0.075,0.070,0.065,0.050,0.040,0.035,0.030,0.025,0.020,
     # 0.015,0.012,0.010,0.008,0.005]))
-    need_icu_to_improving_days: rv_discrete = dist(1, 5, 25)
+    need_icu_to_improving_days = dist(1, 5, 25)
     # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],
     # [0.021,0.041,0.081,0.101,0.101,0.081,0.071,0.066,0.061,0.056,0.046,0.041,0.039,0.033,0.031,0.026,0.021,0.016,0.013,0.013,0.011,0.011,0.009,0.005,0.005]))
-    improving_to_need_icu_days: rv_discrete = dist(21, 42)
-    improving_to_pre_recovered_days: rv_discrete = dist(21, 42)  # TODO: check why so long
-    improving_to_mild_condition_days: rv_discrete = dist(21, 42)
-    pre_recovered_to_recovered_days: rv_discrete = dist(14, 28)
+    improving_to_need_icu_days = dist(21, 42)
+    improving_to_pre_recovered_days = dist(21, 42)  # TODO: check why so long
+    improving_to_mild_condition_days = dist(21, 42)
+    pre_recovered_to_recovered_days = dist(14, 28)
     # Actual distribution: rv_discrete(values=([14, 28], [0.8, 0.2]))
-    asymptomatic_end_to_recovered_days: rv_discrete = dist(10, 18, 35)
+    asymptomatic_end_to_recovered_days = dist(10, 18, 35)
     # Actual distribution: rv_discrete(values=(
     # [10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35],
     # [0.013,0.016,0.025,0.035,0.045,0.053,0.061,0.065,0.069,0.069,0.065,0.063,0.058,0.053,0.056,0.041,0.040,0.033,
@@ -278,7 +287,6 @@ class Consts(NamedTuple):
         expressions = {
             "__builtins__": None,
             "dist": dist,
-            "rv_discrete": rv_discrete,
             "DetectionSettings": DetectionSettings,
             "DetectionPriority": DetectionPriority,
             "DetectionTest": DetectionTest,
@@ -295,50 +303,6 @@ class Consts(NamedTuple):
         parameters = eval(data, expressions)
 
         return cls(**parameters)
-
-    @lru_cache(None)
-    def average_time_in_each_state(self) -> Dict[MedicalState, int]:
-        """
-        calculate the average time an infected agent spends in any of the states.
-        uses markov chain to do the calculations
-        note that it doesnt work well for terminal states
-        :return: dict of states: int, representing the average time an agent would be in a given state
-        """
-        TOL = 1e-6
-        m = self.medical_state_machine()
-        M, terminal_states, transfer_states, entry_columns = m.markovian
-        z = len(M)
-
-        p = entry_columns[m.default_state_upon_infection]
-        terminal_mask = np.zeros(z, bool)
-        terminal_mask[list(terminal_states.values())] = True
-
-        states_duration: Dict[MedicalState, int] = Dict.fromkeys(m.states, 0)
-        states_duration[m.default_state_upon_infection] = 1
-
-        index_to_state: Dict[int, MedicalState] = {}
-        for state, index in terminal_states.items():
-            index_to_state[index] = state
-        for state, dict in transfer_states.items():
-            first_index = dict[0]
-            last_index = dict[max(dict.keys())] + upper_bound(state.durations[-1])
-            for index in range(first_index, last_index):
-                index_to_state[index] = state
-
-        prev_v = 0.0
-        for time in count(1):
-            p = M @ p
-            v = np.sum(p, where=terminal_mask)
-            d = v - prev_v
-            prev_v = v
-
-            for i, prob in enumerate(p):
-                states_duration[index_to_state[i]] += prob
-
-            # run at least as many times as the node number to ensure we reached all terminal nodes
-            if time > z and d < TOL:
-                break
-        return states_duration
 
     @lru_cache(None)
     def medical_state_machine(self) -> MedicalStateMachine:
@@ -544,10 +508,3 @@ class Consts(NamedTuple):
     # overriding hash and eq to allow caching while using un-hashable attributes
     __hash__ = object.__hash__
     __eq__ = object.__eq__
-
-
-# TODO can we remove it?
-if __name__ == "__main__":
-    c = Consts()
-    for state, time in c.average_time_in_each_state().items():
-        print(f"For state {state.name} we have expected {time} days")
