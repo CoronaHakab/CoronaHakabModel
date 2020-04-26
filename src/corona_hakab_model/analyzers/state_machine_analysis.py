@@ -4,14 +4,14 @@ import os
 from collections import Counter
 from typing import Dict, Tuple, List
 
-from agent import Agent
+from common.agent import Agent
 from consts import Consts
 from generation.circles_consts import CirclesConsts
-from medical_state import ImmuneState
-from medical_state_machine import MedicalStateMachine
+from common.medical_state import ImmuneState
+from common.medical_state_machine import MedicalStateMachine
 from medical_state_manager import MedicalStateManager
 from project_structure import OUTPUT_FOLDER
-from state_machine import TerminalState
+from common.state_machine import TerminalState
 
 
 def _generate_agents_randomly(population_size, circle_consts) -> List:

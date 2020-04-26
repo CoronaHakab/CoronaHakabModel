@@ -1,7 +1,7 @@
 from abc import ABC
 
-from state_machine import State  # , StochasticState, TerminalState
-from util import BucketDict
+from common.state_machine import State  # , StochasticState, TerminalState
+from common.util import BucketDict
 
 
 class MedicalState(State, ABC):

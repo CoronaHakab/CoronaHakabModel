@@ -6,12 +6,12 @@ from typing import TYPE_CHECKING
 import pandas as pd
 from numpy import nan
 
-from generation.circles import SocialCircleConstraint
+from common.circles import SocialCircleConstraint
 from generation.connection_types import ConnectionTypes
-from util import parse_str_to_num
+from common.util import parse_str_to_num
 
 if TYPE_CHECKING:
-    from medical_state import MedicalState
+    from common.medical_state import MedicalState
     from manager import SimulationManager
 
 

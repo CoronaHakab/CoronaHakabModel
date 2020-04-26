@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Dict
 
 import numpy as np
 
-from agent import Agent
+from common.agent import Agent
 from generation import connection_types
 
 if TYPE_CHECKING:

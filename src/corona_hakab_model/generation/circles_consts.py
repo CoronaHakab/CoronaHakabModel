@@ -3,8 +3,7 @@ from typing import Dict, List, NamedTuple
 from scipy.stats import rv_discrete
 
 from generation.connection_types import ConnectionTypes
-from util import randint
-import numpy as np
+from common.util import randint
 
 """
 Overview:
