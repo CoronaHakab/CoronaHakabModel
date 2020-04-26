@@ -32,14 +32,17 @@ def upper_bound(d):
     return d.b + d.kwds.get("loc", 0)
 
 
-def get_numpy_uniform_dist(l_bound=None, u_bound=None):
-    assert l_bound is not None and u_bound is None\
-        , "Uniform distribution must have at least one parameter."
-
-    if u_bound:
-        range_to_choose_from = list(range(l_bound, u_bound))
+def get_numpy_uniform_dist(a, b=None):
+    """
+    :param a: lower bound of an interval
+    :param b: upper bound if the interval. If b=None than we have discrete distribution.
+    :return: Return a distribution that gets number of elements to sample. If b=0 this is a discrete distribution.
+             O/w this is uniform distribution over [a,b]
+    """
+    if b:
+        range_to_choose_from = list(range(a, b))
     else:
-        range_to_choose_from = [l_bound]
+        range_to_choose_from = [a]
     return lambda size=None: np.random.choice(range_to_choose_from, size=size)
 
 
