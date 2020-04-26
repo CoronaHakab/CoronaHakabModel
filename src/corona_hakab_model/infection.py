@@ -67,6 +67,7 @@ class InfectionManager:
         probs_not_infected_from_random_connection = self._get_probs_not_infected_from_random_connection(connections)
         probs_not_infected_from_geo_random_connection = self._get_probs_not_infected_from_geo_random_connection(connections)
 
+        # values should be between 0-1
         probs_not_infected_from_connection = (probs_not_infected_from_random_connection + probs_not_infected_from_geo_random_connection) - 1
 
         not_infected_probs = np.power(probs_not_infected_from_connection, connections)
@@ -119,7 +120,7 @@ class InfectionManager:
                     connections[agents_id, connection_type],
                 )
 
-                circles_total_random_connections = sum([circle.total_random_connections for circle in circles])
+                circles_total_random_connections = np.sum([circle.total_random_connections for circle in circles])
                 prob = total_infectious_random_connections / circles_total_random_connections
 
                 probs_not_infected_from_geo_random_connection[agents_id, connection_type] = \
@@ -163,6 +164,7 @@ class InfectionManager:
             agents_id = [agent.index for agent in infectious_circle.agents]
 
         if connection_type in connection_types.With_Geo_Random_Connections:
+            # TODO: add dict of agents and the geo circle that they work in(should be created in the generation process)
             agent_connection_type_circle = next(circle for circle in self.manager.social_circles_by_agent_index[agent_id]
                                                 if circle.connection_type == connection_type)
             agent_geo_circle = next(geo_circle for geo_circle in self.manager.geographic_circles
