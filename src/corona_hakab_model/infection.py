@@ -167,7 +167,8 @@ class InfectionManager:
             agents_id = [agent.index for agent in infectious_circle.agents]
 
         if connection_type in connection_types.With_Geo_Random_Connections:
-            # TODO: add dict of agents and the geo circle that they work in(should be created in the generation process)
+            # TODO: if we see that this part of code is slow -
+            #  add dict of agents and the geo circle that they work in(should be created in the generation process)
             agent_connection_type_circle = next(circle for circle in self.manager.social_circles_by_agent_index[agent_id]
                                                 if circle.connection_type == connection_type)
             agent_geo_circle = next(geo_circle for geo_circle in self.manager.geographic_circles
