@@ -7,10 +7,11 @@ import numpy as np
 
 def dist(*args):
     def const_dist(a):
-        return partial(get_numpy_uniform_dist(a=a))
+        return partial(lambda size=None: np.random.choice([a], size=size))
 
     def uniform_dist(a, b):
-        return partial(get_numpy_uniform_dist(a=a, b=b))
+        range_to_choose_from = list(range(a, b+1))
+        return partial(lambda size=None: np.random.choice(range_to_choose_from, size=size))
 
     def off_binom(a, c, b):
         # todo I have no idea what this distribution supposedly represents, we're gonna pretend it's
@@ -28,20 +29,6 @@ def dist(*args):
     if len(args) == 3:
         return off_binom(*args)
     raise TypeError
-
-
-def get_numpy_uniform_dist(a, b=None):
-    """
-    :param a: lower bound of an interval
-    :param b: upper bound of the interval. If b=None than we have discrete distribution.
-    :return: Return a distribution that gets number of elements to sample. If b=None this is a discrete distribution.
-             O/w this is uniform distribution over [a,b]
-    """
-    if b:
-        range_to_choose_from = list(range(a, b))
-    else:
-        range_to_choose_from = [a]
-    return lambda size=None: np.random.choice(range_to_choose_from, size=size)
 
 
 def parse_str_to_num(val):
