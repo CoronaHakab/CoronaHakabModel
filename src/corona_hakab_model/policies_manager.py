@@ -1,6 +1,6 @@
 from typing import Any, Callable, Iterable
 
-from common.circles import SocialCircle
+from common.social_circle import SocialCircle
 
 
 class PolicyManager:

@@ -9,7 +9,7 @@ import numpy as np
 from common.agent import Agent
 from __data__ import __version__
 from generation import connection_types
-from common.circles import SocialCircle
+from common.social_circle import SocialCircle
 from generation.circles_consts import CirclesConsts
 from generation.connection_types import ConnectionTypes, Multi_Zone_types, Whole_Population_types
 from generation.geographic_circle import GeographicCircle

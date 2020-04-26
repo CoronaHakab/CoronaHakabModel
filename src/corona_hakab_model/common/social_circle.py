@@ -5,11 +5,10 @@ import uuid
 
 from generation.connection_types import ConnectionTypes
 from dataclasses import dataclass
-from common.agent import Circle
-
+from .circle import Circle
 
 if TYPE_CHECKING:
-    from common.agent import Agent
+    from .agent import Agent
 
 class SocialCircle(Circle):
     __slots__ = ("agents", "connection_type", "guid",

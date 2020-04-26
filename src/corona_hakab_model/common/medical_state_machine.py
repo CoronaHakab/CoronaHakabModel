@@ -1,5 +1,5 @@
-from common.medical_state import MedicalState
-from common.state_machine import StateMachine
+from .medical_state import MedicalState
+from .state_machine import StateMachine
 
 
 class MedicalStateMachine(StateMachine[MedicalState]):

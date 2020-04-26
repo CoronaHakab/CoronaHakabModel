@@ -5,7 +5,7 @@ from typing import Any, Callable, Iterable, TYPE_CHECKING
 import numpy as np
 
 from analyzers.state_machine_analysis import monte_carlo_state_machine_analysis
-from common.circles import SocialCircle
+from common.social_circle import SocialCircle
 from generation.connection_types import ConnectionTypes
 from policies_manager import ConditionedPolicy
 

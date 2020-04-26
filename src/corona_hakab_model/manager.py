@@ -2,7 +2,6 @@ import logging
 from collections import defaultdict
 from random import shuffle
 from typing import Callable, Iterable, List, Union
-
 import numpy as np
 
 import infection

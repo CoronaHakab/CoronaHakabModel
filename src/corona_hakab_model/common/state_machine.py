@@ -7,9 +7,10 @@ from functools import cached_property
 from typing import Collection, Dict, Generic, Iterable, List, NamedTuple, Optional, Set, Tuple, TypeVar, Union
 
 import numpy as np
-from common.agent import Agent, TrackingCircle
+from .agent import Agent
+from .circle import TrackingCircle
 from scipy.stats import rv_discrete
-from common.util import Queue, upper_bound, lower_bound
+from .util import Queue, upper_bound, lower_bound
 
 
 class PendingTransfer(NamedTuple):
