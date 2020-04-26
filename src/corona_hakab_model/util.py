@@ -32,6 +32,20 @@ def upper_bound(d):
     return d.b + d.kwds.get("loc", 0)
 
 
+def get_numpy_uniform_dist(a, b=None):
+    """
+    :param a: lower bound of an interval
+    :param b: upper bound of the interval. If b=None than we have discrete distribution.
+    :return: Return a distribution that gets number of elements to sample. If b=None this is a discrete distribution.
+             O/w this is uniform distribution over [a,b]
+    """
+    if b:
+        range_to_choose_from = list(range(a, b))
+    else:
+        range_to_choose_from = [a]
+    return lambda size=None: np.random.choice(range_to_choose_from, size=size)
+
+
 def parse_str_to_num(val):
     try:
         return int(val)

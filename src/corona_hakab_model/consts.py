@@ -12,7 +12,7 @@ from medical_state import ContagiousState, ImmuneState, MedicalState, Susceptibl
 from medical_state_machine import MedicalStateMachine
 from policies_manager import ConditionedPolicy, Policy
 from state_machine import StochasticState, TerminalState
-from util import dist, rv_discrete, upper_bound, BucketDict
+from util import dist, rv_discrete, upper_bound, BucketDict, get_numpy_uniform_dist
 
 """
 Overview:
@@ -160,7 +160,7 @@ class Consts(NamedTuple):
                 ASYMPTOMATIC_END: .98,
                 LATENT_ASYMP: .98,
                 LATENT_PRESYMP: .98
-            }, time_until_result=3),
+            }, time_dist_until_result=get_numpy_uniform_dist(3)),  # Constant distribution
             daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
             testing_gap_after_positive_test=2,
             testing_gap_after_negative_test=1,
@@ -190,7 +190,7 @@ class Consts(NamedTuple):
                 ASYMPTOMATIC_END: .92,
                 LATENT_ASYMP: .92,
                 LATENT_PRESYMP: .92
-            }, time_until_result=5),
+            }, time_dist_until_result=get_numpy_uniform_dist(5)),  # Constant distribution
             daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
             testing_gap_after_positive_test=3,
             testing_gap_after_negative_test=1,
@@ -289,6 +289,7 @@ class Consts(NamedTuple):
             "np": np,
             "BucketDict": BucketDict,
             "len": len,
+            "get_numpy_uniform_dist": get_numpy_uniform_dist
         }
 
         parameters = eval(data, expressions)

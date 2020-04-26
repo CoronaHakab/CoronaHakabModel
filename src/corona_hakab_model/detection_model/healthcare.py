@@ -28,14 +28,24 @@ class PendingTestResults(Queue[PendingTestResult]):
 
 
 class DetectionTest:
-    def __init__(self, state_to_detection_prop: Dict[MedicalState, float], time_until_result):
+    def __init__(self,
+                 state_to_detection_prop: Dict[MedicalState, float],
+                 time_dist_until_result):
         self.state_to_detection_prop = deepcopy(state_to_detection_prop)
-        self.time_until_result = time_until_result
+        self.time_dist_until_result = time_dist_until_result
+
+    def get_times_to_get_results(self, number_of_agents=1):
+        if number_of_agents == 1:
+            return self.time_dist_until_result()
+        return self.time_dist_until_result(size=number_of_agents)
 
     def test(self, agent: Agent):
         detection_prob = self.state_to_detection_prop[agent.medical_state.name]
         test_result = np.random.rand() < detection_prob
-        pending_result = PendingTestResult(agent, test_result, self.time_until_result)
+        time_to_result = self.get_times_to_get_results()
+        pending_result = PendingTestResult(agent,
+                                           test_result,
+                                           time_to_result)
         return pending_result
 
 
