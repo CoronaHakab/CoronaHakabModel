@@ -4,9 +4,7 @@ import jsonpickle
 from scipy.stats import rv_discrete
 
 from generation.connection_types import ConnectionTypes
-from common.util import randint
 from scipy.stats import randint
-import numpy as np
 
 """
 Overview:

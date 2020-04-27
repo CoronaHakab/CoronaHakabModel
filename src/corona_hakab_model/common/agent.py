@@ -21,9 +21,9 @@ class Agent:
     __slots__ = ("index", "medical_state", "manager", "age")
 
     # todo note that this changed to fit generation. should update simulation manager accordingly
-    def __init__(self, index):
+    def __init__(self, index, age=None):
         self.index = index
-
+        self.age = age
         # don't know if this is necessary
         self.manager: SimulationManager = None
         self.medical_state: MedicalState = None

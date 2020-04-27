@@ -1,18 +1,17 @@
 import os
 from functools import lru_cache
 from typing import Dict, List, NamedTuple, Union, Callable
-from itertools import count
 import jsonpickle
 import numpy as np
 from numpy.random import random
 
 from common.detection_testing_types import DetectionSettings, DetectionPriority, DetectionTest
 from generation.connection_types import ConnectionTypes
-from common.medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
+from common.medical_state import ContagiousState, ImmuneState, SusceptibleState
 from common.medical_state_machine import MedicalStateMachine
 from policies_manager import ConditionedPolicy, Policy
 from common.state_machine import StochasticState, TerminalState
-from common.util import dist BucketDict
+from common.util import dist, BucketDict
 
 """
 Overview:
@@ -112,7 +111,7 @@ class Consts(NamedTuple):
     latent_presymp_to_pre_symptomatic_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
     latent_asym_to_asymptomatic_begin_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
     pre_symptomatic_to_mild_condition_begin_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
-    mild_condition_begin_to_mild_condition_end_prob  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
+    mild_condition_begin_to_mild_condition_end_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
     mild_end_to_close_medical_care_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: 0.2375})
     mild_end_to_need_icu_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: 0.0324})
     mild_end_to_pre_recovered_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
