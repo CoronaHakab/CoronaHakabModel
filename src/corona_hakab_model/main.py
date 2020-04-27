@@ -201,7 +201,8 @@ def run_simulation(args):
         if not os.path.splitext(args.figure_path)[1]:
             args.figure_path = args.figure_path+'.png'
         plt.savefig(args.figure_path)
-    else:
+
+    if args.show_plot:
         plt.show()
 
 
