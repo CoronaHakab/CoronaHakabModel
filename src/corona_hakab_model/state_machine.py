@@ -6,7 +6,7 @@ from typing import Collection, Dict, Generic, Iterable, List, NamedTuple, Option
 
 import numpy as np
 from agent import Agent, TrackingCircle
-from util import Queue
+from util import Queue, BucketDict
 
 
 class PendingTransfer(NamedTuple):
@@ -35,38 +35,40 @@ class StochasticTransferGenerator:
 
     # todo enforce probabilities sum to 1?
     def __init__(self):
-        self.probs_cumulative: np.ndarray = np.array([], dtype=float)
+        self.probs_cumulative = BucketDict({})
         self.destinations: List[State] = []
         self.durations = []
 
-    def prob_specific(self, ind: int) -> float:
-        return self.probs_cumulative[ind]
+    def prob_specific(self, ind: int, age: int) -> float:
+        return self.probs_cumulative[age][ind]
 
-    def add_transfer(self, destination: State, duration, probability: Union[float, type(...)]):
-        if probability is ...:
-            p = 1 - np.sum(self.probs_cumulative)
-        else:
-            p = probability
+    def add_transfer(self, destination: State, duration, probabilities: BucketDict[int, Union[float, type(...)]]):
+        for age, prob in probabilities.items():
+            if age not in self.probs_cumulative:
+                self.probs_cumulative[age] = np.array([], dtype=float)
+            if prob is ...:
+                p = 1 - np.sum(self.probs_cumulative[age])
+            else:
+                p = prob
+            self.probs_cumulative[age] = np.append(self.probs_cumulative[age],
+                                                   p)
         # todo improve?
-        self.probs_cumulative = np.append(self.probs_cumulative, p)
-        if np.sum(self.probs_cumulative) > 1:
-            raise ValueError("Probabilities sum to more than 1")
+            if np.sum(self.probs_cumulative[age]) > 1:
+                raise ValueError("Probabilities sum to more than 1")
 
         self.destinations.append(destination)
         self.durations.append(duration)
 
     def transfer(self, agents: Set[Agent], origin_state: State) -> Iterable[PendingTransfer]:
 
-        new_states_list = np.random.choice(a=len(self.destinations),
-                                           size=len(agents),
-                                           p=self.probs_cumulative)
         pending_transfers = []
         # for each agent, create the pending transfer of the predetermined outcome.
         for agent_index, agent in enumerate(agents):
-            agent_new_state_ind = new_states_list[agent_index]
-            duration_by_age_dist = self.durations[agent_new_state_ind][agent.age]()
+            new_state_index = np.random.choice(a=len(self.destinations),
+                                               p=self.probs_cumulative[agent.age])
+            duration_by_age_dist = self.durations[new_state_index][agent.age]()
             pending_transfers.append(PendingTransfer(agent,
-                                                     self.destinations[agent_new_state_ind],
+                                                     self.destinations[new_state_index],
                                                      origin_state,
                                                      duration_by_age_dist))
         return pending_transfers

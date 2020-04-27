@@ -102,22 +102,24 @@ class Consts(NamedTuple):
     # state machine transfer probabilities
     # probability of '...' equals (1 - all other transfers)
     # it should always come last after all other transition probabilities were defined
-    latent_to_latent_asymp_begin_prob: Union[float, type(...)] = 0.3
-    asymptomatic_begin_to_asymptomatic_end_prob: Union[float, type(...)] = ...
-    latent_to_latent_presymp_prob: Union[float, type(...)] = ...
-    pre_symptomatic_to_mild_condition_prob: Union[float, type(...)] = ...
-    mild_to_close_medical_care_prob: Union[float, type(...)] = 0.2375
-    mild_to_need_icu_prob: Union[float, type(...)] = 0.0324
-    mild_to_pre_recovered_prob: Union[float, type(...)] = ...
-    close_medical_care_to_icu_prob: Union[float, type(...)] = 0.26
-    close_medical_care_to_mild_prob: Union[float, type(...)] = ...
-    need_icu_to_deceased_prob: Union[float, type(...)] = 0.3
-    need_icu_to_improving_prob: Union[float, type(...)] = ...
-    improving_to_need_icu_prob: Union[float, type(...)] = 0
-    improving_to_pre_recovered_prob: Union[float, type(...)] = ...
-    improving_to_mild_condition_prob: Union[float, type(...)] = 0
-    pre_recovered_to_recovered_prob: Union[float, type(...)] = ...
-    asymptomatic_end_to_recovered_prob: Union[float, type(...)] = ...
+    latent_to_latent_asymp_begin_prob: BucketDict[int, Union[float, type(...)]] = BucketDict({8: 0.3})
+    asymptomatic_begin_to_asymptomatic_end_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
+    latent_to_latent_presymp_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
+    latent_presymp_to_pre_symptomatic_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
+    latent_asym_to_asymptomatic_begin_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
+    pre_symptomatic_to_mild_condition_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
+    mild_to_close_medical_care_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: 0.2375})
+    mild_to_need_icu_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: 0.0324})
+    mild_to_pre_recovered_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
+    close_medical_care_to_icu_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: 0.26})
+    close_medical_care_to_mild_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
+    need_icu_to_deceased_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: 0.3})
+    need_icu_to_improving_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
+    improving_to_need_icu_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: 0})
+    improving_to_pre_recovered_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
+    improving_to_mild_condition_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: 0})
+    pre_recovered_to_recovered_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
+    asymptomatic_end_to_recovered_prob:  BucketDict[int, Union[float, type(...)]] = BucketDict({8: ...})
     # infections ratios, See bucket dict for more info on how to use.
     pre_symptomatic_infection_ratio: BucketDict[int, int] = BucketDict({10: 1, 20: 1})  # x <= 10 then key is 10,
     asymptomatic_begin_infection_ratio:  BucketDict[int, int] = BucketDict({10: 1})
@@ -410,13 +412,13 @@ class Consts(NamedTuple):
         latent_presymp.add_transfer(
             pre_symptomatic,
             duration=self.latent_presymp_to_pre_symptomatic_days,
-            probability=...
+            probability=self.latent_presymp_to_pre_symptomatic_prob
         )
 
         latent_asymp.add_transfer(
             asymptomatic_begin,
             duration=self.latent_asym_to_asymptomatic_begin_days,
-            probability=...
+            probability=self.latent_asym_to_asymptomatic_begin_prob
         )
 
         asymptomatic_begin.add_transfer(
