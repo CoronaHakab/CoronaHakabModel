@@ -14,7 +14,7 @@ simulation_output_files = list(Path(SIM_OUTPUT_FOLDER).glob("*.csv"))
 comparison_dir_path = create_comparison_files(files=simulation_output_files)
 
 # enter parameter name
-parameter_name = "Asymptomatic"
+parameter_name = "AsymptomaticBegin"
 csv_path = Path(comparison_dir_path) / (parameter_name + ".csv")
 
 # plot aggregation of the time ,across different runs

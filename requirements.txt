@@ -1,3 +1,4 @@
+jsonpickle==1.4.1
 CppHeaderParser==2.7.4
 cycler==0.10.0
 joblib==0.14.1

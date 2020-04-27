@@ -1,36 +1,14 @@
 from __future__ import annotations
-
 from typing import Set, TYPE_CHECKING
-
-from generation.connection_types import ConnectionTypes
-from dataclasses import dataclass
 import pandas as pd
 import uuid
 
+from generation.connection_types import ConnectionTypes
+from dataclasses import dataclass
+from .circle import Circle
+
 if TYPE_CHECKING:
-    from agent import Agent
-
-
-
-
-class Circle:
-    __slots__ = "kind", "agent_count"
-
-    def __init__(self, ):
-        self.agent_count = 0
-
-    def add_many(self, agents):
-        self.agent_count += len(agents)
-
-    def remove_many(self, agents):
-        self.agent_count -= len(agents)
-
-    def add_agent(self, agent):
-        self.agent_count += 1
-
-    def remove_agent(self, agent):
-        self.agent_count -= 1
-
+    from .agent import Agent
 
 class SocialCircle(Circle):
     __slots__ = ("agents", "connection_type", "guid",
