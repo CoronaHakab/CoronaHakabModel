@@ -102,9 +102,27 @@ def run_simulation(args):
     sm = SimulationManager(
         (
             # "Latent",
-            Supervisable.State.AddedPerDay("AsymptomaticBegin"),
-            Supervisable.State.Current("AsymptomaticBegin"),
             Supervisable.State.TotalSoFar("AsymptomaticBegin"),
+            Supervisable.State.TotalSoFar("Deceased"),
+            Supervisable.State.TotalSoFar("NeedOfCloseMedicalCare"),
+            Supervisable.State.TotalSoFar("NeedICU"),
+            Supervisable.State.TotalSoFar("Mild-Condition"),
+
+            Supervisable.State.AddedPerDay("AsymptomaticBegin"),
+            Supervisable.State.AddedPerDay("Deceased"),
+            Supervisable.State.AddedPerDay("NeedOfCloseMedicalCare"),
+            Supervisable.State.AddedPerDay("NeedICU"),
+            Supervisable.State.AddedPerDay("Recovered"),
+            Supervisable.State.AddedPerDay("Mild-Condition"),
+
+            Supervisable.State.Current("NeedOfCloseMedicalCare"),
+            Supervisable.State.Current("AsymptomaticBegin"),
+            Supervisable.State.Current("Latent-Asymp"),
+            Supervisable.State.Current("Latent-Presymp"),
+            Supervisable.State.Current("Pre-Symptomatic"),
+            Supervisable.State.Current("NeedICU"),
+            Supervisable.State.Current("Recovered"),
+            Supervisable.State.Current("Mild-Condition"),
             # "Silent",
             # "Asymptomatic",
             # "Symptomatic",
@@ -171,7 +189,7 @@ def run_simulation(args):
     df: pd.DataFrame = sm.dump(filename=args.output)
     # using parent since args.output gives the sim_records folder
     consts.export(export_path=Path(args.output).parent, file_name="simulation_consts.json")
-    df.iloc[:, :-16].plot()
+    df.plot()
     if args.figure_path:
         if not os.path.splitext(args.figure_path)[1]:
             args.figure_path = args.figure_path+'.png'
