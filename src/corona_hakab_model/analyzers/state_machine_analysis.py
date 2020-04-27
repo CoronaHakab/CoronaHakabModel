@@ -3,27 +3,14 @@ from datetime import datetime
 import os
 from collections import Counter
 from typing import Dict, Tuple, List
-
-from agent import Agent
 from consts import Consts
 from generation.circles_consts import CirclesConsts
+from generation.circles_generator import CirclesGenerator
 from medical_state import ImmuneState
 from medical_state_machine import MedicalStateMachine
 from medical_state_manager import MedicalStateManager
 from project_structure import OUTPUT_FOLDER
 from state_machine import TerminalState
-
-
-def _generate_agents_randomly(population_size, circle_consts) -> List:
-    """
-    Helper function for generating agents with ages for the state machine simulation
-    :param population_size: Number of agents to produce
-    :param circle_consts: CircleConsts - Used to generate agents ages
-                                         according to circles configuration
-    :return: List of agents
-    """
-    # Currently not modeling difference between agents such as age or geo region
-    return [Agent(index=_) for _ in range(population_size)]
 
 
 def _infect_all_agents(list_of_agents, medical_machine_manager, medical_state_machine):
@@ -100,14 +87,15 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
         consts = Consts()
 
     if "circle_consts_file" in configuration:
-        circle_const = CirclesConsts.from_file(configuration['circle_consts_file'])
+        circles_consts = CirclesConsts.from_file(configuration['circle_consts_file'])
     else:
         population_size = int(configuration["population_size"])
-        circle_const = CirclesConsts(population_size=population_size)
+        circles_consts = CirclesConsts(population_size=population_size)
 
     medical_state_machine = consts.medical_state_machine()
     medical_machine_manager = MedicalStateManager(medical_state_machine=medical_state_machine)
-    agents_list = _generate_agents_randomly(population_size=population_size, circle_consts=circle_const)
+    circles_generation = CirclesGenerator(circles_consts=circles_consts)
+    agents_list = circles_generation.agents
     _infect_all_agents(agents_list, medical_machine_manager, medical_state_machine)
     medical_states = medical_state_machine.states
     terminal_states = list(filter(_is_terminal_state,

@@ -6,7 +6,6 @@ from typing import Collection, Dict, Generic, Iterable, List, NamedTuple, Option
 
 import numpy as np
 from agent import Agent, TrackingCircle
-from scipy.stats import rv_discrete
 from util import Queue
 
 
@@ -41,41 +40,36 @@ class StochasticTransferGenerator:
         self.durations = []
 
     def prob_specific(self, ind: int) -> float:
-        if ind == 0:
-            return self.probs_cumulative[0]
-        return self.probs_cumulative[ind] - self.probs_cumulative[ind - 1]
+        return self.probs_cumulative[ind]
 
     def add_transfer(self, destination: State, duration, probability: Union[float, type(...)]):
         if probability is ...:
-            p = 1
-        elif self.durations:
-            p = self.probs_cumulative[-1] + probability
-            if p > 1:
-                raise ValueError("probability higher than 1")
+            p = 1 - np.sum(self.probs_cumulative)
         else:
             p = probability
         # todo improve?
         self.probs_cumulative = np.append(self.probs_cumulative, p)
+        if np.sum(self.probs_cumulative) > 1:
+            raise ValueError("Probabilities sum to more than 1")
 
         self.destinations.append(destination)
         self.durations.append(duration)
 
     def transfer(self, agents: Set[Agent], origin_state: State) -> Iterable[PendingTransfer]:
 
-        # roll a die for each agent, not taking the agent into account.
-        # the transfer_indices[i] will have the result for agent in index i
-        transfer_indices = np.searchsorted(self.probs_cumulative, np.random.random(len(agents)))
-        # count up how many got each result
-        bin_count = np.bincount(transfer_indices)
-        if len(bin_count) > len(self.probs_cumulative):
-            raise Exception("probs must sum to 1")
-        # create generators for durations for each state
-        durations = [iter(d(size=c)) for (c, s, d) in zip(bin_count, self.destinations, self.durations)]
+        new_states_list = np.random.choice(a=len(self.destinations),
+                                           size=len(agents),
+                                           p=self.probs_cumulative)
+        pending_transfers = []
         # for each agent, create the pending transfer of the predetermined outcome.
-        return [
-            PendingTransfer(agent, self.destinations[transfer_ind], origin_state, durations[transfer_ind].__next__(),)
-            for transfer_ind, agent in zip(transfer_indices, agents)
-        ]
+        for agent_index, agent in enumerate(agents):
+            agent_new_state_ind = new_states_list[agent_index]
+            duration_by_age_dist = self.durations[agent_new_state_ind][agent.age]()
+            pending_transfers.append(PendingTransfer(agent,
+                                                     self.destinations[agent_new_state_ind],
+                                                     origin_state,
+                                                     duration_by_age_dist))
+        return pending_transfers
 
 
 class State(TrackingCircle, ABC):
@@ -102,7 +96,7 @@ class StochasticState(State):
         super().__init__(*args, **kwargs)
         self.generator = StochasticTransferGenerator()
 
-    def add_transfer(self, destination: State, duration: rv_discrete, probability: Union[float, type(...)]):
+    def add_transfer(self, destination: State, duration: BucketDict, probability: Union[float, type(...)]):
         self.generator.add_transfer(destination, duration, probability)
 
         self._add_descendant(destination)

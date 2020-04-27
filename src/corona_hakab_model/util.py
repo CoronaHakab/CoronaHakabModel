@@ -92,7 +92,11 @@ class Queue(Generic[T]):
         return ret
 
 
-class BucketDict(OrderedDict):
+K = TypeVar("K")
+V = TypeVar("K")
+
+
+class BucketDict(OrderedDict, Generic[K, V]):
     """
     This class supports missing values if there is a key larger than requested.
     for example: dict is {1:1,5:5,10:10}
