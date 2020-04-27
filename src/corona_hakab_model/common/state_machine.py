@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import itertools
 from abc import ABC, abstractmethod
-from collections import defaultdict
+from collections import defaultdict, Counter
 from typing import Collection, Dict, Generic, Iterable, List, NamedTuple, Optional, Set, Tuple, TypeVar, Union
 
 import numpy as np
@@ -61,17 +62,40 @@ class StochasticTransferGenerator:
         self.durations.append(duration)
 
     def transfer(self, agents: Set[Agent], origin_state: State) -> Iterable[PendingTransfer]:
+        ages_list = [_.age for _ in agents]
+        all_ages, ages_count = np.unique(ages_list, return_counts=True)
 
-        pending_transfers = []
+        # For each age we sample as many transitions as people of that age
+        dests = {age: np.random.choice(a=len(self.destinations),
+                                       p=self.probs_cumulative[age],
+                                       size=num_of_ages) for num_of_ages, age in zip(ages_count, all_ages)}
+        # We have for each age, an array whose values is number of agents at that age transiting to the new state
+        # i.e. agents_dest_counts[10][1] - number of agents whose age is 10 and transition to self.destinations[1]
+        agents_dest_counts = {age: Counter(dict(np.stack(np.unique(dests[age],
+                                                                   return_counts=True),
+                                                         axis=1))) for age in all_ages}
+        # All possible combination of a state index and age
+        all_ages_and_dests = itertools.product(all_ages, range(len(self.destinations)))
+        # For each age and destination, sample enough number of days transitions according to appropriate age
+
+        agents_durations = {(age, dest): self.durations[dest][age](size=agents_dest_counts[age][dest])
+                            for age, dest in all_ages_and_dests}
+        pending_transfers = [None] * len(agents)
+        age_dest_index = Counter()
+        age_dest_duration_index = Counter()
         # for each agent, create the pending transfer of the predetermined outcome.
         for agent_index, agent in enumerate(agents):
-            new_state_index = np.random.choice(a=len(self.destinations),
-                                               p=self.probs_cumulative[agent.age])
-            duration_by_age_dist = self.durations[new_state_index][agent.age]()
-            pending_transfers.append(PendingTransfer(agent,
-                                                     self.destinations[new_state_index],
-                                                     origin_state,
-                                                     duration_by_age_dist))
+            agent_age = agent.age
+            current_dest_index = age_dest_index[agent_age]
+            agent_dest = dests[agent_age][current_dest_index] # Destination of current agent
+            current_duration_index = age_dest_duration_index[(agent_age, agent_dest)]
+            time_to_next_state = agents_durations[(agent.age, agent_dest)][current_duration_index]
+            pending_transfers[agent_index] = PendingTransfer(agent,
+                                                             self.destinations[agent_dest],
+                                                             origin_state,
+                                                             time_to_next_state)
+            age_dest_index[agent_age] += 1
+            age_dest_duration_index[(agent_age, agent_dest)] += 1
         return pending_transfers
 
 
