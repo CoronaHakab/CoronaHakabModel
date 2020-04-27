@@ -10,7 +10,7 @@ import bsa.parasym
 import bsa.scipy_sparse
 import corona_matrix
 import numpy as np
-from generation.circles import SocialCircle
+from common.social_circle import SocialCircle
 from generation.circles_generator import PopulationData
 from generation.connection_types import (
     Connect_To_All_types,
@@ -20,7 +20,6 @@ from generation.connection_types import (
 )
 from generation.matrix_consts import MatrixConsts, ConnectionTypeData
 from generation.node import Node
-from bsa.parasym import write_parasym, read_parasym
 from bsa.scipy_sparse import read_scipy_sparse
 from project_structure import OUTPUT_FOLDER
 

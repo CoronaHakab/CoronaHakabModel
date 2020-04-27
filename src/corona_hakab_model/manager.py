@@ -2,20 +2,19 @@ import logging
 from collections import defaultdict
 from random import shuffle
 from typing import Callable, Iterable, List, Union
-
 import numpy as np
 
 import infection
 import update_matrix
-from agent import SickAgents, InitialAgentsConstraints
+from common.agent import SickAgents, InitialAgentsConstraints
 from consts import Consts
 from detection_model import healthcare
-from detection_model.healthcare import PendingTestResult, PendingTestResults
+from common.detection_testing_types import PendingTestResult, PendingTestResults
 from generation.circles_generator import PopulationData
 from generation.matrix_generator import MatrixData
 from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
-from state_machine import PendingTransfers
+from common.state_machine import PendingTransfers
 from supervisor import Supervisable, SimulationProgression
 from generation.connection_types import ConnectionTypes
 
@@ -105,17 +104,18 @@ class SimulationManager:
         self.new_sick_counter = 0
         self.new_sick_by_infection_method = {connection_type : 0 for connection_type in ConnectionTypes}
         self.new_sick_by_infector_medical_state = {
-                "Latent" : 0,
-                "Latent-Asymp" : 0,
-                "Latent-Presymp" : 0,
-                "AsymptomaticBegin" : 0,
+                "Latent": 0,
+                "Latent-Asymp": 0,
+                "Latent-Presymp": 0,
+                "AsymptomaticBegin": 0,
                 "AsymptomaticEnd": 0,
-                "Pre-Symptomatic" : 0,
-                "Mild-Condition" : 0,
-                "NeedOfCloseMedicalCare" : 0,
-                "NeedICU" : 0,
-                "ImprovingHealth" : 0,
-                "PreRecovered" : 0
+                "Pre-Symptomatic": 0,
+                "Mild-Condition-Begin": 0,
+                "Mild-Condition-End": 0,
+                "NeedOfCloseMedicalCare": 0,
+                "NeedICU": 0,
+                "ImprovingHealth": 0,
+                "PreRecovered": 0
         }
         self.new_detected_daily = 0
 
@@ -127,7 +127,6 @@ class SimulationManager:
         run one step
         """
         # checks if there is a policy to active.
-
 
         self.policy_manager.perform_policies()
 

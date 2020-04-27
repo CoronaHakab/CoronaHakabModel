@@ -1,4 +1,4 @@
-from util import HasDuration, Queue, dist, lower_bound, upper_bound
+from common.util import HasDuration, Queue, dist, lower_bound, upper_bound
 
 
 def test_ubound():

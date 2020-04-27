@@ -18,7 +18,7 @@ from generation.generation_manager import GenerationManger
 from generation.matrix_generator import MatrixData
 from generation.connection_types import ConnectionTypes
 from manager import SimulationManager
-from agent import InitialAgentsConstraints
+from common.agent import InitialAgentsConstraints
 from subconsts.modules_argpasers import get_simulation_args_parser
 from supervisor import LambdaValueSupervisable, Supervisable
 from analyzers import matrix_analysis
@@ -102,9 +102,30 @@ def run_simulation(args):
     sm = SimulationManager(
         (
             # "Latent",
-            Supervisable.State.AddedPerDay("AsymptomaticBegin"),
-            Supervisable.State.Current("AsymptomaticBegin"),
             Supervisable.State.TotalSoFar("AsymptomaticBegin"),
+            Supervisable.State.TotalSoFar("Deceased"),
+            Supervisable.State.TotalSoFar("NeedOfCloseMedicalCare"),
+            Supervisable.State.TotalSoFar("NeedICU"),
+            Supervisable.State.TotalSoFar("Mild-Condition-Begin"),
+            Supervisable.State.TotalSoFar("Mild-Condition-End"),
+
+            Supervisable.State.AddedPerDay("AsymptomaticBegin"),
+            Supervisable.State.AddedPerDay("Deceased"),
+            Supervisable.State.AddedPerDay("NeedOfCloseMedicalCare"),
+            Supervisable.State.AddedPerDay("NeedICU"),
+            Supervisable.State.AddedPerDay("Recovered"),
+            Supervisable.State.AddedPerDay("Mild-Condition-Begin"),
+            Supervisable.State.AddedPerDay("Mild-Condition-End"),
+
+            Supervisable.State.Current("NeedOfCloseMedicalCare"),
+            Supervisable.State.Current("AsymptomaticBegin"),
+            Supervisable.State.Current("Latent-Asymp"),
+            Supervisable.State.Current("Latent-Presymp"),
+            Supervisable.State.Current("Pre-Symptomatic"),
+            Supervisable.State.Current("NeedICU"),
+            Supervisable.State.Current("Recovered"),
+            Supervisable.State.Current("Mild-Condition-Begin"),
+            Supervisable.State.Current("Mild-Condition-End"),
             # "Silent",
             # "Asymptomatic",
             # "Symptomatic",
@@ -120,7 +141,8 @@ def run_simulation(args):
                 "AsymptomaticBegin",
                 "AsymptomaticEnd",
                 "Pre-Symptomatic",
-                "Mild-Condition",
+                "Mild-Condition-Begin",
+                "Mild-Condition-End",
                 "NeedOfCloseMedicalCare",
                 "NeedICU",
                 "ImprovingHealth",
@@ -154,7 +176,8 @@ def run_simulation(args):
             LambdaValueSupervisable("daily infections from AsymptomaticBegin infector", lambda manager: manager.new_sick_by_infector_medical_state["AsymptomaticBegin"]),
             LambdaValueSupervisable("daily infections from AsymptomaticEnd infector", lambda manager: manager.new_sick_by_infector_medical_state["AsymptomaticEnd"]),
             LambdaValueSupervisable("daily infections from Pre-Symptomatic infector", lambda manager: manager.new_sick_by_infector_medical_state["Pre-Symptomatic"]),
-            LambdaValueSupervisable("daily infections from Mild-Condition infector", lambda manager: manager.new_sick_by_infector_medical_state["Mild-Condition"]),
+            LambdaValueSupervisable("daily infections from Mild-Condition-Begin infector", lambda manager: manager.new_sick_by_infector_medical_state["Mild-Condition-Begin"]),
+            LambdaValueSupervisable("daily infections from Mild-Condition-End infector", lambda manager: manager.new_sick_by_infector_medical_state["Mild-Condition-End"]),
             LambdaValueSupervisable("daily infections from NeedOfCloseMedicalCare infector", lambda manager: manager.new_sick_by_infector_medical_state["NeedOfCloseMedicalCare"]),
             LambdaValueSupervisable("daily infections from NeedICU infector", lambda manager: manager.new_sick_by_infector_medical_state["NeedICU"]),
             LambdaValueSupervisable("daily infections from ImprovingHealth infector", lambda manager: manager.new_sick_by_infector_medical_state["ImprovingHealth"]),
@@ -169,7 +192,9 @@ def run_simulation(args):
     print(sm)
     sm.run()
     df: pd.DataFrame = sm.dump(filename=args.output)
-    df.iloc[:, :-16].plot()
+    # using parent since args.output gives the sim_records folder
+    consts.export(export_path=Path(args.output).parent, file_name="simulation_consts.json")
+    df.plot()
     if args.figure_path:
         if not os.path.splitext(args.figure_path)[1]:
             args.figure_path = args.figure_path+'.png'

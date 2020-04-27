@@ -1,8 +1,10 @@
+import os
 from typing import Dict, List, NamedTuple
-
+import jsonpickle
 from scipy.stats import rv_discrete
 
 from generation.connection_types import ConnectionTypes
+from common.util import randint
 from scipy.stats import randint
 import numpy as np
 
@@ -134,6 +136,12 @@ class CirclesConsts(NamedTuple):
         parameters = eval(data, expressions)
 
         return cls(**parameters)
+
+    def export(self, export_path, file_name: str = "circles_consts.json"):
+        if not file_name.endswith(".json"):
+            file_name += ".json"
+        with open(os.path.join(export_path, file_name), "w") as export_file:
+            export_file.write(jsonpickle.encode(self._asdict()))
 
     def get_geographic_circles(self):
         assert self.geo_circles_amount == len(self.geo_circles)

@@ -1,4 +1,6 @@
+import os
 from typing import Dict, NamedTuple
+import jsonpickle
 import numpy as np
 from dataclasses import dataclass
 import math
@@ -44,7 +46,7 @@ class MatrixConsts(NamedTuple):
         ConnectionTypes.Other: 6,
     }
 
-    clustering_switching_point: int = 50 # TODO should this remain this way
+    clustering_switching_point: int = 50  # TODO should this remain this way
     community_triad_probability: Dict = {
         ConnectionTypes.Other: 1,
         ConnectionTypes.Work: 1,
@@ -85,6 +87,12 @@ class MatrixConsts(NamedTuple):
         parameters = eval(data, expressions)
 
         return cls(**parameters)
+
+    def export(self, export_path, file_name: str = "matrix_consts.json"):
+        if not file_name.endswith(".json"):
+            file_name += ".json"
+        with open(os.path.join(export_path, file_name), "w") as export_file:
+            export_file.write(jsonpickle.encode(self._asdict()))
 
     # overriding hash and eq to allow caching while using un-hashable attributes
     __hash__ = object.__hash__

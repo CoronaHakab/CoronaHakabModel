@@ -5,8 +5,9 @@ from collections import defaultdict
 from typing import Collection, Dict, Generic, Iterable, List, NamedTuple, Optional, Set, Tuple, TypeVar, Union
 
 import numpy as np
-from agent import Agent, TrackingCircle
-from util import Queue, BucketDict
+from .agent import Agent
+from .circle import TrackingCircle
+from .util import Queue, BucketDict
 
 
 class PendingTransfer(NamedTuple):

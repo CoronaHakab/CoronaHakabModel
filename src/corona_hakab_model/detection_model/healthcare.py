@@ -1,52 +1,12 @@
 from __future__ import annotations
 
-from copy import deepcopy
-from typing import TYPE_CHECKING, List, NamedTuple, Dict
-
+from typing import TYPE_CHECKING, List
 import numpy as np
 
-from agent import Agent
-from detection_model.detection_testing_types import DetectionSettings
-from medical_state import MedicalState
-from util import Queue
+from common.detection_testing_types import DetectionSettings, PendingTestResult
 
 if TYPE_CHECKING:
     from manager import SimulationManager
-
-
-class PendingTestResult(NamedTuple):
-    agent: Agent
-    test_result: bool
-    original_duration: int
-
-    def duration(self):
-        return self.original_duration
-
-
-class PendingTestResults(Queue[PendingTestResult]):
-    pass
-
-
-class DetectionTest:
-    def __init__(self,
-                 state_to_detection_prop: Dict[MedicalState, float],
-                 time_dist_until_result):
-        self.state_to_detection_prop = deepcopy(state_to_detection_prop)
-        self.time_dist_until_result = time_dist_until_result
-
-    def get_times_to_get_results(self, number_of_agents=1):
-        if number_of_agents == 1:
-            return self.time_dist_until_result(None)
-        return self.time_dist_until_result(size=number_of_agents)
-
-    def test(self, agent: Agent):
-        detection_prob = self.state_to_detection_prop[agent.medical_state.name]
-        test_result = np.random.rand() < detection_prob
-        time_to_result = self.get_times_to_get_results()
-        pending_result = PendingTestResult(agent,
-                                           test_result,
-                                           time_to_result)
-        return pending_result
 
 
 class HealthcareManager:

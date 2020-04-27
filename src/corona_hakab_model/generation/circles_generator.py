@@ -6,10 +6,10 @@ from project_structure import OUTPUT_FOLDER
 
 import numpy as np
 
-from agent import Agent
+from common.agent import Agent
 from __data__ import __version__
 from generation import connection_types
-from generation.circles import SocialCircle
+from common.social_circle import SocialCircle
 from generation.circles_consts import CirclesConsts
 from generation.connection_types import ConnectionTypes, Multi_Zone_types, Whole_Population_types
 from generation.geographic_circle import GeographicCircle
@@ -120,7 +120,7 @@ class CirclesGenerator:
         self._fill_population_data()
 
     def generate_random_connections(self):
-        for connection_type in connection_types.With_Random_Connections:
+        for connection_type in connection_types.With_Random_Connections + connection_types.With_Geo_Random_Connections:
             exp_mean = self.circles_consts.random_connections_dist_mean[connection_type]
 
             if connection_type in self.circles_consts.random_connections_strength_factor:

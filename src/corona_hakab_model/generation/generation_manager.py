@@ -16,7 +16,7 @@ class GenerationManger:
     generation manager can export the entire generation information as a json.
     """
 
-    __slots__ = ("matrix_data", "population_data")
+    __slots__ = ("matrix_data", "population_data", "circles_consts", "matrix_consts")
 
     def __init__(self, circles_consts: CirclesConsts, matrix_consts: MatrixConsts):
         # setting logger
@@ -32,6 +32,12 @@ class GenerationManger:
         matrix_generation = MatrixGenerator(circles_generation.population_data, matrix_consts=matrix_consts)
         self.matrix_data = matrix_generation.matrix_data
 
+        # save consts to allow export
+        self.circles_consts = circles_consts
+        self.matrix_consts = matrix_consts
+
     def save_to_folder(self, folder):
         self.matrix_data.export(os.path.join(folder, 'matrix_data'))
         self.population_data.export(folder, 'population_data')
+        self.circles_consts.export(folder, 'circles_consts.json')
+        self.matrix_consts.export(folder, 'matrix_consts.json')

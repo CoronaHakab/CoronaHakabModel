@@ -1,9 +1,9 @@
 from collections import defaultdict
 from typing import List
 
-from agent import Agent
-from medical_state_machine import MedicalStateMachine
-from state_machine import PendingTransfers
+from common.agent import Agent
+from common.medical_state_machine import MedicalStateMachine
+from common.state_machine import PendingTransfers
 
 
 class MedicalStateManager:
