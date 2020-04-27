@@ -1,7 +1,8 @@
+import os
 from functools import lru_cache
 from itertools import count
 from typing import Dict, List, NamedTuple, Union
-
+import jsonpickle
 import numpy as np
 from numpy.random import random
 
@@ -44,7 +45,7 @@ class Consts(NamedTuple):
     LATENT_PRESYMP: str = "Latent-Presymp"
     # attributes and default values:
 
-    total_steps: int = 350
+    total_steps: int = 200
     initial_infected_count: int = 20
     export_infected_agents_interval: int = 50
 
@@ -295,6 +296,12 @@ class Consts(NamedTuple):
         parameters = eval(data, expressions)
 
         return cls(**parameters)
+
+    def export(self, export_path, file_name: str = "simulation_consts.json"):
+        if not file_name.endswith(".json"):
+            file_name += ".json"
+        with open(os.path.join(export_path, file_name), "w") as export_file:
+            export_file.write(jsonpickle.encode(self._asdict()))
 
     @lru_cache(None)
     def average_time_in_each_state(self) -> Dict[MedicalState, int]:
