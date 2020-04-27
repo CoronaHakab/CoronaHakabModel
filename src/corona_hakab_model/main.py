@@ -112,6 +112,8 @@ def run_simulation(args):
             Supervisable.State.AddedPerDay("AsymptomaticBegin"),
             Supervisable.State.AddedPerDay("Deceased"),
             Supervisable.State.AddedPerDay("NeedOfCloseMedicalCare"),
+            Supervisable.State.AddedPerDay("Latent-Asymp"),
+            Supervisable.State.AddedPerDay("Latent-Presymp"),
             Supervisable.State.AddedPerDay("NeedICU"),
             Supervisable.State.AddedPerDay("Recovered"),
             Supervisable.State.AddedPerDay("Mild-Condition-Begin"),
