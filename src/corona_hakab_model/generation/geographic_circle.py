@@ -91,12 +91,14 @@ class GeographicCircle(Circle):
 
         np.random.shuffle(agents_for_type)
         possible_sizes, probs = self.data_holder.circles_size_distribution_by_connection_type[connection_type]
-        circles_size_distribution = rv_discrete(values=(possible_sizes, probs))
+        if len(possible_sizes) == 0 and len(probs) == 0:
+            return
 
         circles = []
 
         while len(agents_for_type) > 0:
-            circle_size = circles_size_distribution.rvs()
+            circle_size = np.random.choice(possible_sizes, p=probs)
+
             # if not enough agents, or next circle would be to small, create circle of abnormal size
             if len(agents_for_type) < circle_size + min(possible_sizes):
                 circle_size = len(agents_for_type)
@@ -145,10 +147,10 @@ class GeographicCircle(Circle):
             agents_for_type.remove(agent)
 
         # if there is place left in the circle, fill it with agents:
-        while circle.agent_count < size:
-            agent = agents_for_type.pop()
-            assert agent not in circle.agents
-            circle.add_agent(agent)
+        if circle.agent_count < size:
+            agents = agents_for_type[: size - circle.agent_count]
+            del agents_for_type[: size - circle.agent_count]
+            circle.add_many(agents)
 
         return circle
 
