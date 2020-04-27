@@ -36,7 +36,8 @@ class Consts(NamedTuple):
     IMPROVING_HEALTH: str = "ImprovingHealth"
     NEED_ICU: str = "NeedICU"
     NEED_OF_CLOSE_MEDICAL_CARE: str = "NeedOfCloseMedicalCare"
-    MILD_CONDITION: str = "Mild-Condition"
+    MILD_CONDITION_BEGIN: str = "Mild-Condition-Begin"
+    MILD_CONDITION_END: str = "Mild-Condition-End"
     PRE_SYMPTOMATIC: str = "Pre-Symptomatic"
     ASYMPTOMATIC_BEGIN: str = "AsymptomaticBegin"
     ASYMPTOMATIC_END: str = "AsymptomaticEnd"
@@ -44,9 +45,9 @@ class Consts(NamedTuple):
     LATENT_PRESYMP: str = "Latent-Presymp"
     # attributes and default values:
 
-    total_steps: int = 200
+    total_steps: int = 150
     initial_infected_count: int = 20
-    export_infected_agents_interval: int = 50
+    export_infected_agents_interval: int = 1000
 
     # Size of population to estimate expected time for each state
     population_size_for_state_machine_analysis: int = 25_000
@@ -58,26 +59,27 @@ class Consts(NamedTuple):
     # Think we should do something more readable later on.
     # For example: "latent_to_silent_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
     # disease states transition lengths distributions
-    latent_to_pre_symptomatic_days: rv_discrete = dist(1, 5, 10)
+    latent_to_pre_symptomatic_days: rv_discrete = dist(1, 3, 10)
     # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10],
     # [0.022,0.052,0.082,0.158,0.234,0.158,0.152,0.082,0.04,0.02]))
-    latent_to_asymptomatic_begin_days: rv_discrete = dist(1, 5, 11)
+    latent_to_asymptomatic_begin_days: rv_discrete = dist(1, 3, 10)
     # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11],
     # [0.02,0.05,0.08,0.15,0.22,0.15,0.15,0.08,0.05,0.03,0.02]))
-    asymptomatic_begin_to_asymptomatic_end_days: rv_discrete = dist(1, 5)
-    pre_symptomatic_to_mild_condition_days: rv_discrete = dist(1, 5)
-    mild_to_close_medical_care_days: rv_discrete = dist(3, 11)
+    asymptomatic_begin_to_asymptomatic_end_days: rv_discrete = dist(1, 3, 5)
+    pre_symptomatic_to_mild_condition_begin_days: rv_discrete = dist(1, 3)
+    mild_condition_begin_to_mild_condition_end_days: rv_discrete = dist(1, 3, 5)
+    mild_end_to_close_medical_care_days: rv_discrete = dist(1, 8)
     # Actual distribution: rv_discrete(values=([3,4,5,6,7,8,9,10,11,12],
     # [0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.01]))
-    mild_to_need_icu_days: rv_discrete = dist(6, 13, 29)
+    mild_end_to_need_icu_days: rv_discrete = dist(3, 10, 26)
     # Actual distribution: rv_discrete(values=([6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29],
     # [0.012,0.019,0.032,0.046,0.059,0.069,0.076,0.078,0.076,0.072,0.066,0.060,0.053,0.046,0.040,0.035,0.030,0.028,0.026,0.022,0.020,0.015,0.010,0.010]))
-    mild_to_pre_recovered_days: rv_discrete = dist(1, 16, 26)
+    mild_end_to_pre_recovered_days: rv_discrete = dist(1, 13, 23)
     # Actual distribution: rv_discrete(values=(
     # [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28],
     # [0.001,0.001,0.001,0.001,0.001,0.002,0.004,0.008,0.013,0.022,0.032,0.046,0.06,0.075,0.088,0.097,0.1,0.098,0.088,0.075,0.06,0.046,0.032,0.022,0.013,0.008,0.004,0.002]))
     close_medical_care_to_icu_days: rv_discrete = dist(10, 12, 14)
-    close_medical_care_to_mild_days: rv_discrete = dist(8, 10, 12)
+    close_medical_care_to_mild_end_days: rv_discrete = dist(8, 10, 12)
     need_icu_to_deceased_days: rv_discrete = dist(1, 3, 20)
     # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
     # [0.030,0.102,0.126,0.112,0.090,0.080,0.075,0.070,0.065,0.050,0.040,0.035,0.030,0.025,0.020,
@@ -87,7 +89,7 @@ class Consts(NamedTuple):
     # [0.021,0.041,0.081,0.101,0.101,0.081,0.071,0.066,0.061,0.056,0.046,0.041,0.039,0.033,0.031,0.026,0.021,0.016,0.013,0.013,0.011,0.011,0.009,0.005,0.005]))
     improving_to_need_icu_days: rv_discrete = dist(21, 42)
     improving_to_pre_recovered_days: rv_discrete = dist(21, 42)  # TODO: check why so long
-    improving_to_mild_condition_days: rv_discrete = dist(21, 42)
+    improving_to_mild_condition_end_days: rv_discrete = dist(21, 42)
     pre_recovered_to_recovered_days: rv_discrete = dist(14, 28)
     # Actual distribution: rv_discrete(values=([14, 28], [0.8, 0.2]))
     asymptomatic_end_to_recovered_days: rv_discrete = dist(10, 18, 35)
@@ -101,24 +103,26 @@ class Consts(NamedTuple):
     latent_to_asymptomatic_begin_prob: Union[float, type(...)] = 0.3
     asymptomatic_begin_to_asymptomatic_end_prob: Union[float, type(...)] = ...
     latent_to_pre_symptomatic_prob: Union[float, type(...)] = ...
-    pre_symptomatic_to_mild_condition_prob: Union[float, type(...)] = ...
-    mild_to_close_medical_care_prob: Union[float, type(...)] = 0.2375
-    mild_to_need_icu_prob: Union[float, type(...)] = 0.0324
-    mild_to_pre_recovered_prob: Union[float, type(...)] = ...
+    pre_symptomatic_to_mild_condition_begin_prob: Union[float, type(...)] = ...
+    mild_condition_begin_to_mild_condition_end_prob: Union[float, type(...)] = ...
+    mild_end_to_close_medical_care_prob: Union[float, type(...)] = 0.2375
+    mild_end_to_need_icu_prob: Union[float, type(...)] = 0.0324
+    mild_end_to_pre_recovered_prob: Union[float, type(...)] = ...
     close_medical_care_to_icu_prob: Union[float, type(...)] = 0.26
-    close_medical_care_to_mild_prob: Union[float, type(...)] = ...
+    close_medical_care_to_mild_end_prob: Union[float, type(...)] = ...
     need_icu_to_deceased_prob: Union[float, type(...)] = 0.3
     need_icu_to_improving_prob: Union[float, type(...)] = ...
     improving_to_need_icu_prob: Union[float, type(...)] = 0
     improving_to_pre_recovered_prob: Union[float, type(...)] = ...
-    improving_to_mild_condition_prob: Union[float, type(...)] = 0
+    improving_to_mild_condition_end_prob: Union[float, type(...)] = 0
     pre_recovered_to_recovered_prob: Union[float, type(...)] = ...
     asymptomatic_end_to_recovered_prob: Union[float, type(...)] = ...
     # infections ratios, See bucket dict for more info on how to use.
-    pre_symptomatic_infection_ratio: BucketDict = BucketDict({10: 1, 20: 1})  # x <= 10 then key is 10,
+    pre_symptomatic_infection_ratio: BucketDict = BucketDict({10: 1})  # x <= 10 then key is 10,
     asymptomatic_begin_infection_ratio: BucketDict = BucketDict({10: 1})
+    mild_condition_begin_infection_ratio: BucketDict = BucketDict({10: 0.66})
     latent_infection_ratio: BucketDict = BucketDict({0: 0})   # if x greater than biggest key, x is biggest key
-    mild_condition_infection_ratio: BucketDict = BucketDict({0: 0})
+    mild_condition_end_infection_ratio: BucketDict = BucketDict({0: 0})
     latent_presymp_infection_ratio: BucketDict = BucketDict({0: 0})
     latent_asymp_infection_ratio: BucketDict = BucketDict({0: 0})
     asymptomatic_end_infection_ratio: BucketDict = BucketDict({0: 0})
@@ -136,7 +140,8 @@ class Consts(NamedTuple):
     asymptomatic_begin_test_willingness: float = 0.01
     asymptomatic_end_test_willingness: float = 0.01
     pre_symptomatic_test_willingness: float = 0.01
-    mild_condition_test_willingness: float = 0.6
+    mild_condition_begin_test_willingness: float = 0.6
+    mild_condition_end_test_willingness: float = 0.6
     need_close_medical_care_test_willingness: float = 0.9
     need_icu_test_willingness: float = 1.0
     improving_health_test_willingness: float = 1.0
@@ -154,7 +159,8 @@ class Consts(NamedTuple):
                 IMPROVING_HEALTH: .98,
                 NEED_ICU: .98,
                 NEED_OF_CLOSE_MEDICAL_CARE: .98,
-                MILD_CONDITION: .98,
+                MILD_CONDITION_BEGIN: .98,
+                MILD_CONDITION_END: .98,
                 PRE_SYMPTOMATIC: .98,
                 ASYMPTOMATIC_BEGIN: .98,
                 ASYMPTOMATIC_END: .98,
@@ -184,7 +190,8 @@ class Consts(NamedTuple):
                 IMPROVING_HEALTH: .92,
                 NEED_ICU: .92,
                 NEED_OF_CLOSE_MEDICAL_CARE: .92,
-                MILD_CONDITION: .92,
+                MILD_CONDITION_BEGIN: .92,
+                MILD_CONDITION_END: .92,
                 PRE_SYMPTOMATIC: .92,
                 ASYMPTOMATIC_BEGIN: .92,
                 ASYMPTOMATIC_END: .92,
@@ -402,11 +409,17 @@ class Consts(NamedTuple):
             contagiousness=self.pre_symptomatic_infection_ratio,
             test_willingness=self.pre_symptomatic_test_willingness,
         )
-        mild_condition = ContagiousStochasticState(
-            self.MILD_CONDITION,
+        mild_condition_begin = ContagiousStochasticState(
+            self.MILD_CONDITION_BEGIN,
             detectable=True,
-            contagiousness=self.mild_condition_infection_ratio,
-            test_willingness=self.mild_condition_test_willingness,
+            contagiousness=self.mild_condition_begin_infection_ratio,
+            test_willingness=self.mild_condition_begin_test_willingness,
+        )
+        mild_condition_end = ContagiousStochasticState(
+            self.MILD_CONDITION_END,
+            detectable=True,
+            contagiousness=self.mild_condition_end_infection_ratio,
+            test_willingness=self.mild_condition_end_test_willingness,
         )
         need_close_medical_care = ContagiousStochasticState(
             self.NEED_OF_CLOSE_MEDICAL_CARE,
@@ -474,25 +487,31 @@ class Consts(NamedTuple):
         )
 
         pre_symptomatic.add_transfer(
-            mild_condition,
-            duration=self.pre_symptomatic_to_mild_condition_days,
-            probability=self.pre_symptomatic_to_mild_condition_prob
+            mild_condition_begin,
+            duration=self.pre_symptomatic_to_mild_condition_begin_days,
+            probability=self.pre_symptomatic_to_mild_condition_begin_prob
         )
 
-        mild_condition.add_transfer(
+        mild_condition_begin.add_transfer(
+            mild_condition_end,
+            duration=self.mild_condition_begin_to_mild_condition_end_days,
+            probability=self.mild_condition_begin_to_mild_condition_end_prob
+        )
+
+        mild_condition_end.add_transfer(
             need_close_medical_care,
-            duration=self.mild_to_close_medical_care_days,
-            probability=self.mild_to_close_medical_care_prob
+            duration=self.mild_end_to_close_medical_care_days,
+            probability=self.mild_end_to_close_medical_care_prob
         )
-        mild_condition.add_transfer(
+        mild_condition_end.add_transfer(
             need_icu,
-            duration=self.mild_to_need_icu_days,
-            probability=self.mild_to_need_icu_prob
+            duration=self.mild_end_to_need_icu_days,
+            probability=self.mild_end_to_need_icu_prob
         )
-        mild_condition.add_transfer(
+        mild_condition_end.add_transfer(
             pre_recovered,
-            duration=self.mild_to_pre_recovered_days,
-            probability=self.mild_to_pre_recovered_prob
+            duration=self.mild_end_to_pre_recovered_days,
+            probability=self.mild_end_to_pre_recovered_prob
         )
 
         need_close_medical_care.add_transfer(
@@ -501,9 +520,9 @@ class Consts(NamedTuple):
             probability=self.close_medical_care_to_icu_prob
         )
         need_close_medical_care.add_transfer(
-            mild_condition,
-            duration=self.close_medical_care_to_mild_days,
-            probability=self.close_medical_care_to_mild_prob
+            mild_condition_end,
+            duration=self.close_medical_care_to_mild_end_days,
+            probability=self.close_medical_care_to_mild_end_prob
         )
 
         need_icu.add_transfer(
@@ -528,9 +547,9 @@ class Consts(NamedTuple):
             probability=self.improving_to_pre_recovered_prob
         )
         improving_health.add_transfer(
-            mild_condition,
-            duration=self.improving_to_mild_condition_days,
-            probability=self.improving_to_mild_condition_prob
+            mild_condition_end,
+            duration=self.improving_to_mild_condition_end_days,
+            probability=self.improving_to_mild_condition_end_prob
         )
 
         pre_recovered.add_transfer(
