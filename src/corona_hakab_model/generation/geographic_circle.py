@@ -1,10 +1,10 @@
 from typing import List
 
 import numpy as np
-from generation.circles import Circle, SocialCircle
+from common.circle import Circle
+from common.social_circle import SocialCircle
 from generation.circles_consts import GeographicalCircleDataHolder
 from generation.connection_types import ConnectionTypes, In_Zone_types, Multi_Zone_types, Education_Types
-from util import rv_discrete
 
 
 class GeographicCircle(Circle):
@@ -38,29 +38,47 @@ class GeographicCircle(Circle):
         It allows choosing whether some one goes to work, to school, to kindergarten or to none of those.
         :return:
         """
-        ages = iter(self.data_holder.age_distribution.rvs(size=len(self.agents)))
-        workplace_distribution = rv_discrete(
-            values=([ConnectionTypes.School, ConnectionTypes.Kindergarten, ConnectionTypes.Work],
-                    [self.data_holder.teachers_workforce_ratio, self.data_holder.kindergarten_workforce_ratio,
-                    1 - self.data_holder.teachers_workforce_ratio - self.data_holder.kindergarten_workforce_ratio])
+        ages = np.random.choice(
+            self.data_holder.age_distribution["ages"],
+            size=len(self.agents),
+            p=self.data_holder.age_distribution["probs"]
         )
-        for agent, age in zip(self.agents, ages):
+        is_adults = ages >= 18
+        num_of_adults = np.count_nonzero(is_adults)
+
+        workplaces_for_adults: List = np.random.choice(
+            [ConnectionTypes.School, ConnectionTypes.Kindergarten, ConnectionTypes.Work],
+            size=num_of_adults,
+            p=[self.data_holder.teachers_workforce_ratio, self.data_holder.kindergarten_workforce_ratio,
+               1 - self.data_holder.teachers_workforce_ratio - self.data_holder.kindergarten_workforce_ratio]
+        ).tolist()
+
+        education_type_probs_by_age = {
+            age: np.array([self.data_holder.connection_types_prob_by_age[age][connection_type] for
+                           connection_type in Education_Types]) for age in self.data_holder.age_distribution["ages"]}
+        total_prob_of_education_by_age = {age: np.sum(education_type_probs_by_age[age])
+                                          for age in self.data_holder.age_distribution["ages"]}
+
+        # Normalize
+        for age in self.data_holder.age_distribution["ages"]:
+            if total_prob_of_education_by_age[age] > 0:
+                education_type_probs_by_age[age] = education_type_probs_by_age[age] / total_prob_of_education_by_age[age]
+
+        for agent, age, is_adult in zip(self.agents, ages, is_adults):
             agent.age = age
             agent_connection_types = []
-            
-            if agent.is_adult() and np.random.random() < self.data_holder.connection_types_prob_by_age[age][
+
+            if is_adult and np.random.random() < self.data_holder.connection_types_prob_by_age[age][
                 ConnectionTypes.Work]:
-
                 # if the agent works, decide workplace
-                agent_connection_types.append(workplace_distribution.rvs())
+                agent_connection_types.append(workplaces_for_adults.pop())
 
-            if not agent.is_adult():
-                education_prob = [self.data_holder.connection_types_prob_by_age[age][connection_type] for
-                                  connection_type in Education_Types]
-                if np.random.random() < sum(education_prob):
+            if not is_adult:
+                education_probs = education_type_probs_by_age[age]
+                if np.random.random() < total_prob_of_education_by_age[age]:
                     # normalize the probabilities
-                    education_type = rv_discrete(
-                        values=(Education_Types, [prob / sum(education_prob) for prob in education_prob])).rvs()
+                    education_type = np.random.choice(Education_Types, p=education_probs, size=1)[0]
+                    # TODO: sample many before the loop
                     agent_connection_types.append(education_type)
 
             # handle other connection types. This single FOR condition contains words "connection" and "type" 9 times
@@ -72,7 +90,7 @@ class GeographicCircle(Circle):
 
             for connection_type in agent_connection_types:
                 self.connection_type_to_agents[connection_type].append(agent)
-            
+
     def create_inner_social_circles(self):
         # todo notice that family connection types doesnt notice between ages
         for connection_type in In_Zone_types:
@@ -91,20 +109,25 @@ class GeographicCircle(Circle):
         # calculate amount of agents for each size group
         # we'll also use size_num_agents to count how many agents were placed in each size group.
         possible_sizes, probs = self.data_holder.circles_size_distribution_by_connection_type[connection_type]
-        size_num_agents = {size : 0 for size in possible_sizes}             
+        if len(possible_sizes) == 0 and len(probs) == 0:
+            return
+
+        size_num_agents = {size: 0 for size in possible_sizes}
         rolls = np.random.choice(possible_sizes, size=len(agents_for_type), p=probs)
         for roll in rolls:
             size_num_agents[roll] += 1
 
-
         # populate circles in each size group
         for size in possible_sizes:
+            if size_num_agents[size] == 0:
+                continue
+
             # create circles
             amount_of_circles = max(1, round(size_num_agents[size] / size))
             circles = [SocialCircle(connection_type) for _ in range(amount_of_circles)]
             # index is used to go over all circles in the size group s.t. the population is divided as qeually as possible
             index = 0
-            
+
             # if the distribution is age dependent, fill adults first.
             # check if there is a distribution of adults in for the connection_type
             adult_type_distribution = self.data_holder.adult_distributions.get(connection_type)
@@ -127,7 +150,7 @@ class GeographicCircle(Circle):
                     agents_for_type.remove(agent)
                     index += 1
                     size_num_agents[size] -= 1
-           
+
             # fill in the rest of the population 
             while len(agents_for_type) > 0 and size_num_agents[size] > 0:
                 agent = agents_for_type.pop()
@@ -135,7 +158,7 @@ class GeographicCircle(Circle):
                 circle.add_agent(agent)
                 index += 1
                 size_num_agents[size] -= 1
-            
+
             self.connection_type_to_social_circles[connection_type].extend(circles)
             self.all_social_circles.extend(circles)
 

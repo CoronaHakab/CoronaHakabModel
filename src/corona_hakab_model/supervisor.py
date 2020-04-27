@@ -1,27 +1,20 @@
 # flake8: noqa flake8 doesn't support named expressions := so for now we have to exclude this file for now:(
-
 from __future__ import annotations
-
-from datetime import datetime
 from abc import ABC, abstractmethod
 from functools import lru_cache
 from typing import Any, Callable, List, NamedTuple, Sequence, Union, Dict
-
-from project_structure import SIM_OUTPUT_FOLDER
 from pathlib import Path
 import manager
-from state_machine import StochasticState
-
 import numpy as np
 import pandas as pd
-import os
 
+from common.state_machine import StochasticState
 from typing import TYPE_CHECKING
+from common.histogram import TimeHistograms
 
 if TYPE_CHECKING:
-    from state_machine import State
+    from common.state_machine import State
 
-from histogram import TimeHistograms
 
 class SimulationProgression:
     """
@@ -47,8 +40,8 @@ class SimulationProgression:
         for s in self.supervisables:
             s.snapshot(manager)
 
-    def dump(self, filename=None):
-        file_name = Path(filename) if filename else SIM_OUTPUT_FOLDER / (datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv")
+    def dump(self, filename):
+        file_name = Path(filename) / "final_results.csv"
         file_name.parent.mkdir(parents=True, exist_ok=True)
 
         tabular_supervisables = [s for s in self.supervisables if isinstance(s, TabularSupervisable)]
@@ -58,7 +51,7 @@ class SimulationProgression:
         for s in tabular_supervisables:
             day_to_table_dict = s.publish()
             for day, table in day_to_table_dict.items():
-                sample_file_name = SIM_OUTPUT_FOLDER / f"{s.name()} {day}.csv"
+                sample_file_name = file_name.parent / f"{s.name()} {day}.csv"
                 df = pd.DataFrame(table)
                 df.to_csv(sample_file_name)
 

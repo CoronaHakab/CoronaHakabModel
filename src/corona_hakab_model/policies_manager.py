@@ -1,9 +1,6 @@
-import logging
 from typing import Any, Callable, Iterable, List, Dict
 
-import numpy as np
-from generation.circles import SocialCircle
-from generation.connection_types import ConnectionTypes
+from common.social_circle import SocialCircle
 
 
 class PolicyManager:

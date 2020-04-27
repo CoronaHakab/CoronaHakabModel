@@ -23,6 +23,11 @@
         ConnectionTypes.Other: 6,
     },
     "use_parasymbolic_matrix": True,
-    "clustering_switching_point": (50,),
-    "community_triad_probability": (1,),
+    "clustering_switching_point": 50,
+    "community_triad_probability": {
+        ConnectionTypes.Other: 1,
+        ConnectionTypes.Work: 1,
+        ConnectionTypes.School: 1,
+        ConnectionTypes.Kindergarten: 1
+    },
 }
