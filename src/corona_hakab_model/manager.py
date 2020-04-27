@@ -9,7 +9,7 @@ import update_matrix
 from common.agent import SickAgents, InitialAgentsConstraints
 from consts import Consts
 from detection_model import healthcare
-from detection_model.healthcare import PendingTestResult, PendingTestResults
+from common.detection_testing_types import PendingTestResult, PendingTestResults
 from generation.circles_generator import PopulationData
 from generation.matrix_generator import MatrixData
 from medical_state_manager import MedicalStateManager

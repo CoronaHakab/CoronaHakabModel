@@ -6,8 +6,7 @@ import jsonpickle
 import numpy as np
 from numpy.random import random
 
-from common.detection_testing_types import DetectionSettings, DetectionPriority
-from detection_model.healthcare import DetectionTest
+from common.detection_testing_types import DetectionSettings, DetectionPriority, DetectionTest
 from generation.connection_types import ConnectionTypes
 from common.medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
 from common.medical_state_machine import MedicalStateMachine
