@@ -1,10 +1,8 @@
 from __future__ import annotations
-
 from collections import Callable
 from dataclasses import dataclass
 from typing import Dict, List
 from typing import TYPE_CHECKING
-
 from numpy import inf
 
 from common.agent import Agent

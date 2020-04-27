@@ -1,12 +1,10 @@
 from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
-
 import pandas as pd
 from numpy import nan
 
-from common.social_circle import SocialCircleConstraint
+from .social_circle import SocialCircleConstraint
 from generation.connection_types import ConnectionTypes
 from .util import parse_str_to_num
 

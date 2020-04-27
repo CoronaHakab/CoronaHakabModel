@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, List, NamedTuple, Dict
 import numpy as np
 
 from common.agent import Agent
-from detection_model.detection_testing_types import DetectionSettings
+from common.detection_testing_types import DetectionSettings
 from common.medical_state import MedicalState
 from common.util import Queue
 
