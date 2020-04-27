@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING, List, NamedTuple, Dict
 
 import numpy as np
 
-from agent import Agent
-from detection_model.detection_testing_types import DetectionSettings
-from medical_state import MedicalState
-from util import Queue
+from common.agent import Agent
+from common.detection_testing_types import DetectionSettings
+from common.medical_state import MedicalState
+from common.util import Queue
 
 if TYPE_CHECKING:
     from manager import SimulationManager

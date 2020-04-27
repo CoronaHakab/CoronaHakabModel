@@ -6,14 +6,14 @@ import jsonpickle
 import numpy as np
 from numpy.random import random
 
-from detection_model.detection_testing_types import DetectionSettings, DetectionPriority
+from common.detection_testing_types import DetectionSettings, DetectionPriority
 from detection_model.healthcare import DetectionTest
 from generation.connection_types import ConnectionTypes
-from medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
-from medical_state_machine import MedicalStateMachine
+from common.medical_state import ContagiousState, ImmuneState, MedicalState, SusceptibleState
+from common.medical_state_machine import MedicalStateMachine
 from policies_manager import ConditionedPolicy, Policy
-from state_machine import StochasticState, TerminalState
-from util import dist, rv_discrete, upper_bound, BucketDict, get_numpy_uniform_dist
+from common.state_machine import StochasticState, TerminalState
+from common.util import dist, rv_discrete, upper_bound, BucketDict, get_numpy_uniform_dist
 
 """
 Overview:

@@ -1,10 +1,10 @@
 from typing import List
 
 import numpy as np
-from generation.circles import Circle, SocialCircle
+from common.circle import Circle
+from common.social_circle import SocialCircle
 from generation.circles_consts import GeographicalCircleDataHolder
 from generation.connection_types import ConnectionTypes, In_Zone_types, Multi_Zone_types, Education_Types
-from util import rv_discrete
 
 
 class GeographicCircle(Circle):

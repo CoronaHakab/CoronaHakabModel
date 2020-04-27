@@ -18,7 +18,7 @@ from generation.generation_manager import GenerationManger
 from generation.matrix_generator import MatrixData
 from generation.connection_types import ConnectionTypes
 from manager import SimulationManager
-from agent import InitialAgentsConstraints
+from common.agent import InitialAgentsConstraints
 from subconsts.modules_argpasers import get_simulation_args_parser
 from supervisor import LambdaValueSupervisable, Supervisable
 from analyzers import matrix_analysis
