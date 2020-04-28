@@ -106,14 +106,18 @@ def run_simulation(args):
             Supervisable.State.TotalSoFar("Deceased"),
             Supervisable.State.TotalSoFar("NeedOfCloseMedicalCare"),
             Supervisable.State.TotalSoFar("NeedICU"),
-            Supervisable.State.TotalSoFar("Mild-Condition"),
+            Supervisable.State.TotalSoFar("Mild-Condition-Begin"),
+            Supervisable.State.TotalSoFar("Mild-Condition-End"),
 
             Supervisable.State.AddedPerDay("AsymptomaticBegin"),
             Supervisable.State.AddedPerDay("Deceased"),
             Supervisable.State.AddedPerDay("NeedOfCloseMedicalCare"),
+            Supervisable.State.AddedPerDay("Latent-Asymp"),
+            Supervisable.State.AddedPerDay("Latent-Presymp"),
             Supervisable.State.AddedPerDay("NeedICU"),
             Supervisable.State.AddedPerDay("Recovered"),
-            Supervisable.State.AddedPerDay("Mild-Condition"),
+            Supervisable.State.AddedPerDay("Mild-Condition-Begin"),
+            Supervisable.State.AddedPerDay("Mild-Condition-End"),
 
             Supervisable.State.Current("NeedOfCloseMedicalCare"),
             Supervisable.State.Current("AsymptomaticBegin"),
@@ -122,7 +126,8 @@ def run_simulation(args):
             Supervisable.State.Current("Pre-Symptomatic"),
             Supervisable.State.Current("NeedICU"),
             Supervisable.State.Current("Recovered"),
-            Supervisable.State.Current("Mild-Condition"),
+            Supervisable.State.Current("Mild-Condition-Begin"),
+            Supervisable.State.Current("Mild-Condition-End"),
             # "Silent",
             # "Asymptomatic",
             # "Symptomatic",
@@ -138,7 +143,8 @@ def run_simulation(args):
                 "AsymptomaticBegin",
                 "AsymptomaticEnd",
                 "Pre-Symptomatic",
-                "Mild-Condition",
+                "Mild-Condition-Begin",
+                "Mild-Condition-End",
                 "NeedOfCloseMedicalCare",
                 "NeedICU",
                 "ImprovingHealth",
@@ -173,7 +179,8 @@ def run_simulation(args):
             LambdaValueSupervisable("daily infections from AsymptomaticBegin infector", lambda manager: manager.new_sick_by_infector_medical_state["AsymptomaticBegin"]),
             LambdaValueSupervisable("daily infections from AsymptomaticEnd infector", lambda manager: manager.new_sick_by_infector_medical_state["AsymptomaticEnd"]),
             LambdaValueSupervisable("daily infections from Pre-Symptomatic infector", lambda manager: manager.new_sick_by_infector_medical_state["Pre-Symptomatic"]),
-            LambdaValueSupervisable("daily infections from Mild-Condition infector", lambda manager: manager.new_sick_by_infector_medical_state["Mild-Condition"]),
+            LambdaValueSupervisable("daily infections from Mild-Condition-Begin infector", lambda manager: manager.new_sick_by_infector_medical_state["Mild-Condition-Begin"]),
+            LambdaValueSupervisable("daily infections from Mild-Condition-End infector", lambda manager: manager.new_sick_by_infector_medical_state["Mild-Condition-End"]),
             LambdaValueSupervisable("daily infections from NeedOfCloseMedicalCare infector", lambda manager: manager.new_sick_by_infector_medical_state["NeedOfCloseMedicalCare"]),
             LambdaValueSupervisable("daily infections from NeedICU infector", lambda manager: manager.new_sick_by_infector_medical_state["NeedICU"]),
             LambdaValueSupervisable("daily infections from ImprovingHealth infector", lambda manager: manager.new_sick_by_infector_medical_state["ImprovingHealth"]),
@@ -195,7 +202,8 @@ def run_simulation(args):
         if not os.path.splitext(args.figure_path)[1]:
             args.figure_path = args.figure_path+'.png'
         plt.savefig(args.figure_path)
-    else:
+
+    if args.show_plot:
         plt.show()
 
 

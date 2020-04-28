@@ -104,17 +104,18 @@ class SimulationManager:
         self.new_sick_counter = 0
         self.new_sick_by_infection_method = {connection_type : 0 for connection_type in ConnectionTypes}
         self.new_sick_by_infector_medical_state = {
-                "Latent" : 0,
-                "Latent-Asymp" : 0,
-                "Latent-Presymp" : 0,
-                "AsymptomaticBegin" : 0,
+                "Latent": 0,
+                "Latent-Asymp": 0,
+                "Latent-Presymp": 0,
+                "AsymptomaticBegin": 0,
                 "AsymptomaticEnd": 0,
-                "Pre-Symptomatic" : 0,
-                "Mild-Condition" : 0,
-                "NeedOfCloseMedicalCare" : 0,
-                "NeedICU" : 0,
-                "ImprovingHealth" : 0,
-                "PreRecovered" : 0
+                "Pre-Symptomatic": 0,
+                "Mild-Condition-Begin": 0,
+                "Mild-Condition-End": 0,
+                "NeedOfCloseMedicalCare": 0,
+                "NeedICU": 0,
+                "ImprovingHealth": 0,
+                "PreRecovered": 0
         }
         self.new_detected_daily = 0
 
