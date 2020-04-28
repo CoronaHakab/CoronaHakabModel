@@ -75,6 +75,7 @@ class SimulationManager:
         self.tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
         self.ever_tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
         self.agents_in_isolation = np.zeros(len(self.agents), dtype=bool)
+        self.agents_connections_factors = np.ones(shape=(len(self.agents), self.depth))
         self.date_of_last_test = np.zeros(len(self.agents), dtype=int)
         self.pending_test_results = PendingTestResults()
         self.step_to_isolate_agent = np.full(len(self.agents), -1, dtype=int)  # full of null step
