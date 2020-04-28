@@ -62,6 +62,10 @@ def get_simulation_args_parser():
                      dest='matrix_data',
                      default=OUTPUT_FOLDER / 'matrix_data.parasymbolic',
                      help='Previously exported matrix data file to use in the simulation')
+    sim.add_argument('--connection_data',
+                     dest='connection_data',
+                     default=OUTPUT_FOLDER / 'connection_data.pickle',
+                     help='Previously exported agent connection data file to use in the simulation')
     sim.add_argument('--initial_sick',
                      dest='initial_sick_agents_path',
                      help='Output csv file for initial sick agents - after setup of simulation')

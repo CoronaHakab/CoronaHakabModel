@@ -11,7 +11,7 @@ from consts import Consts
 from detection_model import healthcare
 from common.detection_testing_types import PendingTestResult, PendingTestResults
 from generation.circles_generator import PopulationData
-from generation.matrix_generator import MatrixData
+from generation.matrix_generator import MatrixData, ConnectionData
 from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
 from common.state_machine import PendingTransfers
@@ -30,6 +30,7 @@ class SimulationManager:
             supervisable_makers: Iterable[Union[str, Supervisable, Callable]],
             population_data: PopulationData,
             matrix_data: MatrixData,
+            connection_data: ConnectionData,
             inital_agent_constraints: InitialAgentsConstraints,
             run_args,
             consts: Consts = Consts(),

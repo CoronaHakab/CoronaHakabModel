@@ -15,7 +15,7 @@ from application_utils import generate_from_folder, generate_from_master_folder,
 from consts import Consts
 from generation.circles_generator import PopulationData
 from generation.generation_manager import GenerationManger
-from generation.matrix_generator import MatrixData
+from generation.matrix_generator import MatrixData, ConnectionData
 from generation.connection_types import ConnectionTypes
 from manager import SimulationManager
 from common.agent import InitialAgentsConstraints
@@ -93,6 +93,7 @@ def run_simulation(args):
 
     matrix_data = MatrixData.import_matrix_data(args.matrix_data)
     population_data = PopulationData.import_population_data(args.population_data)
+    connection_data = ConnectionData.import_connection_data(args.connection_data)
     initial_agent_constraints = InitialAgentsConstraints(args.agent_constraints_path)
     if args.simulation_parameters_path:
         consts = Consts.from_file(args.simulation_parameters_path)
@@ -185,6 +186,7 @@ def run_simulation(args):
         ),
         population_data,
         matrix_data,
+        connection_data,
         initial_agent_constraints,
         run_args=args,
         consts=consts,
