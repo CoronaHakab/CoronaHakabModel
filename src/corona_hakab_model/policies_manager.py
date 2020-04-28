@@ -54,9 +54,10 @@ class PolicyManager:
     def update_daily_affected_circles(self, affected_circles, conditioned_policy):
         if self.daily_affected_circles is None:
             self.daily_affected_circles = {}
-        if conditioned_policy not in self.daily_affected_circles:
-            self.daily_affected_circles[conditioned_policy] = []
-        self.daily_affected_circles[conditioned_policy] += affected_circles
+        if conditioned_policy in self.daily_affected_circles:
+            self.logger.info(f"Policy {conditioned_policy} was executed twice on the same day!")
+            return
+        self.daily_affected_circles[conditioned_policy] = affected_circles
 
     def add_message_to_manager(self, message: str):
         if message == "":
