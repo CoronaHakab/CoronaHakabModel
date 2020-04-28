@@ -57,15 +57,33 @@ class Policy:
     This represents a policy.
     """
 
-    def __init__(self, connection_change_factor: float, conditions: Iterable[Callable[[Any], bool]]):
-        self.factor = connection_change_factor
-        self.conditions = conditions
+    def __init__(
+            self,
+            connection_change_factor: float,
+            circle_conditions: Iterable[Callable[[Any], bool]],
+            agent_conditions: Iterable[Callable[[Any], bool]] = None,
 
-    def check_applies(self, arg):
+    ):
+        self.factor = connection_change_factor
+        self.circle_conditions = circle_conditions
+
+        if agent_conditions is None:
+            agent_conditions = []
+
+        self.agent_conditions = agent_conditions
+
+    @staticmethod
+    def _check_applies(conditions, arg):
         applies = True
-        for condition in self.conditions:
+        for condition in conditions:
             applies = applies and condition(arg)
         return applies
+
+    def check_applies_on_circle(self, circle):
+        return self._check_applies(self.circle_conditions, circle)
+
+    def check_applies_on_agent(self, agent):
+        return self._check_applies(self.agent_conditions, agent)
 
 
 class PolicyByCircles:
