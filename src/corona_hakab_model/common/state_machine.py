@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-import math
+import itertools
 from abc import ABC, abstractmethod
-from collections import defaultdict
-from functools import cached_property
+from collections import defaultdict, Counter
 from typing import Collection, Dict, Generic, Iterable, List, NamedTuple, Optional, Set, Tuple, TypeVar, Union
 
 import numpy as np
 from .agent import Agent
 from .circle import TrackingCircle
-from scipy.stats import rv_discrete
-from .util import Queue, upper_bound, lower_bound
+from .util import Queue, BucketDict
 
 
 class PendingTransfer(NamedTuple):
@@ -39,50 +37,66 @@ class StochasticTransferGenerator:
 
     # todo enforce probabilities sum to 1?
     def __init__(self):
-        self.probs_cumulative: np.ndarray = np.array([], dtype=float)
+        self.probs_cumulative = BucketDict({})
         self.destinations: List[State] = []
-        self.durations: List[rv_discrete] = []
+        self.durations = []
 
-    def prob_specific(self, ind: int) -> float:
-        if ind == 0:
-            return self.probs_cumulative[0]
-        return self.probs_cumulative[ind] - self.probs_cumulative[ind - 1]
+    def prob_specific(self, ind: int, age: int) -> float:
+        return self.probs_cumulative[age][ind]
 
-    def add_transfer(self, destination: State, duration: rv_discrete, probability: Union[float, type(...)]):
-        if probability is ...:
-            p = 1
-        elif self.durations:
-            p = self.probs_cumulative[-1] + probability
-            if p > 1:
-                raise ValueError("probability higher than 1")
-        else:
-            p = probability
+    def add_transfer(self, destination: State, duration, probabilities: BucketDict[int, Union[float, type(...)]]):
+        for age, prob in probabilities.items():
+            if age not in self.probs_cumulative:
+                self.probs_cumulative[age] = np.array([], dtype=float)
+            if prob is ...:
+                p = 1 - np.sum(self.probs_cumulative[age])
+            else:
+                p = prob
+            self.probs_cumulative[age] = np.append(self.probs_cumulative[age],
+                                                   p)
         # todo improve?
-        self.probs_cumulative = np.append(self.probs_cumulative, p)
-
-        # Sanity check for medical states time
-        if lower_bound(duration) <= 0:
-            raise ValueError("duration of medical state allowed to be 0")
+            if np.sum(self.probs_cumulative[age]) > 1:
+                raise ValueError("Probabilities sum to more than 1")
 
         self.destinations.append(destination)
         self.durations.append(duration)
 
     def transfer(self, agents: Set[Agent], origin_state: State) -> Iterable[PendingTransfer]:
+        ages_list = [_.age for _ in agents]
+        all_ages, ages_count = np.unique(ages_list, return_counts=True)
 
-        # roll a die for each agent, not taking the agent into account.
-        # the transfer_indices[i] will have the result for agent in index i
-        transfer_indices = np.searchsorted(self.probs_cumulative, np.random.random(len(agents)))
-        # count up how many got each result
-        bin_count = np.bincount(transfer_indices)
-        if len(bin_count) > len(self.probs_cumulative):
-            raise Exception("probs must sum to 1")
-        # create generators for durations for each state
-        durations = [iter(d.rvs(c)) for (c, s, d) in zip(bin_count, self.destinations, self.durations)]
+        # For each age we sample as many transitions as people of that age
+        dests = {age: np.random.choice(a=len(self.destinations),
+                                       p=self.probs_cumulative[age],
+                                       size=num_of_ages) for num_of_ages, age in zip(ages_count, all_ages)}
+        # We have for each age, an array whose values is number of agents at that age transiting to the new state
+        # i.e. agents_dest_counts[10][1] - number of agents whose age is 10 and transition to self.destinations[1]
+        agents_dest_counts = {age: Counter(dict(np.stack(np.unique(dests[age],
+                                                                   return_counts=True),
+                                                         axis=1))) for age in all_ages}
+        # All possible combination of a state index and age
+        all_ages_and_dests = itertools.product(all_ages, range(len(self.destinations)))
+        # For each age and destination, sample enough number of days transitions according to appropriate age
+
+        agents_durations = {(age, dest): self.durations[dest][age](size=agents_dest_counts[age][dest])
+                            for age, dest in all_ages_and_dests}
+        pending_transfers = [None] * len(agents)
+        age_dest_index = Counter()
+        age_dest_duration_index = Counter()
         # for each agent, create the pending transfer of the predetermined outcome.
-        return [
-            PendingTransfer(agent, self.destinations[transfer_ind], origin_state, durations[transfer_ind].__next__(),)
-            for transfer_ind, agent in zip(transfer_indices, agents)
-        ]
+        for agent_index, agent in enumerate(agents):
+            agent_age = agent.age
+            current_dest_index = age_dest_index[agent_age]
+            agent_dest = dests[agent_age][current_dest_index] # Destination of current agent
+            current_duration_index = age_dest_duration_index[(agent_age, agent_dest)]
+            time_to_next_state = agents_durations[(agent.age, agent_dest)][current_duration_index]
+            pending_transfers[agent_index] = PendingTransfer(agent,
+                                                             self.destinations[agent_dest],
+                                                             origin_state,
+                                                             time_to_next_state)
+            age_dest_index[agent_age] += 1
+            age_dest_duration_index[(agent_age, agent_dest)] += 1
+        return pending_transfers
 
 
 class State(TrackingCircle, ABC):
@@ -109,7 +123,7 @@ class StochasticState(State):
         super().__init__(*args, **kwargs)
         self.generator = StochasticTransferGenerator()
 
-    def add_transfer(self, destination: State, duration: rv_discrete, probability: Union[float, type(...)]):
+    def add_transfer(self, destination: State, duration: BucketDict, probability: Union[float, type(...)]):
         self.generator.add_transfer(destination, duration, probability)
 
         self._add_descendant(destination)
@@ -319,69 +333,5 @@ class StateMachine(Generic[T]):
             self.states.append(state)
 
         state.machine = self
-
-    @cached_property
-    def markovian(self):
-        """
-        Return a markovian matrix for all the states (inc. partial transfers)
-        returns a 3-tuple: the matrix, the indices for the terminal nodes, and the entry columns for all states
-        """
-
-        # each initial transfer state gets its own index
-        transfer_states: Dict[StochasticState, Dict[int, int]] = {}
-
-        # terminal_states each get their own index
-        terminal_states: Dict[TerminalState, int] = {}
-
-        next_index = 0
-        for s in self.states:
-            if isinstance(s, TerminalState):
-                terminal_states[s] = next_index
-                next_index += 1
-            elif isinstance(s, StochasticState):
-                state_dict = {}
-                for i, dur in enumerate(s.durations):
-                    state_dict[i] = next_index
-                    next_index += upper_bound(dur)
-                transfer_states[s] = state_dict
-            else:
-                raise TypeError
-
-        ret = np.zeros((next_index, next_index), dtype=float)
-        entry_columns: Dict[State, np.ndarray] = {}
-        for t_state, i in terminal_states.items():
-            ec = np.zeros(next_index, float)
-            ec[i] = 1
-            entry_columns[t_state] = ec
-
-        for s_state, s_dict in transfer_states.items():
-            ec = np.zeros(next_index, float)
-            for transfer_index, node_index in s_dict.items():
-                p_of_transfer = s_state.prob_specific(transfer_index)
-                ec[node_index] = p_of_transfer
-            entry_columns[s_state] = ec
-
-        for t_state, terminal_index in terminal_states.items():
-            # todo if this is slow we can do it faster
-            ret[:, terminal_index] = entry_columns[t_state]
-
-        for s_state, sub_dict in transfer_states.items():
-            for transfer_index, transfer_start in sub_dict.items():
-                dur = s_state.durations[transfer_index]
-                dest = s_state.destinations[transfer_index]
-                p_passed = 1
-                for i in range(upper_bound(dur)):
-                    p_exit_unbiased = dur.pmf(i + 1)
-                    p_exit = p_exit_unbiased / p_passed
-                    p_passed *= 1 - p_exit
-                    ret[:, transfer_start + i] = p_exit * entry_columns[dest]
-                    ret[transfer_start + i + 1, transfer_start + i] += 1 - p_exit
-
-        # todo remove?
-        for col in range(next_index):
-            # note that 1e-04 was randomly chosen
-            assert math.isclose(np.sum(ret[:, col]), 1.0, rel_tol=1e-04)
-
-        return ret, terminal_states, transfer_states, entry_columns
 
     # todo function to draw a pretty graph

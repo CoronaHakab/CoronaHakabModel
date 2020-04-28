@@ -41,7 +41,12 @@ class UpdateMatrixManager:
         if self.normalize_factor is None:
             # updates r0 to fit the contagious length and ratio.
             population_size_for_mc = self.consts.population_size_for_state_machine_analysis
-            machine_state_statistics = monte_carlo_state_machine_analysis(dict(population_size=population_size_for_mc))
+            agents_ages = [_.age for _ in self.manager.agents]
+            ages_array, ages_counts_array = np.unique(agents_ages, return_counts=True)
+            age_dist = {age: count/len(agents_ages) for age, count in zip(ages_array, ages_counts_array)}
+            state_machine_analysis_config = dict(age_distribution=age_dist,
+                                                 population_size=population_size_for_mc)
+            machine_state_statistics = monte_carlo_state_machine_analysis(state_machine_analysis_config)
             states_time = machine_state_statistics['state_duration_expected_time']
             total_contagious_probability = 0
             for state in self.manager.medical_machine.states:

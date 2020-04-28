@@ -4,7 +4,7 @@ import jsonpickle
 from scipy.stats import rv_discrete
 
 from generation.connection_types import ConnectionTypes
-from common.util import randint
+from scipy.stats import randint
 
 """
 Overview:
@@ -113,6 +113,7 @@ class CirclesConsts(NamedTuple):
         {ConnectionTypes.Work: {"north": 0.7, "south": 0.3}},
         {ConnectionTypes.Work: {"north": 0.2, "south": 0.8}},
     ]
+
 
     @classmethod
     def from_file(cls, param_path):

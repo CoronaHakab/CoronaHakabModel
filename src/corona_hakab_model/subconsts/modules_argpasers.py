@@ -79,7 +79,6 @@ def get_simulation_args_parser():
     sim.add_argument('--show-plot',
                      dest='show_plot',
                      action='store_true',
-                     default=False,
                      help='Display the resulting figure')
     sim.add_argument('--agent-constraints-path',
                      dest='agent_constraints_path',
