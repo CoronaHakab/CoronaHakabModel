@@ -1,4 +1,5 @@
-from typing import Any, Callable, Iterable
+from collections import defaultdict
+from typing import Any, Callable, Iterable, List, Dict
 
 from common.social_circle import SocialCircle
 
@@ -9,6 +10,8 @@ class PolicyManager:
         self.update_matrix_manager = manager.update_matrix_manager
         self.consts = manager.consts
         self.logger = manager.logger
+        # For each applied policy, save a list of affected circles
+        self.daily_affected_circles: Dict[ConditionedPolicy, List[SocialCircle]] = defaultdict(List)
 
     def perform_policies(self):
         """
@@ -16,6 +19,9 @@ class PolicyManager:
         checks if there is a new policy to act upon. if so, active it
         :return:
         """
+        # Initialize list of daily affected circles
+        self.daily_affected_circles = defaultdict(List)
+
         # checks for a matrices summing change policy
         if self.consts.change_policies and self.manager.current_step in self.consts.policies_changes:
             self.logger.info("changing policy")
@@ -40,7 +46,17 @@ class PolicyManager:
             # going through each policy activator.
             for conditioned_policy in conditioned_policies:
                 # check if temp is satisfied
-                self.update_matrix_manager.check_and_apply(con_type, circles, conditioned_policy, manager=self.manager)
+                activating_policy, affected_circles = self.update_matrix_manager.check_and_apply(
+                    con_type, circles, conditioned_policy, manager=self.manager)
+                # Append affected circles to the daily affected circles
+                if activating_policy:
+                    self.update_daily_affected_circles(affected_circles, conditioned_policy)
+
+    def update_daily_affected_circles(self, affected_circles, conditioned_policy):
+        if conditioned_policy in self.daily_affected_circles:
+            self.logger.info(f"Policy {conditioned_policy} was executed twice on the same day!")
+            return
+        self.daily_affected_circles[conditioned_policy] = affected_circles
 
     def add_message_to_manager(self, message: str):
         if message == "":

@@ -163,6 +163,7 @@ def run_simulation(args):
             # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
             Supervisable.CurrentInfectedTable(interval=consts.export_infected_agents_interval),
+            # Supervisable.AppliedPolicyReportSupervisable(),
             # LambdaValueSupervisable("Detected Daily", lambda manager: manager.new_detected_daily),
             # LambdaValueSupervisable("Current Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
             # Supervisable.R0(),
@@ -206,7 +207,7 @@ def run_simulation(args):
         plt.show()
 
 
-def set_seeds(seed=0):  
+def set_seeds(seed=0):
     seed = seed or None
     np.random.seed(seed)
     random.seed(seed)
