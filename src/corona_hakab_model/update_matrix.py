@@ -141,7 +141,7 @@ class UpdateMatrixManager:
             conditioned_policy: ConditionedPolicy,
             **activating_condition_kwargs,
     ):
-        affected_circles = []  # list of circles affected by activating the policy
+        affected_circles = None  # list of circles affected by activating the policy
         activating_policy = \
             (not conditioned_policy.active) and conditioned_policy.activating_condition(activating_condition_kwargs)
         if activating_policy:
