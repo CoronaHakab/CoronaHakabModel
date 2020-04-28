@@ -293,7 +293,7 @@ class _AppliedPolicyReportSupervisable(TabularSupervisable):
 
     @staticmethod
     def applied_policy_filter(manager: "manager.SimulationManager"):
-        return manager.policy_manager.daily_affected_circles is not None
+        return len(manager.policy_manager.daily_affected_circles) > 0
 
     def name(self) -> str:
         return "policy_activation_stats"

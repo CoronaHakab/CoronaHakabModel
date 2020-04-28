@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import Any, Callable, Iterable, List, Dict
 
 from common.social_circle import SocialCircle
@@ -10,7 +11,7 @@ class PolicyManager:
         self.consts = manager.consts
         self.logger = manager.logger
         # For each applied policy, save a list of affected circles
-        self.daily_affected_circles: Dict[ConditionedPolicy, List[SocialCircle]] = None
+        self.daily_affected_circles: Dict[ConditionedPolicy, List[SocialCircle]] = defaultdict(List)
 
     def perform_policies(self):
         """
@@ -19,7 +20,7 @@ class PolicyManager:
         :return:
         """
         # Initialize list of daily affected circles
-        self.daily_affected_circles = None
+        self.daily_affected_circles = defaultdict(List)
 
         # checks for a matrices summing change policy
         if self.consts.change_policies and self.manager.current_step in self.consts.policies_changes:
@@ -52,8 +53,6 @@ class PolicyManager:
                     self.update_daily_affected_circles(affected_circles, conditioned_policy)
 
     def update_daily_affected_circles(self, affected_circles, conditioned_policy):
-        if self.daily_affected_circles is None:
-            self.daily_affected_circles = {}
         if conditioned_policy in self.daily_affected_circles:
             self.logger.info(f"Policy {conditioned_policy} was executed twice on the same day!")
             return

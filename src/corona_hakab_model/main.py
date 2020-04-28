@@ -157,7 +157,7 @@ def run_simulation(args):
             # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
             Supervisable.CurrentInfectedTable(interval=consts.export_infected_agents_interval),
-            Supervisable.AppliedPolicyReportSupervisable(),
+            # Supervisable.AppliedPolicyReportSupervisable(),
             # LambdaValueSupervisable("Detected Daily", lambda manager: manager.new_detected_daily),
             # LambdaValueSupervisable("Current Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
             # Supervisable.R0(),
