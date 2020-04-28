@@ -7,32 +7,10 @@ import numpy as np
 from analyzers.state_machine_analysis import monte_carlo_state_machine_analysis
 from common.social_circle import SocialCircle
 from generation.connection_types import ConnectionTypes
-from policies_manager import ConditionedPolicy
+from policies_manager import ConditionedPolicy, Policy
 
 if TYPE_CHECKING:
     from manager import SimulationManager
-
-
-class Policy:
-    """
-    This represents a policy. 
-    """
-
-    def __init__(self, connection_change_factor: float, conditions: Iterable[Callable[[Any], bool]]):
-        self.factor = connection_change_factor
-        self.conditions = conditions
-
-    def check_applies(self, arg):
-        applies = True
-        for condition in self.conditions:
-            applies = applies and condition(arg)
-        return applies
-
-
-class PolicyByCircles:
-    def __init__(self, policy: Policy, circles: Iterable[SocialCircle]):
-        self.circles = circles
-        self.policy = policy
 
 
 class UpdateMatrixManager:
@@ -116,18 +94,12 @@ class UpdateMatrixManager:
     def apply_policy_on_circles(self, policy: Policy, circles: Iterable[SocialCircle]):
         # for now, we will not update the matrix at all
         for circle in circles:
-            # check if circle is relevent to conditions
-            flag = True
-            for condition in policy.conditions:
-                flag = flag and condition(circle)
-            if not flag:
-                # some condition returned False - skip circle
-                continue
-
-            connection_type = circle.connection_type
-            factor = policy.factor
-            for agent in circle.agents:
-                self.factor_agent(agent.index, connection_type, factor)
+            if policy.check_applies_on_circle(circle):
+                connection_type = circle.connection_type
+                factor = policy.factor
+                for agent in circle.agents:
+                    if policy.check_applies_on_agent(agent):
+                        self.factor_agent(agent.index, connection_type, factor)
 
     def check_and_apply(
             self,
