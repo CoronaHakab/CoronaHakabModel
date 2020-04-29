@@ -119,6 +119,7 @@ class ConditionedPolicy:
             self, activating_condition: Callable[[Any], bool], policy: Policy,
             reset_current_limitations=True,
             dont_repeat_while_active=True,
+            active=True,
             message=""
     ):
         self.activating_condition = activating_condition
@@ -126,4 +127,4 @@ class ConditionedPolicy:
         self.dont_repeat_while_active = dont_repeat_while_active
         self.reset_current_limitations = reset_current_limitations
         self.message = message
-        self.active = False  # Is the policy currently active
+        self.active = active  # Is the policy currently active
