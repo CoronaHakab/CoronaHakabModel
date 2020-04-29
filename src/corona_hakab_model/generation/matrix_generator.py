@@ -32,11 +32,11 @@ class AgentConnections(NamedTuple):
 
 class ConnectionData:
     __slots__ = (
-        "connected_agents_by_strength",
+        "connected_ids_by_strength",
     )
 
     def __init__(self, agents):
-        self.connected_agents_by_strength = {agent: {connection_type: AgentConnections() for connection_type
+        self.connected_ids_by_strength = {agent: {connection_type: AgentConnections() for connection_type
                                                                       in ConnectionTypes} for agent in agents}
 
     def export(self, export_path, file_name: str):
@@ -195,9 +195,9 @@ class MatrixGenerator:
             weekly_connections = [conn for conn in conns if strengthes[np.where(conns == conn)] !=
                                   con_type_data.connection_strength]
 
-            self.connection_data.connected_agents_by_strength[agent][
+            self.connection_data.connected_ids_by_strength[agent][
                 con_type_data.connection_type].daily_connections.update(set(daily_connections))
-            self.connection_data.connected_agents_by_strength[agent][
+            self.connection_data.connected_ids_by_strength[agent][
                 con_type_data.connection_type].weekly_connections.update(set(weekly_connections))
 
             v = np.full_like(conns, strengthes, dtype=np.float32)
@@ -218,7 +218,7 @@ class MatrixGenerator:
                 vals[i] = 0
                 self.matrix[depth, int(agent.index), ids] = vals
                 vals[i] = temp
-                self.connection_data.connected_agents_by_strength[agent][
+                self.connection_data.connected_ids_by_strength[agent][
                     con_type_data.connection_type].daily_connections.update(set(ids))
 
     def _create_scale_free_graph(self, con_type_data: ConnectionTypeData, circles: List[SocialCircle], depth):
