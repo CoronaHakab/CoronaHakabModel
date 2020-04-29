@@ -135,10 +135,20 @@ std::vector<std::vector<size_t>> CoffedSparseMatrix::non_zero_columns(){
         auto& row = rows[row_num];
         std::vector<size_t> el;
         el.reserve(row.size());
-        for (auto it = row.cbegin(); it != row.cend(); it++){
+        for (auto&& it = row.cbegin(); it != row.cend(); it++){
             el.push_back(it->first);
         }
         ret.push_back(el);
+    }
+    return ret;
+}
+
+std::vector<size_t> CoffedSparseMatrix::non_zero_column(size_t row_num){
+    std::vector<size_t> ret;
+    auto& row = rows[row_num];
+    ret.reserve(row.size());
+    for (auto&& it = row.cbegin(); it != row.cend(); it++){
+        ret.push_back(it->first);
     }
     return ret;
 }
@@ -400,6 +410,16 @@ std::vector<std::vector<std::vector<size_t>>> ParasymbolicMatrix::non_zero_colum
     for (auto c = 0; c < component_count; c++){
         ret.push_back(
             components[c]->non_zero_columns()
+        );
+    }
+    return ret;
+}
+
+std::vector<std::vector<size_t>> ParasymbolicMatrix::non_zero_column(size_t row_num){
+    std::vector<std::vector<size_t>> ret;
+    for (auto c = 0; c < component_count; c++){
+        ret.push_back(
+            components[c]->non_zero_column(row_num)
         );
     }
     return ret;

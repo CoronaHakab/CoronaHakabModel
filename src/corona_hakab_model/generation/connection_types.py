@@ -18,7 +18,8 @@ Whole_Population_types = [ConnectionTypes.Other]
 Non_Random_Age_Types = [ConnectionTypes.Family, ConnectionTypes.School]
 Education_Types = [ConnectionTypes.School, ConnectionTypes.Kindergarten]
 
-With_Random_Connections = [ConnectionTypes.Work, ConnectionTypes.School, ConnectionTypes.Kindergarten, ConnectionTypes.Other]
+With_Random_Connections = [ConnectionTypes.School, ConnectionTypes.Kindergarten, ConnectionTypes.Other]
+With_Geo_Random_Connections = [ConnectionTypes.Work]
 
 # used for matrices generations
 Connect_To_All_types = [ConnectionTypes.Family]

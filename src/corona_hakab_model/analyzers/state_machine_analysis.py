@@ -3,18 +3,19 @@ from datetime import datetime
 import os
 from collections import Counter
 from typing import Dict, Tuple, List
+import numpy as np
 
-from agent import Agent
+from common.agent import Agent
 from consts import Consts
 from generation.circles_consts import CirclesConsts
-from medical_state import ImmuneState
-from medical_state_machine import MedicalStateMachine
+from common.medical_state import ImmuneState
+from common.medical_state_machine import MedicalStateMachine
 from medical_state_manager import MedicalStateManager
 from project_structure import OUTPUT_FOLDER
-from state_machine import TerminalState
+from common.state_machine import TerminalState
 
 
-def _generate_agents_randomly(population_size, circle_consts) -> List:
+def _generate_agents_randomly(population_size, ages_to_dist: dict) -> List:
     """
     Helper function for generating agents with ages for the state machine simulation
     :param population_size: Number of agents to produce
@@ -22,8 +23,10 @@ def _generate_agents_randomly(population_size, circle_consts) -> List:
                                          according to circles configuration
     :return: List of agents
     """
-    # Currently not modeling difference between agents such as age or geo region
-    return [Agent(index=_) for _ in range(population_size)]
+    ages = np.random.choice(list(ages_to_dist.keys()),
+                            size=population_size,
+                            p=list(ages_to_dist.values()))
+    return [Agent(index=uid, age=age) for (uid, age) in zip(range(population_size), ages)]
 
 
 def _infect_all_agents(list_of_agents, medical_machine_manager, medical_state_machine):
@@ -100,14 +103,17 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
         consts = Consts()
 
     if "circle_consts_file" in configuration:
-        circle_const = CirclesConsts.from_file(configuration['circle_consts_file'])
+        circles_consts = CirclesConsts.from_file(configuration['circle_consts_file'])
+        population_size = int(circles_consts.population_size)
     else:
         population_size = int(configuration["population_size"])
-        circle_const = CirclesConsts(population_size=population_size)
 
+    assert "age_distribution" in configuration, "Must supply age distribution"
+    ages_to_dist = configuration['age_distribution']
     medical_state_machine = consts.medical_state_machine()
     medical_machine_manager = MedicalStateManager(medical_state_machine=medical_state_machine)
-    agents_list = _generate_agents_randomly(population_size=population_size, circle_consts=circle_const)
+    agents_list = _generate_agents_randomly(population_size=population_size,
+                                            ages_to_dist=ages_to_dist)
     _infect_all_agents(agents_list, medical_machine_manager, medical_state_machine)
     medical_states = medical_state_machine.states
     terminal_states = list(filter(_is_terminal_state,
@@ -155,7 +161,8 @@ if __name__ == "__main__":
     import pandas as pd
     df = pd.DataFrame()
     for i in [1000, 5000, 10000, 25_000, 50_000, 100_000]:
-        monte_carlo_config = dict(population_size=i)
+        monte_carlo_config = dict(population_size=i,
+                                  age_distribution={8: 1})
         result = monte_carlo_state_machine_analysis(monte_carlo_config)
         dataframe_dict = dict()
         for k, v in result.items():

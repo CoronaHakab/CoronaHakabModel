@@ -1,6 +1,10 @@
+import os
 from typing import Dict, List, NamedTuple
+import jsonpickle
+from scipy.stats import rv_discrete
+
 from generation.connection_types import ConnectionTypes
-from util import rv_discrete, randint
+from scipy.stats import randint
 
 """
 Overview:
@@ -111,7 +115,6 @@ class CirclesConsts(NamedTuple):
     ]
 
 
-
     @classmethod
     def from_file(cls, param_path):
         """
@@ -132,6 +135,12 @@ class CirclesConsts(NamedTuple):
 
         return cls(**parameters)
 
+    def export(self, export_path, file_name: str = "circles_consts.json"):
+        if not file_name.endswith(".json"):
+            file_name += ".json"
+        with open(os.path.join(export_path, file_name), "w") as export_file:
+            export_file.write(jsonpickle.encode(self._asdict()))
+
     def get_geographic_circles(self):
         assert self.geo_circles_amount == len(self.geo_circles)
         return [
@@ -150,7 +159,7 @@ class CirclesConsts(NamedTuple):
         ]
 
     def get_age_distribution(self, geo_circle):
-        return rv_discrete(values=(geo_circle["ages"], geo_circle["age_prob"]))
+        return {"ages": geo_circle["ages"], "probs": geo_circle["age_prob"]}
 
     def get_connection_types_prob_by_age(self, geo_circle):
         return {age: geo_circle["connection_type_prob_by_age_index"][i] for i, age in enumerate(geo_circle["ages"])}
@@ -236,7 +245,7 @@ class GeographicalCircleDataHolder:
             self,
             name: str,
             agents_share: float,
-            age_distribution: rv_discrete,
+            age_distribution: Dict,
             circles_size_distribution_by_connection_type,
             connection_types_prob_by_age,
             multi_zone_connection_type_to_geo_circle_probability,

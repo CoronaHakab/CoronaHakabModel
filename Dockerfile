@@ -16,26 +16,22 @@ WORKDIR ${PROJDIR}
 
 RUN git checkout -b ${WORK_BRANCH}
 
-RUN if [ "x$GUI_ENABLED" = "x" ] ; \
+RUN if [ -z "$GUI_ENABLED" ] ; \
     then \
-        echo GUI Disabled && \
-        sed -i.bak '/pyside2/d' Pipfile ; \
+        echo GUI Disabled
     else \
         echo GUI Enabled && \
+        pip3.8 install PySide2
         apt-get -y install python3-pyqt5 ; \
     fi
 
 # install the project dependencies
 RUN pip3.8 install --upgrade pip
-RUN pip3.8 install pipenv
-RUN pipenv install
-
-# we want pipenv run to recognize Pipfile in a few levels up... (the default is 2-3)
-ENV PIPENV_MAX_DEPTH=5
+RUN pip3.8 install -r requirements.txt
 
 # build parasymbolic_matrix
 RUN apt-get install -y swig
 RUN cd ${PROJDIR}/src/corona_hakab_model/parasymbolic_matrix/ \
-    && pipenv run python build_unix.py
+    && python3.8 build_unix.py
 
-CMD pipenv run python ./src/corona_hakab_model/main.py --help
+CMD python3.8 ./src/corona_hakab_model/main.py --help

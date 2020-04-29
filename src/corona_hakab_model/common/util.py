@@ -1,35 +1,34 @@
 from abc import abstractmethod
 from collections import OrderedDict
 from typing import Generic, List, Protocol, TypeVar
-
+from functools import partial
 import numpy as np
-from scipy.stats import binom, randint, rv_discrete
 
 
 def dist(*args):
     def const_dist(a):
-        return rv_discrete(name="const", values=([a], [1]))()
+        return partial(lambda size=None: np.random.choice([a], size=size))
 
     def uniform_dist(a, b):
-        return randint(a, b + 1)
+        range_to_choose_from = list(range(a, b+1))
+        return partial(lambda size=None: np.random.choice(range_to_choose_from, size=size))
 
-    def trig(a, c, b):
+    def off_binom(a, c, b):
         # todo I have no idea what this distribution supposedly represents, we're gonna pretend it's
-        #  an offset-binomial and call it a day
-
-        return binom(b - a, (c - a) / (b - a), loc=a)
+        #  an offset-binomial whose mean is c and call it a day
+        n = b-a
+        p = (c-a)/(b-a)
+        return partial(lambda size=None: np.random.binomial(n=n,
+                                                            p=p,
+                                                            size=size) + a)
 
     if len(args) == 1:
         return const_dist(*args)
     if len(args) == 2:
         return uniform_dist(*args)
     if len(args) == 3:
-        return trig(*args)
+        return off_binom(*args)
     raise TypeError
-
-
-def upper_bound(d):
-    return d.b + d.kwds.get("loc", 0)
 
 
 def parse_str_to_num(val):
@@ -37,10 +36,6 @@ def parse_str_to_num(val):
         return int(val)
     except ValueError:
         return float(val)
-
-
-def lower_bound(d):
-    return d.a + d.kwds.get("loc", 0)
 
 
 class HasDuration(Protocol):
@@ -97,7 +92,11 @@ class Queue(Generic[T]):
         return ret
 
 
-class BucketDict(OrderedDict):
+K = TypeVar("K")
+V = TypeVar("K")
+
+
+class BucketDict(OrderedDict, Generic[K, V]):
     """
     This class supports missing values if there is a key larger than requested.
     for example: dict is {1:1,5:5,10:10}
