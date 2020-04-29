@@ -26,8 +26,8 @@ from project_structure import OUTPUT_FOLDER
 
 
 class AgentConnections(NamedTuple):
-    daily_connections: List = set()
-    weekly_connections: List = set()
+    daily_connections: set = set()
+    weekly_connections: set = set()
 
 
 class ConnectionData:
@@ -39,7 +39,7 @@ class ConnectionData:
         self.connected_ids_by_strength = {agent: {connection_type: AgentConnections() for connection_type
                                                                       in ConnectionTypes} for agent in agents}
 
-    def export(self, export_path, file_name: str):
+    def export(self, export_path, file_name="connection_data"):
         if not file_name.endswith(".pickle"):
             file_name += ".pickle"
 
@@ -190,15 +190,12 @@ class MatrixGenerator:
                     # connection is new. store the strength for future use
                     known_strengths[(agent.index, conn)] = strengthes[np.where(conns == conn)]
 
-            daily_connections = [conn for conn in conns if strengthes[np.where(conns == conn)] ==
-                                 con_type_data.connection_strength]
-            weekly_connections = [conn for conn in conns if strengthes[np.where(conns == conn)] !=
-                                  con_type_data.connection_strength]
-
-            self.connection_data.connected_ids_by_strength[agent][
-                con_type_data.connection_type].daily_connections.update(set(daily_connections))
-            self.connection_data.connected_ids_by_strength[agent][
-                con_type_data.connection_type].weekly_connections.update(set(weekly_connections))
+                if strengthes[np.where(conns == conn)] == con_type_data.connection_strength:
+                    self.connection_data.connected_ids_by_strength[agent][
+                        con_type_data.connection_type].daily_connections.add(conn)
+                else:
+                    self.connection_data.connected_ids_by_strength[agent][
+                        con_type_data.connection_type].weekly_connections.add(conn)
 
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
