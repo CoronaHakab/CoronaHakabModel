@@ -122,7 +122,8 @@ class UpdateMatrixManager:
     ):
         affected_circles = None  # list of circles affected by activating the policy
         activating_policy = \
-            (not conditioned_policy.active) and conditioned_policy.activating_condition(activating_condition_kwargs)
+            (not conditioned_policy.active or not conditioned_policy.dont_repeat_while_active) and \
+            conditioned_policy.activating_condition(activating_condition_kwargs)
         if activating_policy:
             self.logger.info("activating policy on circles")
             if conditioned_policy.reset_current_limitations:
