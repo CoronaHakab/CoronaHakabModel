@@ -97,10 +97,10 @@
     "pre_recovered_to_recovered_prob": BucketDict({0: ...}),
     "asymptomatic_end_to_recovered_prob": BucketDict({0: ...}),
     # infections ratios, See bucket dict for more info on how to use.
-    "pre_symptomatic_infection_ratio": BucketDict({0: 1}),  # x <= 10 then key is 10,
+    "pre_symptomatic_infection_ratio": BucketDict({0: 1}),  # if x greater than biggest key, x is biggest key
     "asymptomatic_begin_infection_ratio": BucketDict({0: 1}),
     "mild_condition_begin_infection_ratio": BucketDict({0: 0.66}),
-    "latent_infection_ratio": BucketDict({0: 0}),  # if x greater than biggest key, x is biggest key
+    "latent_infection_ratio": BucketDict({0: 0}),
     "mild_condition_end_infection_ratio": BucketDict({0: 0}),
     "latent_presymp_infection_ratio": BucketDict({0: 0}),
     "latent_asymp_infection_ratio": BucketDict({0: 0}),
