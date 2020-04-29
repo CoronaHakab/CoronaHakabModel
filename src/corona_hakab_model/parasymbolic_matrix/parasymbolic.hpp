@@ -38,6 +38,8 @@ class CoffedSparseMatrix: public BareSparseMatrix{
         dtype get(size_t row, size_t column);
         void mul_row(size_t row, dtype factor);
         void mul_col(size_t col, dtype factor);
+        void set_row(size_t row, dtype coeff);
+        void set_col(size_t row, dtype coeff);
         void reset_mul_row(size_t row);
         void reset_mul_col(size_t col);
         virtual ~CoffedSparseMatrix();

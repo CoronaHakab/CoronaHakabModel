@@ -119,6 +119,16 @@ void CoffedSparseMatrix::mul_col(size_t col, dtype factor){
     total = NAN;
 }
 
+void CoffedSparseMatrix::set_row(size_t row, dtype coeff){
+    row_coefficients[row] = coeff;
+    total = NAN;
+}
+
+void CoffedSparseMatrix::set_col(size_t col, dtype coeff){
+    col_coefficients[col] = coeff;
+    total = NAN;
+}
+
 void CoffedSparseMatrix::reset_mul_row(size_t row){
     row_coefficients[row] = 1.0;
     total = NAN;
@@ -379,6 +389,18 @@ void ParasymbolicMatrix::mul_sub_row(size_t component, size_t row, dtype factor)
 void ParasymbolicMatrix::mul_sub_col(size_t component, size_t col, dtype factor){
     auto comp = components[component];
     comp->mul_col(col, factor);
+    if (!calc_lock) rebuild_column(col);
+}
+
+void ParasymbolicMatrix::set_sub_row(size_t component, size_t row, dtype coeff){
+    auto comp = components[component];
+    comp->set_row(row, coeff);
+    if (!calc_lock) rebuild_row(row);
+}
+
+void ParasymbolicMatrix::set_sub_col(size_t component, size_t col, dtype coeff){
+    auto comp = components[component];
+    comp->set_col(col, coeff);
     if (!calc_lock) rebuild_column(col);
 }
 
