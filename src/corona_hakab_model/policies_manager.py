@@ -113,10 +113,18 @@ class ConditionedPolicy:
     this class contains a policy that is supposed to run when a given condition is satisfied.
     """
 
-    __slots__ = "activating_condition", "policy", "active", "message"
+    __slots__ = "activating_condition", "policy", "active", "dont_repeat_while_active", "reset_current_limitations", "message"
 
-    def __init__(self, activating_condition: Callable[[Any], bool], policy: Policy, active=False, message=""):
+    def __init__(
+            self, activating_condition: Callable[[Any], bool], policy: Policy,
+            reset_current_limitations=True,
+            dont_repeat_while_active=True,
+            active=False,
+            message=""
+    ):
         self.activating_condition = activating_condition
         self.policy = policy
-        self.active = active
+        self.dont_repeat_while_active = dont_repeat_while_active
+        self.reset_current_limitations = reset_current_limitations
         self.message = message
+        self.active = active  # Is the policy currently active
