@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
-from agent import InitialAgentsConstraints
 from analyzers.state_machine_analysis import monte_carlo_state_machine_analysis
+from common.agent import InitialAgentsConstraints
 from project_structure import OUTPUT_FOLDER, ANALYZERS_FOLDER
 from consts import Consts
 from generation.circles_consts import CirclesConsts
