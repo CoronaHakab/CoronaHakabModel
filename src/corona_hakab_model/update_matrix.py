@@ -80,11 +80,13 @@ class UpdateMatrixManager:
     def reset_agent(self, connection_type, index):
         self.matrix.reset_mul_row(connection_type, index)
         self.matrix.reset_mul_col(connection_type, index)
+        self.manager.agents_connections_factors[index, connection_type] = 1
         self.manager.random_connections_factor[index, connection_type] = 1
 
     def factor_agent(self, index, connection_type, factor):
         self.matrix.mul_sub_row(connection_type, index, factor)
         self.matrix.mul_sub_col(connection_type, index, factor)
+        self.manager.agents_connections_factors[index, connection_type] *= factor
         self.manager.random_connections_factor[index, connection_type] *= factor
 
     def reset_policies_by_connection_type(self, connection_type):
