@@ -125,10 +125,8 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
 
     while number_terminals_agents != population_size:
         # No manager so we don't update it
-        previous_terminal_agents = sum([m.agent_count for m in terminal_states])
         medical_machine_manager.step(list())
         number_terminals_agents = sum([m.agent_count for m in terminal_states])
-        new_terminals = number_terminals_agents - previous_terminal_agents
         for m in medical_states:
             state_counter[m.name] += m.agent_count
         days_passed += 1

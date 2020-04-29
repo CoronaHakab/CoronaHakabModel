@@ -127,7 +127,7 @@ def _sim_r_effective_calc_by_type(infect_statistics, config, file_suffix):
             raise NotImplementedError
         file_prefix = config["r_effective_computation_type"]
         OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)
-        OUTPUT_FOLDER.r_effective_over_time.to_csv(OUTPUT_FOLDER /
+        r_effective_over_time.to_csv(OUTPUT_FOLDER /
                                      (f"{file_prefix}_"
                                       f"multiple_run_r_eff_over_time_"
                                       f"{file_suffix}"))
@@ -148,6 +148,7 @@ def calculate_r_effective(*, config=None, json_file=None):
             config['simulation_time_slices'][int(k)] = config['simulation_time_slices'].pop(k)
     infect_statistics = new_infects_over_time(config)
     file_suffix = datetime.now().strftime("%Y%m%d-%H%M%S") + ".csv"
+    OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
     infect_statistics.to_csv(OUTPUT_FOLDER /
                              ("multiple_run_infection_statistics_"+file_suffix))
     _sim_r_effective_calc_by_type(infect_statistics,

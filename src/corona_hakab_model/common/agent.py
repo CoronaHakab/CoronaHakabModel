@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 import pandas as pd
 from numpy import nan
+import numpy as np
 
 from .social_circle import SocialCircleConstraint
 from generation.connection_types import ConnectionTypes
@@ -60,9 +61,10 @@ class Agent:
 
     def get_snapshot(self):
         geographic_circle_name = self.manager.geographic_circle_by_agent_index[self.index].name
-        social_circle_snapshots = []
-        for social_circle in self.manager.social_circles_by_agent_index[self.index]:
-            social_circle_snapshots.append(social_circle.get_snapshot())
+        get_all_snapshots = np.vectorize(lambda circle: circle.get_snapshot)
+        social_circle_snapshots = get_all_snapshots(self.manager.social_circles_by_agent_index[self.index])
+        #for social_circle in self.manager.social_circles_by_agent_index[self.index]:
+        #    social_circle_snapshots.append(social_circle.get_snapshot())
         return AgentSnapshot(self.index, self.age, geographic_circle_name, social_circle_snapshots)
 
 

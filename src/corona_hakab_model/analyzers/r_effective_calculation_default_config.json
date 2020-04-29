@@ -4,7 +4,7 @@
                                "40": 100,
                                "60": 50
                                },
-    "r_effective_computation_type": "all",
+    "r_effective_computation_type": "weighted",
     "p_tau": [0.019, 0.124, 0.210, 0.214, 0.168,
               0.114, 0.069, 0.039, 0.021, 0.011,
               0.005, 0.003, 0.001, 0.001, 0.001],
