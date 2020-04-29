@@ -119,7 +119,7 @@ class ConditionedPolicy:
             self, activating_condition: Callable[[Any], bool], policy: Policy,
             reset_current_limitations=True,
             dont_repeat_while_active=True,
-            active=True,
+            active=False,
             message=""
     ):
         self.activating_condition = activating_condition
