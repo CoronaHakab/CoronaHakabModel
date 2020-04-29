@@ -2,7 +2,7 @@ import logging
 import math
 from itertools import islice
 from random import random, choice, sample
-from typing import List, Dict, NamedTuple
+from typing import List, Dict, NamedTuple, Set
 import os.path
 
 import bsa.universal
@@ -26,8 +26,8 @@ from project_structure import OUTPUT_FOLDER
 
 
 class AgentConnections(NamedTuple):
-    daily_connections: set = set()
-    weekly_connections: set = set()
+    daily_connections: Set[int] = set()
+    weekly_connections: Set[int] = set()
 
 
 class ConnectionData:
@@ -181,21 +181,22 @@ class MatrixGenerator:
             strengthes = con_type_data.get_strengths(len(conns))
 
             # check if some strengths were determined earlier
-            for conn in conns:
+            for index, conn in enumerate(conns):
                 known_strength = known_strengths.get((conn, agent.index), None)
                 if known_strength != None:
-                    strengthes[np.where(conns == conn)] = known_strength
+                    strengthes[index] = known_strength
                     del known_strengths[(conn, agent.index)]
                 else:
                     # connection is new. store the strength for future use
-                    known_strengths[(agent.index, conn)] = strengthes[np.where(conns == conn)]
+                    known_strengths[(agent.index, conn)] = strengthes[index]
 
-                if strengthes[np.where(conns == conn)] == con_type_data.connection_strength:
+                if strengthes[index] == con_type_data.connection_strength:
                     self.connection_data.connected_ids_by_strength[agent][
                         con_type_data.connection_type].daily_connections.add(conn)
                 else:
                     self.connection_data.connected_ids_by_strength[agent][
                         con_type_data.connection_type].weekly_connections.add(conn)
+
 
             v = np.full_like(conns, strengthes, dtype=np.float32)
             self.matrix[depth, agent.index, conns] = v
