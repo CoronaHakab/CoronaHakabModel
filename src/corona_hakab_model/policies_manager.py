@@ -82,7 +82,6 @@ class Policy:
 
     ):
 
-        self.policy_props_update = policy_props_update
         self.factor = connection_change_factor
         self.circle_conditions = circle_conditions
 
