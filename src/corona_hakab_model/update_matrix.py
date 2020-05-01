@@ -110,6 +110,7 @@ class UpdateMatrixManager:
                 for agent in circle.agents:
                     if policy.check_applies_on_agent(agent):
                         self.factor_agent(agent.index, connection_type, factor)
+                        agent.policy_props.update(policy.policy_props_update)
 
         return affected_circles
 
