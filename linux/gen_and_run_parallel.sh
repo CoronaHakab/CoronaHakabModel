@@ -3,9 +3,14 @@ num_of_runs=$1
 circle_consts=$2
 matrix_consts=$3
 simulation_consts=$4
-output_folder=$5
+TIMESTAMP=`date --utc -d "+3 hours" +_%d%m%Y_%H`
+output_folder=$5$TIMESTAMP
+
 
 python3.8 ./src/corona_hakab_model/main.py generate -c $circle_consts -m $matrix_consts -o $output_folder
+cp $circle_consts $output_folder
+cp $matrix_consts $output_folder
+cp $simulation_consts $output_folder
 
 
 for ((i=0; i< $num_of_runs - 1; i++))
