@@ -76,7 +76,7 @@ class SimulationManager:
         self.tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
         self.ever_tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
         self.agents_in_isolation = np.zeros(len(self.agents), dtype=bool)
-        self.agents_connections_factors = np.ones(shape=(len(self.agents), self.depth))
+        self.agents_connections_coeffs = np.ones(shape=(len(self.agents), self.depth))
         self.date_of_last_test = np.zeros(len(self.agents), dtype=int)
         self.pending_test_results = PendingTestResults()
         self.step_to_isolate_agent = np.full(len(self.agents), -1, dtype=int)  # full of null step
@@ -138,7 +138,7 @@ class SimulationManager:
         # progress tests and isolate the detected agents (update the matrix)
         self.progress_tests_and_isolation(new_tests)
 
-        self.new_sick_by_infection_method = {connection_type : 0 for connection_type in ConnectionTypes}
+        self.new_sick_by_infection_method = {connection_type: 0 for connection_type in ConnectionTypes}
         self.new_sick_by_infector_medical_state = defaultdict(int)
         # run infection
         new_infection_cases = self.infection_manager.infection_step()
@@ -188,6 +188,15 @@ class SimulationManager:
             self.agents_in_isolation[agent.index] = True  # keep track about who is in isolation
             self.update_matrix_manager.change_agent_relations_by_factor(agent,
                                                                         self.consts.isolation_factor)  # change the matrix
+
+    def get_agents_out_of_isolation(self, agents_list: List):
+        for agent in agents_list:
+            for connection in ConnectionTypes:
+                if self.agents_in_isolation[agent.index]:
+                    current_row_factor = self.agents_connections_coeffs[agent.index, connection]
+                    self.matrix.set_sub_row(connection, agent.index, current_row_factor)
+                    self.matrix.set_sub_col(connection, agent.index, current_row_factor)
+                    self.agents_in_isolation[agent.index] = False
 
     def setup_sick(self):
         """"

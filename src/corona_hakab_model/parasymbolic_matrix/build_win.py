@@ -7,12 +7,12 @@ from swimport import ContainerSwim, FileSource, Function, Swim, Typedef, pools
 
 PY_ROOT = Path(sys.executable).parent
 SWIG_PATH = r"T:\programs\swigwin-4.0.1\swig.exe"
-PY_INCLUDE_PATH = PY_ROOT / r"\include"
-PY_LIB_PATH = PY_ROOT / r"\libs\python38.lib"
+PY_INCLUDE_PATH = PY_ROOT / "include"
+PY_LIB_PATH = PY_ROOT / r"libs\python38.lib"
 
 windows_kit_template = r"C:\Program Files (x86)\Windows Kits\10\{}\10.0.17763.0" + "\\"
 MSVC_dir = r"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.24.28314" + "\\"
-np_include_path = PY_ROOT / r"\Lib\site-packages\numpy\core\include\\"
+np_include_path = PY_ROOT / r"Lib\site-packages\numpy\core\include\\"
 windows_kit_include = windows_kit_template.format("include")
 windows_kit_lib = windows_kit_template.format("lib")
 
@@ -105,6 +105,7 @@ def compile():
     cxx_path = "parasymbolic_wrap.cxx"
 
     tmpdir.mkdir(exist_ok=True, parents=True)
+
     # todo compile with warnings?
     proc = subprocess.run(
         [
