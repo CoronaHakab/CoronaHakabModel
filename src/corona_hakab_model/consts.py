@@ -70,6 +70,13 @@ class Consts(NamedTuple):
     # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10],
     # [0.022,0.052,0.082,0.158,0.234,0.158,0.152,0.082,0.04,0.02]))
     latent_asym_to_asymptomatic_begin_days: BucketDict[int, Callable] = BucketDict({0: dist(1, 3, 10)})
+    # latent_asym_to_asymptomatic_begin_days: BucketDict[int, Callable] = BucketDict({
+    #     0: dist(
+    #         [(2, 2), (3, 2), (1, 3), (2, 3), (3, 3), (0, 4), (1, 4), (2, 4), (3, 4), (0, 5), (1, 5), (2, 5), (3, 5), (0, 6), (1, 6), (2, 6), (3, 6), (0, 7), (1, 7), (2, 7), (3, 7), (0, 8), (1, 8), (2, 8), (3, 8), (0, 9), (1, 9), (2, 9), (3, 9), (0, 10), (1, 10), (2, 10), (3, 10), (0, 11), (1, 11), (2, 11), (3, 11), (0, 12), (1, 12), (2, 12), (3, 12), (0, 13), (1, 13), (2, 13), (3, 13)]
+    #         [0.0065, 0.0065, 0.0310, 0.0310, 0.0310, 0.0455, 0.0455, 0.0455, 0.0455, 0.0503, 0.0503, 0.0503, 0.0503, 0.0425, 0.0425, 0.0425, 0.0425, 0.0308, 0.0308, 0.0308, 0.0308, 0.0205, 0.0205, 0.0205, 0.0205, 0.0130, 0.0130, 0.0130, 0.0130, 0.0083, 0.0083, 0.0083, 0.0083, 0.0050, 0.0050, 0.0050, 0.0050, 0.0030, 0.0030, 0.0030, 0.0030, 0.0047, 0.0047, 0.0047, 0.0047]
+    #     )
+    # })
+
     # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11],
     # [0.02,0.05,0.08,0.15,0.22,0.15,0.15,0.08,0.05,0.03,0.02]))
     asymptomatic_begin_to_asymptomatic_end_days: BucketDict[int, Callable] = BucketDict({0: dist(1, 3, 5)})
@@ -127,18 +134,18 @@ class Consts(NamedTuple):
     pre_recovered_to_recovered_prob:  TransitionProbType = BucketDict({0: ...})
     asymptomatic_end_to_recovered_prob:  TransitionProbType = BucketDict({0: ...})
     # infections ratios, See bucket dict for more info on how to use.
-    pre_symptomatic_infection_ratio: BucketDict[int, int] = BucketDict({0: 1})  # if x greater than biggest key, x is biggest key
-    asymptomatic_begin_infection_ratio:  BucketDict[int, int] = BucketDict({0: 1})
-    mild_condition_begin_infection_ratio: BucketDict[int, int] = BucketDict({0: 0.66})
-    latent_infection_ratio:  BucketDict[int, int] = BucketDict({0: 0})
-    mild_condition_end_infection_ratio: BucketDict[int, int] = BucketDict({0: 0})
-    latent_presymp_infection_ratio:  BucketDict[int, int] = BucketDict({0: 0})
-    latent_asymp_infection_ratio:  BucketDict[int, int] = BucketDict({0: 0})
-    asymptomatic_end_infection_ratio:  BucketDict[int, int] = BucketDict({0: 0})
-    need_close_medical_care_infection_ratio:  BucketDict[int, int] = BucketDict({0: 0})
-    need_icu_infection_ratio:  BucketDict[int, int] = BucketDict({0: 0})
-    improving_health_infection_ratio:  BucketDict[int, int] = BucketDict({0: 0})
-    pre_recovered_infection_ratio:  BucketDict[int, int] = BucketDict({0: 0})
+    pre_symptomatic_infection_ratio: BucketDict[int, int] = BucketDict({0: [0.14, 0.86, 1]})  # if x greater than biggest key, x is biggest key
+    asymptomatic_begin_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0.14, 0.86, 1, 0.82, 0.59, 0.41, 0.27, 0.18, 0.14, 0.09, 0.05]})
+    mild_condition_begin_infection_ratio: BucketDict[int, int] = BucketDict({0: [0.82, 0.59, 0.41, 0.27, 0.18, 0.14, 0.09, 0.05]})
+    latent_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
+    mild_condition_end_infection_ratio: BucketDict[int, int] = BucketDict({0: []})
+    latent_presymp_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
+    latent_asymp_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
+    asymptomatic_end_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
+    need_close_medical_care_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
+    need_icu_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
+    improving_health_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
+    pre_recovered_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
     # base r0 of the disease
     r0: float = 2.4
 

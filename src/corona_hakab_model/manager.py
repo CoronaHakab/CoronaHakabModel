@@ -79,6 +79,9 @@ class SimulationManager:
         self.date_of_last_test = np.zeros(len(self.agents), dtype=int)
         self.pending_test_results = PendingTestResults()
         self.step_to_isolate_agent = np.full(len(self.agents), -1, dtype=int)  # full of null step
+
+        self.current_step = 0
+
         # initializing agents to current simulation
         for agent in self.agents:
             agent.add_to_simulation(self, initial_state)
@@ -94,8 +97,6 @@ class SimulationManager:
         self.healthcare_manager = healthcare.HealthcareManager(self)
         self.medical_state_manager = MedicalStateManager(self)
         self.policy_manager = PolicyManager(self)
-
-        self.current_step = 0
 
         # initializing data for supervising
         # dict(day:int -> message:string) saving policies messages
@@ -151,6 +152,9 @@ class SimulationManager:
         # progress transfers
         medical_machine_step_result = self.medical_state_manager.step(new_infection_cases.keys())
         self.new_sick_counter = medical_machine_step_result['new_sick']
+
+        for agent in self.agents:
+            agent.update_contagiousness()
 
         self.current_step += 1
 
