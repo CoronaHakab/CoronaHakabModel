@@ -1,3 +1,4 @@
+import random
 from abc import abstractmethod
 from collections import OrderedDict
 from typing import Generic, List, Protocol, TypeVar
@@ -13,6 +14,10 @@ def dist(*args):
         range_to_choose_from = list(range(a, b+1))
         return partial(lambda size=None: np.random.choice(range_to_choose_from, size=size))
 
+    def weighted_dist(elements, p):
+        return partial(lambda size=None: random.choices(elements, weights=p, k=size))
+        # return partial(lambda size=None: np.random.choice(elements, size=size, p = p))
+
     def off_binom(a, c, b):
         # todo I have no idea what this distribution supposedly represents, we're gonna pretend it's
         #  an offset-binomial whose mean is c and call it a day
@@ -25,7 +30,10 @@ def dist(*args):
     if len(args) == 1:
         return const_dist(*args)
     if len(args) == 2:
-        return uniform_dist(*args)
+        if type(args[0]) == list and type(args[1]) == list:
+            return weighted_dist(*args)
+        else:
+            return uniform_dist(*args)
     if len(args) == 3:
         return off_binom(*args)
     raise TypeError
