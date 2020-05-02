@@ -373,7 +373,7 @@ class _CurrentInfectedTable(PeriodicReportSupervisable):
             medical_status += [state.name] * state.agent_count
         return {
             "agent_id": agent_ids,
-            "agent_ages": agent_ages,
+            "agent_age": agent_ages,
             "medical_status": medical_status
         }
 
