@@ -3,7 +3,7 @@ num_of_runs=$1
 circle_consts=$2
 matrix_consts=$3
 simulation_consts=$4
-TIMESTAMP=`date --utc -d "+3 hours" +_%d%m%Y_%H`
+TIMESTAMP=`date --utc -d "+3 hours" +_%d%m%Y_%H_%M`
 output_folder=$5$TIMESTAMP
 
 
