@@ -203,6 +203,32 @@ class ParasymbolicMatrix(object):
         """
         return _parasymbolic.ParasymbolicMatrix_reset_mul_col(self, component, col)
 
+    def set_sub_row(self, component: "size_t", row: "size_t", coeff: "dtype") -> "void":
+        r"""
+        set_sub_row(self, component, row, coeff)
+
+        Parameters
+        ----------
+        component: size_t
+        row: size_t
+        coeff: dtype
+
+        """
+        return _parasymbolic.ParasymbolicMatrix_set_sub_row(self, component, row, coeff)
+
+    def set_sub_col(self, component: "size_t", col: "size_t", coeff: "dtype") -> "void":
+        r"""
+        set_sub_col(self, component, col, coeff)
+
+        Parameters
+        ----------
+        component: size_t
+        col: size_t
+        coeff: dtype
+
+        """
+        return _parasymbolic.ParasymbolicMatrix_set_sub_col(self, component, col, coeff)
+
     def batch_set(self, component_num: "size_t", row: "size_t", A_columns: "size_t const *", A_values: "dtype const *") -> "void":
         r"""
         batch_set(self, component_num, row, A_columns, A_values)
