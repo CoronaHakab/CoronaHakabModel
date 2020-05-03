@@ -237,7 +237,7 @@ class MatrixGenerator:
 
             # the number of nodes. writes it for simplicity
             n = len(indexes)
-            connections_amounts = con_type_data.get_rounded_connections_amount(shape=n)
+            connections_amounts = con_type_data.get_rounded_connections_amount(shape=n) / 2
 
             # saves the already-inserted nodes
             np.random.shuffle(nodes)
@@ -319,7 +319,7 @@ class MatrixGenerator:
 
             # the number of nodes. writes it for simplicity
             n = len(indexes)
-            connections_amounts = con_type_data.get_rounded_connections_amount(shape=n)
+            connections_amounts = con_type_data.get_rounded_connections_amount(shape=n) / 2
 
             connected_nodes = set()
 
