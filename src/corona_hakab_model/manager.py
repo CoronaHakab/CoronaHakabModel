@@ -7,6 +7,7 @@ import numpy as np
 import infection
 import update_matrix
 from common.agent import SickAgents, InitialAgentsConstraints
+from common.isolation_types import IsolationTypes
 from consts import Consts
 from detection_model import healthcare
 from common.detection_testing_types import PendingTestResult, PendingTestResults
@@ -75,7 +76,9 @@ class SimulationManager:
         self.tested_vector = np.zeros(len(self.agents), dtype=bool)
         self.tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
         self.ever_tested_positive_vector = np.zeros(len(self.agents), dtype=bool)
-        self.agents_in_isolation = np.zeros(len(self.agents), dtype=bool)
+        self.agents_in_isolation = np.full(fill_value=IsolationTypes.NONE,
+                                           shape=len(self.agents),
+                                           dtype=IsolationTypes)
         self.agents_connections_coeffs = np.ones(shape=(len(self.agents), self.depth))
         self.date_of_last_test = np.zeros(len(self.agents), dtype=int)
         self.pending_test_results = PendingTestResults()
@@ -185,9 +188,12 @@ class SimulationManager:
         will_obey_isolation = np.random.choice(remaining, num_of_obedients, replace=False)  # sample those who will obey
 
         for agent in will_obey_isolation:
-            self.agents_in_isolation[agent.index] = True  # keep track about who is in isolation
+            self.agents_in_isolation[agent.index] = SimulationManager.get_isolation_type()  # keep track about who is in isolation
             self.update_matrix_manager.change_agent_relations_by_factor(agent,
                                                                         self.consts.isolation_factor)  # change the matrix
+    @staticmethod
+    def get_isolation_type(): #TODO: not static, and not here...
+        return IsolationTypes.HOME
 
     def get_agents_out_of_isolation(self, agents_list: List):
         for agent in agents_list:
@@ -196,7 +202,7 @@ class SimulationManager:
                     current_row_factor = self.agents_connections_coeffs[agent.index, connection]
                     self.matrix.set_sub_row(connection, agent.index, current_row_factor)
                     self.matrix.set_sub_col(connection, agent.index, current_row_factor)
-                    self.agents_in_isolation[agent.index] = False
+                    self.agents_in_isolation[agent.index] = IsolationTypes.NONE
 
     def setup_sick(self):
         """"
