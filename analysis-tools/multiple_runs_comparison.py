@@ -36,15 +36,16 @@ class Simulation:
 
 # configuration:
 STATS_TO_COMPARE = ["was ever sick"]
-TITLE = "matrix vs vector no policy comparison"
-TO_SHOW = False
-TO_SAVE = True
+TITLE = "multiple matrix only comparisons"
+TO_SHOW = True
+TO_SAVE = False
 SAVE_NAME = TITLE
 
 # simulations folders
 father_folder: Path = Path(r"C:\corona\validation\matrix-vs-vector")  # optional
-simulations: List[Simulation] = [Simulation(path=father_folder / "no-policy-matrix", prefix="matrix only"),
-                          Simulation(path=father_folder / "no-policy-vector", prefix="vector only")]
+simulations: List[Simulation] = [Simulation(path=father_folder / "no-policy-matrix", prefix="matrix only 1"),
+                                 Simulation(path=father_folder / "no-policy-matrix-2", prefix="matrix only 2"),
+                                 ]
 
 ax = plt.gca()
 for sim in simulations:
