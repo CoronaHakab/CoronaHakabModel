@@ -30,9 +30,10 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from parasymbolic_matrix.parasymbolic import ParasymbolicMatrix
 
-class AgentConnections(NamedTuple):
-    daily_connections: Set[int] = set()
-    weekly_connections: Set[int] = set()
+class AgentConnections:
+    def __init__(self):
+        self.daily_connections: Set[int] = set()
+        self.weekly_connections: Set[int] = set()
 
 
 class ConnectionData:
@@ -41,8 +42,8 @@ class ConnectionData:
     )
 
     def __init__(self, agents):
-        self.connected_ids_by_strength = {agent: {connection_type: AgentConnections() for connection_type
-                                                                      in ConnectionTypes} for agent in agents}
+        self.connected_ids_by_strength = {agent.index: {connection_type: AgentConnections() for connection_type
+                                                        in ConnectionTypes} for agent in agents}
 
     def export(self, export_path, file_name="connection_data"):
         if not file_name.endswith(".pickle"):
@@ -196,10 +197,10 @@ class MatrixGenerator:
                     known_strengths[(agent.index, conn)] = strengthes[index]
 
                 if strengthes[index] == con_type_data.connection_strength:
-                    self.connection_data.connected_ids_by_strength[agent][
+                    self.connection_data.connected_ids_by_strength[agent.index][
                         con_type_data.connection_type].daily_connections.add(conn)
                 else:
-                    self.connection_data.connected_ids_by_strength[agent][
+                    self.connection_data.connected_ids_by_strength[agent.index][
                         con_type_data.connection_type].weekly_connections.add(conn)
 
 
@@ -221,7 +222,7 @@ class MatrixGenerator:
                 vals[i] = 0
                 self.matrix[depth, int(agent.index), ids] = vals
                 vals[i] = temp
-                self.connection_data.connected_ids_by_strength[agent][
+                self.connection_data.connected_ids_by_strength[agent.index][
                     con_type_data.connection_type].daily_connections.update(set(ids))
 
     def _create_scale_free_graph(self, con_type_data: ConnectionTypeData, circles: List[SocialCircle], depth):
