@@ -53,7 +53,12 @@ def get_simulation_args_parser():
     state_machine.add_argument("--population_size",
                                dest="population_size",
                                default="50_000",
-                               help="Folder to save the result of")
+                               help="Folder to save the result of the analysis")
+    state_machine.add_argument("--ages_and_probs",
+                               dest="ages_and_probs",
+                               nargs="+",
+                               default=[8, 1.],
+                               help='Possible ages and probabilities. For each ages need also appropriate prob.')
     sim.add_argument('--population-data',
                      dest='population_data',
                      default=OUTPUT_FOLDER / 'population_data.pickle',
@@ -106,6 +111,10 @@ def get_simulation_args_parser():
                         default=None,
                         help='Set the random seed. Use only for exact reproducibility. By default, generate new seed.')
     parser.add_argument("--version", action="version", version=__version__)
+    parser.add_argument("--silent",
+                        dest="silent",
+                        action='store_true',
+                        help="Do not print anything")
     return parser
 
 
@@ -114,4 +123,13 @@ def get_default_simulation_args_values():
     Returns the default Namespace object that simulation uses
     """
     arg_parser = get_simulation_args_parser()
-    return arg_parser.parse_args(["all"])
+    return arg_parser.parse_args(["simulate"])
+
+
+def get_default_silent_simulation_args():
+    """
+        Returns the default Namespace object that simulation uses
+        and prevents it from printing
+    """
+    arg_parser = get_simulation_args_parser()
+    return arg_parser.parse_args(["--silent", "simulate"])

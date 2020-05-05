@@ -364,14 +364,17 @@ class _CurrentInfectedTable(PeriodicReportSupervisable):
             self.sick_states = [s for s in medical_states if isinstance(s, StochasticState)]
 
         agent_ids = []
+        agent_ages = []
         medical_status = []
 
         for state in self.sick_states:
             agent_ids += [agent.index for agent in state.agents]
+            agent_ages += [agent.age for agent in state.agents]
             medical_status += [state.name] * state.agent_count
         return {
-            "agent_id" : agent_ids,
-            "medical_status" : medical_status
+            "agent_id": agent_ids,
+            "agent_age": agent_ages,
+            "medical_status": medical_status
         }
 
     def name(self) -> str:

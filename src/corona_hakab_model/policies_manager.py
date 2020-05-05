@@ -78,15 +78,21 @@ class Policy:
             connection_change_factor: float,
             circle_conditions: Iterable[Callable[[Any], bool]],
             agent_conditions: Iterable[Callable[[Any], bool]] = None,
+            policy_props_update: Dict = None,
 
     ):
+
         self.factor = connection_change_factor
         self.circle_conditions = circle_conditions
+
+        if policy_props_update is None:
+            policy_props_update = dict()
 
         if agent_conditions is None:
             agent_conditions = []
 
         self.agent_conditions = agent_conditions
+        self.policy_props_update = policy_props_update
 
     @staticmethod
     def _check_applies(conditions, arg):
