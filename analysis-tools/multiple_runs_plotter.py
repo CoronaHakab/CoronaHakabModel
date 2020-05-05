@@ -43,8 +43,11 @@ SAVE_NAME = TITLE
 
 # simulations folders
 parent_folder: Path = Path(r"C:\corona\validation\matrix-vs-vector")  # optional
-simulations: List[Simulation] = [Simulation(path=parent_folder / "no-policy-matrix", prefix="matrix only 1"),
-                                 Simulation(path=parent_folder / "no-policy-matrix-2", prefix="matrix only 2"),
+simulations: List[Simulation] = [Simulation(path=parent_folder / "no-policy-full-50k", prefix="vector and matrix"),
+                                 Simulation(path=parent_folder / "no-policy-matrix-50k-p=1", prefix="matrix p=1"),
+                                 Simulation(path=parent_folder / "no-policy-matrix-50k-p=0", prefix="matrix p=0"),
+                                 Simulation(path=parent_folder / "no-policy-vector-50k-exp-clipped", prefix="vector exp clipped"),
+                                 Simulation(path=parent_folder / "no-policy-vector-50k-uniform", prefix="vector uniform"),
                                  ]
 
 ax = plt.gca()
