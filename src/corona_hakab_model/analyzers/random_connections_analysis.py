@@ -57,8 +57,8 @@ class RandomConnectionsAnalysis:
             distribution_of_connections = self.num_of_random_connections[:, con_type]
             average_conn = np.mean(distribution_of_connections)
             median_conn = np.median(distribution_of_connections)
-            max_connection = max(distribution_of_connections)
-            min_connection = min(distribution_of_connections)
+            max_connection = np.max(distribution_of_connections)
+            min_connection = np.min(distribution_of_connections)
             connections_histogram, _ = np.histogram(distribution_of_connections,
                                                     bins=math.ceil(max_connection - min_connection + 1),
                                                     range=(min_connection - 0.5, max_connection + 0.5))
@@ -95,6 +95,6 @@ class RandomConnectionsAnalysis:
 
 
 if __name__ == "__main__":
-    population_data_path = r"..\inputs\analyze\no-policy-vector-uniform-2\population_data.pickle"
+    population_data_path = r"..\inputs\analyze\no-policy-vector-clipped-1\population_data.pickle"
     analyzer = RandomConnectionsAnalysis(population_data_path)
     analyzer.run_all()
