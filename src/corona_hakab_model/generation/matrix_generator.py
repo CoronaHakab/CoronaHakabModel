@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import math
 from itertools import islice
@@ -24,6 +26,9 @@ from generation.node import Node
 from bsa.scipy_sparse import read_scipy_sparse
 from project_structure import OUTPUT_FOLDER
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from parasymbolic_matrix.parasymbolic import ParasymbolicMatrix
 
 class AgentConnections(NamedTuple):
     daily_connections: Set[int] = set()
@@ -63,7 +68,7 @@ class MatrixData:
 
     def __init__(self):
         self.matrix_type = None
-        self.matrix = None
+        self.matrix: ParasymbolicMatrix = None
         self.depth = 0
 
     def import_matrix_data_as_scipy_sparse(self, matrix_data_path):
