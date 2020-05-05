@@ -1,5 +1,6 @@
 # install Python3.8.2
 #./linux/deb_install_python3.8.sh
+
 shopt -s expand_aliases
 WORKDIR=~
 PROJDIR=${WORKDIR}/proj
