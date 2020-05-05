@@ -42,9 +42,9 @@ TO_SAVE = False
 SAVE_NAME = TITLE
 
 # simulations folders
-father_folder: Path = Path(r"C:\corona\validation\matrix-vs-vector")  # optional
-simulations: List[Simulation] = [Simulation(path=father_folder / "no-policy-matrix", prefix="matrix only 1"),
-                                 Simulation(path=father_folder / "no-policy-matrix-2", prefix="matrix only 2"),
+parent_folder: Path = Path(r"C:\corona\validation\matrix-vs-vector")  # optional
+simulations: List[Simulation] = [Simulation(path=parent_folder / "no-policy-matrix", prefix="matrix only 1"),
+                                 Simulation(path=parent_folder / "no-policy-matrix-2", prefix="matrix only 2"),
                                  ]
 
 ax = plt.gca()
@@ -55,4 +55,4 @@ plt.title(TITLE)
 if TO_SHOW:
     plt.show()
 if TO_SAVE:
-    plt.savefig(father_folder / SAVE_NAME)
+    plt.savefig(parent_folder / SAVE_NAME)
