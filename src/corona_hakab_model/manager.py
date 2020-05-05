@@ -2,21 +2,22 @@ import logging
 from collections import defaultdict
 from random import shuffle
 from typing import Callable, Iterable, List, Union
+
 import numpy as np
 
 import infection
 import update_matrix
 from common.agent import SickAgents, InitialAgentsConstraints
+from common.detection_testing_types import PendingTestResult, PendingTestResults
+from common.state_machine import PendingTransfers
 from consts import Consts
 from detection_model import healthcare
-from common.detection_testing_types import PendingTestResult, PendingTestResults
 from generation.circles_generator import PopulationData
+from generation.connection_types import ConnectionTypes
 from generation.matrix_generator import MatrixData, ConnectionData
 from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
-from common.state_machine import PendingTransfers
 from supervisor import Supervisable, SimulationProgression
-from generation.connection_types import ConnectionTypes
 
 
 class SimulationManager:
