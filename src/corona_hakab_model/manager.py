@@ -104,7 +104,7 @@ class SimulationManager:
         self.sick_agents = SickAgents()
 
         self.new_sick_counter = 0
-        self.new_sick_by_infection_method = {connection_type : 0 for connection_type in ConnectionTypes}
+        self.new_sick_by_infection_method = {connection_type: 0 for connection_type in ConnectionTypes}
         self.new_sick_by_infector_medical_state = {
                 "Latent": 0,
                 "Latent-Asymp": 0,
