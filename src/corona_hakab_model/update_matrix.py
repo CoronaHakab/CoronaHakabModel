@@ -134,13 +134,6 @@ class UpdateMatrixManager:
         self.manager.policy_manager.add_message_to_manager(conditioned_policy.message)
         return affected_circles
 
-    @staticmethod
-    def should_apply_policy(conditioned_policy, manager):
-        activating_policy = \
-            (not conditioned_policy.active or not conditioned_policy.dont_repeat_while_active) and \
-            conditioned_policy.activating_condition(manager)
-        return activating_policy
-
     def change_agent_relations_by_factor(self, agent, factor):
         for connection_type in ConnectionTypes:
             self.factor_agent(agent.index, connection_type, factor)

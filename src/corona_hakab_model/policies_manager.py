@@ -51,7 +51,7 @@ class PolicyManager:
             # going through each policy activator.
             conditional_policies_to_activate = []
             for cond_policy in conditioned_policies:
-                if self.update_matrix_manager.should_apply_policy(cond_policy, self.manager):
+                if cond_policy.should_apply_policy(self.manager):
                     conditional_policies_to_activate.append(cond_policy)
 
             if len(conditional_policies_to_activate) > 0:
@@ -148,3 +148,9 @@ class ConditionedPolicy:
         self.reset_current_limitations = reset_current_limitations
         self.message = message
         self.active = active  # Is the policy currently active
+
+    def should_apply_policy(self, manager: SimulationManager):
+        activating_policy = \
+            (not self.active or not self.dont_repeat_while_active) and \
+            self.activating_condition(manager)
+        return activating_policy
