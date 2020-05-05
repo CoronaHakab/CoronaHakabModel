@@ -22,6 +22,7 @@ from common.agent import InitialAgentsConstraints
 from subconsts.modules_argpasers import get_simulation_args_parser
 from supervisor import LambdaValueSupervisable, Supervisable
 from analyzers import matrix_analysis
+from analyzers.random_connections_analysis import RandomConnectionsAnalysis
 
 
 from typing import TYPE_CHECKING
@@ -42,6 +43,9 @@ def main():
 
     if args.sub_command == 'analyze-matrix':
         analyze_matrix(args)
+
+    if args.sub_command == 'analyze-random-connections':
+        analyze_random_connections(args)
 
     if args.sub_command == 'shift-real-life':
         sys.argv = sys.argv[1:]
@@ -223,6 +227,11 @@ def analyze_matrix(args):
     matrix_analysis.save_histogram_plots(histograms)
     if args.show:
         plt.show()
+
+
+def analyze_random_connections(args):
+    analyzer = RandomConnectionsAnalysis(args.population_data_path)
+    analyzer.run_all(args.show)
 
 
 if __name__ == "__main__":

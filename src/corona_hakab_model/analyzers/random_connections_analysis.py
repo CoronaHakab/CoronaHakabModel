@@ -85,11 +85,13 @@ class RandomConnectionsAnalysis:
             plt.savefig(self.histograms_output_folder / f"{histogram.name} histogram.png")
             plt.draw()
 
-    def run_all(self):
+    def run_all(self, show: bool = False):
         self.export_raw_to_csv()
         histograms = self.analyze_connections_histograms()
         self.export_histograms_to_csv(histograms)
         self.save_histograms_plots(histograms)
+        if show:
+            plt.show()
 
 
 if __name__ == "__main__":
