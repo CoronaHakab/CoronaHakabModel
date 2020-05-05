@@ -125,7 +125,7 @@ class UpdateMatrixManager:
             circles: Iterable[SocialCircle],
             conditioned_policy: ConditionedPolicy,
     ):
-        self.logger.info("activating policy on circles")
+        self.logger.info(f"activating policy {conditioned_policy.message} on circles")
         if conditioned_policy.reset_current_limitations:
             self.reset_policies_by_connection_type(con_type)
         affected_circles = self.apply_policy_on_circles(conditioned_policy.policy, circles)
