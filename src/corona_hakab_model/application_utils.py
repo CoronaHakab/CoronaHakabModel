@@ -8,8 +8,8 @@ from generation.generation_manager import GenerationManger
 from typing import List
 from zipfile import ZipFile
 
-MATRIX_CONSTS_FILE_NAME = "matrix_consts.json"
-CIRCLES_CONSTS_FILE_NAME = "circles_consts.json"
+MATRIX_CONSTS_FILE_NAME = "matrix_consts.py"
+CIRCLES_CONSTS_FILE_NAME = "circles_consts.py"
 
 logger = logging.getLogger("application")
 
