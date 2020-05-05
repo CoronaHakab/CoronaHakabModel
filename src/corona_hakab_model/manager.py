@@ -34,12 +34,12 @@ class SimulationManager:
             connection_data: ConnectionData,
             inital_agent_constraints: InitialAgentsConstraints,
             run_args,
-            consts: Consts = Consts(),
-    ):
+            consts: Consts = Consts()):
         # setting logger
         self.logger = logging.getLogger("simulation")
         logging.basicConfig()
-        self.logger.setLevel(logging.INFO)
+        if not run_args.silent:
+            self.logger.setLevel(logging.INFO)
         self.logger.info("Creating a new simulation.")
 
         # unpacking data from generation
