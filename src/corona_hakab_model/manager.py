@@ -35,6 +35,7 @@ class SimulationManager:
             inital_agent_constraints: InitialAgentsConstraints,
             run_args,
             consts: Consts = Consts()):
+
         # setting logger
         self.logger = logging.getLogger("simulation")
         logging.basicConfig()
@@ -61,11 +62,26 @@ class SimulationManager:
 
         # setting up medical things
         self.consts = consts
-        self.medical_machine = consts.medical_state_machine()
-        initial_state = self.medical_machine.initial
 
         self.pending_transfers = PendingTransfers()
 
+        self.update_matrix_manager = None
+        self.reset()
+
+        if run_args.validate_matrix:
+            self.update_matrix_manager.validate_matrix()
+
+        self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers],
+                                                            self)
+        self.logger.info("Created new simulation.")
+        self.simulation_progression.snapshot(self)
+
+    def reset(self):
+        self.random_connections_factor = np.ones_like(self.num_of_random_connections, dtype=float)
+        self.matrix.set_factors([1] * self.depth)
+        self.consts.medical_state_machine.cache_clear()  # In order to get the new medical_state_machine
+        self.medical_machine = self.consts.medical_state_machine()
+        initial_state = self.medical_machine.initial
         # the manager holds the vector, but the agents update it
         self.contagiousness_vector = np.zeros(len(self.agents), dtype=float)  # how likely to infect others
         self.susceptible_vector = np.zeros(len(self.agents), dtype=bool)  # can get infected
@@ -87,14 +103,15 @@ class SimulationManager:
         initial_state.add_many(self.agents)
 
         # initializing simulation modules
-        self.simulation_progression = SimulationProgression([Supervisable.coerce(a, self) for a in supervisable_makers],
-                                                            self)
-        self.update_matrix_manager = update_matrix.UpdateMatrixManager(self)
-        if run_args.validate_matrix:
-            self.update_matrix_manager.validate_matrix()
+        if self.update_matrix_manager:
+            factor = self.update_matrix_manager.normalize_factor
+            self.update_matrix_manager = update_matrix.UpdateMatrixManager(manager=self,
+                                                                           normalize_factor=factor)
+        else:
+            self.update_matrix_manager = update_matrix.UpdateMatrixManager(manager=self)
         self.infection_manager = infection.InfectionManager(self)
         self.healthcare_manager = healthcare.HealthcareManager(self)
-        self.medical_state_manager = MedicalStateManager(self)
+        self.medical_state_manager = MedicalStateManager(sim_manager=self)
         self.policy_manager = PolicyManager(self)
 
         self.current_step = 0
@@ -122,15 +139,13 @@ class SimulationManager:
         }
         self.new_detected_daily = 0
 
-        self.logger.info("Created new simulation.")
-        self.simulation_progression.snapshot(self)
+        self.logger.info("Done reset to simulation.")
 
     def step(self):
         """
         run one step
         """
         # checks if there is a policy to active.
-
         self.policy_manager.perform_policies()
 
         # run tests
@@ -149,7 +164,7 @@ class SimulationManager:
             if self.consts.backtrack_infection_sources:
                 self.new_sick_by_infection_method[new_infection_case.connection_type] += 1
                 self.new_sick_by_infector_medical_state[new_infection_case.infector_agent.medical_state.name] += 1
-        
+
         # progress transfers
         medical_machine_step_result = self.medical_state_manager.step(new_infection_cases.keys())
         self.new_sick_counter = medical_machine_step_result['new_sick']

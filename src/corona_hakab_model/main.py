@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 
 import numpy as np
 
-from analyzers.fit_to_graph import compare_real_to_simulation
+from analyzers.r_effective_calculatation import calculate_r_effective
 from analyzers.state_machine_analysis import extract_state_machine_analysis
 from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
 from consts import Consts
@@ -23,7 +23,6 @@ from subconsts.modules_argpasers import get_simulation_args_parser
 from supervisor import LambdaValueSupervisable, Supervisable
 from analyzers import matrix_analysis
 from analyzers.random_connections_analysis import RandomConnectionsAnalysis
-
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -40,6 +39,9 @@ def main():
 
     if args.sub_command == 'analyze-state-machine':
         extract_state_machine_analysis(vars(args))
+
+    if args.sub_command == 'analyze-r-eff':
+        calculate_r_effective(json_file=args.config_file)
 
     if args.sub_command == 'analyze-matrix':
         analyze_matrix(args)

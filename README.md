@@ -127,6 +127,24 @@
     * average_duration_in_state - dictionary whose keys are states and values are the expected time to be at that state provided that we visited it at least once
     * state_duration_expected_time - dictionary whose keys are states and values are expected time spent in that state of the illness
     * average_time_to_terminal - The average time it took agent to end at terminal state
+### R effective And Infections Analyzer
+- Currently this analyzer does not return an absolute number R-effective, what it does do is create csvs that can be analyzed offline later on.
+- The analyzer can get a json as input (default one is **r_effective_calculation_default_config.json**) with the following keys:
+    * **simulation_time_slices** - dictionary whose keys are days and values are max number of loops for days preceding it
+    * **r_effective_computation_type** - If equals "all" calculates the r-effective according to all other options and creates csvs.
+        types of computations with the names as prefix:
+        * **simple** - R-effective = (new_infected[i+1]/new_infected[i])^expected_number_of_contagious_days
+        * **weighted** - R_effective = new_infected[i+1]/(convolve(new_infected[i-tau+1:i], p_tau) where p_tau is parameter given and tau is the number of sick days
+    * p_tau - array of probabilities. It weighs how contagious I am at each day of the sickness.
+    * **monte_carlo_config** - used to configure the monte carlo method to compute expected sick days when using simple model
+    * **circle_consts_config** - to configure circle consts
+    * **consts_config**" - to configure consts
+- The csvs outputs contain:
+    * multiple_run_infection_statistics_ - for each run of the algorithm, the new infected per day.
+    * ?_multiple_run_r_eff_over_time_ - ?=simple/weighted. For the weighted it gets the r-effective of each run over time.
+    For the simple, it holds the ratio between every 2 consecutive days.
+    * ?_r_eff_averaged_ - hold for each r-eff calculation type, the average value of it across all the runs for each day
+- To run this run **python main.py analyze-r-eff**
 ### Simulation Analyser
 - TODO: Wrap simulation analyser in runnable (argparse, __main__, the works), and add documentation.
 ### Matrix Analyzer  

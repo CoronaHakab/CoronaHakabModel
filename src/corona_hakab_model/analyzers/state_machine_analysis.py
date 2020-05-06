@@ -144,7 +144,7 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
     terminal_states_names = [state.name for state in terminal_states]
     sum_days_to_terminal = sum([time for (state_name, time) in state_duration_expected_time.items()
                                 if state_name not in terminal_states_names])
-
+    
     return dict(population_size=population_size,
                 days_passed=days_passed,
                 time_in_each_state=dict(state_counter),

@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 from __data__ import __version__
-from project_structure import OUTPUT_FOLDER, SIM_OUTPUT_FOLDER
+from project_structure import OUTPUT_FOLDER, SIM_OUTPUT_FOLDER, ANALYZERS_FOLDER
 
 
 def get_simulation_args_parser():
@@ -115,11 +115,19 @@ def get_simulation_args_parser():
                                nargs="+",
                                default=[8, 1.],
                                help='Possible ages and probabilities. For each ages need also appropriate prob.')
-    parser.add_argument('--seed',
+    analyze_r_eff = subparser.add_parser("analyze-r-eff", help="Run stochastic analyzer for the state machine")
+    analyze_r_eff.add_argument("--config-file",
+                               dest="config_file",
+                               default=ANALYZERS_FOLDER/"r_effective_calculation_default_config.json",
+                               help="Input configuration file")    parser.add_argument('--seed',
                         dest='seed',
                         type=int,
                         default=None,
                         help='Set the random seed. Use only for exact reproducibility. By default, generate new seed.')
+    parser.add_argument("--silent",
+                        dest="silent",
+                        action='store_true',
+                        help="Do not print anything")
     parser.add_argument("--version", action="version", version=__version__)
     parser.add_argument("--silent",
                         dest="silent",
