@@ -157,9 +157,8 @@ class MatrixGenerator:
                     self._create_scale_free_graph(
                         con_type_data, self.social_circles_by_connection_type[con_type], current_depth
                     )
-                # TODO note that this currently does the same as scale free graph
                 elif con_type in Geographic_Clustered_types:
-                    self._create_geographically_clustered_scale_free_graph(
+                    self._create_randomly_connected_layer(
                         con_type_data, self.social_circles_by_connection_type[con_type], current_depth
                     )
                 current_depth += 1
@@ -256,7 +255,7 @@ class MatrixGenerator:
 
             # checks, if the circle is too small for normal clustering
             if n < self.matrix_consts.clustering_switching_point:
-                self._add_small_circle_connections(circle, connections, con_type_data.total_connections_amount)
+                self._randomly_connect_single_circle(circle, connections, con_type_data.total_connections_amount)
                 continue
 
             connected_nodes = set()
@@ -299,15 +298,14 @@ class MatrixGenerator:
                 connections[connected_node.index].extend([other_node.index for other_node in connected_node.connected])
 
         # adding connections between all super small circles
-        self._add_small_circle_connections(super_small_circles_combined, connections,
-                                           con_type_data.total_connections_amount)
+        self._randomly_connect_single_circle(super_small_circles_combined, connections,
+                                        con_type_data.total_connections_amount)
 
         # insert connections to matrix
         self._add_layer(con_type_data, connections, depth)
 
-    # TODO right now doesn't cluster based on geographic circles
-    def _create_geographically_clustered_scale_free_graph(self, con_type_data: ConnectionTypeData,
-                                                          circles: List[SocialCircle], depth):
+    def _create_randomly_connected_layer(self, con_type_data: ConnectionTypeData,
+                                         circles: List[SocialCircle], depth):
         # the new connections will be saved here
         connections = [[] for _ in self.agents]
         # gets data from matrix consts
@@ -316,66 +314,15 @@ class MatrixGenerator:
             return
 
         for circle in circles:
-            agents = circle.agents
-            indexes = [agent.index for agent in agents]
-            nodes: List[Node] = [Node(index) for index in indexes]
-
-            if len(agents) == 0:
-                continue
-
-            # the number of nodes. writes it for simplicity
-            n = len(indexes)
-            connections_amounts = con_type_data.get_scale_free_connections_amount(shape=n)
-
-            connected_nodes = set()
-
-            # manually generate the minimum required connections
-            initial_con_amount = math.ceil(con_type_data.total_connections_amount) + 1
-            for i in range(initial_con_amount):
-                other_nodes = nodes[0:initial_con_amount]
-                other_nodes.pop(i)
-                nodes[i].add_connections(other_nodes)
-                connected_nodes.add(nodes[i])
-
-            # add the rest of the nodes, one at a time
-            for node, num_connections in zip(islice(nodes, initial_con_amount, None), connections_amounts):
-                # first find a random node. Should never fail as we have inserted a node before.
-                first_connection = choice(list(connected_nodes))
-
-                # fill connections other than first_connection
-                while len(node.connected) < num_connections - 1:
-                    if random() < con_type_data.triad_p:
-                        # close the triad with a node from first_connection's connections
-                        possible_nodes = first_connection.connected
-                    else:
-                        # connect with a node, which is not first connection
-                        possible_nodes = connected_nodes
-
-                    # prevent connecting a connected node
-                    if len(possible_nodes) - len(node.connected) > 100:  # TODO 100 is made up. should be optimized
-                        possible_list = list(possible_nodes)
-                        random_friend = choice(possible_list)
-                        while random_friend in node.connected:
-                            random_friend = choice(possible_list)
-                    else:
-                        possible_nodes = possible_nodes.difference(node.connected).difference({first_connection})
-                        random_friend = choice(list(possible_nodes))
-                    Node.connect(random_friend, node)
-                # connect to bff here to prevent self-selection in bff's friends
-                Node.connect(first_connection, node)
-                connected_nodes.add(node)
-
-            for connected_node in nodes:
-                connections[connected_node.index].extend([other_node.index for other_node in connected_node.connected])
+            self._randomly_connect_single_circle(circle, connections, con_type_data.total_connections_amount)
 
         # insert all connections to matrix
         self._add_layer(con_type_data, connections, depth)
 
-    # TODO rename - erdos reny algorithm
-    def _add_small_circle_connections(self, circle: SocialCircle, connections: List[List], scale_factor: float):
+    def _randomly_connect_single_circle(self, circle: SocialCircle, connections: List[List], scale_factor: float):
         """
-        used to create the connections for circles too small for the clustering algorithm.
         creates circle's connections, and adds them to a given connections list
+        connections amount will be generated from an exponential distribution
         :param circle: the social circle too small
         :param connections: the connections list
         :param scale_factor: average amount of connections for each agent
