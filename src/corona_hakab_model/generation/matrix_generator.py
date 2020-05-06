@@ -157,7 +157,6 @@ class MatrixGenerator:
                     self._create_scale_free_graph(
                         con_type_data, self.social_circles_by_connection_type[con_type], current_depth
                     )
-                # TODO note that this currently does the same as scale free graph
                 elif con_type in Geographic_Clustered_types:
                     self._create_randomly_connected_layer(
                         con_type_data, self.social_circles_by_connection_type[con_type], current_depth
