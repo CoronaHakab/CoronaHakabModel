@@ -107,9 +107,16 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
         population_size = int(circles_consts.population_size)
     else:
         population_size = int(configuration["population_size"])
+    if "ages_and_probs" in configuration:
+        config_ages_dist = configuration["ages_and_probs"]
+        assert len(config_ages_dist) % 2 == 0, "Must supply for each age, it's probability"
+        assert config_ages_dist, "Must supply age distribution"
+        ages_to_dist = {config_ages_dist[index]: config_ages_dist[index+1]
+                        for index in range(0, len(config_ages_dist), 2)}
+    else:
+        assert "age_distribution" in configuration, "Must supply age distribution"
+        ages_to_dist = configuration['age_distribution']
 
-    assert "age_distribution" in configuration, "Must supply age distribution"
-    ages_to_dist = configuration['age_distribution']
     medical_state_machine = consts.medical_state_machine()
     medical_machine_manager = MedicalStateManager(medical_state_machine=medical_state_machine)
     agents_list = _generate_agents_randomly(population_size=population_size,
@@ -122,10 +129,10 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
     state_counter = Counter({m.name: m.agent_count for m in medical_states})
     days_passed = 1
     number_terminals_agents = 0
-
+    empty_step = list()
     while number_terminals_agents != population_size:
         # No manager so we don't update it
-        medical_machine_manager.step(list())
+        medical_machine_manager.step(empty_step)
         number_terminals_agents = sum([m.agent_count for m in terminal_states])
         for m in medical_states:
             state_counter[m.name] += m.agent_count
@@ -134,9 +141,10 @@ def monte_carlo_state_machine_analysis(configuration: Dict) -> Dict:
     average_state_time_duration, state_duration_expected_time = _get_empirical_state_times(medical_state_machine,
                                                                                            population_size,
                                                                                            state_counter)
-    sum_days_to_terminal = sum({v for (k, v) in average_state_time_duration.items()
-                                if k not in terminal_states})
-
+    terminal_states_names = [state.name for state in terminal_states]
+    sum_days_to_terminal = sum([time for (state_name, time) in state_duration_expected_time.items()
+                                if state_name not in terminal_states_names])
+    
     return dict(population_size=population_size,
                 days_passed=days_passed,
                 time_in_each_state=dict(state_counter),
@@ -151,6 +159,7 @@ def extract_state_machine_analysis(configuration):
     output_file = OUTPUT_FOLDER /\
                   f"state_machine_analysis_{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
     result = monte_carlo_state_machine_analysis(configuration)
+    OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
     with open(output_file, 'w') as result_json:
         json.dump(result, result_json, indent=4, sort_keys=True)
 

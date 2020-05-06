@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 import pandas as pd
@@ -19,7 +21,7 @@ class Agent:
     This class represents a person in our doomed world.
     """
 
-    __slots__ = ("index", "medical_state", "manager", "age")
+    __slots__ = ("index", "medical_state", "manager", "age", "policy_props")
 
     # todo note that this changed to fit generation. should update simulation manager accordingly
     def __init__(self, index, age=None):
@@ -28,6 +30,7 @@ class Agent:
         # don't know if this is necessary
         self.manager: SimulationManager = None
         self.medical_state: MedicalState = None
+        self.policy_props = defaultdict(bool)  # Properties that inserted/checked by the policies
 
     def add_to_simulation(self, manager: SimulationManager, initial_state: MedicalState):
         self.manager = manager

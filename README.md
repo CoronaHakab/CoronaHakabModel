@@ -60,7 +60,7 @@
 - Usage: **python main.py --agent-constraints-path <PATH>**
 - Format: csv file with the following columns : geographic_circles,age,Work,School,Family,Other
 - each row represents an agent, amount of rows must correspond to initial number of sick agents
-- to specify an exact value (geocircle name, age, or number of members in social circle), simply write it in the appropriate column and row
+- to specify an exact value (geo-circle name, age, or number of members in social circle), simply write it in the appropriate column and row
 - to specify a range, use '~' eg. "10~70" indicates age 10 to 70, including both
 - unspecified values will be free.
 - If no agents corresponding to the constraints are found, the code will crash
@@ -68,13 +68,13 @@
 ## Workflow -
 - When working, **work on a new git branch**.
 - run quality test: **tox -e quality**, if it fails you might need to reformat: **tox -e reformat**.
-- if you use named expressions := then for now you have to add the comment # flake8: noqa which will exclude the file from flake8 checks because it doesn't support namded expressions currently.
+- if you use named expressions := then for now you have to add the comment # flake8: noqa which will exclude the file from flake8 checks because it doesn't support named expressions currently.
 - if ** tox -e reformat** fails then we have to check it out...
 - When done, **push changes to your branch, and create a pull request**.
 - **Always run the simulator after making changes and before merging**, to make sure you didn't break anything.
 - Especially if not sure, **try to get at least 1 person's review before merging**.
 
-## Multiple Jsons generator
+## Multiple JSONs generator
 - In some cases, we would like to run the simulation/generation multiple times, when all parameters are the same, except 1 or 2 parameters that move across a certain range, in certain steps.
 - The module is found in src/corona_hakab_model/moving_parameters_generator.py
 - The module parameters
@@ -117,11 +117,12 @@
     * **--population_size** to set population size.
     * **--consts_file**
     * **--circle_consts_file**
+    * **ages_and_probs** - list of age1, pro of age1, age2, prob of age2, ...
 - The result of the run creates a json file with suffix of "state_machine_analysis_" and prefix of the time we ran the analyzer.
 - The result file has several fields:
     * population_size. Defaults to 50,000
     * days_passed - The number of days the simulation ended
-    * time_in_each_state - dictionary whose keys are states and values are time spend in total at that state
+    * time_in_each_state - dictionary whose keys are states and values are total time spent at that state
     * visitors_in_each_state - dictionary whose keys are states and values are number of people who were at this state of the infection
     * average_duration_in_state - dictionary whose keys are states and values are the expected time to be at that state provided that we visited it at least once
     * state_duration_expected_time - dictionary whose keys are states and values are expected time spent in that state of the illness
@@ -155,19 +156,39 @@
   ****NOTICE**: When plots are being shown, you need to close them in order for the program to finish.  
 ##### **OUTPUTS**  
 - The module creates multiple files. The files created are raw-data '.csv' file of the matrix's different connection type (e.g. work, family) 
-  and an histogram analysis of those connections (both '.csv' file and '.png' of the histogram).  
+  and an histogram analysis of those connections (both '.csv' file and '.png' of the histogram).
   The files are being saved to **'/output/matrix_analysis/'** folder.  
-  The created folder is divided to 2 sub-folders:  
+  The created folder is divided to 2 sub-folders:
   **histogram_analysis** - This folder is where the histogram plots and .csv files are saved.  
   **raw_matrices** - This folder is where the matrix's raw data is saved. 
 - The file names indicate what type of connection they are related to.  
 ##### **EXAMPLES**  
-  1. Run the analysis on default matrix file and don't show plots:  
+  1. Run the analysis on default matrix file and don't show plots:
   `python ./main analyze-matrix`  
   2. Run with specified matrix file:  
   `python ./main analyze-matrix --matrix /example/to/matrix/path`  
   3. Run with specified matrix file and show histograms:  
   `python ./main analyze-matrix --matrix /example/to/matrix/path --show` 
+  
+### Random Connections Analysis  
+- This module calculates histograms and statistics about the random connections.  
+##### **INPUTS**:  
+  **--population-data** < path_to_population_data > : This input specifies the path to the population data which will be analyzed.  
+  **--show** (optional) : This input determines whether or not histogram plots will be shown (they are always being saved).     
+  ****NOTICE**: When plots are being shown, you need to close them in order for the program to finish.  
+##### **OUTPUTS**  
+- The module creates multiple files. The files created are raw-data '.csv' file of the different connection type (e.g. work, family) 
+  and an histogram analysis of those connections (both '.csv' file and '.png' of the histogram).
+  The files are being saved to the same folder as the given population data.  
+  The created folder is divided to 2 sub-folders:
+  **histograms** - This folder is where the histogram plots and .csv files are saved.  
+  **raw** - This folder is where the raw data is saved. 
+- The file names indicate what type of connection they are related to.  
+##### **EXAMPLES**  
+  2. Run without displaying histograms:  
+  `python ./main analyze-random-connections --population-data /example/to/population-data/path`  
+  3. Run and display histograms:  
+  `python ./main analyze-random-connections --population-data /example/to/population-data/path --show`  
 
 ## New to git/github?
 See the **"How to set up a git environment"** guide in the docs folder.

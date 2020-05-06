@@ -38,6 +38,8 @@ class CoffedSparseMatrix: public BareSparseMatrix{
         dtype get(size_t row, size_t column);
         void mul_row(size_t row, dtype factor);
         void mul_col(size_t col, dtype factor);
+        void set_row(size_t row, dtype coeff);
+        void set_col(size_t row, dtype coeff);
         void reset_mul_row(size_t row);
         void reset_mul_col(size_t col);
         virtual ~CoffedSparseMatrix();
@@ -90,6 +92,8 @@ class ParasymbolicMatrix{
         void mul_sub_col(size_t component, size_t col, dtype factor);
         void reset_mul_row(size_t component, size_t row);
         void reset_mul_col(size_t component, size_t col);
+        void set_sub_row(size_t component, size_t row, dtype coeff);
+        void set_sub_col(size_t component, size_t col, dtype coeff);
         void batch_set(size_t component_num, size_t row, size_t const* A_columns, size_t c_len,
          dtype const* A_values, size_t v_len);
         void set_calc_lock(bool value);

@@ -15,13 +15,14 @@ from application_utils import generate_from_folder, generate_from_master_folder,
 from consts import Consts
 from generation.circles_generator import PopulationData
 from generation.generation_manager import GenerationManger
-from generation.matrix_generator import MatrixData
+from generation.matrix_generator import MatrixData, ConnectionData
 from generation.connection_types import ConnectionTypes
 from manager import SimulationManager
 from common.agent import InitialAgentsConstraints
 from subconsts.modules_argpasers import get_simulation_args_parser
 from supervisor import LambdaValueSupervisable, Supervisable
 from analyzers import matrix_analysis
+from analyzers.random_connections_analysis import RandomConnectionsAnalysis
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -44,6 +45,9 @@ def main():
 
     if args.sub_command == 'analyze-matrix':
         analyze_matrix(args)
+
+    if args.sub_command == 'analyze-random-connections':
+        analyze_random_connections(args)
 
     if args.sub_command == 'shift-real-life':
         sys.argv = sys.argv[1:]
@@ -95,6 +99,7 @@ def run_simulation(args):
 
     matrix_data = MatrixData.import_matrix_data(args.matrix_data)
     population_data = PopulationData.import_population_data(args.population_data)
+    connection_data = ConnectionData.import_connection_data(args.connection_data)
     initial_agent_constraints = InitialAgentsConstraints(args.agent_constraints_path)
     if args.simulation_parameters_path:
         consts = Consts.from_file(args.simulation_parameters_path)
@@ -190,6 +195,7 @@ def run_simulation(args):
         ),
         population_data,
         matrix_data,
+        connection_data,
         initial_agent_constraints,
         run_args=args,
         consts=consts,
@@ -223,6 +229,11 @@ def analyze_matrix(args):
     matrix_analysis.save_histogram_plots(histograms)
     if args.show:
         plt.show()
+
+
+def analyze_random_connections(args):
+    analyzer = RandomConnectionsAnalysis(args.population_data_path)
+    analyzer.run_all(args.show)
 
 
 if __name__ == "__main__":

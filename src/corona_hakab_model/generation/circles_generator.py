@@ -32,7 +32,6 @@ class PopulationData:
 
     def __init__(self):
         self.version = __version__
-
         self.agents = []
         self.geographic_circles: List[GeographicCircle] = []
         self.social_circles_by_connection_type: Dict[ConnectionTypes, List[SocialCircle]] = {}

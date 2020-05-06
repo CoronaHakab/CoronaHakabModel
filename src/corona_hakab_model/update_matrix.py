@@ -80,23 +80,28 @@ class UpdateMatrixManager:
     def reset_agent(self, connection_type, index):
         self.matrix.reset_mul_row(connection_type, index)
         self.matrix.reset_mul_col(connection_type, index)
-        self.manager.agents_connections_factors[index, connection_type] = 1
+        self.manager.agents_connections_coeffs[index, connection_type] = 1
         self.manager.random_connections_factor[index, connection_type] = 1
 
     def factor_agent(self, index, connection_type, factor):
         self.matrix.mul_sub_row(connection_type, index, factor)
         self.matrix.mul_sub_col(connection_type, index, factor)
-        self.manager.agents_connections_factors[index, connection_type] *= factor
+        self.manager.agents_connections_coeffs[index, connection_type] *= factor
         self.manager.random_connections_factor[index, connection_type] *= factor
 
-    def reset_policies_by_connection_type(self, connection_type):
-        for i in range(self.size):
+    def reset_policies_by_connection_type(self, connection_type, agents_ids_to_reset=None):
+        if agents_ids_to_reset is None:
+            agents_ids_to_rest = list(range(self.size))
+        for i in agents_ids_to_rest:
             if not self.manager.agents_in_isolation[i]:
                 self.reset_agent(connection_type, i)
+            else:  # When out of isolation, the policy is not applied on him.
+                self.manager.agents_connections_coeffs[i, connection_type] = 1
 
         # letting all conditioned policies acting upon this connection type know they are canceled
-        for conditioned_policy in self.consts.connection_type_to_conditioned_policy[connection_type]:
-            conditioned_policy.active = False
+        if connection_type in self.consts.connection_type_to_conditioned_policy:
+            for conditioned_policy in self.consts.connection_type_to_conditioned_policy[connection_type]:
+                conditioned_policy.active = False
 
     def apply_policy_on_circles(self, policy: Policy, circles: Iterable[SocialCircle]):
         affected_circles = []
@@ -110,29 +115,24 @@ class UpdateMatrixManager:
                 for agent in circle.agents:
                     if policy.check_applies_on_agent(agent):
                         self.factor_agent(agent.index, connection_type, factor)
+                        agent.policy_props.update(policy.policy_props_update)
 
         return affected_circles
 
-    def check_and_apply(
+    def apply_conditional_policy(
             self,
             con_type: ConnectionTypes,
             circles: Iterable[SocialCircle],
             conditioned_policy: ConditionedPolicy,
-            **activating_condition_kwargs,
     ):
-        affected_circles = None  # list of circles affected by activating the policy
-        activating_policy = \
-            (not conditioned_policy.active or not conditioned_policy.dont_repeat_while_active) and \
-            conditioned_policy.activating_condition(activating_condition_kwargs)
-        if activating_policy:
-            self.logger.info("activating policy on circles")
-            if conditioned_policy.reset_current_limitations:
-                self.reset_policies_by_connection_type(con_type)
-            affected_circles = self.apply_policy_on_circles(conditioned_policy.policy, circles)
-            conditioned_policy.active = True
-            # adding the message
-            self.manager.policy_manager.add_message_to_manager(conditioned_policy.message)
-        return activating_policy, affected_circles
+        self.logger.info(f"activating policy {conditioned_policy.message} on circles")
+        if conditioned_policy.reset_current_limitations:
+            self.reset_policies_by_connection_type(con_type)
+        affected_circles = self.apply_policy_on_circles(conditioned_policy.policy, circles)
+        conditioned_policy.active = True
+        # adding the message
+        self.manager.policy_manager.add_message_to_manager(conditioned_policy.message)
+        return affected_circles
 
     def change_agent_relations_by_factor(self, agent, factor):
         for connection_type in ConnectionTypes:
