@@ -24,8 +24,7 @@ from generation.matrix_consts import MatrixConsts, ConnectionTypeData
 from generation.node import Node
 from project_structure import OUTPUT_FOLDER
 
-if TYPE_CHECKING:
-    from parasymbolic_matrix.parasymbolic import ParasymbolicMatrix
+from parasymbolic_matrix.parasymbolic import ParasymbolicMatrix
 
 
 class AgentConnections:
