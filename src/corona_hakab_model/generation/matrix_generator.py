@@ -2,17 +2,21 @@ from __future__ import annotations
 
 import logging
 import math
+import os.path
+import pickle
+from collections import namedtuple
 from itertools import islice
 from random import random, choice, sample
-from typing import List, Dict, NamedTuple, Set
-import os.path
+from typing import List, Dict, Set
+from typing import TYPE_CHECKING
 
-import bsa.universal
+import numpy as np
+
 import bsa.parasym
 import bsa.scipy_sparse
+import bsa.universal
 import corona_matrix
-import numpy as np
-import pickle
+from bsa.scipy_sparse import read_scipy_sparse
 from common.social_circle import SocialCircle
 from generation.circles_generator import PopulationData
 from generation.connection_types import (
@@ -23,12 +27,11 @@ from generation.connection_types import (
 )
 from generation.matrix_consts import MatrixConsts, ConnectionTypeData
 from generation.node import Node
-from bsa.scipy_sparse import read_scipy_sparse
 from project_structure import OUTPUT_FOLDER
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from parasymbolic_matrix.parasymbolic import ParasymbolicMatrix
+
 
 class AgentConnections:
     def __init__(self):
@@ -119,6 +122,10 @@ class MatrixData:
 
 
 # todo right now only supports parasymbolic matrix. need to merge with corona matrix class import selector
+
+MatrixAssignmentData = namedtuple('MatrixAssignmentData', ['depth', 'index', 'conns', 'v'])
+
+
 class MatrixGenerator:
     """
     this module gets the circles and agents created in circles generator and creates a matrix and sub matrices with them.
@@ -128,6 +135,7 @@ class MatrixGenerator:
             self, population_data: PopulationData, matrix_consts: MatrixConsts = MatrixConsts(),
     ):
         # initiate everything
+        self.matrix_assignment_data = []
         self.logger = logging.getLogger("MatrixGenerator")
         self.matrix_data = MatrixData()
         self.connection_data = ConnectionData(population_data.agents)
@@ -144,24 +152,24 @@ class MatrixGenerator:
         self.matrix = CoronaMatrix(self.size, self.depth)
 
         # create all sub matrices
-        with self.matrix.lock_rebuild():
-            # todo switch the depth logic, to get a connection type instead of int depth
-            current_depth = 0
+        # todo switch the depth logic, to get a connection type instead of int depth
+        for current_depth, (con_type, con_type_data) in enumerate(self.connection_types_data.items()):
+            if con_type in Connect_To_All_types:
+                self._create_fully_connected_circles_matrix(
+                    con_type_data, self.social_circles_by_connection_type[con_type], current_depth
+                )
+            elif con_type in Random_Clustered_types:
+                self._create_scale_free_graph(
+                    con_type_data, self.social_circles_by_connection_type[con_type], current_depth
+                )
+            elif con_type in Geographic_Clustered_types:
+                self._create_randomly_connected_layer(
+                    con_type_data, self.social_circles_by_connection_type[con_type], current_depth
+                )
 
-            for con_type, con_type_data in self.connection_types_data.items():
-                if con_type in Connect_To_All_types:
-                    self._create_fully_connected_circles_matrix(
-                        con_type_data, self.social_circles_by_connection_type[con_type], current_depth
-                    )
-                elif con_type in Random_Clustered_types:
-                    self._create_scale_free_graph(
-                        con_type_data, self.social_circles_by_connection_type[con_type], current_depth
-                    )
-                elif con_type in Geographic_Clustered_types:
-                    self._create_randomly_connected_layer(
-                        con_type_data, self.social_circles_by_connection_type[con_type], current_depth
-                    )
-                current_depth += 1
+        with self.matrix.lock_rebuild():
+            for depth, index, conns, v in self.matrix_assignment_data:
+                self.matrix[depth, index, conns] = v
 
         # current patch since matrix is un-serializable
         self.matrix_data.matrix_type = "parasymbolic"
@@ -180,6 +188,9 @@ class MatrixGenerator:
         # we need to remember the strengths so the connection will be symmetric
         known_strengths = {}
         for agent, conns in zip(self.agents, connections):
+            if len(conns) == 0:
+                continue
+
             conns = np.array(conns)
             conns.sort()
 
@@ -202,9 +213,8 @@ class MatrixGenerator:
                     self.connection_data.connected_ids_by_strength[agent.index][
                         con_type_data.connection_type].weekly_connections.add(conn)
 
-
             v = np.full_like(conns, strengthes, dtype=np.float32)
-            self.matrix[depth, agent.index, conns] = v
+            self.matrix_assignment_data.append(MatrixAssignmentData(depth, agent.index, conns, v.copy()))
 
     def _create_fully_connected_circles_matrix(self, con_type_data: ConnectionTypeData, circles: List[SocialCircle],
                                                depth):
@@ -213,13 +223,17 @@ class MatrixGenerator:
             return
 
         for circle in circles:
+            if circle.agent_count <= 1:
+                # An empty circle (shouldn't happen) or a single-agent circle (there isn't any meaning to the
+                # connection strength between an agent to itself)
+                continue
             ids = np.array([a.index for a in circle.agents])
 
             vals = np.full_like(ids, connection_strength, dtype=np.float32)
             for i, agent in enumerate(circle.agents):
                 temp = vals[i]
                 vals[i] = 0
-                self.matrix[depth, int(agent.index), ids] = vals
+                self.matrix_assignment_data.append(MatrixAssignmentData(depth, int(agent.index), ids, vals.copy()))
                 vals[i] = temp
                 self.connection_data.connected_ids_by_strength[agent.index][
                     con_type_data.connection_type].daily_connections.update(set(ids))
@@ -299,7 +313,7 @@ class MatrixGenerator:
 
         # adding connections between all super small circles
         self._randomly_connect_single_circle(super_small_circles_combined, connections,
-                                        con_type_data.total_connections_amount)
+                                             con_type_data.total_connections_amount)
 
         # insert connections to matrix
         self._add_layer(con_type_data, connections, depth)
