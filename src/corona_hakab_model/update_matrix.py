@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Iterable, TYPE_CHECKING
+from typing import Iterable, TYPE_CHECKING
 
 import numpy as np
 
@@ -92,8 +92,8 @@ class UpdateMatrixManager:
 
     def reset_policies_by_connection_type(self, connection_type, agents_ids_to_reset=None):
         if agents_ids_to_reset is None:
-            agents_ids_to_rest = list(range(self.size))
-        for i in agents_ids_to_rest:
+            agents_ids_to_reset = list(range(self.size))
+        for i in agents_ids_to_reset:
             if self.manager.agents_in_isolation[i] != IsolationTypes.NONE:
                 self.reset_agent(connection_type, i)
             else:  # When out of isolation, the policy is not applied on him.
@@ -141,8 +141,13 @@ class UpdateMatrixManager:
         return activating_policy, affected_circles
 
     def change_agent_relations_by_factor(self, agent, factor):
-        for connection_type in ConnectionTypes:
-            self.factor_agent(agent.index, connection_type, factor)
+        try:
+            float(factor)  # If the input is a number, we create dict with the factor
+            factor = {connection: factor for connection in ConnectionTypes}
+        except:  # If they do not succeed, proceed
+            pass
+        for connection_type, connection_factor in factor.items():
+            self.factor_agent(agent.index, connection_type, connection_factor)
 
     def validate_matrix(self):
         submatrixes_rows_nonzero_columns = self.matrix.non_zero_columns()
