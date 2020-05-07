@@ -12,11 +12,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-import bsa.parasym
-import bsa.scipy_sparse
-import bsa.universal
-import corona_matrix
-from bsa.scipy_sparse import read_scipy_sparse
 from common.social_circle import SocialCircle
 from generation.circles_generator import PopulationData
 from generation.connection_types import (
@@ -65,63 +60,42 @@ class ConnectionData:
 
 
 class MatrixData:
-    __slots__ = ("matrix_type", "matrix", "depth")
+    # __slots__ = ("matrix", "matrix_assignment_data", "depth", "size")
 
-    # import/export variables
-    IMPORT_MATRIX_PATH = os.path.join(OUTPUT_FOLDER, "matrix_data")
+    def __getstate__(self):
+        return {
+            'matrix_assignment_data': self.matrix_assignment_data,
+            'depth': self.depth,
+            'size': self.size
+        }
 
-    def __init__(self):
-        self.matrix_type = None
-        self.matrix: ParasymbolicMatrix = None
-        self.depth = 0
+    def __init__(self, size, depth, matrix_assignment_data):
+        self.matrix_assignment_data: MatrixAssignmentData = matrix_assignment_data
+        self.depth = depth
+        self.size = size
+        self.matrix = None
+        self.generate_parasymbolic_matrix()
 
-    def import_matrix_data_as_scipy_sparse(self, matrix_data_path):
-        """
-        Import a MatrixData object from file.
-        The matrix is imported as scipy_sparse.
-        """
-        if matrix_data_path is None:
-            matrix_data_path = self.IMPORT_MATRIX_PATH
-        try:
-            with open(matrix_data_path, "rb") as import_file:
-                self.matrix = read_scipy_sparse(import_file)
-            self.matrix_type = "scipy_sparse"
-            self.depth = len(self.matrix)
-        except FileNotFoundError:
-            raise FileNotFoundError("Couldn't open matrix data from {}".format(matrix_data_path))
+    def generate_parasymbolic_matrix(self):
+        self.matrix = ParasymbolicMatrix(self.size, self.depth)
+        with self.matrix.lock_rebuild():
+            for depth, index, conns, v in self.matrix_assignment_data:
+                self.matrix[depth, index, conns] = v
 
-    # todo make this work, using the parasymbolic matrix serialization.
-    def export(self, export_path: str):
-        if not export_path.endswith(self.matrix_type):
-            export_path = export_path + '.' + self.matrix_type
-        with open(export_path, 'wb') as f:
-            bsa.universal.write(self.matrix, f)
+    def export(self, file_name: str):
+        if not file_name.endswith(".pickle"):
+            file_name += ".pickle"
 
-    # todo Add support for other matrix types
+        with open(file_name, 'wb') as f:
+            pickle.dump(self, f)
+
     @staticmethod
     def import_matrix_data(import_file_path: str) -> "MatrixData":
-        matrix_type = os.path.splitext(import_file_path)[1][1:]
-        if matrix_type == 'parasymbolic':
-            with open(import_file_path, 'rb') as f:
-                matrix = bsa.parasym.read_parasym(f)
-        matrix_data = MatrixData()
-        matrix_data.matrix = matrix
-        matrix_data.matrix_type = matrix_type
-        matrix_data.depth = len(ConnectionTypes)  # This seems to essentialy be a constant.
+        with open(import_file_path, "rb") as import_file:
+            matrix_data: MatrixData = pickle.load(import_file)
+            matrix_data.generate_parasymbolic_matrix()
         return matrix_data
 
-    def get_scipy_sparse(self):
-        """
-        A wrapper for getting the scipy_sparse representation of the matrix.
-        It doesn't change the current matrix, but creates a different one.
-        :return: List[scipy.spars.lil_matrix] of #<depth> elements
-        """
-        b = bsa.parasym.write_parasym(self.matrix)
-        b.seek(0)
-        return bsa.scipy_sparse.read_scipy_sparse(b)
-
-
-# todo right now only supports parasymbolic matrix. need to merge with corona matrix class import selector
 
 MatrixAssignmentData = namedtuple('MatrixAssignmentData', ['depth', 'index', 'conns', 'v'])
 
@@ -137,7 +111,6 @@ class MatrixGenerator:
         # initiate everything
         self.matrix_assignment_data = []
         self.logger = logging.getLogger("MatrixGenerator")
-        self.matrix_data = MatrixData()
         self.connection_data = ConnectionData(population_data.agents)
         self.matrix_consts = matrix_consts
         self._unpack_population_data(population_data)
@@ -145,11 +118,6 @@ class MatrixGenerator:
         self.depth = len(ConnectionTypes)
         self.connection_types_data: Dict[ConnectionTypes, ConnectionTypeData] = {
             con_type: matrix_consts.get_connection_type_data(con_type) for con_type in ConnectionTypes}
-
-        # TODO can we remove this? don't think we really support scipy matrices anymore
-        CoronaMatrix = corona_matrix.get_corona_matrix_class(matrix_consts.use_parasymbolic_matrix)
-        self.logger.info("Using CoronaMatrix of type {}".format(CoronaMatrix.__name__))
-        self.matrix = CoronaMatrix(self.size, self.depth)
 
         # create all sub matrices
         # todo switch the depth logic, to get a connection type instead of int depth
@@ -167,14 +135,7 @@ class MatrixGenerator:
                     con_type_data, self.social_circles_by_connection_type[con_type], current_depth
                 )
 
-        with self.matrix.lock_rebuild():
-            for depth, index, conns, v in self.matrix_assignment_data:
-                self.matrix[depth, index, conns] = v
-
-        # current patch since matrix is un-serializable
-        self.matrix_data.matrix_type = "parasymbolic"
-        self.matrix_data.matrix = self.matrix
-        self.matrix_data.depth = self.depth
+        self.matrix_data = MatrixData(self.size, self.depth, self.matrix_assignment_data)
 
     def _unpack_population_data(self, population_data):
         self.agents = population_data.agents
@@ -366,5 +327,5 @@ class MatrixGenerator:
 
             agent_id_pool.difference_update(to_remove)
 
-    def export_matrix_data(self, export_dir=OUTPUT_FOLDER, export_filename='matrix.bsa'):
+    def export_matrix_data(self, export_dir=OUTPUT_FOLDER, export_filename='matrix.pickle'):
         self.matrix_data.export(os.path.join(export_dir, export_filename))
