@@ -53,7 +53,7 @@ class SimulationManager:
         self.random_connections_strength = population_data.random_connections_strength
         self.random_connections_factor = np.ones_like(self.num_of_random_connections, dtype=float)
 
-        self.matrix = matrix_data.matrix
+        self.matrix = matrix_data._matrix
         self.depth = matrix_data.depth
 
         self.run_args = run_args

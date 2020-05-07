@@ -59,8 +59,6 @@ class ConnectionData:
 
 
 class MatrixData:
-    # __slots__ = ("matrix", "matrix_assignment_data", "depth", "size")
-
     def __getstate__(self):
         return {
             'matrix_assignment_data': self.matrix_assignment_data,
@@ -72,14 +70,20 @@ class MatrixData:
         self.matrix_assignment_data: MatrixAssignmentData = matrix_assignment_data
         self.depth = depth
         self.size = size
-        self.matrix = None
-        self.generate_parasymbolic_matrix()
+        self._matrix = None  # Lazy evaluated only if needed
+
+    @property
+    def matrix(self):
+        # Lazy evaluation
+        if self._matrix is None:
+            self.generate_parasymbolic_matrix()
+        return self._matrix
 
     def generate_parasymbolic_matrix(self):
-        self.matrix = ParasymbolicMatrix(self.size, self.depth)
-        with self.matrix.lock_rebuild():
+        self._matrix = ParasymbolicMatrix(self.size, self.depth)
+        with self._matrix.lock_rebuild():
             for depth, index, conns, v in self.matrix_assignment_data:
-                self.matrix[depth, index, conns] = v
+                self._matrix[depth, index, conns] = v
 
     def export(self, file_name: str):
         if not file_name.endswith(".pickle"):
