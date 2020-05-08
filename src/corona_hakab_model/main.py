@@ -192,11 +192,11 @@ def run_simulation(args):
             LambdaValueSupervisable("daily infections from ImprovingHealth infector", lambda manager: manager.new_sick_by_infector_medical_state["ImprovingHealth"]),
             LambdaValueSupervisable("daily infections from PreRecovered infector", lambda manager: manager.new_sick_by_infector_medical_state["PreRecovered"]),
             LambdaValueSupervisable("Isolated",
-                                    lambda manager: sum(manager.agents_in_isolation != IsolationTypes.NONE)),
+                                    lambda manager: np.count_nonzero(manager.agents_in_isolation != IsolationTypes.NONE)),
             LambdaValueSupervisable("Isolated Hotel",
-                                    lambda manager: sum(manager.agents_in_isolation == IsolationTypes.HOTEL)),
+                                    lambda manager: np.count_nonzero(manager.agents_in_isolation == IsolationTypes.HOTEL)),
             LambdaValueSupervisable("Isolated Home",
-                                    lambda manager: sum(manager.agents_in_isolation == IsolationTypes.HOME))
+                                    lambda manager: np.count_nonzero(manager.agents_in_isolation == IsolationTypes.HOME))
         ),
         population_data,
         matrix_data,
