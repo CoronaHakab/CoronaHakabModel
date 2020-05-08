@@ -12,6 +12,7 @@ import numpy as np
 from analyzers.fit_to_graph import compare_real_to_simulation
 from analyzers.state_machine_analysis import extract_state_machine_analysis
 from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
+from common.isolation_types import IsolationTypes
 from consts import Consts
 from generation.circles_generator import PopulationData
 from generation.generation_manager import GenerationManger
@@ -190,6 +191,12 @@ def run_simulation(args):
             LambdaValueSupervisable("daily infections from NeedICU infector", lambda manager: manager.new_sick_by_infector_medical_state["NeedICU"]),
             LambdaValueSupervisable("daily infections from ImprovingHealth infector", lambda manager: manager.new_sick_by_infector_medical_state["ImprovingHealth"]),
             LambdaValueSupervisable("daily infections from PreRecovered infector", lambda manager: manager.new_sick_by_infector_medical_state["PreRecovered"]),
+            LambdaValueSupervisable("Isolated",
+                                    lambda manager: sum(manager.agents_in_isolation != IsolationTypes.NONE)),
+            LambdaValueSupervisable("Isolated Hotel",
+                                    lambda manager: sum(manager.agents_in_isolation == IsolationTypes.HOTEL)),
+            LambdaValueSupervisable("Isolated Home",
+                                    lambda manager: sum(manager.agents_in_isolation == IsolationTypes.HOME))
         ),
         population_data,
         matrix_data,
