@@ -15,6 +15,7 @@ from common.state_machine import StochasticState, TerminalState
 from common.util import dist, BucketDict
 
 TransitionProbType = BucketDict[int, Union[float, type(...)]]
+IsolationFactorsType = Dict[IsolationTypes, Dict[ConnectionTypes, float]]
 
 """
 Overview:
