@@ -60,6 +60,7 @@ class ConnectionData:
 
 class MatrixData:
     def __getstate__(self):
+        # The fields that will be pickled (we can't pickle the matrix itself)
         return {
             'matrix_assignment_data': self.matrix_assignment_data,
             'depth': self.depth,
