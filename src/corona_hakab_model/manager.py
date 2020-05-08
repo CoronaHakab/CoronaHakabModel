@@ -260,16 +260,14 @@ class SimulationManager:
                                                            size=sample_size,
                                                            replace=False)
 
-        with self.matrix.lock_rebuild():
-            for agent in np.concatenate((sick_or_symp_will_obey_isolation,
-                                         healthy_will_obey_isolation)):
-                # keep track about who is in isolation and its type
-                current_isolation_type = self.get_isolation_type(agent)
-                isolation_factor = self.consts.isolation_factor[current_isolation_type]
-                self.agents_in_isolation[agent.index] = current_isolation_type
-                self.update_matrix_manager.change_agent_relations_by_factor(agent,
-                                                                            isolation_factor)  # change the matrix
-
+        for agent in np.concatenate((sick_or_symp_will_obey_isolation,
+                                     healthy_will_obey_isolation)):
+            # keep track about who is in isolation and its type
+            current_isolation_type = self.get_isolation_type(agent)
+            isolation_factor = self.consts.isolation_factor[current_isolation_type]
+            self.agents_in_isolation[agent.index] = current_isolation_type
+            self.update_matrix_manager.change_agent_relations_by_factor(agent,
+                                                                        isolation_factor)  # change the matrix
 
     def get_isolation_type(self, agent):  # TODO: not here...
         """
