@@ -2,22 +2,23 @@ import logging
 from collections import defaultdict
 from random import shuffle
 from typing import Callable, Iterable, List, Union
+
 import numpy as np
 
 import infection
 import update_matrix
 from common.agent import SickAgents, InitialAgentsConstraints, Agent
 from common.isolation_types import IsolationTypes
+from common.detection_testing_types import PendingTestResult, PendingTestResults
+from common.state_machine import PendingTransfers
 from consts import Consts
 from detection_model import healthcare
-from common.detection_testing_types import PendingTestResult, PendingTestResults
 from generation.circles_generator import PopulationData
+from generation.connection_types import ConnectionTypes
 from generation.matrix_generator import MatrixData, ConnectionData
 from medical_state_manager import MedicalStateManager
 from policies_manager import PolicyManager
-from common.state_machine import PendingTransfers
 from supervisor import Supervisable, SimulationProgression
-from generation.connection_types import ConnectionTypes
 
 
 class SimulationManager:
@@ -34,12 +35,12 @@ class SimulationManager:
             connection_data: ConnectionData,
             inital_agent_constraints: InitialAgentsConstraints,
             run_args,
-            consts: Consts = Consts(),
-    ):
+            consts: Consts = Consts()):
         # setting logger
         self.logger = logging.getLogger("simulation")
         logging.basicConfig()
-        self.logger.setLevel(logging.INFO)
+        if not run_args.silent:
+            self.logger.setLevel(logging.INFO)
         self.logger.info("Creating a new simulation.")
 
         # unpacking data from generation
@@ -111,18 +112,18 @@ class SimulationManager:
         self.new_sick_counter = 0
         self.new_sick_by_infection_method = {connection_type: 0 for connection_type in ConnectionTypes}
         self.new_sick_by_infector_medical_state = {
-            "Latent": 0,
-            "Latent-Asymp": 0,
-            "Latent-Presymp": 0,
-            "AsymptomaticBegin": 0,
-            "AsymptomaticEnd": 0,
-            "Pre-Symptomatic": 0,
-            "Mild-Condition-Begin": 0,
-            "Mild-Condition-End": 0,
-            "NeedOfCloseMedicalCare": 0,
-            "NeedICU": 0,
-            "ImprovingHealth": 0,
-            "PreRecovered": 0
+                "Latent": 0,
+                "Latent-Asymp": 0,
+                "Latent-Presymp": 0,
+                "AsymptomaticBegin": 0,
+                "AsymptomaticEnd": 0,
+                "Pre-Symptomatic": 0,
+                "Mild-Condition-Begin": 0,
+                "Mild-Condition-End": 0,
+                "NeedOfCloseMedicalCare": 0,
+                "NeedICU": 0,
+                "ImprovingHealth": 0,
+                "PreRecovered": 0
         }
         self.new_detected_daily = 0
 

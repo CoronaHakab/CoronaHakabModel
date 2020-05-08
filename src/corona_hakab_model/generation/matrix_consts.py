@@ -127,6 +127,22 @@ class ConnectionTypeData:
 
         return np.random.choice([math.floor(total_connections), math.ceil(total_connections)], size=shape, p=[floor_prob, ceil_prob])
 
+    def get_scale_free_connections_amount(self, shape: int) -> np.ndarray:
+        """returns the total amount of connections for the given type
+        randomly chooses between floor and ceil such that the average will be correct
+        raises an error if daily or weekly connections amount is undefined"""
+
+        assert self.daily_connections_amount is not None and self.weekly_connections_amount is not None, \
+            "rolled daily or weekly connection on a type without daily or weekly connections"
+        total_connections = self.total_connections_amount / 2
+        if total_connections % 1 == 0:
+            return np.array([int(total_connections)] * shape)
+
+        floor_prob = math.ceil(total_connections) - total_connections
+        ceil_prob = total_connections - math.floor(total_connections)
+
+        return np.random.choice([math.floor(total_connections), math.ceil(total_connections)], size=shape, p=[floor_prob, ceil_prob])
+
     @property
     def total_connections_amount(self) -> float:
         assert self.daily_connections_amount is not None and self.weekly_connections_amount is not None, \
