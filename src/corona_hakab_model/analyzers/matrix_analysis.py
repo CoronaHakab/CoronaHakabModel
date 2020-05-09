@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 from pathlib import Path
 import numpy as np
 import csv
+from scipy.sparse import lil_matrix
 
 from generation.matrix_generator import MatrixData
 from generation.connection_types import ConnectionTypes
@@ -19,32 +20,29 @@ EXPORT_HISTOGRAM_DIR = Path(project_structure.OUTPUT_FOLDER / "matrix_analysis" 
 EXPORT_MATRIX_DIR = Path(project_structure.OUTPUT_FOLDER / "matrix_analysis" / "raw_matrices")
 
 
-def import_matrix_data(matrix_data_path):
-    matrix_data = MatrixData()
-    matrix_data.import_matrix_data_as_scipy_sparse(matrix_data_path)
-    matrix_data = convert_to_csr(matrix_data)
-    return matrix_data
+def import_matrix_as_csr(matrix_data_path):
+    matrix_data = MatrixData.import_matrix_data(matrix_data_path, keep_matrix_lazy_evaluated=True)
+
+    # Fill the data into lil_matrix because it's faster for assignments than csr
+    lil_matrices = [lil_matrix((matrix_data.size, matrix_data.size)) for _ in range(matrix_data.depth)]
+    for depth, index, conns, vals in matrix_data.matrix_assignment_data:
+        lil_matrices[depth][index, conns] = vals
+
+    # Convert lil_matrix to csr_matrix because it's easier to work with
+    csr_matrices = [lil.tocsr() for lil in lil_matrices]
+
+    return csr_matrices
 
 
-def convert_to_csr(matrix_data):
-    """
-    Convert lil_matrix to csr_matrix because it's easier to work with.
-    """
-    for index in range(matrix_data.depth):
-        matrix_data.matrix[index] = matrix_data.matrix[index].tocsr()
-    return matrix_data
-
-
-def export_raw_matrices_to_csv(matrix_data):
+def export_raw_matrices_to_csv(matrices):
     """
     Run over all types of connections and export each of them to a csv file
     """
-    for connection_type in range(matrix_data.depth):
-        conn_matrix = matrix_data.matrix[connection_type]
-        conn_name = ConnectionTypes(connection_type).name
+    for layer_ind, conn_matrix in enumerate(matrices):
+        conn_name = ConnectionTypes(layer_ind).name
         export_matrix_to_csv(conn_matrix, conn_name)
     # all connections combined
-    conn_matrix = sum(matrix_data.matrix)
+    conn_matrix = sum(matrices)
     export_matrix_to_csv(conn_matrix, 'All')
 
 
@@ -62,18 +60,17 @@ def export_matrix_to_csv(connection_matrix, conn_name):
         csv_writer.writerows([headers] + connections)
 
 
-def analyze_histograms(matrix_data):
+def analyze_histograms(matrices):
     """
     Run over all types of connections and analyze the connection histogram
     """
     histograms = []
     # analyze each connection type
-    for connection_type in range(matrix_data.depth):
-        connection_matrix = matrix_data.matrix[connection_type]
-        conn_name = ConnectionTypes(connection_type).name
+    for layer_ind, connection_matrix in enumerate(matrices):
+        conn_name = ConnectionTypes(layer_ind).name
         histograms.append(analyze_connection_histogram(connection_matrix, conn_name))
     # analyze all connection combined
-    connection_matrix = sum(matrix_data.matrix)
+    connection_matrix = sum(matrices)
     histograms.append(analyze_connection_histogram(connection_matrix, 'All'))
     return histograms
 
@@ -136,9 +133,9 @@ def main():
                         help="Show histograms")
     args = parser.parse_args()
 
-    matrix_data = import_matrix_data(args.matrix_path)
-    export_raw_matrices_to_csv(matrix_data)
-    histograms = analyze_histograms(matrix_data)
+    matrices = import_matrix_as_csr(args.matrix_path)
+    export_raw_matrices_to_csv(matrices)
+    histograms = analyze_histograms(matrices)
     export_histograms(histograms)
     save_histogram_plots(histograms)
     if args.show:
