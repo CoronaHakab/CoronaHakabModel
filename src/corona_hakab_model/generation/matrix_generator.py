@@ -94,10 +94,11 @@ class MatrixData:
             pickle.dump(self, f)
 
     @staticmethod
-    def import_matrix_data(import_file_path: str) -> "MatrixData":
+    def import_matrix_data(import_file_path: str, keep_matrix_lazy_evaluated=False) -> "MatrixData":
         with open(import_file_path, "rb") as import_file:
             matrix_data: MatrixData = pickle.load(import_file)
-            matrix_data.generate_parasymbolic_matrix()
+            if not keep_matrix_lazy_evaluated:
+                matrix_data.generate_parasymbolic_matrix()
         return matrix_data
 
 
