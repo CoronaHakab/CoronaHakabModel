@@ -137,15 +137,15 @@ class Consts(NamedTuple):
     pre_symptomatic_infection_ratio: BucketDict[int, int] = BucketDict({0: [0.14, 0.86, 1]})  # if x greater than biggest key, x is biggest key
     asymptomatic_begin_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0.14, 0.86, 1, 0.82, 0.59, 0.41, 0.27, 0.18, 0.14, 0.09, 0.05]})
     mild_condition_begin_infection_ratio: BucketDict[int, int] = BucketDict({0: [0.82, 0.59, 0.41, 0.27, 0.18, 0.14, 0.09, 0.05]})
-    latent_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
-    mild_condition_end_infection_ratio: BucketDict[int, int] = BucketDict({0: []})
-    latent_presymp_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
-    latent_asymp_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
-    asymptomatic_end_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
-    need_close_medical_care_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
-    need_icu_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
-    improving_health_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
-    pre_recovered_infection_ratio:  BucketDict[int, int] = BucketDict({0: []})
+    latent_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
+    mild_condition_end_infection_ratio: BucketDict[int, int] = BucketDict({0: [0]})
+    latent_presymp_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
+    latent_asymp_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
+    asymptomatic_end_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
+    need_close_medical_care_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
+    need_icu_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
+    improving_health_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
+    pre_recovered_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
     # base r0 of the disease
     r0: float = 2.4
 
