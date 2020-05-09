@@ -103,7 +103,7 @@ class SimulationManager:
         self.policy_manager = PolicyManager(self)
 
         self.current_step = 0
-
+        self.agents_with_symptoms = set()
         # initializing data for supervising
         # dict(day:int -> message:string) saving policies messages
         self.policies_messages = defaultdict(str)
@@ -126,6 +126,7 @@ class SimulationManager:
                 "PreRecovered": 0
         }
         self.new_detected_daily = 0
+        self.new_agents_with_symptoms = set()
 
         self.logger.info("Created new simulation.")
         self.simulation_progression.snapshot(self)
@@ -134,8 +135,9 @@ class SimulationManager:
         """
         run one step
         """
-        # checks if there is a policy to active.
+        self.new_agents_with_symptoms.clear()
 
+        # checks if there is a policy to active.
         self.policy_manager.perform_policies()
 
         # run tests
@@ -206,6 +208,11 @@ class SimulationManager:
             # Isolate the agent
             self.step_to_isolate_agent[agent_index] = self.current_step + self.consts.isolate_after_num_day
 
+        # Isolating symptomatic agents
+        for agent in self.new_agents_with_symptoms:
+            # If is not getting ready to be isolated, or isolated already, then isolate
+            if self.step_to_isolate_agent[agent_index] < self.current_step:
+                self.step_to_isolate_agent[agent.index] = self.current_step + self.consts.isolate_after_num_day
         # TODO: Remove healthy agents from isolation?
         self.isolate_agents()
 

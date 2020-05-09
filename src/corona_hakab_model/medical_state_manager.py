@@ -60,7 +60,9 @@ class MedicalStateManager:
                 agent.medical_state = destination
             changed_state_introduced[destination].append(agent)
             changed_state_leaving[origin].append(agent)
-
+            if destination.has_symptoms and not origin.has_symptoms:
+                if self.manager:
+                    self.manager.new_agents_with_symptoms.add(agent)
         for state, agents in changed_state_introduced.items():
             state.add_many(agents)
             self.pending_transfers.extend(state.transfer(agents))
