@@ -31,6 +31,7 @@ def dist(*args):
         return const_dist(*args)
     if len(args) == 2:
         if type(args[0]) == list and type(args[1]) == list:
+            assert len(args[0]) == len(args[1]), f"Elements and weights vectors should be in same size! (elements: {len(args[0])}, weights: {len(args[1])})"
             return weighted_dist(*args)
         else:
             return uniform_dist(*args)

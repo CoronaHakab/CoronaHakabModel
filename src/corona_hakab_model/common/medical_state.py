@@ -19,7 +19,7 @@ class SusceptibleState(MedicalState, ABC):
         super().__init__(*args, **kwargs)
         self.test_willingness = test_willingness
 
-        self.contagiousness = BucketDict()
+        self.contagiousness = BucketDict({0:[0]})
 
     susceptible = True
     detectable = False
@@ -42,4 +42,4 @@ class ImmuneState(MedicalState, ABC):
         super().__init__(*args, **kwargs)
         self.test_willingness = test_willingness
         self.detectable = detectable
-        self.contagiousness = BucketDict()
+        self.contagiousness = BucketDict({0:[0]})
