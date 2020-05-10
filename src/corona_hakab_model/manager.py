@@ -167,7 +167,9 @@ class SimulationManager:
                                 (self.date_of_last_test == self.current_step)
         detected_positive_to_isolate = detected_positive_now & (self.agents_in_isolation == IsolationTypes.NONE)
         detected_positive_indices = np.nonzero(detected_positive_to_isolate)[0]
-        for agent_index in detected_positive_indices:
+        days_to_enter_isolation = self.consts.isolate_after_num_day(size=len(detected_positive_indices))
+        for agent_index, steps_to_isolate in \
+                zip(detected_positive_indices, days_to_enter_isolation):
             # Get number of days agent is isolated
             if self.agents_in_isolation[agent_index] != IsolationTypes.NONE:
                 # TODO: Need to take into account when got out of isolation also
@@ -177,13 +179,16 @@ class SimulationManager:
                 number_of_days_isolated = 0
             weekly_connection_isolation_ratio = 1 - min(number_of_days_isolated / 7, 1)
             for connected_agents in self.connection_data.connected_ids_by_strength[agent_index].values():
-                for daily_agent_id in connected_agents.daily_connections:  # All of this need to be home isolated
-                    # If were not isolated, and not sick, needs to
+                daily_steps_to_isolate = self.consts.isolate_after_num_day(size=len(connected_agents.daily_connections))
+                # All of this need to be home isolated
+                for daily_agent_id, daily_days_to_isolate in \
+                        zip(connected_agents.daily_connections, daily_steps_to_isolate):
+                    # If were not isolated, and not tested positive now, needs to isolate
                     if self.agents_in_isolation[daily_agent_id] == IsolationTypes.NONE and \
                             not self.tested_positive_vector[daily_agent_id]:
                         if self.step_to_isolate_agent[daily_agent_id] < self.current_step:
                             self.step_to_isolate_agent[daily_agent_id] = self.current_step + \
-                                                                         self.consts.isolate_after_num_day
+                                                                         daily_days_to_isolate
                 agents_to_iterate = list(filter(lambda index: (self.agents_in_isolation[index] == IsolationTypes.NONE)
                                                               and not self.tested_positive_vector[index],
                                                 connected_agents.weekly_connections))
@@ -191,16 +196,14 @@ class SimulationManager:
                 shuffle(agents_to_iterate)
                 agents_to_iterate.sort(key=lambda index: self.agents[index] in non_sick_agents, reverse=True)
                 how_many_to_isolate = round(len(agents_to_iterate) * weekly_connection_isolation_ratio)
-                j = 0
+                weekly_steps_to_isolate = self.consts.isolate_after_num_day(size=how_many_to_isolate)
                 for i in range(how_many_to_isolate):
                     # If already about to get isolated, do not update it
                     if self.step_to_isolate_agent[agents_to_iterate[i]] > self.current_step:
                         continue
-                    self.step_to_isolate_agent[agents_to_iterate[i]] = self.current_step + \
-                                                                       self.consts.isolate_after_num_day
-                    j += 1
+                    self.step_to_isolate_agent[agents_to_iterate[i]] = self.current_step + weekly_steps_to_isolate[i]
             # Isolate the agent
-            self.step_to_isolate_agent[agent_index] = self.current_step + self.consts.isolate_after_num_day
+            self.step_to_isolate_agent[agent_index] = self.current_step + steps_to_isolate
 
         # Isolating symptomatic agents
         for agent in self.new_agents_with_symptoms:
@@ -209,7 +212,6 @@ class SimulationManager:
                 self.step_to_isolate_agent[agent.index] = self.current_step + self.consts.isolate_after_num_day
         # TODO: Remove healthy agents from isolation?
         self.isolate_agents()
-
 
     def get_isolation_groups_by_reason(self, agent_to_group):
         tested_positive = list()

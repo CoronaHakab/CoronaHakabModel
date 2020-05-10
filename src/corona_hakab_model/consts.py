@@ -129,7 +129,8 @@ class Consts(NamedTuple):
     pre_recovered_to_recovered_prob:  TransitionProbType = BucketDict({0: ...})
     asymptomatic_end_to_recovered_prob:  TransitionProbType = BucketDict({0: ...})
     # infections ratios, See bucket dict for more info on how to use.
-    pre_symptomatic_infection_ratio: BucketDict[int, int] = BucketDict({0: 1})  # if x greater than biggest key, x is biggest key
+    # if x greater than biggest key, x is biggest key
+    pre_symptomatic_infection_ratio: BucketDict[int, int] = BucketDict({0: 1})
     asymptomatic_begin_infection_ratio:  BucketDict[int, int] = BucketDict({0: 1})
     mild_condition_begin_infection_ratio: BucketDict[int, int] = BucketDict({0: 0.66})
     latent_infection_ratio:  BucketDict[int, int] = BucketDict({0: 0})
@@ -219,8 +220,8 @@ class Consts(NamedTuple):
                     lambda agent: agent.medical_state.name == "Recovered"),
             ]),
     ]
-    should_isolate_positive_detected: bool = False
-    isolate_after_num_day: int = 1  # will be in isolation the next day.
+    should_isolate_positive_detected: bool = True
+    isolate_after_num_day: int = dist(1, 3)  # Isolated today, tomorrow or in 2 days
     sick_to_p_obey_isolation: Dict[bool, float] = {
         True: 1.0,  # 100% sick will obey the isolation.
         False: .95  # If not sick, 95% to obey isolation
