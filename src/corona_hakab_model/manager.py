@@ -84,7 +84,6 @@ class SimulationManager:
                                            dtype=IsolationTypes)
         self.agents_connections_coeffs = np.ones(shape=(len(self.agents), self.depth))
         self.date_of_last_test = np.zeros(len(self.agents), dtype=int)
-        self.pending_test_results = PendingTestResults()
         self.step_to_isolate_agent = np.full(len(self.agents), -1, dtype=int)  # full of null step
         # initializing agents to current simulation
         for agent in self.agents:
@@ -125,7 +124,6 @@ class SimulationManager:
                 "ImprovingHealth": 0,
                 "PreRecovered": 0
         }
-        self.new_detected_daily = 0
         self.new_agents_with_symptoms = set()
 
         self.logger.info("Created new simulation.")
@@ -140,11 +138,7 @@ class SimulationManager:
         # checks if there is a policy to active.
         self.policy_manager.perform_policies()
 
-        # run tests
-        new_tests = self.healthcare_manager.testing_step()
-
-        # progress tests and isolate the detected agents (update the matrix)
-        self.progress_tests(new_tests)
+        self.healthcare_manager.step()
 
         if self.consts.should_isolate_positive_detected:
             self.progress_isolations()
@@ -216,16 +210,6 @@ class SimulationManager:
         # TODO: Remove healthy agents from isolation?
         self.isolate_agents()
 
-    def progress_tests(self, new_tests: List[PendingTestResult]):
-        self.new_detected_daily = 0
-        new_results = self.pending_test_results.advance()
-        for agent, test_result, _ in new_results:
-            self.new_detected_daily += test_result
-            agent.set_test_result(test_result)
-
-        for new_test in new_tests:
-            new_test.agent.set_test_start()
-            self.pending_test_results.append(new_test)
 
     def get_isolation_groups_by_reason(self, agent_to_group):
         tested_positive = list()

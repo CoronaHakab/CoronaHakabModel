@@ -437,7 +437,7 @@ class Consts(NamedTuple):
         pre_recovered = ContagiousStochasticState(
             self.PRE_RECOVERED,
             detectable=True,
-            has_symptoms=True,
+            has_symptoms=False,
             contagiousness=self.pre_recovered_infection_ratio,
             test_willingness=self.pre_recovered_test_willingness
         )
