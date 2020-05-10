@@ -92,10 +92,11 @@ class HealthcareManager:
         return num_of_tests
 
     def progress_tests(self, new_tests: List[PendingTestResult]):
-        self.new_detected_daily = 0
+        self.new_detected_daily = set()
         new_results = self.pending_test_results.advance()
         for agent, test_result, _ in new_results:
-            self.new_detected_daily += test_result
+            if test_result:
+                self.new_detected_daily.add(agent.index)
             agent.set_test_result(test_result)
 
         for new_test in new_tests:
