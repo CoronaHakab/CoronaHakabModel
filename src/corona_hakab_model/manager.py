@@ -191,7 +191,7 @@ class SimulationManager:
                                                               and not self.tested_positive_vector[index],
                                                 connected_agents.weekly_connections))
                 non_sick_agents = self.medical_machine.default_state_upon_infection.agents
-                # We want to select which agents to remove randomly
+                # We want to select which agents to isolate randomly. Starting with sick ones.
                 shuffle(agents_to_iterate)
                 # We want to first remove agents that are sick
                 agents_to_iterate.sort(key=lambda index: self.agents[index] in non_sick_agents, reverse=True)
