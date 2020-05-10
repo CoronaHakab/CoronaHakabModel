@@ -221,7 +221,7 @@ class Consts(NamedTuple):
             ]),
     ]
     should_isolate_positive_detected: bool = True
-    isolate_after_num_day: int = dist(1, 3)  # Isolated today, tomorrow or in 2 days
+    step_to_isolate_dist: Callable = dist(1, 3)  # Isolated today, tomorrow or in 2 days
     sick_to_p_obey_isolation: Dict[bool, float] = {
         True: 1.0,  # 100% sick will obey the isolation.
         False: .95  # If not sick, 95% to obey isolation

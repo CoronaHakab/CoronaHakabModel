@@ -164,9 +164,8 @@ class SimulationManager:
     def progress_isolations(self):
         detected_positive_now = self.tested_positive_vector & \
                                 (self.date_of_last_test == self.current_step)
-        detected_positive_to_isolate = detected_positive_now & (self.agents_in_isolation == IsolationTypes.NONE)
-        detected_positive_indices = np.nonzero(detected_positive_to_isolate)[0]
-        days_to_enter_isolation = self.consts.isolate_after_num_day(size=len(detected_positive_indices))
+        detected_positive_indices = np.flatnonzero(detected_positive_now)
+        days_to_enter_isolation = self.consts.step_to_isolate_dist(size=len(detected_positive_indices))
         for agent_index, steps_to_isolate in \
                 zip(detected_positive_indices, days_to_enter_isolation):
             # Get number of days agent is isolated
@@ -178,7 +177,7 @@ class SimulationManager:
                 number_of_days_isolated = 0
             weekly_connection_isolation_ratio = 1 - min(number_of_days_isolated / 7, 1)
             for connected_agents in self.connection_data.connected_ids_by_strength[agent_index].values():
-                daily_steps_to_isolate = self.consts.isolate_after_num_day(size=len(connected_agents.daily_connections))
+                daily_steps_to_isolate = self.consts.step_to_isolate_dist(size=len(connected_agents.daily_connections))
                 # All of this need to be home isolated
                 for daily_agent_id, daily_days_to_isolate in \
                         zip(connected_agents.daily_connections, daily_steps_to_isolate):
@@ -192,10 +191,12 @@ class SimulationManager:
                                                               and not self.tested_positive_vector[index],
                                                 connected_agents.weekly_connections))
                 non_sick_agents = self.medical_machine.default_state_upon_infection.agents
+                # We want to select which agents to remove randomly
                 shuffle(agents_to_iterate)
+                # We want to first remove agents that are sick
                 agents_to_iterate.sort(key=lambda index: self.agents[index] in non_sick_agents, reverse=True)
-                how_many_to_isolate = round(len(agents_to_iterate) * weekly_connection_isolation_ratio)
-                weekly_steps_to_isolate = self.consts.isolate_after_num_day(size=how_many_to_isolate)
+                how_many_to_isolate = int(round(len(agents_to_iterate) * weekly_connection_isolation_ratio))
+                weekly_steps_to_isolate = self.consts.step_to_isolate_dist(size=how_many_to_isolate)
                 for i in range(how_many_to_isolate):
                     # If already about to get isolated, do not update it
                     if self.step_to_isolate_agent[agents_to_iterate[i]] > self.current_step:
@@ -208,7 +209,7 @@ class SimulationManager:
         for agent in self.new_agents_with_symptoms:
             # If is not getting ready to be isolated, or isolated already, then isolate
             if self.step_to_isolate_agent[agent_index] < self.current_step:
-                self.step_to_isolate_agent[agent.index] = self.current_step + self.consts.isolate_after_num_day
+                self.step_to_isolate_agent[agent.index] = self.current_step + self.consts.step_to_isolate_dist
         # TODO: Remove healthy agents from isolation?
         self.isolate_agents()
 
