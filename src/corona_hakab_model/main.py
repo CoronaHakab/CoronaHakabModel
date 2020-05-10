@@ -227,9 +227,9 @@ def set_seeds(seed=0):
 
 
 def analyze_matrix(args):
-    matrix_data = matrix_analysis.import_matrix_data(args.matrix_path)
-    matrix_analysis.export_raw_matrices_to_csv(matrix_data)
-    histograms = matrix_analysis.analyze_histograms(matrix_data)
+    matrices = matrix_analysis.import_matrix_as_csr(args.matrix_path)
+    matrix_analysis.export_raw_matrices_to_csv(matrices)
+    histograms = matrix_analysis.analyze_histograms(matrices)
     matrix_analysis.export_histograms(histograms)
     matrix_analysis.save_histogram_plots(histograms)
     if args.show:

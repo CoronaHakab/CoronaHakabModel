@@ -23,7 +23,6 @@ class UpdateMatrixManager:
         self.manager = manager
         # unpacking commonly used information from manager
         self.matrix = manager.matrix
-        self.matrix_type = manager.matrix_type
         self.depth = manager.depth
         self.logger = manager.logger
         self.consts = manager.consts

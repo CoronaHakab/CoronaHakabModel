@@ -61,7 +61,7 @@ def get_simulation_args_parser():
                      help='Previously exported population data file to use in the simulation')
     sim.add_argument('--matrix-data',
                      dest='matrix_data',
-                     default=OUTPUT_FOLDER / 'matrix_data.parasymbolic',
+                     default=OUTPUT_FOLDER / 'matrix_data.pickle',
                      help='Previously exported matrix data file to use in the simulation')
     sim.add_argument('--connection_data',
                      dest='connection_data',
