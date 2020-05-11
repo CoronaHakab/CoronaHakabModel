@@ -67,8 +67,6 @@ class Consts(NamedTuple):
     latent_to_latent_asymp_begin_days: BucketDict[int, Callable] = BucketDict({0: dist(1)})
     latent_to_latent_presymp_begin_days: BucketDict[int, Callable] = BucketDict({0: dist(1)})
 
-    # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10],
-    # [0.022,0.052,0.082,0.158,0.234,0.158,0.152,0.082,0.04,0.02]))
     latent_asym_to_asymptomatic_begin_days: BucketDict[int, Callable] = BucketDict({0: dist(1, 3, 10)})
     # latent_asym_to_asymptomatic_begin_days: BucketDict[int, Callable] = BucketDict({
     #     0: dist(
@@ -77,40 +75,68 @@ class Consts(NamedTuple):
     #     )
     # })
 
-    # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11],
-    # [0.02,0.05,0.08,0.15,0.22,0.15,0.15,0.08,0.05,0.03,0.02]))
-    asymptomatic_begin_to_asymptomatic_end_days: BucketDict[int, Callable] = BucketDict({0: dist(1, 3, 5)})
-    pre_symptomatic_to_mild_condition_begin_days: BucketDict[int, Callable] = BucketDict({0: dist(1, 3)})
+    asymptomatic_begin_to_asymptomatic_end_days: BucketDict[int, Callable] = BucketDict({0: dist(
+        list(range(1, 14)),
+        [0.083, 0.13325, 0.16925, 0.169, 0.144, 0.10675, 0.0725, 0.04675, 0.02925, 0.021, 0.01275, 0.00775, 0.00475]
+    )})
+
+    pre_symptomatic_to_mild_condition_begin_days: BucketDict[int, Callable] = BucketDict({0: dist(
+        [(0, 3), (1, 2), (2, 1), (3, 0)],
+        [0.25] * 4)
+    })
+
     mild_condition_begin_to_mild_condition_end_days: BucketDict[int, Callable] = BucketDict({0: dist(1, 3, 5)})
-    mild_end_to_close_medical_care_days: BucketDict[int, Callable] = BucketDict({0: dist(1, 8)})
-    # Actual distribution: rv_discrete(values=([3,4,5,6,7,8,9,10,11,12],
-    # [0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.01]))
-    mild_end_to_need_icu_days: BucketDict[int, Callable] = BucketDict({0: dist(3, 10, 26)})
-    # Actual distribution: rv_discrete(values=([6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29],
-    # [0.012,0.019,0.032,0.046,0.059,0.069,0.076,0.078,0.076,0.072,0.066,0.060,0.053,0.046,0.040,0.035,0.030,0.028,0.026,0.022,0.020,0.015,0.010,0.010]))
-    mild_end_to_pre_recovered_days: BucketDict[int, Callable] = BucketDict({0: dist(1, 13, 23)})
-    # Actual distribution: rv_discrete(values=(
-    # [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28],
-    # [0.001,0.001,0.001,0.001,0.001,0.002,0.004,0.008,0.013,0.022,0.032,0.046,0.06,0.075,0.088,0.097,0.1,0.098,0.088,0.075,0.06,0.046,0.032,0.022,0.013,0.008,0.004,0.002]))
+
+    mild_end_to_close_medical_care_days: BucketDict[int, Callable] = BucketDict({0: dist(
+        list(range(1, 13)),
+        [0, 0, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.01]
+    )})
+
+    mild_end_to_need_icu_days: BucketDict[int, Callable] = BucketDict({0: dist(
+        list(range(1, 31)),
+        [0.000, 0.000, 0.000, 0.000, 0.000, 0.012, 0.019, 0.032, 0.046, 0.059, 0.069, 0.075, 0.077, 0.075, 0.072, 0.066, \
+         0.060, 0.053, 0.046, 0.040, 0.035, 0.030, 0.028, 0.026, 0.022, 0.020, 0.015, 0.010, 0.010, 0.000]
+    )})
+
+    mild_end_to_pre_recovered_days: BucketDict[int, Callable] = BucketDict({0: dist(
+        list(range(1, 29)),
+        [0.001, 0.001, 0.001, 0.001, 0.001, 0.002, 0.004, 0.008, 0.013, 0.022, 0.032, 0.046, 0.06, 0.075, 0.088, 0.097, \
+         0.1, 0.097, 0.088, 0.075, 0.06, 0.046, 0.032, 0.022, 0.013, 0.008, 0.004, 0.002]
+    )})
+
     close_medical_care_to_icu_days: BucketDict[int, Callable] = BucketDict({0: dist(10, 12, 14)})
+
     close_medical_care_to_mild_end_days: BucketDict[int, Callable] = BucketDict({0: dist(8, 10, 12)})
-    need_icu_to_deceased_days: BucketDict[int, Callable] = BucketDict({0: dist(1, 3, 20)})
-    # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
-    # [0.030,0.102,0.126,0.112,0.090,0.080,0.075,0.070,0.065,0.050,0.040,0.035,0.030,0.025,0.020,
-    # 0.015,0.012,0.010,0.008,0.005]))
-    need_icu_to_improving_days: BucketDict[int, Callable] = BucketDict({0: dist(1, 5, 25)})
-    # Actual distribution: rv_discrete(values=([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],
-    # [0.021,0.041,0.081,0.101,0.101,0.081,0.071,0.066,0.061,0.056,0.046,0.041,0.039,0.033,0.031,0.026,0.021,0.016,0.013,0.013,0.011,0.011,0.009,0.005,0.005]))
+
+    need_icu_to_deceased_days: BucketDict[int, Callable] = BucketDict({0: dist(
+        list(range(1, 21)),
+        [0.030, 0.100, 0.120, 0.110, 0.090, 0.080, 0.075, 0.070, 0.065, 0.050, 0.040, 0.035, 0.030, 0.025, 0.020, 0.015, \
+         0.012, 0.010, 0.008, 0.005]
+    )})
+
+    need_icu_to_improving_days: BucketDict[int, Callable] = BucketDict({0: dist(
+        list(range(1, 26)),
+        [0.020, 0.040, 0.080, 0.100, 0.100, 0.080, 0.070, 0.065, 0.060, 0.055, 0.045, 0.040, 0.038, 0.032, 0.030, 0.025, \
+         0.020, 0.015, 0.012, 0.012, 0.010, 0.010, 0.008, 0.005, 0.005]
+    )})
+
     improving_to_need_icu_days: BucketDict[int, Callable] = BucketDict({0: dist(21, 42)})
+
     improving_to_pre_recovered_days: BucketDict[int, Callable] = BucketDict({0: dist(21, 42)})  # TODO: check why so long
+
     improving_to_mild_condition_end_days: BucketDict[int, Callable] = BucketDict({0: dist(21, 42)})
-    pre_recovered_to_recovered_days: BucketDict[int, Callable] = BucketDict({0: dist(14, 28)})
-    # Actual distribution: rv_discrete(values=([14, 28], [0.8, 0.2]))
-    asymptomatic_end_to_recovered_days: BucketDict[int, Callable] = BucketDict({0: dist(10, 18, 35)})
-    # Actual distribution: rv_discrete(values=(
-    # [10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35],
-    # [0.013,0.016,0.025,0.035,0.045,0.053,0.061,0.065,0.069,0.069,0.065,0.063,0.058,0.053,0.056,0.041,0.040,0.033,
-    # 0.030,0.025,0.020,0.015,0.015,0.015,0.010,0.010]))
+
+    pre_recovered_to_recovered_days: BucketDict[int, Callable] = BucketDict({0: dist(
+        [14, 28],
+        [0.8, 0.2]
+    )})
+
+    asymptomatic_end_to_recovered_days: BucketDict[int, Callable] = BucketDict({0: dist(
+        list(range(1, 36)),
+        [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.013, 0.016, 0.025, 0.035, 0.045, 0.054, 0.062, \
+         0.066, 0.069, 0.069, 0.066, 0.063, 0.058, 0.053, 0.056, 0.041, 0.040, 0.033, 0.030, 0.025, 0.020, 0.015, 0.015, 0.015, 0.010, 0.010]
+    )})
+
     # state machine transfer probabilities
     # probability of '...' equals (1 - all other transfers)
     # it should always come last after all other transition probabilities were defined
