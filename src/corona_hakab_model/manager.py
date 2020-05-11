@@ -101,7 +101,6 @@ class SimulationManager:
         self.policy_manager = PolicyManager(self)
 
         self.current_step = 0
-        self.agents_with_symptoms = set()
         # initializing data for supervising
         # dict(day:int -> message:string) saving policies messages
         self.policies_messages = defaultdict(str)
@@ -163,7 +162,7 @@ class SimulationManager:
         # If were positive, and yet to be isolated in a corona or
         # Here we assume that once recovered, you cant return back to isolatio
         detected_positive_indices = [agent for agent in self.healthcare_manager.new_detected_daily
-                                     if self.tested_positive_vector[agent] > 0 ]
+                                     if self.tested_positive_vector[agent] > 0]
         days_to_enter_isolation = self.consts.step_to_isolate_dist(size=len(detected_positive_indices))
         for agent_index, steps_to_isolate in \
                 zip(detected_positive_indices, days_to_enter_isolation):
