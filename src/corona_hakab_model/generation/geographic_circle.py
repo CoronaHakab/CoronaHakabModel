@@ -4,7 +4,8 @@ import numpy as np
 from common.circle import Circle
 from common.social_circle import SocialCircle
 from generation.circles_consts import GeographicalCircleDataHolder
-from generation.connection_types import ConnectionTypes, In_Zone_types, Multi_Zone_types, Education_Types
+from generation.connection_types import ConnectionTypes, In_Zone_types, Multi_Zone_types, Education_Types, \
+    Non_Exclusive_Types
 
 
 class GeographicCircle(Circle):
@@ -62,7 +63,8 @@ class GeographicCircle(Circle):
         # Normalize
         for age in self.data_holder.age_distribution["ages"]:
             if total_prob_of_education_by_age[age] > 0:
-                education_type_probs_by_age[age] = education_type_probs_by_age[age] / total_prob_of_education_by_age[age]
+                education_type_probs_by_age[age] = education_type_probs_by_age[age] / total_prob_of_education_by_age[
+                    age]
 
         for agent, age, is_adult in zip(self.agents, ages, is_adults):
             agent.age = age
@@ -81,7 +83,7 @@ class GeographicCircle(Circle):
                     # TODO: sample many before the loop
                     agent_connection_types.append(education_type)
 
-            for connection_type in ConnectionTypes.Non_Exclusive_Types:
+            for connection_type in Non_Exclusive_Types:
                 if np.random.random() < self.data_holder.connection_types_prob_by_age[age][connection_type]:
                     agent_connection_types.append(connection_type)
 
