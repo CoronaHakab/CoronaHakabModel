@@ -81,10 +81,7 @@ class GeographicCircle(Circle):
                     # TODO: sample many before the loop
                     agent_connection_types.append(education_type)
 
-            # handle other connection types. This single FOR condition contains words "connection" and "type" 9 times
-            for connection_type in [connection_type for connection_type in ConnectionTypes if connection_type not in [
-                ConnectionTypes.School, ConnectionTypes.Work, ConnectionTypes.Kindergarten]]:
-
+            for connection_type in ConnectionTypes.Non_Exclusive_Types:
                 if np.random.random() < self.data_holder.connection_types_prob_by_age[age][connection_type]:
                     agent_connection_types.append(connection_type)
 
