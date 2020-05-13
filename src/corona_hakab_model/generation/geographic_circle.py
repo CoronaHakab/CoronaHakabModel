@@ -26,7 +26,7 @@ class GeographicCircle(Circle):
         self.kind = "geographic circle"
         self.agents = []
         self.data_holder = data_holder
-        self.connection_type_to_agents = {con_type: [] for con_type in ConnectionTypes}
+        self.connection_type_to_agents = {con_type: set() for con_type in ConnectionTypes}
         self.connection_type_to_social_circles = {con_type: [] for con_type in ConnectionTypes}
         self.all_social_circles = []
         self.name = data_holder.name
@@ -88,14 +88,14 @@ class GeographicCircle(Circle):
                     agent_connection_types.append(connection_type)
 
             for connection_type in agent_connection_types:
-                self.connection_type_to_agents[connection_type].append(agent)
+                self.connection_type_to_agents[connection_type].add(agent)
 
     def create_inner_social_circles(self):
         # todo notice that family connection types doesnt notice between ages
         for connection_type in In_Zone_types:
             self.create_social_circles_by_type(connection_type, self.connection_type_to_agents[connection_type])
 
-    def create_social_circles_by_type(self, connection_type: ConnectionTypes, agents_for_type: List["Agent"]):
+    def create_social_circles_by_type(self, connection_type: ConnectionTypes, agents_for_type: set):
         """
         creates social circles of a given connection type, with a given list of agents.
         uses self data holder circle size distribution of the given connection type.
@@ -104,7 +104,6 @@ class GeographicCircle(Circle):
         :param agents_for_type: the agents that will be inserted to the social circles
         :return:
         """
-        np.random.shuffle(agents_for_type)
         # calculate amount of agents for each size group
         # we'll also use size_num_agents to count how many agents were placed in each size group.
         possible_sizes, probs = self.data_holder.circles_size_distribution_by_connection_type[connection_type]
