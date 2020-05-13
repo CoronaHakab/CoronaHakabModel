@@ -139,7 +139,6 @@ class GeographicCircle(Circle):
                 # place adults where needed, non adults elsewhere, where circles need to be populated
                 while len(adults) > 0 and size_num_agents[size] > 0:
                     circle = circles[index % len(circles)]
-                    agent = None
                     # if there are more adults needed, or no more kids, circle gets an adult
                     if circles_adult_number[index % len(circles)] > circle.agent_count or len(non_adults) == 0:
                         agent = adults.pop()
