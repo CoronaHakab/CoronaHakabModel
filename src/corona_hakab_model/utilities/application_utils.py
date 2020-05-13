@@ -1,12 +1,9 @@
 import logging
 import os
 
-from consts import Consts
 from generation.circles_consts import CirclesConsts
 from generation.matrix_consts import MatrixConsts
 from generation.generation_manager import GenerationManger
-from typing import List
-from zipfile import ZipFile
 
 MATRIX_CONSTS_FILE_NAME = "matrix_consts.py"
 CIRCLES_CONSTS_FILE_NAME = "circles_consts.py"
