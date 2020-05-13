@@ -8,7 +8,7 @@ from numpy import nan
 
 from .social_circle import SocialCircleConstraint
 from generation.connection_types import ConnectionTypes
-from .util import parse_str_to_num
+from utilities.util import parse_str_to_num
 
 if TYPE_CHECKING:
     from .medical_state import MedicalState
