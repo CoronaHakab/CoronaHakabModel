@@ -17,7 +17,7 @@ Usage:
 
 
 class CirclesConsts(NamedTuple):
-    population_size: int = 5_000
+    population_size: int = 20_000
     geo_circles_amount: int = 2
     geo_circles: List[Dict] = [
         {
