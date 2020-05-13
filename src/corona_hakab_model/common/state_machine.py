@@ -8,7 +8,7 @@ from typing import Collection, Dict, Generic, Iterable, List, NamedTuple, Option
 import numpy as np
 from .agent import Agent
 from .circle import TrackingCircle
-from utilities.util import Queue, BucketDict
+from .util import Queue, BucketDict
 
 
 class PendingTransfer(NamedTuple):

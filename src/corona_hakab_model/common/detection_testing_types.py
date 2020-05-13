@@ -8,7 +8,7 @@ import numpy as np
 
 from .agent import Agent
 from .medical_state import MedicalState
-from utilities.util import Queue
+from .util import Queue
 
 
 class PendingTestResult(NamedTuple):

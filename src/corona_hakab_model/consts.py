@@ -12,7 +12,7 @@ from common.medical_state import ContagiousState, ImmuneState, SusceptibleState
 from common.medical_state_machine import MedicalStateMachine
 from policies_manager import ConditionedPolicy, Policy
 from common.state_machine import StochasticState, TerminalState
-from utilities.util import dist, BucketDict
+from common.util import dist, BucketDict
 
 TransitionProbType = BucketDict[int, Union[float, type(...)]]
 IsolationFactorsType = Dict[IsolationTypes, Dict[ConnectionTypes, float]]

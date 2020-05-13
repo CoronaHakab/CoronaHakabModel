@@ -11,7 +11,7 @@ import numpy as np
 
 from analyzers.fit_to_graph import compare_real_to_simulation
 from analyzers.state_machine_analysis import extract_state_machine_analysis
-from utilities.application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, \
+from common.application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, \
     make_matrix_consts
 from common.isolation_types import IsolationTypes
 from consts import Consts

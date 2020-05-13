@@ -1,4 +1,4 @@
-from utilities.util import HasDuration, Queue, dist
+from common.util import HasDuration, Queue
 
 
 def test_queue():
