@@ -226,6 +226,11 @@ class Consts(NamedTuple):
         True: 1.0,  # 100% sick will obey the isolation.
         False: .95  # If not sick, 95% to obey isolation
     }
+
+    num_test_to_exit_isolation: int = 1  # Number of tests needed to get out of isolation
+    home_isolation_time_bound: int = 14
+
+    # reduce agent's relations strength by a factor
     isolation_factor: IsolationFactorsType = {
         IsolationTypes.HOME: {
             ConnectionTypes.Family: .8,
