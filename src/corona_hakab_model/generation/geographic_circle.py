@@ -132,7 +132,7 @@ class GeographicCircle(Circle):
             adult_type_distribution = self.data_holder.adult_distributions.get(connection_type)
             if adult_type_distribution:
                 # get random amount of adults for each circle according to distribution
-                circles_adult_number = [adult_type_distribution[size].rvs() for _ in range(amount_of_circles)]
+                circles_adult_number = np.random.choice(**adult_type_distribution[size], size=amount_of_circles)
                 # devide population according to age
                 adults = [agent for agent in agents_for_type if agent.age > 18]
                 non_adults = [agent for agent in agents_for_type if agent.age <= 18]

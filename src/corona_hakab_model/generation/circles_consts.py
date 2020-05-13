@@ -1,10 +1,9 @@
 import os
 from typing import Dict, List, NamedTuple
 import jsonpickle
-from scipy.stats import rv_discrete
 
 from generation.connection_types import ConnectionTypes
-from scipy.stats import randint
+import numpy as np
 
 """
 Overview:
@@ -114,7 +113,6 @@ class CirclesConsts(NamedTuple):
         {ConnectionTypes.Work: {"north": 0.2, "south": 0.8}},
     ]
 
-
     @classmethod
     def from_file(cls, param_path):
         """
@@ -192,7 +190,7 @@ class CirclesConsts(NamedTuple):
                     ConnectionTypes.Work] * geo_circle["teachers_workforce_ratio"]
                 kindergarten_workers += geo_circle["age_prob"][i] * geo_circle[
                     "connection_type_prob_by_age_index"][i][ConnectionTypes.Work] * geo_circle[
-                    "kindergarten_workforce_ratio"]
+                                            "kindergarten_workforce_ratio"]
 
         # teacher to student ratio is the part of the school-going population that are teachers.
         # it is used to calculate how many teachers are needed in each school (according to school size)
@@ -210,18 +208,29 @@ class CirclesConsts(NamedTuple):
         kindergarten_sizes = geo_circle["circle_size_distribution_by_connection_type"][ConnectionTypes.Kindergarten][0]
 
         family_sizes = geo_circle["circle_size_distribution_by_connection_type"][ConnectionTypes.Family][0]
-        family_distributions = {size: randint(1, 2) for size in family_sizes if size == 1}
+
+        def const(value):
+            return {'a': np.array([value])}
+
+        def choices(values, probs):
+            return {'a': values, 'p': probs}
+
+        family_distributions = dict()
+        if 1 in family_sizes:
+            family_distributions[1] = const(1)
+        if 2 in family_sizes:
+            family_distributions[2] = choices([1, 2], [0.2, 0.8])
         family_distributions.update(
-            {size: rv_discrete(1, 2, values=([1, 2], [0.2, 0.8])) for size in family_sizes if size == 2})
-        family_distributions.update(
-            {size: rv_discrete(1, 3, values=([1, 2, 3], [0.1, 0.8, 0.1])) for size in family_sizes if size > 2})
+            {size: choices([1, 2, 3], [0.1, 0.8, 0.1]) for size in family_sizes if size > 2})
         return {
-            ConnectionTypes.School: {school_size: randint(round(school_size * teacher_to_student_ratio),
-                                                          round(school_size * teacher_to_student_ratio) + 1) for
-                                     school_size in school_sizes},
-            ConnectionTypes.Kindergarten: {kindergarten_size: randint(round(
-                kindergarten_size * kindergarten_worker_to_child_ratio), round(
-                kindergarten_size * kindergarten_worker_to_child_ratio)+1) for kindergarten_size in kindergarten_sizes},
+            ConnectionTypes.School: {
+                school_size: const(round(school_size * teacher_to_student_ratio))
+                for school_size in school_sizes
+            },
+            ConnectionTypes.Kindergarten: {
+                kindergarten_size: const(round(kindergarten_size * kindergarten_worker_to_child_ratio))
+                for kindergarten_size in kindergarten_sizes
+            },
             ConnectionTypes.Family: family_distributions
         }
 
