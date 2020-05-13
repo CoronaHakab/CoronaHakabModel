@@ -5,6 +5,7 @@ from typing import Iterable, TYPE_CHECKING
 import numpy as np
 
 from analyzers.state_machine_analysis import monte_carlo_state_machine_analysis
+from common.isolation_types import IsolationTypes
 from common.social_circle import SocialCircle
 from generation.connection_types import ConnectionTypes
 from policies_manager import ConditionedPolicy, Policy
@@ -90,9 +91,9 @@ class UpdateMatrixManager:
 
     def reset_policies_by_connection_type(self, connection_type, agents_ids_to_reset=None):
         if agents_ids_to_reset is None:
-            agents_ids_to_rest = list(range(self.size))
-        for i in agents_ids_to_rest:
-            if not self.manager.agents_in_isolation[i]:
+            agents_ids_to_reset = list(range(self.size))
+        for i in agents_ids_to_reset:
+            if self.manager.agents_in_isolation[i] != IsolationTypes.NONE:
                 self.reset_agent(connection_type, i)
             else:  # When out of isolation, the policy is not applied on him.
                 self.manager.agents_connections_coeffs[i, connection_type] = 1
@@ -134,8 +135,13 @@ class UpdateMatrixManager:
         return affected_circles
 
     def change_agent_relations_by_factor(self, agent, factor):
-        for connection_type in ConnectionTypes:
-            self.factor_agent(agent.index, connection_type, factor)
+        try:
+            float(factor)  # If the input is a number, we create dict with the factor
+            factor = {connection: factor for connection in ConnectionTypes}
+        except:  # If they do not succeed, proceed
+            pass
+        for connection_type, connection_factor in factor.items():
+            self.factor_agent(agent.index, connection_type, connection_factor)
 
     def validate_matrix(self):
         submatrixes_rows_nonzero_columns = self.matrix.non_zero_columns()

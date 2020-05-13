@@ -12,6 +12,7 @@ import numpy as np
 from analyzers.fit_to_graph import compare_real_to_simulation
 from analyzers.state_machine_analysis import extract_state_machine_analysis
 from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
+from common.isolation_types import IsolationTypes
 from consts import Consts
 from generation.circles_generator import PopulationData
 from generation.generation_manager import GenerationManger
@@ -181,15 +182,34 @@ def run_simulation(args):
             LambdaValueSupervisable("daily infections from Latent infector", lambda manager: manager.new_sick_by_infector_medical_state["Latent"]),
             LambdaValueSupervisable("daily infections from Latent-Asymp infector", lambda manager: manager.new_sick_by_infector_medical_state["PreRecovered"]),
             LambdaValueSupervisable("daily infections from Latent-Presymp infector", lambda manager: manager.new_sick_by_infector_medical_state["Latent-Asymp"]),
-            LambdaValueSupervisable("daily infections from AsymptomaticBegin infector", lambda manager: manager.new_sick_by_infector_medical_state["AsymptomaticBegin"]),
-            LambdaValueSupervisable("daily infections from AsymptomaticEnd infector", lambda manager: manager.new_sick_by_infector_medical_state["AsymptomaticEnd"]),
-            LambdaValueSupervisable("daily infections from Pre-Symptomatic infector", lambda manager: manager.new_sick_by_infector_medical_state["Pre-Symptomatic"]),
-            LambdaValueSupervisable("daily infections from Mild-Condition-Begin infector", lambda manager: manager.new_sick_by_infector_medical_state["Mild-Condition-Begin"]),
-            LambdaValueSupervisable("daily infections from Mild-Condition-End infector", lambda manager: manager.new_sick_by_infector_medical_state["Mild-Condition-End"]),
-            LambdaValueSupervisable("daily infections from NeedOfCloseMedicalCare infector", lambda manager: manager.new_sick_by_infector_medical_state["NeedOfCloseMedicalCare"]),
-            LambdaValueSupervisable("daily infections from NeedICU infector", lambda manager: manager.new_sick_by_infector_medical_state["NeedICU"]),
-            LambdaValueSupervisable("daily infections from ImprovingHealth infector", lambda manager: manager.new_sick_by_infector_medical_state["ImprovingHealth"]),
-            LambdaValueSupervisable("daily infections from PreRecovered infector", lambda manager: manager.new_sick_by_infector_medical_state["PreRecovered"]),
+            LambdaValueSupervisable("daily infections from AsymptomaticBegin infector",
+                                    lambda manager: manager.new_sick_by_infector_medical_state["AsymptomaticBegin"]),
+            LambdaValueSupervisable("daily infections from AsymptomaticEnd infector",
+                                    lambda manager: manager.new_sick_by_infector_medical_state["AsymptomaticEnd"]),
+            LambdaValueSupervisable("daily infections from Pre-Symptomatic infector",
+                                    lambda manager: manager.new_sick_by_infector_medical_state["Pre-Symptomatic"]),
+            LambdaValueSupervisable("daily infections from Mild-Condition-Begin infector",
+                                    lambda manager: manager.new_sick_by_infector_medical_state["Mild-Condition-Begin"]),
+            LambdaValueSupervisable("daily infections from Mild-Condition-End infector",
+                                    lambda manager: manager.new_sick_by_infector_medical_state["Mild-Condition-End"]),
+            LambdaValueSupervisable("daily infections from NeedOfCloseMedicalCare infector",
+                                    lambda manager: manager.new_sick_by_infector_medical_state[
+                                        "NeedOfCloseMedicalCare"]),
+            LambdaValueSupervisable("daily infections from NeedICU infector",
+                                    lambda manager: manager.new_sick_by_infector_medical_state["NeedICU"]),
+            LambdaValueSupervisable("daily infections from ImprovingHealth infector",
+                                    lambda manager: manager.new_sick_by_infector_medical_state["ImprovingHealth"]),
+            LambdaValueSupervisable("daily infections from PreRecovered infector",
+                                    lambda manager: manager.new_sick_by_infector_medical_state["PreRecovered"]),
+            LambdaValueSupervisable("Isolated",
+                                    lambda manager: np.count_nonzero(
+                                        manager.agents_in_isolation != IsolationTypes.NONE)),
+            LambdaValueSupervisable("Isolated Hotel",
+                                    lambda manager: np.count_nonzero(
+                                        manager.agents_in_isolation == IsolationTypes.HOTEL)),
+            LambdaValueSupervisable("Isolated Home",
+                                    lambda manager: np.count_nonzero(
+                                        manager.agents_in_isolation == IsolationTypes.HOME))
         ),
         population_data,
         matrix_data,
@@ -206,7 +226,7 @@ def run_simulation(args):
     df.plot()
     if args.figure_path:
         if not os.path.splitext(args.figure_path)[1]:
-            args.figure_path = args.figure_path+'.png'
+            args.figure_path = args.figure_path + '.png'
         plt.savefig(args.figure_path)
 
     if args.show_plot:
