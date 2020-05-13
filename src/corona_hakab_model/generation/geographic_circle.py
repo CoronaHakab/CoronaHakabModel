@@ -1,6 +1,7 @@
-from typing import List
+from typing import List, Set
 
 import numpy as np
+from common.agent import Agent
 from common.circle import Circle
 from common.social_circle import SocialCircle
 from generation.circles_consts import GeographicalCircleDataHolder
@@ -95,7 +96,7 @@ class GeographicCircle(Circle):
         for connection_type in In_Zone_types:
             self.create_social_circles_by_type(connection_type, self.connection_type_to_agents[connection_type])
 
-    def create_social_circles_by_type(self, connection_type: ConnectionTypes, agents_for_type: set):
+    def create_social_circles_by_type(self, connection_type: ConnectionTypes, agents_for_type: Set[Agent]):
         """
         creates social circles of a given connection type, with a given list of agents.
         uses self data holder circle size distribution of the given connection type.
