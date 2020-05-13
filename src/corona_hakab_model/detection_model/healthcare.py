@@ -16,7 +16,7 @@ def _get_current_num_of_tests(current_step, test_location: DetectionSettings):
 
 class HealthcareManager:
 
-    __slots__ = ("manager", "new_detected_daily", "pending_test_results")
+    __slots__ = ("manager", "positive_detected_today", "pending_test_results")
 
     def __init__(self, sim_manager: SimulationManager):
         self.manager = sim_manager
@@ -26,7 +26,7 @@ class HealthcareManager:
                     "The initial number of tests (step=0) wasn't specified in the given schedule: "
                     f"{self.manager.consts.daily_num_of_test_schedule}"
                 )
-        self.new_detected_daily = None
+        self.positive_detected_today = set()
         self.pending_test_results = PendingTestResults()
 
     def _get_testable(self, test_location: DetectionSettings):
@@ -92,11 +92,11 @@ class HealthcareManager:
         return num_of_tests
 
     def progress_tests(self, new_tests: List[PendingTestResult]):
-        self.new_detected_daily = set()
+        self.positive_detected_today.clear()
         new_results = self.pending_test_results.advance()
         for agent, test_result, _ in new_results:
             if test_result:
-                self.new_detected_daily.add(agent.index)
+                self.positive_detected_today.add(agent.index)
             agent.set_test_result(test_result)
 
         for new_test in new_tests:
