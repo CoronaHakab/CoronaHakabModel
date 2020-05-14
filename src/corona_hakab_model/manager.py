@@ -136,7 +136,7 @@ class SimulationManager:
 
         self.healthcare_manager.step()
 
-        if self.consts.should_isolate_positive_detected:
+        if self.consts.day_to_start_isolations <= self.current_step:
             self.progress_isolations()
 
         self.new_sick_by_infection_method = {connection_type: 0 for connection_type in ConnectionTypes}

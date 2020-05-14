@@ -190,10 +190,27 @@
                     lambda agent: agent.medical_state.name == "Recovered"),
             ]),
     ],
-    "should_isolate_positive_detected": False,
+    "day_to_start_isolations": False,
+    "step_to_isolate_dist": dist(1, 3),  # Isolated today, tomorrow or in 2 days
+    "sick_to_p_obey_isolation": {
+        True: 1.0,  # 100% sick will obey the isolation.
+        False: .95  # If not sick, 95% to obey isolation
+    },
     "isolate_after_num_day": 1,  # will be in isolation the next day.
-    "p_will_obey_isolation": 1.0,  # 100% will obey the isolation.
-    "isolation_factor": 0.0,  # reduce agent's relations strength by a factor
+    "isolation_factor": {  # reduce agent's relations strength by a factor
+        IsolationTypes.HOME: {
+            ConnectionTypes.Family: .8,
+            ConnectionTypes.Work: .0,
+            ConnectionTypes.School: .0,
+            ConnectionTypes.Other: .0
+        },
+        IsolationTypes.HOTEL: {
+            ConnectionTypes.Family: .0,
+            ConnectionTypes.Work: .0,
+            ConnectionTypes.School: .0,
+            ConnectionTypes.Other: .0
+        },
+    },
     # --policies params--
     "change_policies": False,
     # a dictionary of day:([ConnectionTypes], message). on each day, keeps only the given connection types opened
