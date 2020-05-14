@@ -57,7 +57,7 @@ class HealthcareManager:
         self.freed_neg_tested.clear()
         self.progress_tests(self.testing_step())
         # TODO: Move isolation functions to here
-        if self.manager.consts.should_isolate_positive_detected:
+        if self.manager.consts.day_to_start_isolations <= self.manager.current_step:
             self.manager.progress_isolations()
 
     def testing_step(self):

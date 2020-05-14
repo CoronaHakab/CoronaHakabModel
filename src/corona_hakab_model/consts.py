@@ -220,7 +220,7 @@ class Consts(NamedTuple):
                     lambda agent: agent.medical_state.name == "Recovered"),
             ]),
     ]
-    should_isolate_positive_detected: bool = False
+    day_to_start_isolations: int = np.inf  # The date from which we allow isolations
     step_to_isolate_dist: Callable = dist(1, 3)  # Isolated today, tomorrow or in 2 days
     sick_to_p_obey_isolation: Dict[bool, float] = {
         True: 1.0,  # 100% sick will obey the isolation.
