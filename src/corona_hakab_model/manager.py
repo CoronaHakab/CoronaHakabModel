@@ -217,12 +217,13 @@ class SimulationManager:
                                                                   days_to_isolate[index]
 
         # Isolating symptomatic agents
-        for agent in self.medical_state_manager.new_agents_with_symptoms:
-            # If is not getting ready to be isolated, or isolated already, then isolate
-            if self.step_to_isolate_agent[agent.index] < self.current_step and \
-                    self.agents_in_isolation[agent.index] == IsolationTypes.NONE and \
-                    agent.index not in detected_positive_indices:
-                self.step_to_isolate_agent[agent.index] = self.current_step + days_to_enter_isolation[agent.index]
+        if self.consts.isolate_symptomatic:
+            for agent in self.medical_state_manager.new_agents_with_symptoms:
+                # If is not getting ready to be isolated, or isolated already, then isolate
+                if self.step_to_isolate_agent[agent.index] < self.current_step and \
+                        self.agents_in_isolation[agent.index] == IsolationTypes.NONE and \
+                        agent.index not in detected_positive_indices:
+                    self.step_to_isolate_agent[agent.index] = self.current_step + days_to_enter_isolation[agent.index]
 
         # TODO: Remove healthy agents from isolation?
         self.isolate_agents()

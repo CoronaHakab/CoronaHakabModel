@@ -108,8 +108,8 @@ class HealthcareManager:
                     self.manager.consecutive_negative_tests[agent.index] = 0
             else:
                 # When isolated agent gets negative result, free him NOW!
-                if self.manager.consecutive_negative_tests[
-                    agent.index] == self.manager.consts.num_test_to_exit_isolation:
+                if self.manager.consecutive_negative_tests[agent.index] == \
+                        self.manager.consts.num_test_to_exit_isolation:
                     self.manager.step_to_free_agent[agent.index] = self.manager.current_step
                     self.freed_neg_tested.add(agent.index)
             agent.set_test_result(test_result)

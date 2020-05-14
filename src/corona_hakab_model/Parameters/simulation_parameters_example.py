@@ -196,6 +196,8 @@
         True: 1.0,  # 100% sick will obey the isolation.
         False: .95  # If not sick, 95% to obey isolation
     },
+
+    "isolate_symptomatic": False,
     "num_test_to_exit_isolation": 1,  # Number of tests needed to get out of isolation
     "home_isolation_time_bound": 14,
     "isolation_factor": {  # reduce agent's relations strength by a factor
