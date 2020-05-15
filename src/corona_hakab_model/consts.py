@@ -328,6 +328,8 @@ class Consts(NamedTuple):
             "random": random,
             "np": np,
             "BucketDict": BucketDict,
+            "IsolationTypes": IsolationTypes,
+            "IsolationFactorsType": IsolationFactorsType,
             "len": len,
         }
 
