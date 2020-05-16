@@ -40,7 +40,6 @@ class Consts(NamedTuple):
     NEED_ICU: str = "NeedICU"
     NEED_OF_CLOSE_MEDICAL_CARE: str = "NeedOfCloseMedicalCare"
     MILD_CONDITION: str = "Mild-Condition"
-    PRE_SYMPTOMATIC: str = "Pre-Symptomatic"
     PRE_SYMPTOMATIC1: str = "Pre-Symptomatic1"
     PRE_SYMPTOMATIC2: str = "Pre-Symptomatic2"
     PRE_SYMPTOMATIC3: str = "Pre-Symptomatic3"
@@ -66,12 +65,10 @@ class Consts(NamedTuple):
     # disease states transition lengths distributions
 
     days_dist: Dict[Tuple[str, str], BucketDict[int, DiscreteDistribution]] = {
-        (LATENT_PRESYMP, PRE_SYMPTOMATIC): BucketDict({0: dist(1, 3, 10)}),
-        # new states
         (LATENT_PRESYMP, PRE_SYMPTOMATIC1): BucketDict({0: dist(1, 3, 10)}),
         (LATENT_PRESYMP, PRE_SYMPTOMATIC2): BucketDict({0: dist(1, 3, 10)}),
         (LATENT_PRESYMP, PRE_SYMPTOMATIC3): BucketDict({0: dist(1, 3, 10)}),
-        ##
+        (LATENT_PRESYMP, MILD_CONDITION): BucketDict({0: dist(1, 3, 10)}),
         (LATENT, LATENT_ASYMP): BucketDict({0: dist(1)}),
         (LATENT, LATENT_PRESYMP): BucketDict({0: dist(1)}),
         (LATENT_ASYMP, ASYMPTOMATIC_BEGIN): BucketDict({0: dist(1, 3, 10)}),
@@ -79,12 +76,9 @@ class Consts(NamedTuple):
             list(range(1, 14)),
             [0.083, 0.13325, 0.16925, 0.169, 0.144, 0.10675, 0.0725, 0.04675, 0.02925, 0.021, 0.01275, 0.00775, 0.00475]
         )}),
-        # new state
-        (PRE_SYMPTOMATIC, MILD_CONDITION): BucketDict({0: dist(
-            [(0, 3), (1, 2), (2, 1), (3, 0)],
-            [0.25] * 4)
-        }),
-        ##
+        (PRE_SYMPTOMATIC1, MILD_CONDITION): BucketDict({0: dist(1)}),
+        (PRE_SYMPTOMATIC2, MILD_CONDITION): BucketDict({0: dist(2)}),
+        (PRE_SYMPTOMATIC3, MILD_CONDITION): BucketDict({0: dist(3)}),
         (MILD_CONDITION, NEED_OF_CLOSE_MEDICAL_CARE): BucketDict({0: dist(
             list(range(1, 13)),
             [0, 0, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.01]
@@ -138,9 +132,14 @@ class Consts(NamedTuple):
         (LATENT, LATENT_ASYMP): BucketDict({0: 0.3}),
         (ASYMPTOMATIC_BEGIN, ASYMPTOMATIC_END): BucketDict({0: ...}),
         (LATENT, LATENT_PRESYMP): BucketDict({0: ...}),
-        (LATENT_PRESYMP, PRE_SYMPTOMATIC): BucketDict({0: ...}),
+        (LATENT_PRESYMP, PRE_SYMPTOMATIC1): BucketDict({0: 0.25}),
+        (LATENT_PRESYMP, PRE_SYMPTOMATIC2): BucketDict({0: 0.25}),
+        (LATENT_PRESYMP, PRE_SYMPTOMATIC3): BucketDict({0: 0.25}),
+        (LATENT_PRESYMP, MILD_CONDITION): BucketDict({0: 0.25}),
         (LATENT_ASYMP, ASYMPTOMATIC_BEGIN): BucketDict({0: ...}),
-        (PRE_SYMPTOMATIC, MILD_CONDITION): BucketDict({0: ...}),
+        (PRE_SYMPTOMATIC1, MILD_CONDITION): BucketDict({0: ...}),
+        (PRE_SYMPTOMATIC2, MILD_CONDITION): BucketDict({0: ...}),
+        (PRE_SYMPTOMATIC3, MILD_CONDITION): BucketDict({0: ...}),
         (MILD_CONDITION, NEED_OF_CLOSE_MEDICAL_CARE): BucketDict({0: 0.2375}),
         (MILD_CONDITION, NEED_ICU): BucketDict({0: 0.0324}),
         (MILD_CONDITION, PRE_RECOVERED): BucketDict({0: ...}),
@@ -178,7 +177,9 @@ class Consts(NamedTuple):
 
     # infections ratios, See bucket dict for more info on how to use.
     infection_ratio: Dict[str, BucketDict[int, List[int]]] = {
-        PRE_SYMPTOMATIC: BucketDict({0: [0.14, 0.86, 1]}),
+        PRE_SYMPTOMATIC1: BucketDict({0: [1]}),
+        PRE_SYMPTOMATIC2: BucketDict({0: [0.86, 1]}),
+        PRE_SYMPTOMATIC3: BucketDict({0: [0.14, 0.86, 1]}),
         ASYMPTOMATIC_BEGIN: BucketDict({0: [0.14, 0.86, 1, 0.82,0.59, 0.41, 0.27, 0.18, 0.14, 0.09,0.05]}),
         MILD_CONDITION: BucketDict({0: [0.82, 0.59, 0.41,0.27, 0.18, 0.14,0.09, 0.05, 0, 0, 0, 0]}),
         LATENT: BucketDict({0: [0]}),
@@ -191,19 +192,6 @@ class Consts(NamedTuple):
         PRE_RECOVERED: BucketDict({0: [0]})
     }
 
-    # pre_symptomatic_infection_ratio: BucketDict[int, int] = BucketDict({0: [0.14, 0.86, 1]})  # if x greater than biggest key, x is biggest key
-    # asymptomatic_begin_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0.14, 0.86, 1, 0.82, 0.59, 0.41, 0.27, 0.18, 0.14, 0.09, 0.05]})
-    # mild_condition_begin_infection_ratio: BucketDict[int, int] = BucketDict({0: [0.82, 0.59, 0.41, 0.27, 0.18, 0.14, 0.09, 0.05]})
-    # latent_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
-    # mild_condition_end_infection_ratio: BucketDict[int, int] = BucketDict({0: [0]})
-    # latent_presymp_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
-    # latent_asymp_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
-    # asymptomatic_end_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
-    # need_close_medical_care_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
-    # need_icu_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
-    # improving_health_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
-    # pre_recovered_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
-
     # base r0 of the disease
     r0: float = 2.4
 
@@ -213,7 +201,9 @@ class Consts(NamedTuple):
     latent_test_willingness: float = 0.01
     asymptomatic_begin_test_willingness: float = 0.01
     asymptomatic_end_test_willingness: float = 0.01
-    pre_symptomatic_test_willingness: float = 0.01
+    pre_symptomatic1_test_willingness: float = 0.01
+    pre_symptomatic2_test_willingness: float = 0.01
+    pre_symptomatic3_test_willingness: float = 0.01
     mild_condition_test_willingness: float = 0.6
     mild_condition_begin_test_willingness: float = 0.6
     mild_condition_end_test_willingness: float = 0.6
@@ -235,7 +225,9 @@ class Consts(NamedTuple):
                 NEED_ICU: .98,
                 NEED_OF_CLOSE_MEDICAL_CARE: .98,
                 MILD_CONDITION: .98,
-                PRE_SYMPTOMATIC: .98,
+                PRE_SYMPTOMATIC1: .98,
+                PRE_SYMPTOMATIC2: .98,
+                PRE_SYMPTOMATIC3: .98,
                 ASYMPTOMATIC_BEGIN: .98,
                 ASYMPTOMATIC_END: .98,
                 LATENT_ASYMP: .98,
@@ -265,7 +257,9 @@ class Consts(NamedTuple):
                 NEED_ICU: .92,
                 NEED_OF_CLOSE_MEDICAL_CARE: .92,
                 MILD_CONDITION: .92,
-                PRE_SYMPTOMATIC: .92,
+                PRE_SYMPTOMATIC1: .92,
+                PRE_SYMPTOMATIC2: .92,
+                PRE_SYMPTOMATIC3: .92,
                 ASYMPTOMATIC_BEGIN: .92,
                 ASYMPTOMATIC_END: .92,
                 LATENT_ASYMP: .92,
@@ -430,12 +424,28 @@ class Consts(NamedTuple):
             contagiousness=self.infection_ratio[self.ASYMPTOMATIC_END],
             test_willingness=self.asymptomatic_end_test_willingness
         )
-        pre_symptomatic = ContagiousStochasticState(
-            self.PRE_SYMPTOMATIC,
+
+        pre_symptomatic1 = ContagiousStochasticState(
+            self.PRE_SYMPTOMATIC1,
             detectable=True,
-            contagiousness=self.infection_ratio[self.PRE_SYMPTOMATIC],
-            test_willingness=self.pre_symptomatic_test_willingness,
+            contagiousness=self.infection_ratio[self.PRE_SYMPTOMATIC1],
+            test_willingness=self.pre_symptomatic1_test_willingness,
         )
+
+        pre_symptomatic2 = ContagiousStochasticState(
+            self.PRE_SYMPTOMATIC2,
+            detectable=True,
+            contagiousness=self.infection_ratio[self.PRE_SYMPTOMATIC2],
+            test_willingness=self.pre_symptomatic2_test_willingness,
+        )
+
+        pre_symptomatic3 = ContagiousStochasticState(
+            self.PRE_SYMPTOMATIC3,
+            detectable=True,
+            contagiousness=self.infection_ratio[self.PRE_SYMPTOMATIC3],
+            test_willingness=self.pre_symptomatic3_test_willingness,
+        )
+        ##
         mild_condition = ContagiousStochasticState(
             self.MILD_CONDITION,
             detectable=True,
@@ -491,9 +501,24 @@ class Consts(NamedTuple):
         )
 
         latent_presymp.add_transfer(
-            pre_symptomatic,
-            duration=self.days_dist[(self.LATENT_PRESYMP, self.PRE_SYMPTOMATIC)],
-            probability=self.transition_prob[(self.LATENT_PRESYMP, self.PRE_SYMPTOMATIC)]
+            pre_symptomatic1,
+            duration=self.days_dist[(self.LATENT_PRESYMP, self.PRE_SYMPTOMATIC1)],
+            probability=self.transition_prob[(self.LATENT_PRESYMP, self.PRE_SYMPTOMATIC1)]
+        )
+        latent_presymp.add_transfer(
+            pre_symptomatic2,
+            duration=self.days_dist[(self.LATENT_PRESYMP, self.PRE_SYMPTOMATIC2)],
+            probability=self.transition_prob[(self.LATENT_PRESYMP, self.PRE_SYMPTOMATIC2)]
+        )
+        latent_presymp.add_transfer(
+            pre_symptomatic3,
+            duration=self.days_dist[(self.LATENT_PRESYMP, self.PRE_SYMPTOMATIC3)],
+            probability=self.transition_prob[(self.LATENT_PRESYMP, self.PRE_SYMPTOMATIC3)]
+        )
+        latent_presymp.add_transfer(
+            mild_condition,
+            duration=self.days_dist[(self.LATENT_PRESYMP, self.MILD_CONDITION)],
+            probability=self.transition_prob[(self.LATENT_PRESYMP, self.MILD_CONDITION)]
         )
 
         latent_asymp.add_transfer(
@@ -508,10 +533,20 @@ class Consts(NamedTuple):
             probability=self.transition_prob[(self.ASYMPTOMATIC_BEGIN, self.ASYMPTOMATIC_END)]
         )
 
-        pre_symptomatic.add_transfer(
+        pre_symptomatic1.add_transfer(
             mild_condition,
-            duration=self.days_dist[(self.PRE_SYMPTOMATIC, self.MILD_CONDITION)],
-            probability= self.transition_prob[(self.PRE_SYMPTOMATIC, self.MILD_CONDITION)]
+            duration=self.days_dist[(self.PRE_SYMPTOMATIC1, self.MILD_CONDITION)],
+            probability=self.transition_prob[(self.PRE_SYMPTOMATIC1, self.MILD_CONDITION)]
+        )
+        pre_symptomatic2.add_transfer(
+            mild_condition,
+            duration=self.days_dist[(self.PRE_SYMPTOMATIC2, self.MILD_CONDITION)],
+            probability=self.transition_prob[(self.PRE_SYMPTOMATIC2, self.MILD_CONDITION)]
+        )
+        pre_symptomatic3.add_transfer(
+            mild_condition,
+            duration=self.days_dist[(self.PRE_SYMPTOMATIC3, self.MILD_CONDITION)],
+            probability=self.transition_prob[(self.PRE_SYMPTOMATIC3, self.MILD_CONDITION)]
         )
 
         mild_condition.add_transfer(
