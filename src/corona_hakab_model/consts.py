@@ -44,8 +44,6 @@ class Consts(NamedTuple):
     PRE_SYMPTOMATIC2: str = "Pre-Symptomatic2"
     PRE_SYMPTOMATIC3: str = "Pre-Symptomatic3"
     ASYMPTOMATIC: str = "Asymptomatic"
-    LATENT_ASYMP: str = "Latent-Asymp"
-    LATENT_PRESYMP: str = "Latent-Presymp"
     # attributes and default values:
 
     total_steps: int = 150
@@ -64,17 +62,27 @@ class Consts(NamedTuple):
     # disease states transition lengths distributions
 
     days_dist: Dict[Tuple[str, str], BucketDict[int, DiscreteDistribution]] = {
-        (LATENT_PRESYMP, PRE_SYMPTOMATIC1): BucketDict({0: dist(1, 3, 10)}),
-        (LATENT_PRESYMP, PRE_SYMPTOMATIC2): BucketDict({0: dist(1, 3, 10)}),
-        (LATENT_PRESYMP, PRE_SYMPTOMATIC3): BucketDict({0: dist(1, 3, 10)}),
-        (LATENT_PRESYMP, MILD_CONDITION): BucketDict({0: dist(1, 3, 10)}),
-        (LATENT, LATENT_ASYMP): BucketDict({0: dist(1)}),
-        (LATENT, LATENT_PRESYMP): BucketDict({0: dist(1)}),
-        (LATENT_ASYMP, ASYMPTOMATIC): BucketDict({0: dist(1, 3, 10)}),
-        # (ASYMPTOMATIC_BEGIN, ASYMPTOMATIC_END): BucketDict({0: dist(
-        #     list(range(1, 14)),
-        #     [0.083, 0.13325, 0.16925, 0.169, 0.144, 0.10675, 0.0725, 0.04675, 0.02925, 0.021, 0.01275, 0.00775, 0.00475]
-        # )}),
+        (LATENT, PRE_SYMPTOMATIC1): BucketDict({0: dist(
+                list(range(1, 14)),
+                [0.083, 0.13325, 0.16925, 0.169, 0.144, 0.10675, 0.0725, 0.04675, 0.02925, 0.021, 0.01275, 0.00775, 0.00475]
+        )}),
+        (LATENT, PRE_SYMPTOMATIC2): BucketDict({0: dist(
+                list(range(1, 14)),
+                [0.083, 0.13325, 0.16925, 0.169, 0.144, 0.10675, 0.0725, 0.04675, 0.02925, 0.021, 0.01275, 0.00775, 0.00475]
+        )}),
+        (LATENT, PRE_SYMPTOMATIC3): BucketDict({0: dist(
+                list(range(1, 14)),
+                [0.083, 0.13325, 0.16925, 0.169, 0.144, 0.10675, 0.0725, 0.04675, 0.02925, 0.021, 0.01275, 0.00775, 0.00475]
+        )}),
+        (LATENT, MILD_CONDITION): BucketDict({0: dist(
+                list(range(1, 14)),
+                [0.083, 0.13325, 0.16925, 0.169, 0.144, 0.10675, 0.0725, 0.04675, 0.02925, 0.021, 0.01275, 0.00775, 0.00475]
+        )}),
+
+        (LATENT, ASYMPTOMATIC): BucketDict({0: dist(
+            list(range(1, 14)),
+            [0.083, 0.13325, 0.16925, 0.169, 0.144, 0.10675, 0.0725, 0.04675, 0.02925, 0.021, 0.01275, 0.00775, 0.00475]
+        )}),
         (PRE_SYMPTOMATIC1, MILD_CONDITION): BucketDict({0: dist(1)}),
         (PRE_SYMPTOMATIC2, MILD_CONDITION): BucketDict({0: dist(2)}),
         (PRE_SYMPTOMATIC3, MILD_CONDITION): BucketDict({0: dist(3)}),
@@ -130,13 +138,11 @@ class Consts(NamedTuple):
     # it should always come last after all other transition probabilities were defined
     zero_prob: TransitionProbType = BucketDict({0: 0})
     transition_prob: Dict[Tuple[str, str], TransitionProbType] = {
-        (LATENT, LATENT_ASYMP): BucketDict({0: 0.3}),
-        (LATENT, LATENT_PRESYMP): BucketDict({0: ...}),
-        (LATENT_PRESYMP, PRE_SYMPTOMATIC1): BucketDict({0: 0.25}),
-        (LATENT_PRESYMP, PRE_SYMPTOMATIC2): BucketDict({0: 0.25}),
-        (LATENT_PRESYMP, PRE_SYMPTOMATIC3): BucketDict({0: 0.25}),
-        (LATENT_PRESYMP, MILD_CONDITION): BucketDict({0: 0.25}),
-        (LATENT_ASYMP, ASYMPTOMATIC): BucketDict({0: ...}),
+        (LATENT, ASYMPTOMATIC): BucketDict({0: 0.3}),
+        (LATENT, PRE_SYMPTOMATIC1): BucketDict({0: 0.7/4}),
+        (LATENT, PRE_SYMPTOMATIC2): BucketDict({0: 0.7/4}),
+        (LATENT, PRE_SYMPTOMATIC3): BucketDict({0: 0.7/4}),
+        (LATENT, MILD_CONDITION): BucketDict({0: 0.7/4}),
         (PRE_SYMPTOMATIC1, MILD_CONDITION): BucketDict({0: ...}),
         (PRE_SYMPTOMATIC2, MILD_CONDITION): BucketDict({0: ...}),
         (PRE_SYMPTOMATIC3, MILD_CONDITION): BucketDict({0: ...}),
@@ -164,8 +170,6 @@ class Consts(NamedTuple):
         ASYMPTOMATIC: BucketDict({0: [0.14, 0.86, 1, 0.82,0.59, 0.41, 0.27, 0.18, 0.14, 0.09,0.05]}),
         MILD_CONDITION: BucketDict({0: [0.82, 0.59, 0.41,0.27, 0.18, 0.14,0.09, 0.05, 0, 0, 0, 0]}),
         LATENT: BucketDict({0: [0]}),
-        LATENT_PRESYMP: BucketDict({0: [0]}),
-        LATENT_ASYMP: BucketDict({0: [0]}),
         NEED_OF_CLOSE_MEDICAL_CARE: BucketDict({0: [0]}),
         NEED_ICU: BucketDict({0: [0]}),
         IMPROVING_HEALTH: BucketDict({0: [0]}),
@@ -207,9 +211,7 @@ class Consts(NamedTuple):
                 PRE_SYMPTOMATIC1: .98,
                 PRE_SYMPTOMATIC2: .98,
                 PRE_SYMPTOMATIC3: .98,
-                ASYMPTOMATIC: .98,
-                LATENT_ASYMP: .98,
-                LATENT_PRESYMP: .98
+                ASYMPTOMATIC: .98
             }, time_dist_until_result=dist(3)),  # Constant distribution
             daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
             testing_gap_after_positive_test=2,
@@ -238,9 +240,7 @@ class Consts(NamedTuple):
                 PRE_SYMPTOMATIC1: .92,
                 PRE_SYMPTOMATIC2: .92,
                 PRE_SYMPTOMATIC3: .92,
-                ASYMPTOMATIC: .92,
-                LATENT_ASYMP: .92,
-                LATENT_PRESYMP: .92
+                ASYMPTOMATIC: .92
             }, time_dist_until_result=dist(5)),  # Constant distribution
             daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
             testing_gap_after_positive_test=3,
@@ -267,52 +267,94 @@ class Consts(NamedTuple):
         100: (ConnectionTypes, "opening works"),
     }
     # policies acting on a specific connection type, when a term is satisfied
-    partial_opening_active: bool = False
+    partial_opening_active: bool = True
     # each connection type gets a list of conditioned policies.
     # each conditioned policy actives a specific policy when a condition is satisfied.
     # each policy changes the multiplication factor of a specific circle.
     # each policy is activated only if a list of terms is fulfilled.
-    connection_type_to_conditioned_policy: Dict[ConnectionTypes, List[ConditionedPolicy]] = {
-        ConnectionTypes.School: [
-            ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
-                policy=Policy(0, [lambda circle: True]),
-                message="closing all schools",
-            ),
-            ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) < 500,
-                policy=Policy(1, [lambda circle: False]),
-                active=True,
-                message="opening all schools",
-            ),
-        ],
-        ConnectionTypes.Kindergarten: [
-            ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
-                policy=Policy(0, [lambda circle: True]),
-                message="closing all kindergartens",
-            ),
-            ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) < 500,
-                policy=Policy(1, [lambda circle: False]),
-                active=True,
-                message="opening all kindergartens",
-            ),
-        ],
-        ConnectionTypes.Work: [
-            ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
-                policy=Policy(0, [lambda circle: True]),
-                message="closing all workplaces",
-            ),
-            ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) < 500,
-                policy=Policy(0, [lambda circle: False]),
-                active=True,
-                message="opening all workplaces",
-            ),
-        ],
-    }
+    connection_type_to_conditioned_policy: Dict[ConnectionTypes, List[ConditionedPolicy]] = \
+        {
+            ConnectionTypes.Other: [
+                ConditionedPolicy(
+                    activating_condition=lambda kwargs: 22 <= kwargs["manager"].current_step <= 28,
+                    policy=Policy(0.935, [lambda circle: True], [lambda agent: True]),
+                    reset_current_limitations=False,
+                    dont_repeat_while_active=False,
+                    message="",
+                ),
+                ConditionedPolicy(
+                    activating_condition=lambda kwargs: kwargs["manager"].current_step == 29,
+                    policy=Policy(0.5, [lambda circle: True], [lambda agent: random() < 0.2]),
+                    reset_current_limitations=False,
+                    message="no more haircuts",
+                ),
+                ConditionedPolicy(
+                    activating_condition=lambda kwargs: kwargs["manager"].current_step == 30,
+                    policy=Policy(0.935 ** 7, [lambda circle: True], [lambda agent: True]),
+                    reset_current_limitations=True,
+                    message="no more social life",
+                ),
+                ConditionedPolicy(
+                    activating_condition=lambda kwargs: kwargs["manager"].current_step == 30,
+                    policy=Policy(0.5, [lambda circle: True], [lambda agent: random() < 0.36]),
+                    reset_current_limitations=False,
+                    message="no more economy",
+                ),
+                ConditionedPolicy(
+                    activating_condition=lambda kwargs: kwargs["manager"].current_step == 31,
+                    policy=Policy(0.935 ** 7, [lambda circle: True], [lambda agent: True]),
+                    reset_current_limitations=True,
+                    message="who needs breathing anyway?",
+                ),
+                ConditionedPolicy(
+                    activating_condition=lambda kwargs: kwargs["manager"].current_step == 31,
+                    policy=Policy(0.5, [lambda circle: True], [lambda agent: random() < 0.5]),
+                    reset_current_limitations=False,
+                    message="next plague well do better!",
+                ),
+            ],
+        }
+    #     {
+    #     ConnectionTypes.School: [
+    #         ConditionedPolicy(
+    #             activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
+    #             policy=Policy(0, [lambda circle: True]),
+    #             message="closing all schools",
+    #         ),
+    #         ConditionedPolicy(
+    #             activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) < 500,
+    #             policy=Policy(1, [lambda circle: False]),
+    #             active=True,
+    #             message="opening all schools",
+    #         ),
+    #     ],
+    #     ConnectionTypes.Kindergarten: [
+    #         ConditionedPolicy(
+    #             activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
+    #             policy=Policy(0, [lambda circle: True]),
+    #             message="closing all kindergartens",
+    #         ),
+    #         ConditionedPolicy(
+    #             activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) < 500,
+    #             policy=Policy(1, [lambda circle: False]),
+    #             active=True,
+    #             message="opening all kindergartens",
+    #         ),
+    #     ],
+    #     ConnectionTypes.Work: [
+    #         ConditionedPolicy(
+    #             activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
+    #             policy=Policy(0, [lambda circle: True]),
+    #             message="closing all workplaces",
+    #         ),
+    #         ConditionedPolicy(
+    #             activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) < 500,
+    #             policy=Policy(0, [lambda circle: False]),
+    #             active=True,
+    #             message="opening all workplaces",
+    #         ),
+    #     ],
+    # }
 
     @classmethod
     def from_file(cls, param_path):
@@ -377,18 +419,7 @@ class Consts(NamedTuple):
             detectable=False,
             contagiousness=self.infection_ratio[self.LATENT],
             test_willingness=self.latent_test_willingness)
-        latent_presymp = ContagiousStochasticState(
-            self.LATENT_PRESYMP,
-            detectable=False,
-            contagiousness=self.infection_ratio[self.LATENT_PRESYMP],
-            test_willingness=self.latent_test_willingness
-        )
-        latent_asymp = ContagiousStochasticState(
-            self.LATENT_ASYMP,
-            detectable=False,
-            contagiousness=self.infection_ratio[self.LATENT_ASYMP],
-            test_willingness=self.latent_test_willingness
-        )
+
         asymptomatic = ContagiousStochasticState(
             self.ASYMPTOMATIC,
             detectable=True,
@@ -461,41 +492,30 @@ class Consts(NamedTuple):
         ret = MedicalStateMachine(susceptible, latent)
 
         latent.add_transfer(
-            latent_asymp,
-            duration=self.days_dist[(self.LATENT, self.LATENT_ASYMP)],
-            probability=self.transition_prob[(self.LATENT, self.LATENT_ASYMP)]
+            pre_symptomatic1,
+            duration=self.days_dist[(self.LATENT, self.PRE_SYMPTOMATIC1)],
+            probability=self.transition_prob[(self.LATENT, self.PRE_SYMPTOMATIC1)]
         )
         latent.add_transfer(
-            latent_presymp,
-            duration=self.days_dist[(self.LATENT, self.LATENT_PRESYMP)],
-            probability=self.transition_prob[(self.LATENT, self.LATENT_PRESYMP)]
-        )
-
-        latent_presymp.add_transfer(
-            pre_symptomatic1,
-            duration=self.days_dist[(self.LATENT_PRESYMP, self.PRE_SYMPTOMATIC1)],
-            probability=self.transition_prob[(self.LATENT_PRESYMP, self.PRE_SYMPTOMATIC1)]
-        )
-        latent_presymp.add_transfer(
             pre_symptomatic2,
-            duration=self.days_dist[(self.LATENT_PRESYMP, self.PRE_SYMPTOMATIC2)],
-            probability=self.transition_prob[(self.LATENT_PRESYMP, self.PRE_SYMPTOMATIC2)]
+            duration=self.days_dist[(self.LATENT, self.PRE_SYMPTOMATIC2)],
+            probability=self.transition_prob[(self.LATENT, self.PRE_SYMPTOMATIC2)]
         )
-        latent_presymp.add_transfer(
+        latent.add_transfer(
             pre_symptomatic3,
-            duration=self.days_dist[(self.LATENT_PRESYMP, self.PRE_SYMPTOMATIC3)],
-            probability=self.transition_prob[(self.LATENT_PRESYMP, self.PRE_SYMPTOMATIC3)]
+            duration=self.days_dist[(self.LATENT, self.PRE_SYMPTOMATIC3)],
+            probability=self.transition_prob[(self.LATENT, self.PRE_SYMPTOMATIC3)]
         )
-        latent_presymp.add_transfer(
+        latent.add_transfer(
             mild_condition,
-            duration=self.days_dist[(self.LATENT_PRESYMP, self.MILD_CONDITION)],
-            probability=self.transition_prob[(self.LATENT_PRESYMP, self.MILD_CONDITION)]
+            duration=self.days_dist[(self.LATENT, self.MILD_CONDITION)],
+            probability=self.transition_prob[(self.LATENT, self.MILD_CONDITION)]
         )
 
-        latent_asymp.add_transfer(
+        latent.add_transfer(
             asymptomatic,
-            duration=self.days_dist[(self.LATENT_ASYMP, self.ASYMPTOMATIC)],
-            probability=self.transition_prob[(self.LATENT_ASYMP, self.ASYMPTOMATIC)]
+            duration=self.days_dist[(self.LATENT, self.ASYMPTOMATIC)],
+            probability=self.transition_prob[(self.LATENT, self.ASYMPTOMATIC)]
         )
 
         pre_symptomatic1.add_transfer(
