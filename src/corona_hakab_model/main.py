@@ -109,9 +109,9 @@ def run_simulation(args):
             Supervisable.State.TotalSoFar("Mild-Condition"),
 
             Supervisable.State.AddedPerDay("Asymptomatic"),
-            Supervisable.State.AddedPerDay("Pre-Symptomatic"),
             Supervisable.State.AddedPerDay("Deceased"),
             Supervisable.State.AddedPerDay("NeedOfCloseMedicalCare"),
+            Supervisable.State.AddedPerDay("Latent"),
             Supervisable.State.AddedPerDay("NeedICU"),
             Supervisable.State.AddedPerDay("Recovered"),
             Supervisable.State.AddedPerDay("Mild-Condition"),
@@ -119,7 +119,9 @@ def run_simulation(args):
             Supervisable.State.Current("NeedOfCloseMedicalCare"),
             Supervisable.State.Current("Asymptomatic"),
             Supervisable.State.Current("Latent"),
-            Supervisable.State.Current("Pre-Symptomatic"),
+            Supervisable.State.Current("Pre-Symptomatic1"),
+            Supervisable.State.Current("Pre-Symptomatic2"),
+            Supervisable.State.Current("Pre-Symptomatic3"),
             Supervisable.State.Current("NeedICU"),
             Supervisable.State.Current("Recovered"),
             Supervisable.State.Current("Mild-Condition"),
@@ -134,7 +136,9 @@ def run_simulation(args):
             Supervisable.Sum(
                 "Latent",
                 "Asymptomatic",
-                "Pre-Symptomatic",
+                "Pre-Symptomatic1",
+                "Pre-Symptomatic2",
+                "Pre-Symptomatic3",
                 "Mild-Condition",
                 "NeedOfCloseMedicalCare",
                 "NeedICU",
@@ -154,6 +158,7 @@ def run_simulation(args):
             # Supervisable.GrowthFactor(
             #    Supervisable.Sum("Symptomatic", "Asymptomatic", "Latent", "Silent", "ICU", "Hospitalized"),
             Supervisable.CurrentInfectedTable(interval=consts.export_infected_agents_interval),
+            # Supervisable.AppliedPolicyReportSupervisable(),
             # LambdaValueSupervisable("Detected Daily", lambda manager: manager.new_detected_daily),
             # LambdaValueSupervisable("Current Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
             # Supervisable.R0(),
@@ -164,8 +169,10 @@ def run_simulation(args):
             LambdaValueSupervisable("daily infected by family", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Family]),
             LambdaValueSupervisable("daily infected by kindergarten", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Kindergarten]),
             LambdaValueSupervisable("daily infections from Latent infector", lambda manager: manager.new_sick_by_infector_medical_state["Latent"]),
-            LambdaValueSupervisable("daily infections from Asymptomatic infector", lambda manager: manager.new_sick_by_infector_medical_state["Asymptomatic"]),
-            LambdaValueSupervisable("daily infections from Pre-Symptomatic infector", lambda manager: manager.new_sick_by_infector_medical_state["Pre-Symptomatic"]),
+            LambdaValueSupervisable("daily infections from Asymptomatic infector",lambda manager: manager.new_sick_by_infector_medical_state["Asymptomatic"]),
+            LambdaValueSupervisable("daily infections from Pre-Symptomatic1 infector",lambda manager: manager.new_sick_by_infector_medical_state["Pre-Symptomatic1"]),
+            LambdaValueSupervisable("daily infections from Pre-Symptomatic2 infector",lambda manager: manager.new_sick_by_infector_medical_state["Pre-Symptomatic2"]),
+            LambdaValueSupervisable("daily infections from Pre-Symptomatic3 infector",lambda manager: manager.new_sick_by_infector_medical_state["Pre-Symptomatic3"]),
             LambdaValueSupervisable("daily infections from Mild-Condition infector", lambda manager: manager.new_sick_by_infector_medical_state["Mild-Condition"]),
             LambdaValueSupervisable("daily infections from NeedOfCloseMedicalCare infector", lambda manager: manager.new_sick_by_infector_medical_state["NeedOfCloseMedicalCare"]),
             LambdaValueSupervisable("daily infections from NeedICU infector", lambda manager: manager.new_sick_by_infector_medical_state["NeedICU"]),
@@ -188,11 +195,12 @@ def run_simulation(args):
         if not os.path.splitext(args.figure_path)[1]:
             args.figure_path = args.figure_path+'.png'
         plt.savefig(args.figure_path)
-    else:
+
+    if args.show_plot:
         plt.show()
 
 
-def set_seeds(seed=0):  
+def set_seeds(seed=0):
     seed = seed or None
     np.random.seed(seed)
     random.seed(seed)

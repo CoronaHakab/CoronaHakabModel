@@ -59,6 +59,11 @@ class SimulationProgression:
 
         df = pd.DataFrame(all_data, index=self.time_vector)
         df.to_csv(file_name)
+
+        # Ignore this shameful piece of code (just exporting normalization factor)
+        norm_factor_df = pd.DataFrame({"normalization_factor": [self.manager.update_matrix_manager.normalize_factor]})
+        norm_factor_df.to_csv(Path(filename) / "norm_factor.csv")
+
         return df
 
 

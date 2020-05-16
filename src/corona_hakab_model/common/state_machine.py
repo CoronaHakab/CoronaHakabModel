@@ -52,8 +52,7 @@ class StochasticTransferGenerator:
                 p = 1 - np.sum(self.probs_cumulative[age])
             else:
                 p = prob
-            self.probs_cumulative[age] = np.append(self.probs_cumulative[age],
-                                                   p)
+            self.probs_cumulative[age] = np.append(self.probs_cumulative[age], p)
         # todo improve?
             if np.sum(self.probs_cumulative[age]) > 1:
                 raise ValueError("Probabilities sum to more than 1")
@@ -90,13 +89,6 @@ class StochasticTransferGenerator:
             agent_dest = dests[agent_age][current_dest_index] # Destination of current agent
             current_duration_index = age_dest_duration_index[(agent_age, agent_dest)]
             time_to_next_state = agents_durations[(agent.age, agent_dest)][current_duration_index]
-            if type(time_to_next_state) is tuple:
-                assert len(time_to_next_state) == 2, f"Duration tuple's length should be 2 " \
-                                                     f"(actual length: {len(time_to_next_state)}"
-                start_time_offset, time_to_next_state = time_to_next_state
-            else:
-                start_time_offset = 0
-            agent.update_contagiousness_day_offset(start_time_offset)
             pending_transfers[agent_index] = PendingTransfer(agent,
                                                              self.destinations[agent_dest],
                                                              origin_state,
@@ -148,6 +140,10 @@ class StochasticState(State):
     @property
     def destinations(self):
         return self.generator.destinations
+
+    @property
+    def probs_cumulative(self):
+        return self.generator.probs_cumulative
 
 
 class AgentAwareState(State):

@@ -7,6 +7,7 @@ import numpy as np
 import infection
 import update_matrix
 from common.agent import SickAgents, InitialAgentsConstraints
+from common.medical_state import ContagiousState
 from consts import Consts
 from detection_model import healthcare
 from common.detection_testing_types import PendingTestResult, PendingTestResults
@@ -108,7 +109,9 @@ class SimulationManager:
         self.new_sick_by_infector_medical_state = {
                 "Latent": 0,
                 "Asymptomatic": 0,
-                "Pre-Symptomatic": 0,
+                "Pre-Symptomatic1": 0,
+                "Pre-Symptomatic2": 0,
+                "Pre-Symptomatic3": 0,
                 "Mild-Condition": 0,
                 "NeedOfCloseMedicalCare": 0,
                 "NeedICU": 0,
@@ -150,7 +153,8 @@ class SimulationManager:
         self.new_sick_counter = medical_machine_step_result['new_sick']
 
         for agent in self.agents:
-            agent.update_contagiousness()
+            if isinstance(agent.medical_state, ContagiousState):
+                agent.update_contagiousness()
 
         self.current_step += 1
 

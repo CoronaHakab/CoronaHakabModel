@@ -1,6 +1,6 @@
 import os
 from functools import lru_cache
-from typing import Dict, List, NamedTuple, Union, Callable
+from typing import Dict, List, NamedTuple, Union, Callable, Tuple
 import jsonpickle
 import numpy as np
 from numpy.random import random
@@ -11,7 +11,7 @@ from common.medical_state import ContagiousState, ImmuneState, SusceptibleState
 from common.medical_state_machine import MedicalStateMachine
 from policies_manager import ConditionedPolicy, Policy
 from common.state_machine import StochasticState, TerminalState
-from common.util import dist, BucketDict
+from common.util import dist, BucketDict, DiscreteDistribution
 
 TransitionProbType = BucketDict[int, Union[float, type(...)]]
 
@@ -38,7 +38,9 @@ class Consts(NamedTuple):
     NEED_ICU: str = "NeedICU"
     NEED_OF_CLOSE_MEDICAL_CARE: str = "NeedOfCloseMedicalCare"
     MILD_CONDITION: str = "Mild-Condition"
-    PRE_SYMPTOMATIC: str = "Pre-Symptomatic"
+    PRE_SYMPTOMATIC1: str = "Pre-Symptomatic1"
+    PRE_SYMPTOMATIC2: str = "Pre-Symptomatic2"
+    PRE_SYMPTOMATIC3: str = "Pre-Symptomatic3"
     ASYMPTOMATIC: str = "Asymptomatic"
     # attributes and default values:
 
@@ -57,108 +59,119 @@ class Consts(NamedTuple):
     # For example: "latent_presymp_to_pre_symptomatic_days": {"type":"uniform","lower_bound":1,"upper_bound":3}
     # disease states transition lengths distributions
 
-    # Binomial distribution for all ages
-    latent_to_pre_symptomatic_days: BucketDict[int, Callable] = BucketDict({0: dist(
-        list(range(1, 14)),
-        [0.083, 0.13325, 0.16925, 0.169, 0.144, 0.10675, 0.0725, 0.04675, 0.02925, 0.021, 0.01275, 0.00775, 0.00475]
-    )})
+    days_dist: Dict[Tuple[str, str], BucketDict[int, DiscreteDistribution]] = {
+        (LATENT, PRE_SYMPTOMATIC1): BucketDict({0: dist(
+                list(range(1, 14)),
+                [0.083, 0.13325, 0.16925, 0.169, 0.144, 0.10675, 0.0725, 0.04675, 0.02925, 0.021, 0.01275, 0.00775, 0.00475]
+        )}),
+        (LATENT, PRE_SYMPTOMATIC2): BucketDict({0: dist(
+                list(range(1, 14)),
+                [0.083, 0.13325, 0.16925, 0.169, 0.144, 0.10675, 0.0725, 0.04675, 0.02925, 0.021, 0.01275, 0.00775, 0.00475]
+        )}),
+        (LATENT, PRE_SYMPTOMATIC3): BucketDict({0: dist(
+                list(range(1, 14)),
+                [0.083, 0.13325, 0.16925, 0.169, 0.144, 0.10675, 0.0725, 0.04675, 0.02925, 0.021, 0.01275, 0.00775, 0.00475]
+        )}),
+        (LATENT, MILD_CONDITION): BucketDict({0: dist(
+                list(range(1, 14)),
+                [0.083, 0.13325, 0.16925, 0.169, 0.144, 0.10675, 0.0725, 0.04675, 0.02925, 0.021, 0.01275, 0.00775, 0.00475]
+        )}),
 
-    latent_to_asymptomatic_days: BucketDict[int, Callable] = latent_to_pre_symptomatic_days
+        (LATENT, ASYMPTOMATIC): BucketDict({0: dist(
+            list(range(1, 14)),
+            [0.083, 0.13325, 0.16925, 0.169, 0.144, 0.10675, 0.0725, 0.04675, 0.02925, 0.021, 0.01275, 0.00775, 0.00475]
+        )}),
+        (PRE_SYMPTOMATIC1, MILD_CONDITION): BucketDict({0: dist(1)}),
+        (PRE_SYMPTOMATIC2, MILD_CONDITION): BucketDict({0: dist(2)}),
+        (PRE_SYMPTOMATIC3, MILD_CONDITION): BucketDict({0: dist(3)}),
+        (MILD_CONDITION, NEED_OF_CLOSE_MEDICAL_CARE): BucketDict({0: dist(
+            list(range(1, 13)),
+            [0, 0, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.01]
+        )}),
+        (MILD_CONDITION, NEED_ICU): BucketDict({0: dist(
+            list(range(1, 31)),
+            [0.000, 0.000, 0.000, 0.000, 0.000, 0.012, 0.019, 0.032, 0.046, 0.059, 0.069, 0.075, 0.077, 0.075, 0.072,
+             0.066, \
+             0.060, 0.053, 0.046, 0.040, 0.035, 0.030, 0.028, 0.026, 0.022, 0.020, 0.015, 0.010, 0.010, 0.000]
+        )}),
+        (MILD_CONDITION, PRE_RECOVERED): BucketDict({0: dist(
+            list(range(1, 29)),
+            [0.001, 0.001, 0.001, 0.001, 0.001, 0.002, 0.004, 0.008, 0.013, 0.022, 0.032, 0.046, 0.06, 0.075, 0.088,
+             0.097, \
+             0.1, 0.097, 0.088, 0.075, 0.06, 0.046, 0.032, 0.022, 0.013, 0.008, 0.004, 0.002]
+        )}),
+        (NEED_OF_CLOSE_MEDICAL_CARE, NEED_ICU): BucketDict({0: dist(10, 12, 14)}),
+        (NEED_OF_CLOSE_MEDICAL_CARE, IMPROVING_HEALTH): BucketDict({0: dist(8, 10, 12)}),
+        (NEED_ICU, DECEASED): BucketDict({0: dist(
+            list(range(1, 21)),
+            [0.030, 0.100, 0.120, 0.110, 0.090, 0.080, 0.075, 0.070, 0.065, 0.050, 0.040, 0.035, 0.030, 0.025, 0.020,
+             0.015, \
+             0.012, 0.010, 0.008, 0.005]
+        )}),
+        (NEED_ICU, IMPROVING_HEALTH): BucketDict({0: dist(
+            list(range(1, 26)),
+            [0.020, 0.040, 0.080, 0.100, 0.100, 0.080, 0.070, 0.065, 0.060, 0.055, 0.045, 0.040, 0.038, 0.032, 0.030,
+             0.025, \
+             0.020, 0.015, 0.012, 0.012, 0.010, 0.010, 0.008, 0.005, 0.005]
+        )}),
+        (IMPROVING_HEALTH, NEED_ICU): BucketDict({0: dist(21, 42)}),
+        (IMPROVING_HEALTH, PRE_RECOVERED): BucketDict({0: dist(21, 42)}),
+        (IMPROVING_HEALTH, MILD_CONDITION): BucketDict({0: dist(21, 42)}),
+        (PRE_RECOVERED, RECOVERED): BucketDict({0: dist(
+            [14, 28],
+            [0.8, 0.2]
+        )}),
+        (ASYMPTOMATIC, RECOVERED): BucketDict({0: dist(
+            list(range(1, 36)),
+            [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.013, 0.016, 0.025, 0.035, 0.045, 0.054,
+             0.062, \
+             0.066, 0.069, 0.069, 0.066, 0.063, 0.058, 0.053, 0.056, 0.041, 0.040, 0.033, 0.030, 0.025, 0.020, 0.015,
+             0.015, 0.015, 0.010, 0.010]
+        )})
+    }
 
-    pre_symptomatic_to_mild_days: BucketDict[int, Callable] = BucketDict({0: dist(
-        [(0, 3), (1, 2), (2, 1), (3, 0)],  # Instead of days, each element in the array is (infection offset, n_days)
-        [0.25] * 4)
-    })
-
-    #
-    mild_to_close_medical_care_days: BucketDict[int, Callable] = BucketDict({0: dist(
-        list(range(1, 13)),
-        [0, 0, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.01]
-    )})
-
-    #
-    mild_to_need_icu_days: BucketDict[int, Callable] = BucketDict({0: dist(
-        list(range(1, 31)),
-        [0.000, 0.000, 0.000, 0.000, 0.000, 0.012, 0.019, 0.032, 0.046, 0.059, 0.069, 0.075, 0.077, 0.075, 0.072, 0.066, \
-         0.060, 0.053, 0.046, 0.040, 0.035, 0.030, 0.028, 0.026, 0.022, 0.020, 0.015, 0.010, 0.010, 0.000]
-    )})
-
-    #
-    mild_to_pre_recovered_days: BucketDict[int, Callable] = BucketDict({0: dist(
-        list(range(1, 29)),
-        [0.001, 0.001, 0.001, 0.001, 0.001, 0.002, 0.004, 0.008, 0.013, 0.022, 0.032, 0.046, 0.06, 0.075, 0.088, 0.097, \
-         0.1, 0.097, 0.088, 0.075, 0.06, 0.046, 0.032, 0.022, 0.013, 0.008, 0.004, 0.002]
-    )})
-
-    #
-    close_medical_care_to_icu_days: BucketDict[int, Callable] = BucketDict({0: dist(10, 12, 14)})
-
-    #
-    close_medical_care_to_mild_days: BucketDict[int, Callable] = BucketDict({0: dist(8, 10, 12)})
-
-    #
-    need_icu_to_deceased_days: BucketDict[int, Callable] = BucketDict({0: dist(
-        list(range(1, 21)),
-        [0.030, 0.100, 0.120, 0.110, 0.090, 0.080, 0.075, 0.070, 0.065, 0.050, 0.040, 0.035, 0.030, 0.025, 0.020, 0.015, \
-         0.012, 0.010, 0.008, 0.005]
-    )})
-
-    #
-    need_icu_to_improving_days: BucketDict[int, Callable] = BucketDict({0: dist(
-        list(range(1, 26)),
-        [0.020, 0.040, 0.080, 0.100, 0.100, 0.080, 0.070, 0.065, 0.060, 0.055, 0.045, 0.040, 0.038, 0.032, 0.030, 0.025, \
-         0.020, 0.015, 0.012, 0.012, 0.010, 0.010, 0.008, 0.005, 0.005]
-    )})
-
-    #
-    improving_to_need_icu_days: BucketDict[int, Callable] = BucketDict({0: dist(21, 42)})
-
-    #
-    improving_to_pre_recovered_days: BucketDict[int, Callable] = BucketDict({0: dist(21, 42)})  # TODO: check why so long
-
-    #
-    improving_to_mild_condition_days: BucketDict[int, Callable] = BucketDict({0: dist(21, 42)})
-
-    #
-    pre_recovered_to_recovered_days: BucketDict[int, Callable] = BucketDict({0: dist(
-        [14, 28],
-        [0.8, 0.2]
-    )})
-
-    #
-    asymptomatic_to_recovered_days: BucketDict[int, Callable] = BucketDict({0: dist(
-        list(range(1, 36)),
-        [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.013, 0.016, 0.025, 0.035, 0.045, 0.054, 0.062, \
-         0.066, 0.069, 0.069, 0.066, 0.063, 0.058, 0.053, 0.056, 0.041, 0.040, 0.033, 0.030, 0.025, 0.020, 0.015, 0.015, 0.015, 0.010, 0.010]
-    )})
 
     # state machine transfer probabilities
     # probability of '...' equals (1 - all other transfers)
     # it should always come last after all other transition probabilities were defined
-    latent_to_asymptomatic_prob: TransitionProbType = BucketDict({0: 0.3})
-    latent_to_pre_symptomatic_prob:  TransitionProbType = BucketDict({0: ...})
-    pre_symptomatic_to_mild_prob:  TransitionProbType = BucketDict({0: ...})
-    mild_to_close_medical_care_prob:  TransitionProbType = BucketDict({0: 0.2375})
-    mild_to_need_icu_prob:  TransitionProbType = BucketDict({0: 0.0324})
-    mild_to_pre_recovered_prob:  TransitionProbType = BucketDict({0: ...})
-    close_medical_care_to_icu_prob:  TransitionProbType = BucketDict({0: 0.26})
-    close_medical_care_to_mild_prob:  TransitionProbType = BucketDict({0: ...})
-    need_icu_to_deceased_prob:  TransitionProbType = BucketDict({0: 0.3})
-    need_icu_to_improving_prob:  TransitionProbType = BucketDict({0: ...})
-    improving_to_need_icu_prob:  TransitionProbType = BucketDict({0: 0})
-    improving_to_pre_recovered_prob:  TransitionProbType = BucketDict({0: ...})
-    improving_to_mild_condition_prob:  TransitionProbType = BucketDict({0: 0})
-    pre_recovered_to_recovered_prob:  TransitionProbType = BucketDict({0: ...})
-    asymptomatic_to_recovered_prob:  TransitionProbType = BucketDict({0: ...})
+    zero_prob: TransitionProbType = BucketDict({0: 0})
+    transition_prob: Dict[Tuple[str, str], TransitionProbType] = {
+        (LATENT, ASYMPTOMATIC): BucketDict({0: 0.3}),
+        (LATENT, PRE_SYMPTOMATIC1): BucketDict({0: 0.7/4}),
+        (LATENT, PRE_SYMPTOMATIC2): BucketDict({0: 0.7/4}),
+        (LATENT, PRE_SYMPTOMATIC3): BucketDict({0: 0.7/4}),
+        (LATENT, MILD_CONDITION): BucketDict({0: 0.7/4}),
+        (PRE_SYMPTOMATIC1, MILD_CONDITION): BucketDict({0: ...}),
+        (PRE_SYMPTOMATIC2, MILD_CONDITION): BucketDict({0: ...}),
+        (PRE_SYMPTOMATIC3, MILD_CONDITION): BucketDict({0: ...}),
+        (MILD_CONDITION, NEED_OF_CLOSE_MEDICAL_CARE): BucketDict({0: 0.2375}),
+        (MILD_CONDITION, NEED_ICU): BucketDict({0: 0.0324}),
+        (MILD_CONDITION, PRE_RECOVERED): BucketDict({0: ...}),
+        (NEED_OF_CLOSE_MEDICAL_CARE, NEED_ICU): BucketDict({0: 0.26}),
+        (NEED_OF_CLOSE_MEDICAL_CARE, IMPROVING_HEALTH): BucketDict({0: ...}),
+        (NEED_ICU, DECEASED): BucketDict({0: 0.3}),
+        (NEED_ICU, IMPROVING_HEALTH): BucketDict({0: ...}),
+        (IMPROVING_HEALTH, NEED_ICU): BucketDict({0: 0}),
+        (IMPROVING_HEALTH, PRE_RECOVERED): BucketDict({0: ...}),
+        (IMPROVING_HEALTH, MILD_CONDITION): BucketDict({0: 0}),
+        (PRE_RECOVERED, RECOVERED): BucketDict({0: ...}),
+        (ASYMPTOMATIC, RECOVERED): BucketDict({0: ...})
+    }
+
     # infections ratios, See bucket dict for more info on how to use.
-    pre_symptomatic_infection_ratio: BucketDict[int, int] = BucketDict({0: [0.14, 0.86, 1]})  # if x greater than biggest key, x is biggest key
-    asymptomatic_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0.14, 0.86, 1, 0.82, 0.59, 0.41, 0.27, 0.18, 0.14, 0.09, 0.05]})
-    mild_condition_infection_ratio: BucketDict[int, int] = BucketDict({0: [0.82, 0.59, 0.41, 0.27, 0.18, 0.14, 0.09, 0.05]})
-    latent_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
-    need_close_medical_care_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
-    need_icu_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
-    improving_health_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
-    pre_recovered_infection_ratio:  BucketDict[int, int] = BucketDict({0: [0]})
+    infection_ratio: Dict[str, BucketDict[int, List[int]]] = {
+        PRE_SYMPTOMATIC1: BucketDict({0: [1]}),
+        PRE_SYMPTOMATIC2: BucketDict({0: [0.86, 1]}),
+        PRE_SYMPTOMATIC3: BucketDict({0: [0.14, 0.86, 1]}),
+        ASYMPTOMATIC: BucketDict({0: [0.14, 0.86, 1, 0.82,0.59, 0.41, 0.27, 0.18, 0.14, 0.09,0.05]}),
+        MILD_CONDITION: BucketDict({0: [0.82, 0.59, 0.41,0.27, 0.18, 0.14,0.09, 0.05, 0, 0, 0, 0]}),
+        LATENT: BucketDict({0: [0]}),
+        NEED_OF_CLOSE_MEDICAL_CARE: BucketDict({0: [0]}),
+        NEED_ICU: BucketDict({0: [0]}),
+        IMPROVING_HEALTH: BucketDict({0: [0]}),
+        PRE_RECOVERED: BucketDict({0: [0]})
+    }
+
     # base r0 of the disease
     r0: float = 2.4
 
@@ -167,7 +180,9 @@ class Consts(NamedTuple):
     susceptible_test_willingness: float = 0.01
     latent_test_willingness: float = 0.01
     asymptomatic_test_willingness: float = 0.01
-    pre_symptomatic_test_willingness: float = 0.01
+    pre_symptomatic1_test_willingness: float = 0.01
+    pre_symptomatic2_test_willingness: float = 0.01
+    pre_symptomatic3_test_willingness: float = 0.01
     mild_condition_test_willingness: float = 0.6
     need_close_medical_care_test_willingness: float = 0.9
     need_icu_test_willingness: float = 1.0
@@ -187,8 +202,10 @@ class Consts(NamedTuple):
                 NEED_ICU: .98,
                 NEED_OF_CLOSE_MEDICAL_CARE: .98,
                 MILD_CONDITION: .98,
-                PRE_SYMPTOMATIC: .98,
-                ASYMPTOMATIC: .98,
+                PRE_SYMPTOMATIC1: .98,
+                PRE_SYMPTOMATIC2: .98,
+                PRE_SYMPTOMATIC3: .98,
+                ASYMPTOMATIC: .98
             }, time_dist_until_result=dist(3)),  # Constant distribution
             daily_num_of_tests_schedule={0: 100, 10: 1000, 20: 2000, 50: 5000},
             testing_gap_after_positive_test=2,
@@ -214,8 +231,10 @@ class Consts(NamedTuple):
                 NEED_ICU: .92,
                 NEED_OF_CLOSE_MEDICAL_CARE: .92,
                 MILD_CONDITION: .92,
-                PRE_SYMPTOMATIC: .92,
-                ASYMPTOMATIC: .92,
+                PRE_SYMPTOMATIC1: .92,
+                PRE_SYMPTOMATIC2: .92,
+                PRE_SYMPTOMATIC3: .92,
+                ASYMPTOMATIC: .92
             }, time_dist_until_result=dist(5)),  # Constant distribution
             daily_num_of_tests_schedule={0: 500, 10: 1500, 20: 2500, 50: 7000},
             testing_gap_after_positive_test=3,
@@ -247,7 +266,8 @@ class Consts(NamedTuple):
     # each conditioned policy actives a specific policy when a condition is satisfied.
     # each policy changes the multiplication factor of a specific circle.
     # each policy is activated only if a list of terms is fulfilled.
-    connection_type_to_conditioned_policy: Dict[ConnectionTypes, List[ConditionedPolicy]] = {
+    connection_type_to_conditioned_policy: Dict[ConnectionTypes, List[ConditionedPolicy]] = \
+        {
         ConnectionTypes.School: [
             ConditionedPolicy(
                 activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
@@ -350,52 +370,69 @@ class Consts(NamedTuple):
         latent = ContagiousStochasticState(
             self.LATENT,
             detectable=False,
-            contagiousness=self.latent_infection_ratio,
+            contagiousness=self.infection_ratio[self.LATENT],
             test_willingness=self.latent_test_willingness)
+
         asymptomatic = ContagiousStochasticState(
             self.ASYMPTOMATIC,
             detectable=True,
-            contagiousness=self.asymptomatic_infection_ratio,
+            contagiousness=self.infection_ratio[self.ASYMPTOMATIC],
             test_willingness=self.asymptomatic_test_willingness
         )
-        pre_symptomatic = ContagiousStochasticState(
-            self.PRE_SYMPTOMATIC,
+
+        pre_symptomatic1 = ContagiousStochasticState(
+            self.PRE_SYMPTOMATIC1,
             detectable=True,
-            contagiousness=self.pre_symptomatic_infection_ratio,
-            test_willingness=self.pre_symptomatic_test_willingness,
+            contagiousness=self.infection_ratio[self.PRE_SYMPTOMATIC1],
+            test_willingness=self.pre_symptomatic1_test_willingness,
         )
+
+        pre_symptomatic2 = ContagiousStochasticState(
+            self.PRE_SYMPTOMATIC2,
+            detectable=True,
+            contagiousness=self.infection_ratio[self.PRE_SYMPTOMATIC2],
+            test_willingness=self.pre_symptomatic2_test_willingness,
+        )
+
+        pre_symptomatic3 = ContagiousStochasticState(
+            self.PRE_SYMPTOMATIC3,
+            detectable=True,
+            contagiousness=self.infection_ratio[self.PRE_SYMPTOMATIC3],
+            test_willingness=self.pre_symptomatic3_test_willingness,
+        )
+
         mild_condition = ContagiousStochasticState(
             self.MILD_CONDITION,
             detectable=True,
-            contagiousness=self.mild_condition_infection_ratio,
+            contagiousness=self.infection_ratio[self.MILD_CONDITION],
             test_willingness=self.mild_condition_test_willingness,
         )
 
         need_close_medical_care = ContagiousStochasticState(
             self.NEED_OF_CLOSE_MEDICAL_CARE,
             detectable=True,
-            contagiousness=self.need_close_medical_care_infection_ratio,
+            contagiousness=self.infection_ratio[self.NEED_OF_CLOSE_MEDICAL_CARE],
             test_willingness=self.need_close_medical_care_test_willingness,
         )
 
         need_icu = ContagiousStochasticState(
             self.NEED_ICU,
             detectable=True,
-            contagiousness=self.need_icu_infection_ratio,
+            contagiousness=self.infection_ratio[self.NEED_ICU],
             test_willingness=self.need_icu_test_willingness
         )
 
         improving_health = ContagiousStochasticState(
             self.IMPROVING_HEALTH,
             detectable=True,
-            contagiousness=self.improving_health_infection_ratio,
+            contagiousness=self.infection_ratio[self.IMPROVING_HEALTH],
             test_willingness=self.improving_health_test_willingness
         )
 
         pre_recovered = ContagiousStochasticState(
             self.PRE_RECOVERED,
             detectable=True,
-            contagiousness=self.pre_recovered_infection_ratio,
+            contagiousness=self.infection_ratio[self.PRE_RECOVERED],
             test_willingness=self.pre_recovered_test_willingness
         )
 
@@ -408,86 +445,116 @@ class Consts(NamedTuple):
         ret = MedicalStateMachine(susceptible, latent)
 
         latent.add_transfer(
-            asymptomatic,
-            duration=self.latent_to_asymptomatic_days,
-            probability=self.latent_to_asymptomatic_prob
+            pre_symptomatic1,
+            duration=self.days_dist[(self.LATENT, self.PRE_SYMPTOMATIC1)],
+            probability=self.transition_prob[(self.LATENT, self.PRE_SYMPTOMATIC1)]
         )
         latent.add_transfer(
-            pre_symptomatic,
-            duration=self.latent_to_pre_symptomatic_days,
-            probability=self.latent_to_pre_symptomatic_prob
+            pre_symptomatic2,
+            duration=self.days_dist[(self.LATENT, self.PRE_SYMPTOMATIC2)],
+            probability=self.transition_prob[(self.LATENT, self.PRE_SYMPTOMATIC2)]
+        )
+        latent.add_transfer(
+            pre_symptomatic3,
+            duration=self.days_dist[(self.LATENT, self.PRE_SYMPTOMATIC3)],
+            probability=self.transition_prob[(self.LATENT, self.PRE_SYMPTOMATIC3)]
+        )
+        latent.add_transfer(
+            mild_condition,
+            duration=self.days_dist[(self.LATENT, self.MILD_CONDITION)],
+            probability=self.transition_prob[(self.LATENT, self.MILD_CONDITION)]
         )
 
-        pre_symptomatic.add_transfer(
+        latent.add_transfer(
+            asymptomatic,
+            duration=self.days_dist[(self.LATENT, self.ASYMPTOMATIC)],
+            probability=self.transition_prob[(self.LATENT, self.ASYMPTOMATIC)]
+        )
+
+        pre_symptomatic1.add_transfer(
             mild_condition,
-            duration=self.pre_symptomatic_to_mild_days,
-            probability=self.pre_symptomatic_to_mild_prob
+            duration=self.days_dist[(self.PRE_SYMPTOMATIC1, self.MILD_CONDITION)],
+            probability=self.transition_prob[(self.PRE_SYMPTOMATIC1, self.MILD_CONDITION)]
+        )
+        pre_symptomatic2.add_transfer(
+            mild_condition,
+            duration=self.days_dist[(self.PRE_SYMPTOMATIC2, self.MILD_CONDITION)],
+            probability=self.transition_prob[(self.PRE_SYMPTOMATIC2, self.MILD_CONDITION)]
+        )
+        pre_symptomatic3.add_transfer(
+            mild_condition,
+            duration=self.days_dist[(self.PRE_SYMPTOMATIC3, self.MILD_CONDITION)],
+            probability=self.transition_prob[(self.PRE_SYMPTOMATIC3, self.MILD_CONDITION)]
         )
 
         mild_condition.add_transfer(
             need_close_medical_care,
-            duration=self.mild_to_close_medical_care_days,
-            probability=self.mild_to_close_medical_care_prob
+            duration=self.days_dist[(self.MILD_CONDITION, self.NEED_OF_CLOSE_MEDICAL_CARE)],
+            probability = self.transition_prob[(self.MILD_CONDITION, self.NEED_OF_CLOSE_MEDICAL_CARE)]
         )
+
         mild_condition.add_transfer(
             need_icu,
-            duration=self.mild_to_need_icu_days,
-            probability=self.mild_to_need_icu_prob
+            duration=self.days_dist[(self.MILD_CONDITION, self.NEED_ICU)],
+            probability= self.transition_prob[(self.MILD_CONDITION, self.NEED_ICU)]
         )
+
         mild_condition.add_transfer(
             pre_recovered,
-            duration=self.mild_to_pre_recovered_days,
-            probability=self.mild_to_pre_recovered_prob
+            duration=self.days_dist[(self.MILD_CONDITION, self.PRE_RECOVERED)],
+            probability= self.transition_prob[(self.MILD_CONDITION, self.PRE_RECOVERED)]
         )
 
         need_close_medical_care.add_transfer(
             need_icu,
-            duration=self.close_medical_care_to_icu_days,
-            probability=self.close_medical_care_to_icu_prob
+            duration=self.days_dist[(self.NEED_OF_CLOSE_MEDICAL_CARE, self.NEED_ICU)],
+            probability=self.transition_prob[(self.NEED_OF_CLOSE_MEDICAL_CARE, self.NEED_ICU)]
         )
         need_close_medical_care.add_transfer(
-            mild_condition,
-            duration=self.close_medical_care_to_mild_days,
-            probability=self.close_medical_care_to_mild_prob
+            improving_health,
+            duration=self.days_dist[(self.NEED_OF_CLOSE_MEDICAL_CARE, self.IMPROVING_HEALTH)],
+            probability=self.transition_prob[(self.NEED_OF_CLOSE_MEDICAL_CARE, self.IMPROVING_HEALTH)]
         )
 
         need_icu.add_transfer(
             deceased,
-            duration=self.need_icu_to_deceased_days,
-            probability=self.need_icu_to_deceased_prob
+            duration=self.days_dist[(self.NEED_ICU, self.DECEASED)],
+            probability=self.transition_prob[(self.NEED_ICU, self.DECEASED)]
         )
         need_icu.add_transfer(
             improving_health,
-            duration=self.need_icu_to_improving_days,
-            probability=self.need_icu_to_improving_prob
+            duration=self.days_dist[(self.NEED_ICU, self.IMPROVING_HEALTH)],
+            probability=self.transition_prob[(self.NEED_ICU, self.IMPROVING_HEALTH)]
         )
 
         improving_health.add_transfer(
             need_icu,
-            duration=self.improving_to_need_icu_days,
-            probability=self.improving_to_need_icu_prob
+            duration=self.days_dist[(self.IMPROVING_HEALTH, self.NEED_ICU)],
+            probability=self.transition_prob[(self.IMPROVING_HEALTH, self.NEED_ICU)]
         )
+
         improving_health.add_transfer(
             pre_recovered,
-            duration=self.improving_to_pre_recovered_days,
-            probability=self.improving_to_pre_recovered_prob
+            duration=self.days_dist[(self.IMPROVING_HEALTH, self.PRE_RECOVERED)],
+            probability=self.transition_prob[(self.IMPROVING_HEALTH, self.PRE_RECOVERED)]
         )
+
         improving_health.add_transfer(
             mild_condition,
-            duration=self.improving_to_mild_condition_days,
-            probability=self.improving_to_mild_condition_prob
+            duration=self.days_dist[(self.IMPROVING_HEALTH, self.MILD_CONDITION)],
+            probability= self.transition_prob[(self.IMPROVING_HEALTH, self.MILD_CONDITION)]
         )
 
         pre_recovered.add_transfer(
             recovered,
-            duration=self.pre_recovered_to_recovered_days,
-            probability=self.pre_recovered_to_recovered_prob
+            duration=self.days_dist[(self.PRE_RECOVERED, self.RECOVERED)],
+            probability=self.transition_prob[(self.PRE_RECOVERED, self.RECOVERED)]
         )
 
         asymptomatic.add_transfer(
             recovered,
-            duration=self.asymptomatic_to_recovered_days,
-            probability=self.asymptomatic_to_recovered_prob
+            duration=self.days_dist[(self.ASYMPTOMATIC, self.RECOVERED)],
+            probability=self.transition_prob[(self.ASYMPTOMATIC, self.RECOVERED)]
         )
 
         return ret

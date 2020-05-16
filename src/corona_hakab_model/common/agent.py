@@ -18,14 +18,14 @@ class Agent:
     This class represents a person in our doomed world.
     """
 
-    __slots__ = ("index", "medical_state", "manager", "age", "state_entry_day", "contagiousness_day_offset")
+    __slots__ = ("index", "medical_state", "manager", "age", "state_entry_day")
 
     # todo note that this changed to fit generation. should update simulation manager accordingly
     def __init__(self, index, age=None):
         self.index = index
         self.age = age
         self.state_entry_day = 0
-        self.contagiousness_day_offset = 0
+
         # don't know if this is necessary
         self.manager: SimulationManager = None
         self.medical_state: MedicalState = None
@@ -58,17 +58,13 @@ class Agent:
     def days_in_current_state(self):
         return self.manager.current_step - self.state_entry_day
 
-    def update_contagiousness_day_offset(self, offset):
-        self.contagiousness_day_offset = offset
-
     def update_contagiousness(self):
         state_contagiousness_vector = self.medical_state.contagiousness[self.age]
-        # self.manager.contagiousness_vector[self.index] = state_contagiousness_vector
-        if self.contagiousness_day_offset + self.days_in_current_state() >= len(state_contagiousness_vector):
+        if self.days_in_current_state() >= len(state_contagiousness_vector):
             new_contagiousness = 0
         else:
             new_contagiousness = state_contagiousness_vector[
-                self.contagiousness_day_offset + self.days_in_current_state()
+                self.days_in_current_state()
             ]
         self.manager.contagiousness_vector[self.index] = new_contagiousness
 

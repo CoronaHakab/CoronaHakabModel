@@ -1,37 +1,64 @@
 import random
 from abc import abstractmethod
 from collections import OrderedDict
-from typing import Generic, List, Protocol, TypeVar
+from typing import Generic, List, Protocol, TypeVar, Callable
 from functools import partial
 import numpy as np
+import scipy.stats as stats
+
+
+class DiscreteDistribution(object):
+    def __init__(self, domain:List[int], probs: List[float], prf: Callable):
+        self.domain = domain
+        self.probs = probs
+        self.prf = prf
+
+    def __call__(self, size=None):
+        return self.prf(size)
+
+    def prob(self, day):
+        if day not in self.domain:
+            return 0
+        day_index = self.domain.index(day)
+        return self.probs[day_index]
 
 
 def dist(*args):
     def const_dist(a):
-        return partial(lambda size=None: np.random.choice([a], size=size))
+        domain = [a]
+        probs = [1.]
+        prf = partial(lambda size=None: np.random.choice(domain, size=size))
+        return DiscreteDistribution(domain, probs, prf)
 
     def uniform_dist(a, b):
-        range_to_choose_from = list(range(a, b+1))
-        return partial(lambda size=None: np.random.choice(range_to_choose_from, size=size))
+        domain = list(range(a, b+1))
+        probs = [1. / len(domain)] * len(domain)
+        prf = partial(lambda size=None: np.random.choice(domain, size=size))
+        return DiscreteDistribution(domain, probs, prf)
 
     def weighted_dist(elements, p):
-        return partial(lambda size=None: random.choices(elements, weights=p, k=size))
-        # return partial(lambda size=None: np.random.choice(elements, size=size, p = p))
+        prf = partial(lambda size=None: random.choices(elements, weights=p, k=size))
+        return DiscreteDistribution(elements, p, prf)
 
     def off_binom(a, c, b):
         # todo I have no idea what this distribution supposedly represents, we're gonna pretend it's
         #  an offset-binomial whose mean is c and call it a day
         n = b-a
         p = (c-a)/(b-a)
-        return partial(lambda size=None: np.random.binomial(n=n,
-                                                            p=p,
-                                                            size=size) + a)
+        domain = list(range(a, b + 1))
+
+        binom_rv = stats.binom(n, p, loc = a) # Calculates "Binom(n, p) + a"
+        probs = [binom_rv.pmf(day) for day in domain]
+
+        prf = partial(lambda size=None: np.random.binomial(n=n, p=p, size=size) + a)
+        return DiscreteDistribution(domain, probs, prf)
 
     if len(args) == 1:
         return const_dist(*args)
     if len(args) == 2:
-        if type(args[0]) == list and type(args[1]) == list:
+        if isinstance(args[0], list) and isinstance(args[1], list):
             assert len(args[0]) == len(args[1]), f"Elements and weights vectors should be in same size! (elements: {len(args[0])}, weights: {len(args[1])})"
+            assert len(args[0]) > 0, f"Elements and weights' vectors must be non-empty!"
             return weighted_dist(*args)
         else:
             return uniform_dist(*args)
