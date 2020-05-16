@@ -1,4 +1,3 @@
-import random
 from abc import abstractmethod
 from collections import OrderedDict
 from typing import Generic, List, Protocol, TypeVar, Callable
@@ -23,6 +22,11 @@ class DiscreteDistribution(object):
         return self.probs[day_index]
 
 
+def normalize_probabilities(lst):
+    np_lst = np.array(lst)
+    return np_lst / np_lst.sum()
+
+
 def dist(*args):
     def const_dist(a):
         domain = [a]
@@ -37,7 +41,11 @@ def dist(*args):
         return DiscreteDistribution(domain, probs, prf)
 
     def weighted_dist(elements, p):
-        prf = partial(lambda size=None: random.choices(elements, weights=p, k=size))
+        # Due to rounding errors, sum(p)~1, which raises errors when using np.random.choice (idk why it works using random.choices)
+        assert abs(sum(p) - 1) <= 0.05, f"Sum of weighted probabilities should be 1! (got {sum(p)})"
+        if sum(p) != 1:  # Normalize probabilities if sum(p) != 1
+            p = normalize_probabilities(p)
+        prf = partial(lambda size=None: np.random.choice(elements, p=p, size=size))
         return DiscreteDistribution(elements, p, prf)
 
     def off_binom(a, c, b):
