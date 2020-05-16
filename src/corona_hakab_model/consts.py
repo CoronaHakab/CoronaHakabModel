@@ -341,6 +341,7 @@ class Consts(NamedTuple):
     def export(self, export_path, file_name: str = "simulation_consts.json"):
         if not file_name.endswith(".json"):
             file_name += ".json"
+        jsonpickle.set_encoder_options('json', sort_keys=True, indent=4)
         with open(os.path.join(export_path, file_name), "w") as export_file:
             export_file.write(jsonpickle.encode(self._asdict()))
 
