@@ -49,8 +49,7 @@ class DetectionTest:
 class DetectionPriority:
     def __init__(self,
                  func: Callable,
-                 max_tests: int = inf,
-                 priority: int = 0):
+                 max_tests: int = inf):
         """
         medical test for infection detection.
         supports max number of tests for its kind. if not specified, will be infinity.
@@ -62,7 +61,6 @@ class DetectionPriority:
         self.func = func
         self.max_tests = max_tests
         self.count = 0
-        self.priority = priority
 
     def is_agent_prioritized(self, agent: Agent) -> bool:
         """
