@@ -52,8 +52,7 @@ class StochasticTransferGenerator:
                 p = 1 - np.sum(self.probs_cumulative[age])
             else:
                 p = prob
-            self.probs_cumulative[age] = np.append(self.probs_cumulative[age],
-                                                   p)
+            self.probs_cumulative[age] = np.append(self.probs_cumulative[age], p)
         # todo improve?
             if np.sum(self.probs_cumulative[age]) > 1:
                 raise ValueError("Probabilities sum to more than 1")
@@ -148,6 +147,10 @@ class StochasticState(State):
     @property
     def destinations(self):
         return self.generator.destinations
+
+    @property
+    def probs_cumulative(self):
+        return self.generator.probs_cumulative
 
 
 class AgentAwareState(State):

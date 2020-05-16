@@ -6,6 +6,7 @@ import numpy as np
 
 from analyzers.state_machine_analysis import monte_carlo_state_machine_analysis
 from common.social_circle import SocialCircle
+from common.state_machine import StochasticState
 from generation.connection_types import ConnectionTypes
 from policies_manager import ConditionedPolicy, Policy
 
@@ -50,7 +51,29 @@ class UpdateMatrixManager:
             states_time = machine_state_statistics['state_duration_expected_time']
             total_contagious_probability = 0
             for state in self.manager.medical_machine.states:
-                total_contagious_probability += states_time[state.name] * state.contagiousness.mean_val
+                if not isinstance(state, StochasticState):
+                    continue
+                weighted_mean_state_contagiousness = 0.
+                for dest_state, transition_prob in zip(state.destinations, state.probs_cumulative[0]):
+                    # Skip if the transition between these two states is impossible
+                    if (state.name, dest_state.name) not in self.consts.transition_prob:
+                        continue
+                    transition_days_dist = self.consts.days_dist[(state.name, dest_state.name)][0]
+                    state_infection_ratio = self.consts.infection_ratio[state.name][0]
+                    cumsum_infection_ratio = np.cumsum(state_infection_ratio)
+
+                    # Assuming: infection_days \subset transition_days_dist.domain
+                    infection_days = range(1, len(cumsum_infection_ratio) + 1)
+                    avg_cumsum_infection_ratio = np.divide(cumsum_infection_ratio, infection_days)
+                    weighted_mean_state_contagiousness += transition_prob * np.dot(
+                        avg_cumsum_infection_ratio,
+                        [transition_days_dist.prob(day) for day in infection_days]
+                    )
+                total_contagious_probability += states_time[state.name] * weighted_mean_state_contagiousness
+
+                # mean_state_contagiousness = state.contagiousness.mean_val
+                # total_contagious_probability += states_time[state.name] * mean_state_contagiousness
+
             beta = self.consts.r0 / total_contagious_probability
 
             # saves this for the effective r0 graph
@@ -62,7 +85,7 @@ class UpdateMatrixManager:
 
             # this factor should be calculated once when the matrix is full, and be left un-changed for the rest of the run.
             self.normalize_factor = (beta * self.size) / (self.matrix.total() + random_total)
-
+            self.logger.info(f"Normalizing factor: {self.normalize_factor}")
             # Normalize random connections (only once!)
             self.manager.random_connections_strength *= self.normalize_factor
 
