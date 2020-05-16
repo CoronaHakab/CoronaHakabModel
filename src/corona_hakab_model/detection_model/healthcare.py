@@ -87,15 +87,14 @@ class HealthcareManager:
     def _test_according_to_priority(self, num_of_tests, test_candidates_inds, test_location, tested):
         for detection_priority in list(test_location.testing_priorities):
             # First test the prioritized candidates
-            num_of_tests_for_pri = min(detection_priority.max_tests, num_of_tests)
-            who_to_test = np.random.choice(list(test_candidates_inds),
-                                           size=num_of_tests_for_pri,
-                                           replace=False)
-            for ind in who_to_test:
+            who_to_test = np.random.permutation(list(test_candidates_inds))
+            for ind, tested_agent in enumerate(who_to_test):
                 # permute the indices so we won't always test the lower indices
-                if detection_priority.is_agent_prioritized(self.manager.agents[ind]):
-                    tested.append(test_location.detection_test.test(self.manager.agents[ind]))
-                    test_candidates_inds.remove(ind)  # Remove so it won't be tested again
+                if detection_priority.is_agent_prioritized(self.manager.agents[tested_agent]):
+                    tested.append(test_location.detection_test.test(self.manager.agents[tested_agent]))
+                    test_candidates_inds.remove(tested_agent)  # Remove so it won't be tested again
+                if tested_agent == num_of_tests:
+                    break
             num_of_tests -= len(who_to_test)
         return num_of_tests
 
