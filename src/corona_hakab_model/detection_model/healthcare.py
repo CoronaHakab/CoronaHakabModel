@@ -73,7 +73,7 @@ class HealthcareManager:
             test_candidates_inds = set(np.flatnonzero(test_candidates))
             test_candidates_inds -= set(result.agent.index for result in tested)
 
-            if len(test_candidates_inds) < num_of_tests:
+            if len(test_candidates_inds) <= num_of_tests:
                 # There are more tests than candidates. Don't check the priorities
                 for ind in test_candidates_inds:
                     tested.append(test_location.detection_test.test(self.manager.agents[ind]))
@@ -87,15 +87,16 @@ class HealthcareManager:
     def _test_according_to_priority(self, num_of_tests, test_candidates_inds, test_location, tested):
         for detection_priority in list(test_location.testing_priorities):
             # First test the prioritized candidates
-            for ind in np.random.permutation(list(test_candidates_inds)):
+            num_of_tests_for_pri = min(detection_priority.max_tests, num_of_tests)
+            who_to_test = np.random.choice(list(test_candidates_inds),
+                                           size=num_of_tests_for_pri,
+                                           replace=False)
+            for ind in who_to_test:
                 # permute the indices so we won't always test the lower indices
                 if detection_priority.is_agent_prioritized(self.manager.agents[ind]):
                     tested.append(test_location.detection_test.test(self.manager.agents[ind]))
                     test_candidates_inds.remove(ind)  # Remove so it won't be tested again
-                    num_of_tests -= 1
-
-                    if num_of_tests == 0:
-                        return 0
+            num_of_tests -= len(who_to_test)
         return num_of_tests
 
     def progress_tests(self, new_tests: List[PendingTestResult]):
