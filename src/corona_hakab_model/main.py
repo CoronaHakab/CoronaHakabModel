@@ -12,16 +12,18 @@ import numpy as np
 from analyzers.fit_to_graph import compare_real_to_simulation
 from analyzers.state_machine_analysis import extract_state_machine_analysis
 from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
+from common.isolation_types import IsolationTypes
 from consts import Consts
 from generation.circles_generator import PopulationData
 from generation.generation_manager import GenerationManger
-from generation.matrix_generator import MatrixData
+from generation.matrix_generator import MatrixData, ConnectionData
 from generation.connection_types import ConnectionTypes
 from manager import SimulationManager
 from common.agent import InitialAgentsConstraints
 from subconsts.modules_argpasers import get_simulation_args_parser
 from supervisor import LambdaValueSupervisable, Supervisable
 from analyzers import matrix_analysis
+from analyzers.random_connections_analysis import RandomConnectionsAnalysis
 
 
 from typing import TYPE_CHECKING
@@ -42,6 +44,9 @@ def main():
 
     if args.sub_command == 'analyze-matrix':
         analyze_matrix(args)
+
+    if args.sub_command == 'analyze-random-connections':
+        analyze_random_connections(args)
 
     if args.sub_command == 'shift-real-life':
         sys.argv = sys.argv[1:]
@@ -93,6 +98,7 @@ def run_simulation(args):
 
     matrix_data = MatrixData.import_matrix_data(args.matrix_data)
     population_data = PopulationData.import_population_data(args.population_data)
+    connection_data = ConnectionData.import_connection_data(args.connection_data)
     initial_agent_constraints = InitialAgentsConstraints(args.agent_constraints_path)
     if args.simulation_parameters_path:
         consts = Consts.from_file(args.simulation_parameters_path)
@@ -181,6 +187,7 @@ def run_simulation(args):
         ),
         population_data,
         matrix_data,
+        connection_data,
         initial_agent_constraints,
         run_args=args,
         consts=consts,
@@ -193,7 +200,7 @@ def run_simulation(args):
     df.plot()
     if args.figure_path:
         if not os.path.splitext(args.figure_path)[1]:
-            args.figure_path = args.figure_path+'.png'
+            args.figure_path = args.figure_path + '.png'
         plt.savefig(args.figure_path)
 
     if args.show_plot:
@@ -207,13 +214,18 @@ def set_seeds(seed=0):
 
 
 def analyze_matrix(args):
-    matrix_data = matrix_analysis.import_matrix_data(args.matrix_path)
-    matrix_analysis.export_raw_matrices_to_csv(matrix_data)
-    histograms = matrix_analysis.analyze_histograms(matrix_data)
+    matrices = matrix_analysis.import_matrix_as_csr(args.matrix_path)
+    matrix_analysis.export_raw_matrices_to_csv(matrices)
+    histograms = matrix_analysis.analyze_histograms(matrices)
     matrix_analysis.export_histograms(histograms)
     matrix_analysis.save_histogram_plots(histograms)
     if args.show:
         plt.show()
+
+
+def analyze_random_connections(args):
+    analyzer = RandomConnectionsAnalysis(args.population_data_path)
+    analyzer.run_all(args.show)
 
 
 if __name__ == "__main__":

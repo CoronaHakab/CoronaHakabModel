@@ -6,6 +6,7 @@ import numpy as np
 from numpy.random import random
 
 from common.detection_testing_types import DetectionSettings, DetectionPriority, DetectionTest
+from common.isolation_types import IsolationTypes
 from generation.connection_types import ConnectionTypes
 from common.medical_state import ContagiousState, ImmuneState, SusceptibleState
 from common.medical_state_machine import MedicalStateMachine
@@ -14,6 +15,7 @@ from common.state_machine import StochasticState, TerminalState
 from common.util import dist, BucketDict, DiscreteDistribution
 
 TransitionProbType = BucketDict[int, Union[float, type(...)]]
+IsolationFactorsType = Dict[IsolationTypes, Dict[ConnectionTypes, float]]
 
 """
 Overview:
@@ -247,9 +249,25 @@ class Consts(NamedTuple):
             ]),
     ]
     should_isolate_positive_detected: bool = False
-    isolate_after_num_day: int = 1  # will be in isolation the next day.
-    p_will_obey_isolation: float = 1.0  # 100% will obey the isolation.
-    isolation_factor: float = 0.0  # reduce agent's relations strength by a factor.
+    step_to_isolate_dist: Callable = dist(1, 3)  # Isolated today, tomorrow or in 2 days
+    sick_to_p_obey_isolation: Dict[bool, float] = {
+        True: 1.0,  # 100% sick will obey the isolation.
+        False: .95  # If not sick, 95% to obey isolation
+    }
+    isolation_factor: IsolationFactorsType = {
+        IsolationTypes.HOME: {
+            ConnectionTypes.Family: .8,
+            ConnectionTypes.Work: .0,
+            ConnectionTypes.School: .0,
+            ConnectionTypes.Other: .0
+        },
+        IsolationTypes.HOTEL: {
+            ConnectionTypes.Family: .0,
+            ConnectionTypes.Work: .0,
+            ConnectionTypes.School: .0,
+            ConnectionTypes.Other: .0
+        },
+    }
 
     # --policies params--
     change_policies: bool = False
@@ -261,52 +279,96 @@ class Consts(NamedTuple):
         100: (ConnectionTypes, "opening works"),
     }
     # policies acting on a specific connection type, when a term is satisfied
-    partial_opening_active: bool = False
+    partial_opening_active: bool = True
     # each connection type gets a list of conditioned policies.
     # each conditioned policy actives a specific policy when a condition is satisfied.
     # each policy changes the multiplication factor of a specific circle.
     # each policy is activated only if a list of terms is fulfilled.
     connection_type_to_conditioned_policy: Dict[ConnectionTypes, List[ConditionedPolicy]] = \
         {
-        ConnectionTypes.School: [
-            ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
-                policy=Policy(0, [lambda circle: True]),
-                message="closing all schools",
-            ),
-            ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) < 500,
-                policy=Policy(1, [lambda circle: False]),
-                active=True,
-                message="opening all schools",
-            ),
-        ],
-        ConnectionTypes.Kindergarten: [
-            ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
-                policy=Policy(0, [lambda circle: True]),
-                message="closing all kindergartens",
-            ),
-            ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) < 500,
-                policy=Policy(1, [lambda circle: False]),
-                active=True,
-                message="opening all kindergartens",
-            ),
-        ],
-        ConnectionTypes.Work: [
-            ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) > 1000,
-                policy=Policy(0, [lambda circle: True]),
-                message="closing all workplaces",
-            ),
-            ConditionedPolicy(
-                activating_condition=lambda kwargs: np.count_nonzero(kwargs["manager"].contagiousness_vector > 0) < 500,
-                policy=Policy(0, [lambda circle: False]),
-                active=True,
-                message="opening all workplaces",
-            ),
-        ],
+            ConnectionTypes.Other: [
+                ConditionedPolicy(
+                    activating_condition=lambda manager: 22 <= manager.current_step <= 28,
+                    policy=Policy(0.92, [lambda circle: True]),
+                    reset_current_limitations=False,
+                    dont_repeat_while_active=False,
+                    message="",
+                ),
+                ConditionedPolicy(
+                    activating_condition=lambda manager: manager.current_step == 29,
+                    policy=Policy(0.5, [lambda circle: True], [lambda agent: random() < 0.2]),
+                    reset_current_limitations=False,
+                    dont_repeat_while_active=False,
+                    message="",
+                ),
+                ConditionedPolicy(
+                    activating_condition=lambda manager: manager.current_step == 30,
+                    policy=Policy(0.92 ** 7, [lambda circle: True], [lambda agent: True]),
+                    reset_current_limitations=True,
+                    dont_repeat_while_active=False,
+                    message="",
+                ),
+                ConditionedPolicy(
+                    activating_condition=lambda manager: manager.current_step == 30,
+                    policy=Policy(0.5, [lambda circle: True], [lambda agent: random() < 0.36]),
+                    reset_current_limitations=False,
+                    dont_repeat_while_active=False,
+                    message="",
+                ),
+                ConditionedPolicy(
+                    activating_condition=lambda manager: manager.current_step == 31,
+                    policy=Policy(0.92 ** 7, [lambda circle: True], [lambda agent: True]),
+                    reset_current_limitations=True,
+                    dont_repeat_while_active=False,
+                    message="",
+                ),
+                ConditionedPolicy(
+                    activating_condition=lambda manager: manager.current_step == 31,
+                    policy=Policy(0.5, [lambda circle: True], [lambda agent: random() < 0.5]),
+                    reset_current_limitations=False,
+                    dont_repeat_while_active=False,
+                    message="",
+                ),
+            ]
+        # ConnectionTypes.School: [
+        #     ConditionedPolicy(
+        #         activating_condition=lambda manager: np.count_nonzero(manager.contagiousness_vector > 0) > 1000,
+        #         policy=Policy(0, [lambda circle: True]),
+        #         message="closing all schools",
+        #     ),
+        #     ConditionedPolicy(
+        #         activating_condition=lambda manager: np.count_nonzero(manager.contagiousness_vector > 0) < 500,
+        #         policy=Policy(1, [lambda circle: False]),
+        #         active=True,
+        #         message="opening all schools",
+        #     ),
+        # ],
+        # ConnectionTypes.Kindergarten: [
+        #     ConditionedPolicy(
+        #         activating_condition=lambda manager: np.count_nonzero(manager.contagiousness_vector > 0) > 1000,
+        #         policy=Policy(0, [lambda circle: True]),
+        #         message="closing all kindergartens",
+        #     ),
+        #     ConditionedPolicy(
+        #         activating_condition=lambda manager: np.count_nonzero(manager.contagiousness_vector > 0) < 500,
+        #         policy=Policy(1, [lambda circle: False]),
+        #         active=True,
+        #         message="opening all kindergartens",
+        #     ),
+        # ],
+        # ConnectionTypes.Work: [
+        #     ConditionedPolicy(
+        #         activating_condition=lambda manager: np.count_nonzero(manager.contagiousness_vector > 0) > 1000,
+        #         policy=Policy(0, [lambda circle: True]),
+        #         message="closing all workplaces",
+        #     ),
+        #     ConditionedPolicy(
+        #         activating_condition=lambda manager: np.count_nonzero(manager.contagiousness_vector > 0) < 500,
+        #         policy=Policy(0, [lambda circle: False]),
+        #         active=True,
+        #         message="opening all workplaces",
+        #     ),
+        # ],
     }
 
     @classmethod
@@ -371,11 +433,13 @@ class Consts(NamedTuple):
             self.LATENT,
             detectable=False,
             contagiousness=self.infection_ratio[self.LATENT],
+            has_symptoms=False,
             test_willingness=self.latent_test_willingness)
 
         asymptomatic = ContagiousStochasticState(
             self.ASYMPTOMATIC,
             detectable=True,
+            has_symptoms=False,
             contagiousness=self.infection_ratio[self.ASYMPTOMATIC],
             test_willingness=self.asymptomatic_test_willingness
         )
@@ -383,6 +447,7 @@ class Consts(NamedTuple):
         pre_symptomatic1 = ContagiousStochasticState(
             self.PRE_SYMPTOMATIC1,
             detectable=True,
+            has_symptoms=False,
             contagiousness=self.infection_ratio[self.PRE_SYMPTOMATIC1],
             test_willingness=self.pre_symptomatic1_test_willingness,
         )
@@ -390,6 +455,7 @@ class Consts(NamedTuple):
         pre_symptomatic2 = ContagiousStochasticState(
             self.PRE_SYMPTOMATIC2,
             detectable=True,
+            has_symptoms=False,
             contagiousness=self.infection_ratio[self.PRE_SYMPTOMATIC2],
             test_willingness=self.pre_symptomatic2_test_willingness,
         )
@@ -397,6 +463,7 @@ class Consts(NamedTuple):
         pre_symptomatic3 = ContagiousStochasticState(
             self.PRE_SYMPTOMATIC3,
             detectable=True,
+            has_symptoms=False,
             contagiousness=self.infection_ratio[self.PRE_SYMPTOMATIC3],
             test_willingness=self.pre_symptomatic3_test_willingness,
         )
@@ -404,13 +471,14 @@ class Consts(NamedTuple):
         mild_condition = ContagiousStochasticState(
             self.MILD_CONDITION,
             detectable=True,
+            has_symptoms=True,
             contagiousness=self.infection_ratio[self.MILD_CONDITION],
             test_willingness=self.mild_condition_test_willingness,
         )
-
         need_close_medical_care = ContagiousStochasticState(
             self.NEED_OF_CLOSE_MEDICAL_CARE,
             detectable=True,
+            has_symptoms=True,
             contagiousness=self.infection_ratio[self.NEED_OF_CLOSE_MEDICAL_CARE],
             test_willingness=self.need_close_medical_care_test_willingness,
         )
@@ -419,12 +487,14 @@ class Consts(NamedTuple):
             self.NEED_ICU,
             detectable=True,
             contagiousness=self.infection_ratio[self.NEED_ICU],
+            has_symptoms=True,
             test_willingness=self.need_icu_test_willingness
         )
 
         improving_health = ContagiousStochasticState(
             self.IMPROVING_HEALTH,
             detectable=True,
+            has_symptoms=True,
             contagiousness=self.infection_ratio[self.IMPROVING_HEALTH],
             test_willingness=self.improving_health_test_willingness
         )
@@ -432,6 +502,7 @@ class Consts(NamedTuple):
         pre_recovered = ContagiousStochasticState(
             self.PRE_RECOVERED,
             detectable=True,
+            has_symptoms=False,
             contagiousness=self.infection_ratio[self.PRE_RECOVERED],
             test_willingness=self.pre_recovered_test_willingness
         )
@@ -532,13 +603,11 @@ class Consts(NamedTuple):
             duration=self.days_dist[(self.IMPROVING_HEALTH, self.NEED_ICU)],
             probability=self.transition_prob[(self.IMPROVING_HEALTH, self.NEED_ICU)]
         )
-
         improving_health.add_transfer(
             pre_recovered,
             duration=self.days_dist[(self.IMPROVING_HEALTH, self.PRE_RECOVERED)],
             probability=self.transition_prob[(self.IMPROVING_HEALTH, self.PRE_RECOVERED)]
         )
-
         improving_health.add_transfer(
             mild_condition,
             duration=self.days_dist[(self.IMPROVING_HEALTH, self.MILD_CONDITION)],

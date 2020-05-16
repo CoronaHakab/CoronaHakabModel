@@ -27,12 +27,14 @@ class MedicalStateManager:
         self.medical_state_machine = self.manager.medical_machine if self.manager \
             else medical_state_machine
         self.pending_transfers = PendingTransfers()
+        self.new_agents_with_symptoms = set()
 
     def step(self, new_sick: List[Agent]):
         """
         :param new_sick: List of new agents that got sick
         :return:
         """
+        self.new_agents_with_symptoms.clear()
         # all the new sick agents are leaving their previous step
         changed_state_leaving = defaultdict(list)
         # agents which are going to enter the new state
@@ -60,7 +62,9 @@ class MedicalStateManager:
                 agent.medical_state = destination
             changed_state_introduced[destination].append(agent)
             changed_state_leaving[origin].append(agent)
-
+            if destination.has_symptoms and not origin.has_symptoms:
+                if self.manager:
+                    self.new_agents_with_symptoms.add(agent)
         for state, agents in changed_state_introduced.items():
             state.add_many(agents)
             self.pending_transfers.extend(state.transfer(agents))

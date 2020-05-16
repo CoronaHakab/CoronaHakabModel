@@ -3,13 +3,21 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List
 import numpy as np
 
-from common.detection_testing_types import DetectionSettings, PendingTestResult
+from common.detection_testing_types import DetectionSettings, PendingTestResult, PendingTestResults
 
 if TYPE_CHECKING:
     from manager import SimulationManager
 
 
+def _get_current_num_of_tests(current_step, test_location: DetectionSettings):
+    closest_key = max([i for i in test_location.daily_num_of_tests_schedule.keys() if i <= current_step])
+    return test_location.daily_num_of_tests_schedule[closest_key]
+
+
 class HealthcareManager:
+
+    __slots__ = ("manager", "positive_detected_today", "pending_test_results")
+
     def __init__(self, sim_manager: SimulationManager):
         self.manager = sim_manager
         for testing_location in self.manager.consts.detection_pool:
@@ -18,6 +26,8 @@ class HealthcareManager:
                     "The initial number of tests (step=0) wasn't specified in the given schedule: "
                     f"{self.manager.consts.daily_num_of_test_schedule}"
                 )
+        self.positive_detected_today = set()
+        self.pending_test_results = PendingTestResults()
 
     def _get_testable(self, test_location: DetectionSettings):
         tested_pos_too_recently = (
@@ -40,16 +50,15 @@ class HealthcareManager:
 
         return np.logical_not(tested_pos_too_recently | tested_neg_too_recently) & self.manager.living_agents_vector
 
-    def _get_current_num_of_tests(self, current_step, test_location: DetectionSettings):
-        closest_key = max([i for i in test_location.daily_num_of_tests_schedule.keys() if i <= current_step])
-        return test_location.daily_num_of_tests_schedule[closest_key]
+    def step(self):
+        self.progress_tests(self.testing_step())
 
     def testing_step(self):
         want_to_be_tested = np.random.random(len(self.manager.agents)) < self.manager.test_willingness_vector
         tested: List[PendingTestResult] = []
 
         for test_location in self.manager.consts.detection_pool:
-            num_of_tests = self._get_current_num_of_tests(self.manager.current_step, test_location)
+            num_of_tests = _get_current_num_of_tests(self.manager.current_step, test_location)
 
             # Who can to be tested
             can_be_tested = self._get_testable(test_location)
@@ -81,3 +90,15 @@ class HealthcareManager:
                     if num_of_tests == 0:
                         return 0
         return num_of_tests
+
+    def progress_tests(self, new_tests: List[PendingTestResult]):
+        self.positive_detected_today.clear()
+        new_results = self.pending_test_results.advance()
+        for agent, test_result, _ in new_results:
+            if test_result:
+                self.positive_detected_today.add(agent.index)
+            agent.set_test_result(test_result)
+
+        for new_test in new_tests:
+            new_test.agent.set_test_start()
+            self.pending_test_results.append(new_test)

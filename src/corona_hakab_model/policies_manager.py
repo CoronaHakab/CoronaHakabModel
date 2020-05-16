@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 from collections import defaultdict
 from typing import Any, Callable, Iterable, List, Dict
 
 from common.social_circle import SocialCircle
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from manager import SimulationManager
 
 class PolicyManager:
-    def __init__(self, manager: "SimulationManager"):
+    def __init__(self, manager: SimulationManager):
         self.manager = manager
         self.update_matrix_manager = manager.update_matrix_manager
         self.consts = manager.consts
@@ -44,13 +49,22 @@ class PolicyManager:
         for con_type, conditioned_policies in self.consts.connection_type_to_conditioned_policy.items():
             circles = self.manager.social_circles_by_connection_type[con_type]
             # going through each policy activator.
-            for conditioned_policy in conditioned_policies:
-                # check if temp is satisfied
-                activating_policy, affected_circles = self.update_matrix_manager.check_and_apply(
-                    con_type, circles, conditioned_policy, manager=self.manager)
-                # Append affected circles to the daily affected circles
-                if activating_policy:
-                    self.update_daily_affected_circles(affected_circles, conditioned_policy)
+            conditional_policies_to_activate = []
+            for cond_policy in conditioned_policies:
+                if cond_policy.should_apply_policy(self.manager):
+                    conditional_policies_to_activate.append(cond_policy)
+
+            if len(conditional_policies_to_activate) > 0:
+                # Prevent rebuild of each row after each action.
+                # This line speeds up the policy activation part EXTREMELY!
+                with self.update_matrix_manager.matrix.lock_rebuild():
+                    for conditioned_policy in conditional_policies_to_activate:
+                        affected_circles = self.update_matrix_manager.apply_conditional_policy(
+                            con_type, circles, conditioned_policy)
+                        # Append affected circles to the daily affected circles
+                        self.update_daily_affected_circles(affected_circles, conditioned_policy)
+                # When exiting the "with" context, the matrix will be completely rebuilt,
+                # after all the new coefficients were set
 
     def update_daily_affected_circles(self, affected_circles, conditioned_policy):
         if conditioned_policy in self.daily_affected_circles:
@@ -78,15 +92,21 @@ class Policy:
             connection_change_factor: float,
             circle_conditions: Iterable[Callable[[Any], bool]],
             agent_conditions: Iterable[Callable[[Any], bool]] = None,
+            policy_props_update: Dict = None,
 
     ):
+
         self.factor = connection_change_factor
         self.circle_conditions = circle_conditions
+
+        if policy_props_update is None:
+            policy_props_update = dict()
 
         if agent_conditions is None:
             agent_conditions = []
 
         self.agent_conditions = agent_conditions
+        self.policy_props_update = policy_props_update
 
     @staticmethod
     def _check_applies(conditions, arg):
@@ -116,7 +136,7 @@ class ConditionedPolicy:
     __slots__ = "activating_condition", "policy", "active", "dont_repeat_while_active", "reset_current_limitations", "message"
 
     def __init__(
-            self, activating_condition: Callable[[Any], bool], policy: Policy,
+            self, activating_condition: Callable[[SimulationManager], bool], policy: Policy,
             reset_current_limitations=True,
             dont_repeat_while_active=True,
             active=False,
@@ -128,3 +148,9 @@ class ConditionedPolicy:
         self.reset_current_limitations = reset_current_limitations
         self.message = message
         self.active = active  # Is the policy currently active
+
+    def should_apply_policy(self, manager: SimulationManager):
+        activating_policy = \
+            (not self.active or not self.dont_repeat_while_active) and \
+            self.activating_condition(manager)
+        return activating_policy

@@ -19,6 +19,7 @@ pyside2 = "*"
 matplotlib = "*"
 pandas = "*"
 swimport = "*"
+jsonpickle = "*"
 
 [requires]
 python_version = "3.8"

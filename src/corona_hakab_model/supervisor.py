@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 from common.state_machine import StochasticState
+from common.medical_state import ImmuneState
 from typing import TYPE_CHECKING
 from common.histogram import TimeHistograms
 
@@ -366,17 +367,20 @@ class _CurrentInfectedTable(PeriodicReportSupervisable):
     def get(self, manager) -> Dict[str, List]:
         if self.sick_states is None:
             medical_states = manager.medical_machine.states_by_name.values()
-            self.sick_states = [s for s in medical_states if isinstance(s, StochasticState)]
+            self.sick_states = [s for s in medical_states if isinstance(s, StochasticState) or isinstance(s, ImmuneState)]
 
         agent_ids = []
+        agent_ages = []
         medical_status = []
 
         for state in self.sick_states:
             agent_ids += [agent.index for agent in state.agents]
+            agent_ages += [agent.age for agent in state.agents]
             medical_status += [state.name] * state.agent_count
         return {
-            "agent_id" : agent_ids,
-            "medical_status" : medical_status
+            "agent_id": agent_ids,
+            "agent_age": agent_ages,
+            "medical_status": medical_status
         }
 
     def name(self) -> str:
