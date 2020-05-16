@@ -177,6 +177,8 @@ class SimulationManager:
 
             # Isolate the agent
             self.step_to_isolate_agent[agent_index] = self.current_step + days_to_enter_isolation[agent_index]
+            if not self.consts.isolate_first_circle:
+                continue
             days_to_be_isolated = self.consts.home_isolation_time_bound - number_of_days_isolated
             for connection, connected_agents in self.connection_data.connected_ids_by_strength[agent_index].items():
                 # need to be home isolated

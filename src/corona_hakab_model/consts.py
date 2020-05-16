@@ -228,6 +228,7 @@ class Consts(NamedTuple):
     }
 
     isolate_symptomatic: bool = False  # Should symptomatic self isolate
+    isolate_first_circle: bool = True
     num_test_to_exit_isolation: int = 1  # Number of tests needed to get out of isolation
     home_isolation_time_bound: int = 14
 

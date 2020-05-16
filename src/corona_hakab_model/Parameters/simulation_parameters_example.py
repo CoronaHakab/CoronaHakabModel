@@ -198,6 +198,7 @@
     },
 
     "isolate_symptomatic": False,
+    "isolate_first_circle": True,
     "num_test_to_exit_isolation": 1,  # Number of tests needed to get out of isolation
     "home_isolation_time_bound": 14,
     "isolation_factor": {  # reduce agent's relations strength by a factor
