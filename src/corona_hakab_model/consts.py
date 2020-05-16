@@ -267,7 +267,7 @@ class Consts(NamedTuple):
         100: (ConnectionTypes, "opening works"),
     }
     # policies acting on a specific connection type, when a term is satisfied
-    partial_opening_active: bool = True
+    partial_opening_active: bool = False
     # each connection type gets a list of conditioned policies.
     # each conditioned policy actives a specific policy when a condition is satisfied.
     # each policy changes the multiplication factor of a specific circle.
