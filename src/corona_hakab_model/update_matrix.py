@@ -64,12 +64,12 @@ class UpdateMatrixManager:
 
                     # Assuming: infection_days \subset transition_days_dist.domain
                     infection_days = range(1, len(cumsum_infection_ratio) + 1)
-                    avg_cumsum_infection_ratio = np.divide(cumsum_infection_ratio, infection_days)
+                    avg_cumsum_infection_ratio = cumsum_infection_ratio#np.divide(cumsum_infection_ratio, infection_days)
                     weighted_mean_state_contagiousness += transition_prob * np.dot(
                         avg_cumsum_infection_ratio,
                         [transition_days_dist.prob(day) for day in infection_days]
                     )
-                total_contagious_probability += states_time[state.name] * weighted_mean_state_contagiousness
+                total_contagious_probability += weighted_mean_state_contagiousness
 
                 # mean_state_contagiousness = state.contagiousness.mean_val
                 # total_contagious_probability += states_time[state.name] * mean_state_contagiousness
