@@ -1,10 +1,12 @@
-from typing import List
+from typing import List, Set
 
 import numpy as np
+from common.agent import Agent
 from common.circle import Circle
 from common.social_circle import SocialCircle
 from generation.circles_consts import GeographicalCircleDataHolder
-from generation.connection_types import ConnectionTypes, In_Zone_types, Multi_Zone_types, Education_Types
+from generation.connection_types import ConnectionTypes, In_Zone_types, Multi_Zone_types, Education_Types, \
+    Non_Exclusive_Types
 
 
 class GeographicCircle(Circle):
@@ -25,7 +27,7 @@ class GeographicCircle(Circle):
         self.kind = "geographic circle"
         self.agents = []
         self.data_holder = data_holder
-        self.connection_type_to_agents = {con_type: [] for con_type in ConnectionTypes}
+        self.connection_type_to_agents = {con_type: set() for con_type in ConnectionTypes}
         self.connection_type_to_social_circles = {con_type: [] for con_type in ConnectionTypes}
         self.all_social_circles = []
         self.name = data_holder.name
@@ -62,7 +64,8 @@ class GeographicCircle(Circle):
         # Normalize
         for age in self.data_holder.age_distribution["ages"]:
             if total_prob_of_education_by_age[age] > 0:
-                education_type_probs_by_age[age] = education_type_probs_by_age[age] / total_prob_of_education_by_age[age]
+                education_type_probs_by_age[age] = education_type_probs_by_age[age] / total_prob_of_education_by_age[
+                    age]
 
         for agent, age, is_adult in zip(self.agents, ages, is_adults):
             agent.age = age
@@ -81,22 +84,19 @@ class GeographicCircle(Circle):
                     # TODO: sample many before the loop
                     agent_connection_types.append(education_type)
 
-            # handle other connection types. This single FOR condition contains words "connection" and "type" 9 times
-            for connection_type in [connection_type for connection_type in ConnectionTypes if connection_type not in [
-                ConnectionTypes.School, ConnectionTypes.Work, ConnectionTypes.Kindergarten]]:
-
+            for connection_type in Non_Exclusive_Types:
                 if np.random.random() < self.data_holder.connection_types_prob_by_age[age][connection_type]:
                     agent_connection_types.append(connection_type)
 
             for connection_type in agent_connection_types:
-                self.connection_type_to_agents[connection_type].append(agent)
+                self.connection_type_to_agents[connection_type].add(agent)
 
     def create_inner_social_circles(self):
         # todo notice that family connection types doesnt notice between ages
         for connection_type in In_Zone_types:
             self.create_social_circles_by_type(connection_type, self.connection_type_to_agents[connection_type])
 
-    def create_social_circles_by_type(self, connection_type: ConnectionTypes, agents_for_type: List["Agent"]):
+    def create_social_circles_by_type(self, connection_type: ConnectionTypes, agents_for_type: Set[Agent]):
         """
         creates social circles of a given connection type, with a given list of agents.
         uses self data holder circle size distribution of the given connection type.
@@ -105,7 +105,6 @@ class GeographicCircle(Circle):
         :param agents_for_type: the agents that will be inserted to the social circles
         :return:
         """
-        np.random.shuffle(agents_for_type)
         # calculate amount of agents for each size group
         # we'll also use size_num_agents to count how many agents were placed in each size group.
         possible_sizes, probs = self.data_holder.circles_size_distribution_by_connection_type[connection_type]
@@ -133,14 +132,13 @@ class GeographicCircle(Circle):
             adult_type_distribution = self.data_holder.adult_distributions.get(connection_type)
             if adult_type_distribution:
                 # get random amount of adults for each circle according to distribution
-                circles_adult_number = [adult_type_distribution[size].rvs() for _ in range(amount_of_circles)]
-                # devide population according to age
+                circles_adult_number = np.random.choice(**adult_type_distribution[size], size=amount_of_circles)
+                # divide population according to age
                 adults = [agent for agent in agents_for_type if agent.age > 18]
                 non_adults = [agent for agent in agents_for_type if agent.age <= 18]
                 # place adults where needed, non adults elsewhere, where circles need to be populated
                 while len(adults) > 0 and size_num_agents[size] > 0:
                     circle = circles[index % len(circles)]
-                    agent = None
                     # if there are more adults needed, or no more kids, circle gets an adult
                     if circles_adult_number[index % len(circles)] > circle.agent_count or len(non_adults) == 0:
                         agent = adults.pop()

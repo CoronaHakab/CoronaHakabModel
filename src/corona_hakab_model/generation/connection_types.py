@@ -17,6 +17,7 @@ Multi_Zone_types = [ConnectionTypes.Work]
 Whole_Population_types = [ConnectionTypes.Other]
 Non_Random_Age_Types = [ConnectionTypes.Family, ConnectionTypes.School]
 Education_Types = [ConnectionTypes.School, ConnectionTypes.Kindergarten]
+Non_Exclusive_Types = [ConnectionTypes.Family, ConnectionTypes.Other]  # More precisely, not in [school, kindergarten, work]
 
 With_Random_Connections = [ConnectionTypes.School, ConnectionTypes.Kindergarten, ConnectionTypes.Other]
 With_Geo_Random_Connections = [ConnectionTypes.Work]
