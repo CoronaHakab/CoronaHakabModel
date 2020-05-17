@@ -6,6 +6,7 @@ import numpy as np
 from numpy.random import random
 
 from common.detection_testing_types import DetectionSettings, DetectionPriority, DetectionTest
+from common.isolation_types import IsolationTypes
 from generation.connection_types import ConnectionTypes
 from common.medical_state import ContagiousState, ImmuneState, SusceptibleState
 from common.medical_state_machine import MedicalStateMachine
@@ -14,6 +15,7 @@ from common.state_machine import StochasticState, TerminalState
 from common.util import dist, BucketDict
 
 TransitionProbType = BucketDict[int, Union[float, type(...)]]
+IsolationFactorsType = Dict[IsolationTypes, Dict[ConnectionTypes, float]]
 
 """
 Overview:
@@ -127,7 +129,8 @@ class Consts(NamedTuple):
     pre_recovered_to_recovered_prob:  TransitionProbType = BucketDict({0: ...})
     asymptomatic_end_to_recovered_prob:  TransitionProbType = BucketDict({0: ...})
     # infections ratios, See bucket dict for more info on how to use.
-    pre_symptomatic_infection_ratio: BucketDict[int, int] = BucketDict({0: 1})  # if x greater than biggest key, x is biggest key
+    # if x greater than biggest key, x is biggest key
+    pre_symptomatic_infection_ratio: BucketDict[int, int] = BucketDict({0: 1})
     asymptomatic_begin_infection_ratio:  BucketDict[int, int] = BucketDict({0: 1})
     mild_condition_begin_infection_ratio: BucketDict[int, int] = BucketDict({0: 0.66})
     latent_infection_ratio:  BucketDict[int, int] = BucketDict({0: 0})
@@ -218,9 +221,25 @@ class Consts(NamedTuple):
             ]),
     ]
     should_isolate_positive_detected: bool = False
-    isolate_after_num_day: int = 1  # will be in isolation the next day.
-    p_will_obey_isolation: float = 1.0  # 100% will obey the isolation.
-    isolation_factor: float = 0.0  # reduce agent's relations strength by a factor.
+    step_to_isolate_dist: Callable = dist(1, 3)  # Isolated today, tomorrow or in 2 days
+    sick_to_p_obey_isolation: Dict[bool, float] = {
+        True: 1.0,  # 100% sick will obey the isolation.
+        False: .95  # If not sick, 95% to obey isolation
+    }
+    isolation_factor: IsolationFactorsType = {
+        IsolationTypes.HOME: {
+            ConnectionTypes.Family: .8,
+            ConnectionTypes.Work: .0,
+            ConnectionTypes.School: .0,
+            ConnectionTypes.Other: .0
+        },
+        IsolationTypes.HOTEL: {
+            ConnectionTypes.Family: .0,
+            ConnectionTypes.Work: .0,
+            ConnectionTypes.School: .0,
+            ConnectionTypes.Other: .0
+        },
+    }
 
     # --policies params--
     change_policies: bool = False
@@ -340,53 +359,62 @@ class Consts(NamedTuple):
         latent = ContagiousStochasticState(
             self.LATENT,
             detectable=False,
+            has_symptoms=False,
             contagiousness=self.latent_infection_ratio,
             test_willingness=self.latent_test_willingness)
         latent_presymp = ContagiousStochasticState(
             self.LATENT_PRESYMP,
             detectable=False,
+            has_symptoms=False,
             contagiousness=self.latent_presymp_infection_ratio,
             test_willingness=self.latent_test_willingness
         )
         latent_asymp = ContagiousStochasticState(
             self.LATENT_ASYMP,
             detectable=False,
+            has_symptoms=False,
             contagiousness=self.latent_asymp_infection_ratio,
             test_willingness=self.latent_test_willingness
         )
         asymptomatic_begin = ContagiousStochasticState(
             self.ASYMPTOMATIC_BEGIN,
             detectable=True,
+            has_symptoms=False,
             contagiousness=self.asymptomatic_begin_infection_ratio,
             test_willingness=self.asymptomatic_begin_test_willingness
         )
         asymptomatic_end = ContagiousStochasticState(
             self.ASYMPTOMATIC_END,
             detectable=True,
+            has_symptoms=False,
             contagiousness=self.asymptomatic_end_infection_ratio,
             test_willingness=self.asymptomatic_end_test_willingness
         )
         pre_symptomatic = ContagiousStochasticState(
             self.PRE_SYMPTOMATIC,
             detectable=True,
+            has_symptoms=False,
             contagiousness=self.pre_symptomatic_infection_ratio,
             test_willingness=self.pre_symptomatic_test_willingness,
         )
         mild_condition_begin = ContagiousStochasticState(
             self.MILD_CONDITION_BEGIN,
             detectable=True,
+            has_symptoms=True,
             contagiousness=self.mild_condition_begin_infection_ratio,
             test_willingness=self.mild_condition_begin_test_willingness,
         )
         mild_condition_end = ContagiousStochasticState(
             self.MILD_CONDITION_END,
             detectable=True,
+            has_symptoms=True,
             contagiousness=self.mild_condition_end_infection_ratio,
             test_willingness=self.mild_condition_end_test_willingness,
         )
         need_close_medical_care = ContagiousStochasticState(
             self.NEED_OF_CLOSE_MEDICAL_CARE,
             detectable=True,
+            has_symptoms=True,
             contagiousness=self.need_close_medical_care_infection_ratio,
             test_willingness=self.need_close_medical_care_test_willingness,
         )
@@ -394,6 +422,7 @@ class Consts(NamedTuple):
         need_icu = ContagiousStochasticState(
             self.NEED_ICU,
             detectable=True,
+            has_symptoms=True,
             contagiousness=self.need_icu_infection_ratio,
             test_willingness=self.need_icu_test_willingness
         )
@@ -401,6 +430,7 @@ class Consts(NamedTuple):
         improving_health = ContagiousStochasticState(
             self.IMPROVING_HEALTH,
             detectable=True,
+            has_symptoms=True,
             contagiousness=self.improving_health_infection_ratio,
             test_willingness=self.improving_health_test_willingness
         )
@@ -408,6 +438,7 @@ class Consts(NamedTuple):
         pre_recovered = ContagiousStochasticState(
             self.PRE_RECOVERED,
             detectable=True,
+            has_symptoms=False,
             contagiousness=self.pre_recovered_infection_ratio,
             test_willingness=self.pre_recovered_test_willingness
         )
