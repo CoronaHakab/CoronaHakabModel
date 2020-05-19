@@ -63,7 +63,7 @@ class HealthcareManager:
             # Who can to be tested
             can_be_tested = self._get_testable(test_location)
             test_candidates = want_to_be_tested & can_be_tested
-            test_candidates_inds = set(np.flatnonzero(test_candidates))  # TODO: This might be slow on large population
+            test_candidates_inds = set(np.flatnonzero(test_candidates))
             test_candidates_inds -= set(result.agent.index for result in tested)
 
             self._test_according_to_priority(num_of_tests, test_candidates_inds, test_location, tested)
