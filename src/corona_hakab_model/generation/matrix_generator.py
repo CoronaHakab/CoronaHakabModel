@@ -153,6 +153,9 @@ class MatrixGenerator:
         # insert all connections to matrix
         # we need to remember the strengths so the connection will be symmetric
         known_strengths = {}
+        num_of_connections = sum(len(c) for c in connections)
+        all_strengths = con_type_data.get_strengths(num_of_connections)
+        num_of_connections_so_far = 0
         for agent, conns in zip(self.agents, connections):
             if len(conns) == 0:
                 continue
@@ -160,7 +163,8 @@ class MatrixGenerator:
             conns = np.array(conns)
             conns.sort()
 
-            strengthes = con_type_data.get_strengths(len(conns))
+            strengthes = all_strengths[num_of_connections_so_far:num_of_connections_so_far+len(conns)]
+            num_of_connections_so_far += len(conns)
 
             # check if some strengths were determined earlier
             for index, conn in enumerate(conns):

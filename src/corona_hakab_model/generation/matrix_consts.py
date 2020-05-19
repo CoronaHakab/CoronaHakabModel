@@ -161,6 +161,7 @@ class ConnectionTypeData:
             daily_share = self.daily_connections_amount / self.total_connections_amount
             weekly_share = self.weekly_connections_amount / self.total_connections_amount
 
+            # Somehow np.random.choice FASTER THAN default_rng().choice!
             return np.random.choice(
                 [self.connection_strength, self.connection_strength / 7], size=shape, p=[daily_share, weekly_share]
             )
