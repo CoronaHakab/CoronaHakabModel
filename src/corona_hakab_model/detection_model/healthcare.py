@@ -14,6 +14,9 @@ def _get_current_num_of_tests(current_step, test_location: DetectionSettings):
     return test_location.daily_num_of_tests_schedule[closest_key]
 
 
+rng = np.random.default_rng()
+
+
 class HealthcareManager:
     __slots__ = ("manager", "positive_detected_today", "freed_neg_tested",
                  "pending_test_results", "num_of_tested")
@@ -61,7 +64,7 @@ class HealthcareManager:
             self.manager.progress_isolations()
 
     def testing_step(self):
-        want_to_be_tested = np.random.random(len(self.manager.agents)) < self.manager.test_willingness_vector
+        want_to_be_tested = rng.random(len(self.manager.agents)) < self.manager.test_willingness_vector
         tested: List[PendingTestResult] = []
 
         for test_location in self.manager.consts.detection_pool:
@@ -73,29 +76,24 @@ class HealthcareManager:
             test_candidates_inds = set(np.flatnonzero(test_candidates))
             test_candidates_inds -= set(result.agent.index for result in tested)
 
-            if len(test_candidates_inds) <= num_of_tests:
-                # There are more tests than candidates. Don't check the priorities
-                for ind in test_candidates_inds:
-                    tested.append(test_location.detection_test.test(self.manager.agents[ind]))
-                    num_of_tests -= 1
-            else:
-                self._test_according_to_priority(num_of_tests, test_candidates_inds, test_location,
-                                                 tested)
-        self.num_of_tested = len(tested)
+            self._test_according_to_priority(num_of_tests, test_candidates_inds, test_location, tested)
+
         return tested
 
     def _test_according_to_priority(self, num_of_tests, test_candidates_inds, test_location, tested):
         for detection_priority in list(test_location.testing_priorities):
             # First test the prioritized candidates
-            who_to_test = np.random.permutation(list(test_candidates_inds))
-            if len(who_to_test) > num_of_tests:
-                who_to_test = who_to_test[:num_of_tests]
-            for ind, tested_agent in enumerate(who_to_test):
-                # permute the indices so we won't always test the lower indices
-                if detection_priority.is_agent_prioritized(self.manager.agents[tested_agent]):
-                    tested.append(test_location.detection_test.test(self.manager.agents[tested_agent]))
-                    test_candidates_inds.remove(tested_agent)  # Remove so it won't be tested again
-            num_of_tests -= len(who_to_test)
+            for ind in rng.choice(list(test_candidates_inds),
+                                  size=min(len(test_candidates_inds), num_of_tests),
+                                  replace=False):
+                # choose random indices so we won't always test the lower indices
+                if detection_priority.is_agent_prioritized(self.manager.agents[ind]):
+                    tested.append(test_location.detection_test.test(self.manager.agents[ind]))
+                    test_candidates_inds.remove(ind)  # Remove so it won't be tested again
+                    num_of_tests -= 1
+
+                    if num_of_tests == 0:
+                        return 0
         return num_of_tests
 
     def progress_tests(self, new_tests: List[PendingTestResult]):
