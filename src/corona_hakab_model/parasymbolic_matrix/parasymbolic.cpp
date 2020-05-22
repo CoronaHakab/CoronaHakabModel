@@ -292,6 +292,12 @@ void ParasymbolicMatrix::rebuild_factor(dtype factor){
     }
 }
 
+void ParasymbolicMatrix::set_cell_symmetric(size_t component, size_t row, size_t column, dtype value){
+    auto comp = components[component];
+    comp->set(row, column, value);
+    comp->set(column, row, value);
+}
+
 dtype ParasymbolicMatrix::get(size_t row, size_t column){
     if (calc_lock)
         return NAN;

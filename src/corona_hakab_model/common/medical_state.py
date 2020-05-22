@@ -1,6 +1,6 @@
 from abc import ABC
 
-from .state_machine import State  # , StochasticState, TerminalState
+from .state_machine import State
 from .util import BucketDict
 
 

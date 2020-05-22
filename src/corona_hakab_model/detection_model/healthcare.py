@@ -14,9 +14,12 @@ def _get_current_num_of_tests(current_step, test_location: DetectionSettings):
     return test_location.daily_num_of_tests_schedule[closest_key]
 
 
-class HealthcareManager:
+rng = np.random.default_rng()
 
-    __slots__ = ("manager", "positive_detected_today", "pending_test_results")
+
+class HealthcareManager:
+    __slots__ = ("manager", "positive_detected_today", "freed_neg_tested",
+                 "pending_test_results", "num_of_tested")
 
     def __init__(self, sim_manager: SimulationManager):
         self.manager = sim_manager
@@ -27,7 +30,9 @@ class HealthcareManager:
                     f"{self.manager.consts.daily_num_of_test_schedule}"
                 )
         self.positive_detected_today = set()
+        self.freed_neg_tested = set()
         self.pending_test_results = PendingTestResults()
+        self.num_of_tested = None
 
     def _get_testable(self, test_location: DetectionSettings):
         tested_pos_too_recently = (
@@ -51,10 +56,15 @@ class HealthcareManager:
         return np.logical_not(tested_pos_too_recently | tested_neg_too_recently) & self.manager.living_agents_vector
 
     def step(self):
+        self.manager.left_isolation_by_reason.clear()
+        self.freed_neg_tested.clear()
         self.progress_tests(self.testing_step())
+        # TODO: Move isolation functions to here
+        if self.manager.consts.day_to_start_isolations <= self.manager.current_step:
+            self.manager.progress_isolations()
 
     def testing_step(self):
-        want_to_be_tested = np.random.random(len(self.manager.agents)) < self.manager.test_willingness_vector
+        want_to_be_tested = rng.random(len(self.manager.agents)) < self.manager.test_willingness_vector
         tested: List[PendingTestResult] = []
 
         for test_location in self.manager.consts.detection_pool:
@@ -66,22 +76,17 @@ class HealthcareManager:
             test_candidates_inds = set(np.flatnonzero(test_candidates))
             test_candidates_inds -= set(result.agent.index for result in tested)
 
-            if len(test_candidates_inds) < num_of_tests:
-                # There are more tests than candidates. Don't check the priorities
-                for ind in test_candidates_inds:
-                    tested.append(test_location.detection_test.test(self.manager.agents[ind]))
-                    num_of_tests -= 1
-            else:
-                self._test_according_to_priority(num_of_tests, test_candidates_inds, test_location,
-                                                 tested)
+            self._test_according_to_priority(num_of_tests, test_candidates_inds, test_location, tested)
 
         return tested
 
     def _test_according_to_priority(self, num_of_tests, test_candidates_inds, test_location, tested):
         for detection_priority in list(test_location.testing_priorities):
             # First test the prioritized candidates
-            for ind in np.random.permutation(list(test_candidates_inds)):
-                # permute the indices so we won't always test the lower indices
+            for ind in rng.choice(list(test_candidates_inds),
+                                  size=min(len(test_candidates_inds), num_of_tests),
+                                  replace=False):
+                # choose random indices so we won't always test the lower indices
                 if detection_priority.is_agent_prioritized(self.manager.agents[ind]):
                     tested.append(test_location.detection_test.test(self.manager.agents[ind]))
                     test_candidates_inds.remove(ind)  # Remove so it won't be tested again
@@ -97,6 +102,14 @@ class HealthcareManager:
         for agent, test_result, _ in new_results:
             if test_result:
                 self.positive_detected_today.add(agent.index)
+                self.manager.consecutive_negative_tests[agent.index] = 0
+            else:
+                self.manager.consecutive_negative_tests[agent.index] += 1
+                # When isolated agent gets negative result, free him NOW!
+                if self.manager.consecutive_negative_tests[agent.index] == \
+                        self.manager.consts.num_test_to_exit_isolation:
+                    self.manager.step_to_free_agent[agent.index] = self.manager.current_step
+                    self.freed_neg_tested.add(agent.index)
             agent.set_test_result(test_result)
 
         for new_test in new_tests:

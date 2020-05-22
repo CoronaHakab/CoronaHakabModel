@@ -102,6 +102,20 @@ class ParasymbolicMatrix(object):
         """
         _parasymbolic.ParasymbolicMatrix_swiginit(self, _parasymbolic.new_ParasymbolicMatrix(size, component_count))
 
+    def set_cell_symmetric(self, component: "size_t", row: "size_t", column: "size_t", value: "dtype") -> "void":
+        r"""
+        set_cell_symmetric(self, component, row, column, value)
+
+        Parameters
+        ----------
+        component: size_t
+        row: size_t
+        column: size_t
+        value: dtype
+
+        """
+        return _parasymbolic.ParasymbolicMatrix_set_cell_symmetric(self, component, row, column, value)
+
     def get(self, *args) -> "dtype":
         r"""
         get(self, row, column) -> dtype
