@@ -220,12 +220,19 @@ class Consts(NamedTuple):
                     lambda agent: agent.medical_state.name == "Recovered"),
             ]),
     ]
-    should_isolate_positive_detected: bool = False
+    day_to_start_isolations: int = np.inf  # The date from which we allow isolations
     step_to_isolate_dist: Callable = dist(1, 3)  # Isolated today, tomorrow or in 2 days
     sick_to_p_obey_isolation: Dict[bool, float] = {
         True: 1.0,  # 100% sick will obey the isolation.
         False: .95  # If not sick, 95% to obey isolation
     }
+
+    isolate_symptomatic: bool = False  # Should symptomatic self isolate
+    isolate_first_circle: bool = True
+    num_test_to_exit_isolation: int = 1  # Number of tests needed to get out of isolation
+    home_isolation_time_bound: int = 14
+
+    # reduce agent's relations strength by a factor
     isolation_factor: IsolationFactorsType = {
         IsolationTypes.HOME: {
             ConnectionTypes.Family: .8,
@@ -322,6 +329,8 @@ class Consts(NamedTuple):
             "random": random,
             "np": np,
             "BucketDict": BucketDict,
+            "IsolationTypes": IsolationTypes,
+            "IsolationFactorsType": IsolationFactorsType,
             "len": len,
         }
 
@@ -332,6 +341,7 @@ class Consts(NamedTuple):
     def export(self, export_path, file_name: str = "simulation_consts.json"):
         if not file_name.endswith(".json"):
             file_name += ".json"
+        jsonpickle.set_encoder_options('json', sort_keys=True, indent=4)
         with open(os.path.join(export_path, file_name), "w") as export_file:
             export_file.write(jsonpickle.encode(self._asdict()))
 

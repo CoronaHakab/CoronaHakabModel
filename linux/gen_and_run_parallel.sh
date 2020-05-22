@@ -5,8 +5,17 @@ matrix_consts=$3
 simulation_consts=$4
 TIMESTAMP=`date --utc -d "+3 hours" +_%d%m%Y_%H_%M`
 output_folder=$5$TIMESTAMP
+is_aws_instance=command -v aws > /dev/null 2>&1
+script_dir=`dirname ${BASH_SOURCE}[0]`
 
+if $is_aws_instance
+then
+   echo "Running on aws"
+fi
 
+cd $script_dir
+cd ..
+echo "Current directory ${PWD}"
 python3.8 ./src/corona_hakab_model/main.py generate -c $circle_consts -m $matrix_consts -o $output_folder
 cp $circle_consts $output_folder
 cp $matrix_consts $output_folder
@@ -28,3 +37,8 @@ do
    rm -f "${i}_log.tmp"
 done
 echo Done
+if $aws_instance
+then
+   echo "Coping output to AWS S3"
+   aws s3 cp --recursive $output_folder "s3://omni-docker/${output_folder}"
+fi

@@ -11,7 +11,8 @@ import numpy as np
 
 from analyzers.fit_to_graph import compare_real_to_simulation
 from analyzers.state_machine_analysis import extract_state_machine_analysis
-from application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, make_matrix_consts
+from common.application_utils import generate_from_folder, generate_from_master_folder, make_circles_consts, \
+    make_matrix_consts
 from common.isolation_types import IsolationTypes
 from consts import Consts
 from generation.circles_generator import PopulationData
@@ -25,8 +26,8 @@ from supervisor import LambdaValueSupervisable, Supervisable
 from analyzers import matrix_analysis
 from analyzers.random_connections_analysis import RandomConnectionsAnalysis
 
-
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     import pandas as pd
 
@@ -174,14 +175,22 @@ def run_simulation(args):
             # LambdaValueSupervisable("Current Confirmed Cases", lambda manager: sum(manager.tested_positive_vector)),
             # Supervisable.R0(),
             # Supervisable.Delayed("Symptomatic", 3),
-            LambdaValueSupervisable("daily infected by work", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Work]),
-            LambdaValueSupervisable("daily infected by school", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.School]),
-            LambdaValueSupervisable("daily infected by other", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Other]),
-            LambdaValueSupervisable("daily infected by family", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Family]),
-            LambdaValueSupervisable("daily infected by kindergarten", lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Kindergarten]),
-            LambdaValueSupervisable("daily infections from Latent infector", lambda manager: manager.new_sick_by_infector_medical_state["Latent"]),
-            LambdaValueSupervisable("daily infections from Latent-Asymp infector", lambda manager: manager.new_sick_by_infector_medical_state["PreRecovered"]),
-            LambdaValueSupervisable("daily infections from Latent-Presymp infector", lambda manager: manager.new_sick_by_infector_medical_state["Latent-Asymp"]),
+            LambdaValueSupervisable("daily infected by work",
+                                    lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Work]),
+            LambdaValueSupervisable("daily infected by school",
+                                    lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.School]),
+            LambdaValueSupervisable("daily infected by other",
+                                    lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Other]),
+            LambdaValueSupervisable("daily infected by family",
+                                    lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Family]),
+            LambdaValueSupervisable("daily infected by kindergarten",
+                                    lambda manager: manager.new_sick_by_infection_method[ConnectionTypes.Kindergarten]),
+            LambdaValueSupervisable("daily infections from Latent infector",
+                                    lambda manager: manager.new_sick_by_infector_medical_state["Latent"]),
+            LambdaValueSupervisable("daily infections from Latent-Asymp infector",
+                                    lambda manager: manager.new_sick_by_infector_medical_state["PreRecovered"]),
+            LambdaValueSupervisable("daily infections from Latent-Presymp infector",
+                                    lambda manager: manager.new_sick_by_infector_medical_state["Latent-Asymp"]),
             LambdaValueSupervisable("daily infections from AsymptomaticBegin infector",
                                     lambda manager: manager.new_sick_by_infector_medical_state["AsymptomaticBegin"]),
             LambdaValueSupervisable("daily infections from AsymptomaticEnd infector",
@@ -209,7 +218,13 @@ def run_simulation(args):
                                         manager.agents_in_isolation == IsolationTypes.HOTEL)),
             LambdaValueSupervisable("Isolated Home",
                                     lambda manager: np.count_nonzero(
-                                        manager.agents_in_isolation == IsolationTypes.HOME))
+                                        manager.agents_in_isolation == IsolationTypes.HOME)),
+            LambdaValueSupervisable("Got out of isolation - due date",
+                                    lambda manager: manager.left_isolation_by_reason['due_date']),
+            LambdaValueSupervisable("Got out of isolation - many negative tests",
+                                    lambda manager: manager.left_isolation_by_reason['negative_tests']),
+            LambdaValueSupervisable("Number of tests",
+                                    lambda manager: manager.healthcare_manager.num_of_tested),
         ),
         population_data,
         matrix_data,

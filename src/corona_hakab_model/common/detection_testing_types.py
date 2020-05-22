@@ -47,7 +47,9 @@ class DetectionTest:
 
 
 class DetectionPriority:
-    def __init__(self, func: Callable, max_tests: int = inf):
+    def __init__(self,
+                 func: Callable,
+                 max_tests: int = inf):
         """
         medical test for infection detection.
         supports max number of tests for its kind. if not specified, will be infinity.
