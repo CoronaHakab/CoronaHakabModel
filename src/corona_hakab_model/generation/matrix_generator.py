@@ -154,7 +154,7 @@ class MatrixGenerator:
         # we need to remember the strengths so the connection will be symmetric
         known_strengths = {}
         num_of_connections = sum(len(c) for c in connections)
-        all_strengths = con_type_data.get_strengths(num_of_connections)
+        all_strengths = con_type_data.get_strengths(num_of_connections)  # Pre-sample strengths
         num_of_connections_so_far = 0
         for agent, conns in zip(self.agents, connections):
             if len(conns) == 0:
@@ -165,6 +165,7 @@ class MatrixGenerator:
 
             strengthes = all_strengths[num_of_connections_so_far:num_of_connections_so_far+len(conns)]
             num_of_connections_so_far += len(conns)
+
 
             # check if some strengths were determined earlier
             for index, conn in enumerate(conns):
@@ -183,8 +184,9 @@ class MatrixGenerator:
                     self.connection_data.connected_ids_by_strength[agent.index][
                         con_type_data.connection_type].weekly_connections.add(conn)
 
-            v = np.full_like(conns, strengthes, dtype=np.float32)
-            self.matrix_assignment_data.append(MatrixAssignmentData(depth, agent.index, conns, v.copy()))
+            self.matrix_assignment_data.append(
+                MatrixAssignmentData(depth, agent.index, conns, strengthes.astype(np.float32))
+            )
 
     def _create_fully_connected_circles_matrix(self, con_type_data: ConnectionTypeData, circles: List[SocialCircle],
                                                depth):
@@ -254,8 +256,8 @@ class MatrixGenerator:
             # add the rest of the nodes, one at a time
             for node, num_connections in zip(islice(nodes, initial_con_amount, None), connections_amounts):
                 # selects the first node to attach to randomly
-                first_connection = choice(list(connected_nodes))
                 # fill connections other than first_connection
+                first_connection = choice(list(connected_nodes))
                 while len(node.connected) < num_connections - 1:
                     if random() < con_type_data.triad_p:
                         # close the triad with a node from first_connection's connections
@@ -312,9 +314,8 @@ class MatrixGenerator:
         :param scale_factor: average amount of connections for each agent
         :return:
         """
-        remaining_contacts = {
-            agent.index: math.ceil(np.random.exponential(scale_factor - 0.5)) for agent in circle.agents
-        }
+
+        remaining_contacts = self.pre_contacts(circle, scale_factor)
 
         agent_id_pool = set([agent.index for agent in circle.agents])
 
@@ -335,6 +336,12 @@ class MatrixGenerator:
             assert to_remove <= agent_id_pool
 
             agent_id_pool.difference_update(to_remove)
+
+    def pre_contacts(self, circle, scale_factor):
+        presampled_contacts = np.ceil(np.random.exponential(scale_factor - 0.5, len(circle.agents))).astype(np.int)
+        indices = map(lambda a:a.index, circle.agents)
+        remaining_contacts = dict(zip(indices, presampled_contacts))
+        return remaining_contacts
 
     def export_matrix_data(self, export_dir=OUTPUT_FOLDER, export_filename='matrix.pickle'):
         self.matrix_data.export(os.path.join(export_dir, export_filename))
