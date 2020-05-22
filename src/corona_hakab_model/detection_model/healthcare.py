@@ -102,7 +102,6 @@ class HealthcareManager:
         for agent, test_result, _ in new_results:
             if test_result:
                 self.positive_detected_today.add(agent.index)
-                if self.manager.consecutive_negative_tests[agent.index] > 0:
                 self.manager.consecutive_negative_tests[agent.index] = 0
             else:
                 self.manager.consecutive_negative_tests[agent.index] += 1
