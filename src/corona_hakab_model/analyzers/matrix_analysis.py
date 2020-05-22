@@ -26,7 +26,10 @@ def import_matrix_as_csr(matrix_data_path):
     # Fill the data into lil_matrix because it's faster for assignments than csr
     lil_matrices = [lil_matrix((matrix_data.size, matrix_data.size)) for _ in range(matrix_data.depth)]
     for depth, index, conns, vals in matrix_data.matrix_assignment_data:
+        # matrix_assignment_data isn't symmetric
         lil_matrices[depth][index, conns] = vals
+        lil_matrices[depth][conns, index] = vals
+
 
     # Convert lil_matrix to csr_matrix because it's easier to work with
     csr_matrices = [lil.tocsr() for lil in lil_matrices]

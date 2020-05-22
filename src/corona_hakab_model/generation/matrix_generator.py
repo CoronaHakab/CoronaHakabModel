@@ -85,7 +85,8 @@ class MatrixData:
         self._matrix = ParasymbolicMatrix(self.size, self.depth)
         with self._matrix.lock_rebuild():
             for depth, index, conns, v in self.matrix_assignment_data:
-                self._matrix[depth, index, conns] = v
+                # self._matrix[depth, index, conns] = v
+                self._matrix.set_cell_symmetric(depth, index, conns, v)
 
     def export(self, file_name: str):
         if not file_name.endswith(".pickle"):
@@ -153,41 +154,38 @@ class MatrixGenerator:
     def _add_layer(self, con_type_data: ConnectionTypeData, connections: List[List[int]], depth: int):
         # insert all connections to matrix
         # we need to remember the strengths so the connection will be symmetric
-        known_strengths = {}
-        num_of_connections = sum(len(c) for c in connections)
-        all_strengths = con_type_data.get_strengths(num_of_connections)  # Pre-sample strengths
-        num_of_connections_so_far = 0
-        for agent, conns in zip(self.agents, connections):
-            if len(conns) == 0:
-                continue
 
+        num_of_connections_per_agent = np.array([len(c) for c in connections])
+        total_num_of_connections = num_of_connections_per_agent.sum()
+        all_strengths = con_type_data.get_strengths(total_num_of_connections)  # Pre-sample strengths
+        num_of_connections_so_far = 0
+        agents_with_connections = num_of_connections_per_agent > 0
+        for agent, conns in zip(self.agents[agents_with_connections], connections[agents_with_connections]):
             conns = np.array(conns)
             conns.sort()
 
-            strengthes = all_strengths[num_of_connections_so_far:num_of_connections_so_far+len(conns)]
+            # Assign connection strengths
+            strengths = all_strengths[num_of_connections_so_far:num_of_connections_so_far + len(conns)]
             num_of_connections_so_far += len(conns)
 
-
-            # check if some strengths were determined earlier
-            for index, conn in enumerate(conns):
-                known_strength = known_strengths.get((conn, agent.index), None)
-                if known_strength != None:
-                    strengthes[index] = known_strength
-                    del known_strengths[(conn, agent.index)]
-                else:
-                    # connection is new. store the strength for future use
-                    known_strengths[(agent.index, conn)] = strengthes[index]
-
-                if strengthes[index] == con_type_data.connection_strength:
-                    self.connection_data.connected_ids_by_strength[agent.index][
-                        con_type_data.connection_type].daily_connections.add(conn)
-                else:
-                    self.connection_data.connected_ids_by_strength[agent.index][
-                        con_type_data.connection_type].weekly_connections.add(conn)
-
             self.matrix_assignment_data.append(
-                MatrixAssignmentData(depth, agent.index, conns, strengthes.astype(np.float32))
+                MatrixAssignmentData(depth, agent.index, conns, strengths.astype(np.float32))
             )
+
+            # Track daily in weekly connections
+            daily_conns_flag = strengths == con_type_data.connection_strength
+            daily_conns = conns[daily_conns_flag]
+            self.connection_data.connected_ids_by_strength[agent.index][
+                con_type_data.connection_type].daily_connections.update(daily_conns)
+            for daily_conn in daily_conns:
+                self.connection_data.connected_ids_by_strength[daily_conn][
+                    con_type_data.connection_type].daily_connections.add(agent.index)
+            weekly_conns = conns[np.logical_not(daily_conns_flag)]
+            self.connection_data.connected_ids_by_strength[agent.index][
+                con_type_data.connection_type].weekly_connections.update(weekly_conns)
+            for weekly_conn in weekly_conns:
+                self.connection_data.connected_ids_by_strength[weekly_conn][
+                    con_type_data.connection_type].weekly_connections.add(agent.index)
 
     def _create_fully_connected_circles_matrix(self, con_type_data: ConnectionTypeData, circles: List[SocialCircle],
                                                depth):
@@ -204,6 +202,7 @@ class MatrixGenerator:
 
             vals = np.full_like(ids, connection_strength, dtype=np.float32)
             for i, agent in enumerate(circle.agents):
+                # TODO: set only upper triangle
                 temp = vals[i]
                 vals[i] = 0
                 self.matrix_assignment_data.append(MatrixAssignmentData(depth, int(agent.index), ids, vals.copy()))
@@ -213,7 +212,7 @@ class MatrixGenerator:
 
     def _create_scale_free_graph(self, con_type_data: ConnectionTypeData, circles: List[SocialCircle], depth):
         # the new connections will be saved here
-        connections = [[] for _ in self.agents]
+        connections = np.frompyfunc(list, 0, 1)(np.empty(len(self.agents), dtype=object))
         # gets data from matrix consts
         connection_strength = con_type_data.connection_strength
         if connection_strength == 0:
@@ -294,7 +293,7 @@ class MatrixGenerator:
     def _create_randomly_connected_layer(self, con_type_data: ConnectionTypeData,
                                          circles: List[SocialCircle], depth):
         # the new connections will be saved here
-        connections = [[] for _ in self.agents]
+        connections = np.frompyfunc(list, 0, 1)(np.empty(len(self.agents), dtype=object))
         # gets data from matrix consts
         connection_strength = con_type_data.connection_strength
         if connection_strength == 0:
@@ -327,10 +326,10 @@ class MatrixGenerator:
             rc = min(remaining_contacts[current_agent_id], len(agent_id_pool))
             conns = sample(list(agent_id_pool), rc)
             connections[current_agent_id].extend(conns)
-            for other_agent_id in conns:
-                connections[other_agent_id].append(current_agent_id)
+            # for other_agent_id in conns:
+            #     connections[other_agent_id].append(current_agent_id)
             to_remove = set()
-            for id in conns:
+            for id in conns:  # TODO: Try to vectorize
                 remaining_contacts[id] -= 1
                 if remaining_contacts[id] == 0:
                     to_remove.add(id)
@@ -340,7 +339,7 @@ class MatrixGenerator:
 
     def pre_contacts(self, circle, scale_factor):
         presampled_contacts = np.ceil(np.random.exponential(scale_factor - 0.5, len(circle.agents))).astype(np.int)
-        indices = map(lambda a:a.index, circle.agents)
+        indices = map(lambda a: a.index, circle.agents)
         remaining_contacts = dict(zip(indices, presampled_contacts))
         return remaining_contacts
 
