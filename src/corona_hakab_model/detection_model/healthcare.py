@@ -103,7 +103,7 @@ class HealthcareManager:
             if test_result:
                 self.positive_detected_today.add(agent.index)
                 if self.manager.consecutive_negative_tests[agent.index] > 0:
-                    self.manager.consecutive_negative_tests[agent.index] = 0
+                self.manager.consecutive_negative_tests[agent.index] = 0
             else:
                 self.manager.consecutive_negative_tests[agent.index] += 1
                 # When isolated agent gets negative result, free him NOW!
