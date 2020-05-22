@@ -80,6 +80,7 @@ class ParasymbolicMatrix{
                         dtype** AF_out, size_t* o_size);
     public:
         ParasymbolicMatrix(size_t size, size_t component_count);
+        void set_cell_symmetric(size_t component, size_t row, size_t column, dtype value);
         dtype get(size_t row, size_t column);
         dtype get(size_t comp, size_t row, size_t column);
         double total();

@@ -3,37 +3,16 @@ import subprocess
 import sys
 from pathlib import Path
 
+from json import load
+from typing import Dict
+
 from swimport import ContainerSwim, FileSource, Function, Swim, Typedef, pools
 
 PY_ROOT = Path(sys.executable).parent
-SWIG_PATH = r"T:\programs\swigwin-4.0.1\swig.exe"
 PY_INCLUDE_PATH = PY_ROOT / "include"
 PY_LIB_PATH = PY_ROOT / r"libs\python38.lib"
 
-windows_kit_template = r"C:\Program Files (x86)\Windows Kits\10\{}\10.0.17763.0" + "\\"
-MSVC_dir = r"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.24.28314" + "\\"
 np_include_path = PY_ROOT / r"Lib\site-packages\numpy\core\include\\"
-windows_kit_include = windows_kit_template.format("include")
-windows_kit_lib = windows_kit_template.format("lib")
-
-CL_PATH = MSVC_dir + r"bin\Hostx64\x64\cl.exe"
-COMPILE_ADDITIONAL_INCLUDE_DIRS = [
-    MSVC_dir + "include",
-    windows_kit_include + "ucrt",
-    windows_kit_include + "shared",
-    windows_kit_include + "um",
-    np_include_path,
-]
-COMPILE_ADDITIONAL_LIBS = [
-    MSVC_dir + r"lib\x64\libcpmt.lib",
-    MSVC_dir + r"lib\x64\libcmt.lib",
-    MSVC_dir + r"lib\x64\oldnames.lib",
-    MSVC_dir + r"lib\x64\libvcruntime.lib",
-    MSVC_dir + r"lib\x64\libconcrt.lib",
-    windows_kit_lib + r"um\x64\kernel32.lib",
-    windows_kit_lib + r"ucrt\x64\libucrt.lib",
-    windows_kit_lib + r"um\x64\Uuid.lib",
-]
 
 optimization = "/O2"  # in case of fire, set to Od
 
@@ -93,13 +72,14 @@ def write_swim():
     swim.write("parasymbolic.i")
 
 
-def run_swim():
+def run_swim(config):
     subprocess.run(
-        [SWIG_PATH, "-c++", "-python", "-py3", "parasymbolic.i"], stdout=None, check=True  # '-debug-tmsearch',
+        [config['SWIG_PATH'], "-c++", "-python", "-py3", "parasymbolic.i"], stdout=None, check=True
+        # '-debug-tmsearch',
     )
 
 
-def compile():
+def compile(config: dict):
     tmpdir = Path("temp")
     src_path = Path("parasymbolic.cpp")
     cxx_path = "parasymbolic_wrap.cxx"
@@ -109,7 +89,7 @@ def compile():
     # todo compile with warnings?
     proc = subprocess.run(
         [
-            CL_PATH,
+            config["CL_PATH"],
             "/nologo",
             "/LD",
             "/EHsc",
@@ -121,11 +101,11 @@ def compile():
             "/Fo:" + str(tmpdir) + "\\",
             "/I",
             PY_INCLUDE_PATH,
-            *it.chain.from_iterable(("/I", i) for i in COMPILE_ADDITIONAL_INCLUDE_DIRS),
+            *it.chain.from_iterable(("/I", i) for i in config["COMPILE_ADDITIONAL_INCLUDE_DIRS"]),
             "/link",
             "/LIBPATH",
             PY_LIB_PATH,
-            *it.chain.from_iterable(("/LIBPATH", l) for l in COMPILE_ADDITIONAL_LIBS),
+            *it.chain.from_iterable(("/LIBPATH", l) for l in config["COMPILE_ADDITIONAL_LIBS"]),
             "/IMPLIB:" + str(tmpdir / "example.lib"),
             "/OUT:" + "_parasymbolic.pyd",
         ],
@@ -137,11 +117,46 @@ def compile():
         raise Exception(f"cl returned {proc.returncode}")
 
 
-def build():
+def update_config(config):
+    config["CL_PATH"] = str(Path(config["MSVC_DIR"]) / r"bin\Hostx64\x64\cl.exe")
+    windows_kit_include = Path(config["WINDOWS_KIT_DIR"]) / \
+                          "include" / \
+                          config["WINDOWS_KIT_VERSION"]
+    windows_kit_lib = Path(config["WINDOWS_KIT_DIR"]) / \
+                      "lib" / \
+                      config["WINDOWS_KIT_VERSION"]
+    config["COMPILE_ADDITIONAL_INCLUDE_DIRS"] = [
+        Path(config["MSVC_DIR"]) / "include",
+        windows_kit_include / "ucrt",
+        windows_kit_include / "shared",
+        windows_kit_include / "um",
+        np_include_path,
+    ]
+    config["COMPILE_ADDITIONAL_LIBS"] = [
+        Path(config["MSVC_DIR"]) / r"lib\x64\libcpmt.lib",
+        Path(config["MSVC_DIR"]) / r"lib\x64\libcmt.lib",
+        Path(config["MSVC_DIR"]) / r"lib\x64\oldnames.lib",
+        Path(config["MSVC_DIR"]) / r"lib\x64\libvcruntime.lib",
+        Path(config["MSVC_DIR"]) / r"lib\x64\libconcrt.lib",
+        Path(windows_kit_lib) / r"um\x64\kernel32.lib",
+        Path(windows_kit_lib) / r"ucrt\x64\libucrt.lib",
+        Path(windows_kit_lib) / r"um\x64\Uuid.lib",
+    ]
+
+
+def build(config: Dict):
     write_swim()
-    run_swim()
-    compile()
+    update_config(config)
+    run_swim(config)
+    compile(config)
 
 
 if __name__ == "__main__":
-    build()
+    build_inputs = sys.argv[1:]
+    if len(build_inputs) < 1:
+        build_config_file = str(Path(__file__).parent / "build_config.json")
+    else:
+        build_config_file = build_inputs[0]
+    with open(build_config_file, 'r') as config_fh:
+        build_config_file = load(config_fh)
+    build(build_config_file)
