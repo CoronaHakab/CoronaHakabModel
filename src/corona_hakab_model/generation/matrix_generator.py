@@ -39,8 +39,9 @@ class ConnectionData:
     )
 
     def __init__(self, agents):
-        self.connected_ids_by_strength = {agent.index: {connection_type: AgentConnections() for connection_type
-                                                        in ConnectionTypes} for agent in agents}
+        self.connected_ids_by_strength: Dict[int, Dict[ConnectionTypes, AgentConnections]] = \
+            {agent.index: {connection_type: AgentConnections() for
+                           connection_type in ConnectionTypes} for agent in agents}
 
     def export(self, export_path, file_name="connection_data"):
         if not file_name.endswith(".pickle"):
